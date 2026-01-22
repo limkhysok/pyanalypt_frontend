@@ -39,3 +39,34 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# OS Files
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Editor Directories
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Project Data & Large Files (Prevent accidental pushes of datasets)
+*.csv
+*.xlsx
+*.xls
+*.parquet
+*.db
+*.sqlite
+*.sql
+
+# Large Media
+*.mp4
+*.mov
+*.avi
+*.wmv
+
+# Local Fonts (Optional: comment out if you want to push fonts)
+# src/fonts/*.ttf
+# src/fonts/*.otf
+# src/fonts/*.woff2
