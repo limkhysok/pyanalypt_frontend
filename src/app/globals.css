@@ -87,7 +87,7 @@
   }
 
   .glass-card {
-    @apply bg-zinc-900/50 backdrop-blur-lg border border-white/5 shadow-xl rounded-xl transition-all duration-300 hover:bg-zinc-800/50 hover:border-white/10;
+    @apply bg-background/50 backdrop-blur-lg border border-border shadow-xl rounded-xl transition-all duration-300 hover:bg-accent/50 hover:border-accent;
   }
 
   /* Subtle glow instead of neon */

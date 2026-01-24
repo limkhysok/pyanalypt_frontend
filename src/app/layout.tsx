@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ThemeProvider } from "@/components/theme-provider";
 
 // Configuration for Local Fonts
 // INSTRUCTIONS: Drop your font files in `src/fonts/` and update the paths below.
@@ -30,22 +31,35 @@ export const metadata: Metadata = {
 
 import { Navbar } from "@/components/layout/Navbar";
 
+import { Footer } from "@/components/layout/Footer";
+
+import { CursorFollower } from "@/components/ui/cursor-follower";
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" suppressHydrationWarning>
       <body
-        className={`${customFont.variable} antialiased VscScroolbar font-sans`}
+        className={`${customFont.variable} antialiased VscScroolbar font-sans bg-background text-foreground`}
       >
-        <TooltipProvider>
-          <Navbar />
-          <div className="pt-16">
-            {children}
-          </div>
-        </TooltipProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <TooltipProvider>
+            <CursorFollower />
+            <Navbar />
+            <div className="pt-16 min-h-screen">
+              {children}
+            </div>
+            <Footer />
+          </TooltipProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
