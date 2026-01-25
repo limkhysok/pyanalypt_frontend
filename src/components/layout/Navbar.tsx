@@ -16,19 +16,42 @@ import {
     navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 
+import { motion, useScroll, useMotionValueEvent } from "framer-motion";
+
 export function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
+    const [scrolled, setScrolled] = React.useState(false);
+    const { scrollY } = useScroll();
+
+    useMotionValueEvent(scrollY, "change", (latest) => {
+        setScrolled(latest > 50);
+    });
 
     return (
-        <div className="w-full border-b border-border/40 bg-background/80 backdrop-blur-xl fixed top-0 z-50 transition-colors duration-300">
+        <motion.div
+            initial={{ y: -100 }}
+            animate={{ y: 0 }}
+            transition={{ duration: 0.6 }}
+            className={cn(
+                "w-full fixed top-0 z-50 transition-all duration-300 border-b",
+                scrolled
+                    ? "border-border/40 bg-background/80 backdrop-blur-xl py-2"
+                    : "border-transparent bg-transparent py-4"
+            )}
+        >
             <div className="flex items-center justify-between px-6 md:px-12 h-16 max-w-[1700px] mx-auto">
 
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2 group">
-                    <div className="p-1.5 rounded-lg bg-foreground text-background transition-transform group-hover:scale-110">
-                        <Sparkles size={18} fill="currentColor" />
+                    <div className="p-1.5 rounded-lg bg-foreground text-background transition-transform group-hover:scale-110 relative overflow-hidden">
+                        <motion.div
+                            whileHover={{ rotate: 180 }}
+                            transition={{ duration: 0.5 }}
+                        >
+                            <Sparkles size={16} fill="currentColor" />
+                        </motion.div>
                     </div>
-                    <span className="text-xl font-bold tracking-tight text-foreground">
+                    <span className="text-lg font-bold tracking-tight text-foreground group-hover:opacity-80 transition-opacity">
                         PyAnalypt
                     </span>
                 </Link>
@@ -36,37 +59,38 @@ export function Navbar() {
                 {/* Center Menu - Desktop */}
                 <div className="hidden md:flex">
                     <NavigationMenu>
-                        <NavigationMenuList>
+                        <NavigationMenuList className="gap-2">
                             <NavigationMenuItem>
-                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
+                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
                                     <Link href="/">
                                         Home
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
-                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
-                                    <Link href="#">
+                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
+                                    <Link href="/templates" className="flex items-center gap-2">
                                         Templates
+                                        <span className="px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold border border-primary/20">NEW</span>
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
-                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
+                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
                                     <Link href="#">
                                         Product
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
-                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
+                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
                                     <Link href="#">
                                         Pricing
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
-                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
+                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
                                     <Link href="#">
                                         Docs
                                     </Link>
@@ -121,6 +145,6 @@ export function Navbar() {
                     </div>
                 </div>
             )}
-        </div>
+        </motion.div>
     );
 }

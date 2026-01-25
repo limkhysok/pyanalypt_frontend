@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Sparkles, Github, Twitter, Linkedin } from "lucide-react";
+import { Sparkles, Github } from "lucide-react";
 
 export function Footer() {
     return (
@@ -58,19 +58,18 @@ export function Footer() {
 
                 {/* Bottom Bar */}
                 <div className="pt-8 border-t border-border/40 flex flex-col md:flex-row justify-between items-center gap-4">
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-xs text-muted-foreground font-medium">
                         © {new Date().getFullYear()} PyAnalypt Inc. All rights reserved.
                     </p>
 
                     <div className="flex items-center gap-4">
-                        <Link href="https://github.com/soklimkhy/pyanalypt_frontend" target="_blank" className="p-2 rounded-full bg-secondary/50 text-muted-foreground hover:bg-foreground hover:text-background transition-all">
-                            <Github size={16} />
-                        </Link>
-                        <Link href="#" className="p-2 rounded-full bg-secondary/50 text-muted-foreground hover:bg-foreground hover:text-background transition-all">
-                            <Twitter size={16} />
-                        </Link>
-                        <Link href="#" className="p-2 rounded-full bg-secondary/50 text-muted-foreground hover:bg-foreground hover:text-background transition-all">
-                            <Linkedin size={16} />
+                        <Link
+                            href="https://github.com/soklimkhy/pyanalypt_frontend"
+                            target="_blank"
+                            className="group flex items-center gap-2 px-4 py-2 rounded-full bg-secondary/30 border border-white/5 hover:bg-foreground hover:text-background transition-all duration-300"
+                        >
+                            <Github size={18} />
+                            <span className="text-xs font-semibold">Star on GitHub</span>
                         </Link>
                     </div>
                 </div>
