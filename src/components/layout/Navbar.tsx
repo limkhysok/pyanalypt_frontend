@@ -71,27 +71,26 @@ export function Navbar() {
                                 <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
                                     <Link href="/templates" className="flex items-center gap-2">
                                         Templates
-                                        <span className="px-1.5 py-0.5 rounded-full bg-primary/10 text-primary text-[10px] font-bold border border-primary/20">NEW</span>
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
                                 <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
-                                    <Link href="#">
+                                    <Link href="/product">
                                         Product
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
                                 <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
-                                    <Link href="#">
+                                    <Link href="/pricing">
                                         Pricing
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
                             <NavigationMenuItem>
                                 <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
-                                    <Link href="#">
+                                    <Link href="/docs">
                                         Docs
                                     </Link>
                                 </NavigationMenuLink>
@@ -108,11 +107,15 @@ export function Navbar() {
                         </Link>
                     </Button>
                     <ModeToggle />
-                    <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
-                        Log in
+                    <Button variant="ghost" className="text-muted-foreground hover:text-foreground" asChild>
+                        <Link href="/login">
+                            Log in
+                        </Link>
                     </Button>
-                    <Button className="bg-foreground text-background hover:bg-foreground/90">
-                        Register
+                    <Button className="bg-foreground text-background hover:bg-foreground/90" asChild>
+                        <Link href="/register">
+                            Register
+                        </Link>
                     </Button>
                 </div>
 
