@@ -2,9 +2,6 @@ import type { Metadata } from "next";
 // import { Geist, Geist_Mono } from "next/font/google"; // Disabled for local fonts
 import localFont from "next/font/local";
 import "./globals.css";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { ThemeProvider } from "@/components/theme-provider";
-
 // Configuration for Local Fonts
 // INSTRUCTIONS: Drop your font files in `src/fonts/` and update the paths below.
 const customFont = localFont({
@@ -35,6 +32,8 @@ import { Footer } from "@/components/layout/Footer";
 
 import { CursorFollower } from "@/components/ui/cursor-follower";
 
+import { Providers } from "@/components/providers";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -45,21 +44,14 @@ export default function RootLayout({
       <body
         className={`${customFont.variable} antialiased VscScroolbar font-sans bg-background text-foreground`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <TooltipProvider>
-            <CursorFollower />
-            <Navbar />
-            <div className="pt-16 min-h-screen">
-              {children}
-            </div>
-            <Footer />
-          </TooltipProvider>
-        </ThemeProvider>
+        <Providers>
+          <CursorFollower />
+          <Navbar />
+          <div className="pt-16 min-h-screen">
+            {children}
+          </div>
+          <Footer />
+        </Providers>
       </body>
     </html>
   );

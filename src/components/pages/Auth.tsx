@@ -2,16 +2,17 @@
 
 import React from "react";
 import Link from "next/link";
-import { Sparkles, Github, Mail, Lock, User, ArrowRight, Loader2 } from "lucide-react";
+import { Sparkles, Github, Mail, Lock, User, ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-// import { Checkbox } from "@/components/ui/checkbox"; 
 import { cn } from "@/lib/utils";
+import { useGoogleLogin } from "@react-oauth/google";
+import { useRouter } from "next/navigation";
+import { authApi, getErrorMessage, formatFieldErrors } from "@/services/api";
 
 // Shared Layout Component
 function AuthLayout({ children, title, subtitle }: { children: React.ReactNode, title: string, subtitle: string }) {
     return (
         <main className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-background text-foreground p-4">
-            {/* Background Ambience */}
             {/* Background Ambience */}
             <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0 overflow-hidden">
                 <div className="absolute top-[20%] left-[20%] w-[600px] h-[600px] bg-foreground/5 rounded-full blur-[120px] translate-z-0" />
@@ -36,13 +37,43 @@ function AuthLayout({ children, title, subtitle }: { children: React.ReactNode, 
 }
 
 export function LoginPage() {
+    const router = useRouter();
     const [isLoading, setIsLoading] = React.useState(false);
+    const [email, setEmail] = React.useState("");
+    const [password, setPassword] = React.useState("");
+    const [error, setError] = React.useState<string | null>(null);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        setTimeout(() => setIsLoading(false), 2000); // Mock API call
+        setError(null);
+
+        try {
+            await authApi.login({ email, password });
+            router.push("/docs"); // Redirect to a dashboard or protected page
+        } catch (err) {
+            setError(getErrorMessage(err));
+        } finally {
+            setIsLoading(false);
+        }
     };
+
+    const loginWithGoogle = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            setIsLoading(true);
+            setError(null);
+            try {
+                await authApi.googleAuth(tokenResponse.access_token);
+                router.push("/docs");
+            } catch (err) {
+                setError(getErrorMessage(err));
+                setIsLoading(false);
+            }
+        },
+        onError: () => {
+            setError("Google login failed. Please try again.");
+        }
+    });
 
     return (
         <AuthLayout
@@ -50,6 +81,13 @@ export function LoginPage() {
             subtitle="Enter your details to access your workspace."
         >
             <form onSubmit={handleSubmit} className="space-y-4">
+                {error && (
+                    <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-xs flex items-center gap-2 border border-destructive/20 animate-in fade-in slide-in-from-top-1">
+                        <AlertCircle size={14} />
+                        {error}
+                    </div>
+                )}
+
                 <div className="space-y-2">
                     <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" htmlFor="email">
                         Email
@@ -59,6 +97,8 @@ export function LoginPage() {
                         <input
                             id="email"
                             type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                             placeholder="name@example.com"
                             className="flex h-10 w-full rounded-md border border-input bg-background/50 px-3 pl-10 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                             required
@@ -79,6 +119,8 @@ export function LoginPage() {
                         <input
                             id="password"
                             type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                             placeholder="••••••••"
                             className="flex h-10 w-full rounded-md border border-input bg-background/50 px-3 pl-10 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                             required
@@ -97,7 +139,13 @@ export function LoginPage() {
                 </div>
 
                 <div className="w-full">
-                    <Button variant="outline" type="button" disabled={isLoading} className="w-full">
+                    <Button
+                        variant="outline"
+                        type="button"
+                        disabled={isLoading}
+                        className="w-full"
+                        onClick={() => loginWithGoogle()}
+                    >
                         <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                             <path
                                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -132,13 +180,65 @@ export function LoginPage() {
 }
 
 export function RegisterPage() {
+    const router = useRouter();
     const [isLoading, setIsLoading] = React.useState(false);
+    const [fullName, setFullName] = React.useState("");
+    const [email, setEmail] = React.useState("");
+    const [password, setPassword] = React.useState("");
+    const [error, setError] = React.useState<string | null>(null);
+    const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsLoading(true);
-        setTimeout(() => setIsLoading(false), 2000);
+        setError(null);
+        setFieldErrors({});
+
+        // Simple name parsing for Django registration expectation
+        const names = fullName.trim().split(" ");
+        const first_name = names[0] || "";
+        const last_name = names.slice(1).join(" ") || "";
+        const username = email.split("@")[0].replace(/[^a-zA-Z0-9]/g, "") + Math.floor(Math.random() * 1000);
+
+        try {
+            await authApi.register({
+                email,
+                username,
+                first_name,
+                last_name,
+                full_name: fullName,
+                password1: password,
+                password2: password
+            });
+            router.push("/docs");
+        } catch (err) {
+            const formattedErrors = formatFieldErrors(err);
+            if (formattedErrors) {
+                setFieldErrors(formattedErrors);
+            } else {
+                setError(getErrorMessage(err));
+            }
+        } finally {
+            setIsLoading(false);
+        }
     };
+
+    const loginWithGoogle = useGoogleLogin({
+        onSuccess: async (tokenResponse) => {
+            setIsLoading(true);
+            setError(null);
+            try {
+                await authApi.googleAuth(tokenResponse.access_token);
+                router.push("/docs");
+            } catch (err) {
+                setError(getErrorMessage(err));
+                setIsLoading(false);
+            }
+        },
+        onError: () => {
+            setError("Google registration failed. Please try again.");
+        }
+    });
 
     return (
         <AuthLayout
@@ -146,6 +246,13 @@ export function RegisterPage() {
             subtitle="Start your data journey with PyAnalypt today."
         >
             <form onSubmit={handleSubmit} className="space-y-4">
+                {error && (
+                    <div className="p-3 rounded-lg bg-destructive/10 text-destructive text-xs flex items-center gap-2 border border-destructive/20 animate-in fade-in slide-in-from-top-1">
+                        <AlertCircle size={14} />
+                        {error}
+                    </div>
+                )}
+
                 <div className="space-y-2">
                     <label className="text-sm font-medium leading-none" htmlFor="name">
                         Full Name
@@ -155,11 +262,17 @@ export function RegisterPage() {
                         <input
                             id="name"
                             type="text"
+                            value={fullName}
+                            onChange={(e) => setFullName(e.target.value)}
                             placeholder="John Doe"
-                            className="flex h-10 w-full rounded-md border border-input bg-background/50 px-3 pl-10 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            className={cn(
+                                "flex h-10 w-full rounded-md border border-input bg-background/50 px-3 pl-10 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                                fieldErrors.full_name && "border-destructive ring-destructive"
+                            )}
                             required
                         />
                     </div>
+                    {fieldErrors.full_name && <p className="text-[10px] text-destructive">{fieldErrors.full_name}</p>}
                 </div>
                 <div className="space-y-2">
                     <label className="text-sm font-medium leading-none" htmlFor="email">
@@ -170,11 +283,17 @@ export function RegisterPage() {
                         <input
                             id="email"
                             type="email"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
                             placeholder="name@example.com"
-                            className="flex h-10 w-full rounded-md border border-input bg-background/50 px-3 pl-10 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            className={cn(
+                                "flex h-10 w-full rounded-md border border-input bg-background/50 px-3 pl-10 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                                (fieldErrors.email || fieldErrors.username) && "border-destructive ring-destructive"
+                            )}
                             required
                         />
                     </div>
+                    {fieldErrors.email && <p className="text-[10px] text-destructive">{fieldErrors.email}</p>}
                 </div>
                 <div className="space-y-2">
                     <label className="text-sm font-medium leading-none" htmlFor="password">
@@ -185,11 +304,17 @@ export function RegisterPage() {
                         <input
                             id="password"
                             type="password"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
                             placeholder="••••••••"
-                            className="flex h-10 w-full rounded-md border border-input bg-background/50 px-3 pl-10 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            className={cn(
+                                "flex h-10 w-full rounded-md border border-input bg-background/50 px-3 pl-10 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                                fieldErrors.password1 && "border-destructive ring-destructive"
+                            )}
                             required
                         />
                     </div>
+                    {fieldErrors.password1 && <p className="text-[10px] text-destructive">{fieldErrors.password1}</p>}
                 </div>
 
                 <Button className="w-full bg-foreground text-background hover:bg-foreground/90 mt-2" disabled={isLoading}>
@@ -203,7 +328,13 @@ export function RegisterPage() {
                 </div>
 
                 <div className="w-full">
-                    <Button variant="outline" type="button" disabled={isLoading} className="w-full">
+                    <Button
+                        variant="outline"
+                        type="button"
+                        disabled={isLoading}
+                        className="w-full"
+                        onClick={() => loginWithGoogle()}
+                    >
                         <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
                             <path
                                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
