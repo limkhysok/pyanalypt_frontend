@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { Sparkles, Menu, X, Github } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/utils";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/ModeToggle";
 import {

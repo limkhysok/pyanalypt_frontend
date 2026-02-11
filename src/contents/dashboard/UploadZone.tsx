@@ -4,7 +4,7 @@ import React, { useState, useRef } from "react";
 import { Upload, FileText, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/utils";
 
 interface UploadZoneProps {
     onUploadSuccess: () => void;

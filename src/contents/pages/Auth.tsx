@@ -4,7 +4,7 @@ import React from "react";
 import Link from "next/link";
 import { Sparkles, Github, Mail, Lock, User, ArrowRight, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { cn } from "@/utils/utils";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useRouter } from "next/navigation";
 import { authApi, getErrorMessage, formatFieldErrors } from "@/services/api";
