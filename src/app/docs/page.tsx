@@ -1,2 +1,2 @@
-import { DocsPage } from "@/components/pages/DocsPage";
+import { DocsPage } from "@/contents/pages/DocsPage";
 export default function Docs() { return <DocsPage />; }

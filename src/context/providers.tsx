@@ -1,7 +1,7 @@
 'use client';
 
 import { GoogleOAuthProvider } from '@react-oauth/google';
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/context/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
 export function Providers({ children }: { children: React.ReactNode }) {

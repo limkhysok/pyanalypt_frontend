@@ -1,2 +1,2 @@
-import { ProductPage } from "@/components/pages/ProductPage";
+import { ProductPage } from "@/contents/pages/ProductPage";
 export default function Product() { return <ProductPage />; }

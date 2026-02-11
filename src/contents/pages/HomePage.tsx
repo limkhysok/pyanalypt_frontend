@@ -1,11 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { UploadZone } from "@/components/dashboard/UploadZone";
-import { VisualizationPanel, LandingPageCharts } from "@/components/dashboard/VisualizationPanel";
-// import { StatsPanel } from "@/components/dashboard/StatsPanel"; // Note: not used in current layout, can re-add if needed
+import { UploadZone } from "@/contents/dashboard/UploadZone";
+import { VisualizationPanel, LandingPageCharts } from "@/contents/dashboard/VisualizationPanel";
+// import { StatsPanel } from "@/contents/dashboard/StatsPanel"; // Note: not used in current layout, can re-add if needed
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import { HeroSection, FeatureSection } from "@/components/pages/LandingSections";
+import { HeroSection, FeatureSection } from "@/contents/pages/LandingSections";
 import { Sparkles } from "lucide-react";
 
 import { LogoTicker } from "@/components/ui/logo-ticker";
