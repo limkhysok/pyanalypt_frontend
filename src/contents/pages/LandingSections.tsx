@@ -59,7 +59,7 @@ import { TiltCard } from "@/components/ui/tilt-card";
 
 export function FeatureSection() {
     return (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-20">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-10">
             {[
                 { title: "Instant Visualization", desc: "Drag & drop CSVs to see immediate charts and graphs." },
                 { title: "AI-Driven Insights", desc: "Our engine automatically detects patterns and anomalies." },
