@@ -182,7 +182,6 @@ export function LoginPage() {
 export function RegisterPage() {
     const router = useRouter();
     const [isLoading, setIsLoading] = React.useState(false);
-    const [fullName, setFullName] = React.useState("");
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
     const [error, setError] = React.useState<string | null>(null);
@@ -194,11 +193,11 @@ export function RegisterPage() {
         setError(null);
         setFieldErrors({});
 
-        // Simple name parsing for Django registration expectation
-        const names = fullName.trim().split(" ");
-        const first_name = names[0] || "";
-        const last_name = names.slice(1).join(" ") || "";
-        const username = email.split("@")[0].replace(/[^a-zA-Z0-9]/g, "") + Math.floor(Math.random() * 1000);
+        // Derive necessary fields from email since Full Name was removed
+        const emailPrefix = email.split("@")[0].replace(/[^a-zA-Z0-9]/g, "");
+        const username = emailPrefix + Math.floor(Math.random() * 1000);
+        const first_name = emailPrefix;
+        const last_name = "";
 
         try {
             await authApi.register({
@@ -206,7 +205,7 @@ export function RegisterPage() {
                 username,
                 first_name,
                 last_name,
-                full_name: fullName,
+                full_name: emailPrefix, // Using prefix as placeholder
                 password1: password,
                 password2: password
             });
@@ -253,27 +252,7 @@ export function RegisterPage() {
                     </div>
                 )}
 
-                <div className="space-y-2">
-                    <label className="text-sm font-medium leading-none" htmlFor="name">
-                        Full Name
-                    </label>
-                    <div className="relative">
-                        <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                        <input
-                            id="name"
-                            type="text"
-                            value={fullName}
-                            onChange={(e) => setFullName(e.target.value)}
-                            placeholder="John Doe"
-                            className={cn(
-                                "flex h-10 w-full rounded-md border border-input bg-background/50 px-3 pl-10 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-                                fieldErrors.full_name && "border-destructive ring-destructive"
-                            )}
-                            required
-                        />
-                    </div>
-                    {fieldErrors.full_name && <p className="text-[10px] text-destructive">{fieldErrors.full_name}</p>}
-                </div>
+
                 <div className="space-y-2">
                     <label className="text-sm font-medium leading-none" htmlFor="email">
                         Email
