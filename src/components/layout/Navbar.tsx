@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Sparkles, Menu, X, Github } from "lucide-react";
+import { Sparkles, Menu, X, Github, Home, BarChart3, FlaskConical, BookOpen } from "lucide-react";
 import { cn } from "@/utils/utils";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/ModeToggle";
@@ -62,29 +62,32 @@ export function Navbar() {
                         <NavigationMenuList className="gap-2">
                             <NavigationMenuItem>
                                 <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
-                                    <Link href="/">
-                                        Home
+                                    <Link href="/" className="flex items-center gap-2">
+                                        <Home size={16} /> Home
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
+
                             <NavigationMenuItem>
                                 <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
                                     <Link href="/templates" className="flex items-center gap-2">
-                                        Visualizations
+                                        <BarChart3 size={16} /> Visualizations
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
+
                             <NavigationMenuItem>
                                 <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
-                                    <Link href="/playground">
-                                        Playground
+                                    <Link href="/playground" className="flex items-center gap-2">
+                                        <FlaskConical size={16} /> Playground
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
+
                             <NavigationMenuItem>
                                 <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
-                                    <Link href="/docs">
-                                        Docs
+                                    <Link href="/docs" className="flex items-center gap-2">
+                                        <BookOpen size={16} /> Docs
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
@@ -129,10 +132,18 @@ export function Navbar() {
             {/* Mobile Menu Dropdown */}
             {mobileMenuOpen && (
                 <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-xl absolute w-full p-4 flex flex-col gap-2 shadow-2xl animate-in slide-in-from-top-5">
-                    <Link href="/" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors">Home</Link>
-                    <Link href="/templates" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors">Visualizations</Link>
-                    <Link href="/playground" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors">Playground</Link>
-                    <Link href="/docs" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors">Docs</Link>
+                    <Link href="/" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors flex items-center gap-3">
+                        <Home size={18} /> Home
+                    </Link>
+                    <Link href="/templates" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors flex items-center gap-3">
+                        <BarChart3 size={18} /> Visualizations
+                    </Link>
+                    <Link href="/playground" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors flex items-center gap-3">
+                        <FlaskConical size={18} /> Playground
+                    </Link>
+                    <Link href="/docs" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors flex items-center gap-3">
+                        <BookOpen size={18} /> Docs
+                    </Link>
                     <div className="h-px bg-border my-2" />
                     <div className="flex gap-4 p-2">
                         <Button variant="ghost" className="flex-1 text-muted-foreground hover:text-foreground">Log in</Button>

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Sparkles, Github } from "lucide-react";
+import { Sparkles, Github, Home, BarChart3, FlaskConical, BookOpen } from "lucide-react";
 
 export function Footer() {
     return (
@@ -27,10 +27,11 @@ export function Footer() {
                     <div className="space-y-4">
                         <h4 className="font-semibold text-foreground tracking-tight">Platform</h4>
                         <ul className="space-y-2 text-sm text-muted-foreground">
-                            <li><Link href="/templates" className="hover:text-foreground transition-colors">Visualizations</Link></li>
-                            <li><Link href="/playground" className="hover:text-foreground transition-colors">Playground</Link></li>
-                            <li><Link href="/docs" className="hover:text-foreground transition-colors">Documentation</Link></li>
-                            <li><Link href="/docs" className="hover:text-foreground transition-colors">API Reference</Link></li>
+                            <li><Link href="/" className="hover:text-foreground transition-colors flex items-center gap-2"><Home size={14} /> Home</Link></li>
+                            <li><Link href="/templates" className="hover:text-foreground transition-colors flex items-center gap-2"><BarChart3 size={14} /> Visualizations</Link></li>
+                            <li><Link href="/playground" className="hover:text-foreground transition-colors flex items-center gap-2"><FlaskConical size={14} /> Playground</Link></li>
+                            <li><Link href="/docs" className="hover:text-foreground transition-colors flex items-center gap-2"><BookOpen size={14} /> Documentation</Link></li>
+                            <li><Link href="/docs" className="hover:text-foreground transition-colors flex items-center gap-2"><BookOpen size={14} /> API Reference</Link></li>
                         </ul>
                     </div>
 
