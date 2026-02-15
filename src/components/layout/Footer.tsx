@@ -28,6 +28,7 @@ export function Footer() {
                         <h4 className="font-semibold text-foreground tracking-tight">Platform</h4>
                         <ul className="space-y-2 text-sm text-muted-foreground">
                             <li><Link href="/templates" className="hover:text-foreground transition-colors">Visualizations</Link></li>
+                            <li><Link href="/playground" className="hover:text-foreground transition-colors">Playground</Link></li>
                             <li><Link href="/docs" className="hover:text-foreground transition-colors">Documentation</Link></li>
                             <li><Link href="/docs" className="hover:text-foreground transition-colors">API Reference</Link></li>
                         </ul>

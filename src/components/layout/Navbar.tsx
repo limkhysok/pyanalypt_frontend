@@ -76,6 +76,13 @@ export function Navbar() {
                             </NavigationMenuItem>
                             <NavigationMenuItem>
                                 <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
+                                    <Link href="/playground">
+                                        Playground
+                                    </Link>
+                                </NavigationMenuLink>
+                            </NavigationMenuItem>
+                            <NavigationMenuItem>
+                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
                                     <Link href="/docs">
                                         Docs
                                     </Link>
@@ -124,6 +131,7 @@ export function Navbar() {
                 <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-xl absolute w-full p-4 flex flex-col gap-2 shadow-2xl animate-in slide-in-from-top-5">
                     <Link href="/" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors">Home</Link>
                     <Link href="/templates" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors">Visualizations</Link>
+                    <Link href="/playground" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors">Playground</Link>
                     <Link href="/docs" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors">Docs</Link>
                     <div className="h-px bg-border my-2" />
                     <div className="flex gap-4 p-2">
