@@ -128,7 +128,7 @@ function VisualizationPanel() {
 
     return (
         <div className="space-y-6 px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {charts.map((chart, i) => (
                     <TiltCard key={i} className="border-0 group" classNameContent="p-0 bg-background/40 backdrop-blur-sm rounded-lg overflow-hidden border border-white/5 flex flex-col">
                         <CardHeader className="pb-2 flex flex-row items-center justify-between">
