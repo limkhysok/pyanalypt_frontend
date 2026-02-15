@@ -23,35 +23,24 @@ export function Footer() {
                         </p>
                     </div>
 
-                    {/* Product */}
+                    {/* Platform */}
                     <div className="space-y-4">
-                        <h4 className="font-semibold text-foreground tracking-tight">Product</h4>
+                        <h4 className="font-semibold text-foreground tracking-tight">Platform</h4>
                         <ul className="space-y-2 text-sm text-muted-foreground">
-                            <li><Link href="#" className="hover:text-foreground transition-colors">Features</Link></li>
                             <li><Link href="/templates" className="hover:text-foreground transition-colors">Visualizations</Link></li>
-                            <li><Link href="#" className="hover:text-foreground transition-colors">Integrations</Link></li>
+                            <li><Link href="/docs" className="hover:text-foreground transition-colors">Documentation</Link></li>
+                            <li><Link href="/docs" className="hover:text-foreground transition-colors">API Reference</Link></li>
+                        </ul>
+                    </div>
+
+                    {/* Community */}
+                    <div className="space-y-4">
+                        <h4 className="font-semibold text-foreground tracking-tight">Community</h4>
+                        <ul className="space-y-2 text-sm text-muted-foreground">
+                            <li><Link href="https://github.com/soklimkhy/pyanalypt_frontend" target="_blank" className="hover:text-foreground transition-colors">GitHub Repository</Link></li>
+                            <li><Link href="#" className="hover:text-foreground transition-colors">Discussions</Link></li>
                             <li><Link href="#" className="hover:text-foreground transition-colors">Changelog</Link></li>
-                        </ul>
-                    </div>
-
-                    {/* Resources */}
-                    <div className="space-y-4">
-                        <h4 className="font-semibold text-foreground tracking-tight">Resources</h4>
-                        <ul className="space-y-2 text-sm text-muted-foreground">
-                            <li><Link href="#" className="hover:text-foreground transition-colors">Documentation</Link></li>
-                            <li><Link href="#" className="hover:text-foreground transition-colors">API Reference</Link></li>
-                            <li><Link href="#" className="hover:text-foreground transition-colors">Community</Link></li>
                             <li><Link href="#" className="hover:text-foreground transition-colors">Blog</Link></li>
-                        </ul>
-                    </div>
-
-                    {/* Legal */}
-                    <div className="space-y-4">
-                        <h4 className="font-semibold text-foreground tracking-tight">Legal</h4>
-                        <ul className="space-y-2 text-sm text-muted-foreground">
-                            <li><Link href="#" className="hover:text-foreground transition-colors">Privacy Policy</Link></li>
-                            <li><Link href="#" className="hover:text-foreground transition-colors">Terms of Service</Link></li>
-                            <li><Link href="#" className="hover:text-foreground transition-colors">Cookie Policy</Link></li>
                         </ul>
                     </div>
                 </div>
