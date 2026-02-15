@@ -7,7 +7,7 @@ import {
     Layers, Share2, Zap, Target, Map as MapIcon, Calendar, Table, Filter,
     Layout, Network, Workflow, TrendingDown, Search, Database, Clock, Globe,
     MousePointer2, Percent, ArrowRight, Flame, Compass, Cpu, Briefcase,
-    Glasses, HeartPulse, Gauge, Trello, MoreHorizontal, Circle, Copy, Check
+    Glasses, HeartPulse, Gauge, Trello, MoreHorizontal, Circle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactECharts from "echarts-for-react";
@@ -132,8 +132,21 @@ const getChartConfig = (type: string, data: number[]) => {
             return {
                 ...common,
                 series: [
-                    { type: 'bar', stack: 'all', itemStyle: { normal: { barBorderColor: 'rgba(0,0,0,0)', color: 'rgba(0,0,0,0)' }, emphasis: { barBorderColor: 'rgba(0,0,0,0)', color: 'rgba(0,0,0,0)' } }, data: [0, 900, 1245, 1530, 1376] },
-                    { type: 'bar', stack: 'all', data: [900, 345, 285, -154, -1376].map(v => ({ value: v, itemStyle: { color: v > 0 ? colors.success : colors.primary } })) }
+                    {
+                        type: 'bar',
+                        stack: 'all',
+                        itemStyle: { color: 'transparent', borderColor: 'transparent' },
+                        emphasis: { itemStyle: { color: 'transparent', borderColor: 'transparent' } },
+                        data: [0, data[0], data[0] + data[1], data[0] + data[1] + data[2], data[0] + data[1] + data[2] - data[3]]
+                    },
+                    {
+                        type: 'bar',
+                        stack: 'all',
+                        data: [data[0], data[1], data[2], -data[3], -(data[0] + data[1] + data[2] - data[3])].map(v => ({
+                            value: Math.abs(v),
+                            itemStyle: { color: v >= 0 ? colors.success : colors.primary }
+                        }))
+                    }
                 ]
             };
         case "Gauge Chart":
@@ -146,6 +159,10 @@ const getChartConfig = (type: string, data: number[]) => {
                 ...common,
                 series: [{
                     type: 'sankey',
+                    left: '10%',
+                    right: '10%',
+                    top: '15%',
+                    bottom: '15%',
                     data: [{ name: 'a' }, { name: 'b' }, { name: 'a1' }, { name: 'a2' }],
                     links: [{ source: 'a', target: 'a1', value: 5 }, { source: 'a', target: 'a2', value: 3 }, { source: 'b', target: 'a1', value: 8 }],
                     lineStyle: { color: 'source', curveness: 0.5 },
@@ -221,15 +238,6 @@ const itemVariants = {
 
 export function VisualizationsPage() {
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
-    const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
-
-    const handleCopy = (type: string, index: number) => {
-        const dummyData = Array.from({ length: 14 }, () => 40 + Math.random() * 20);
-        const config = getChartConfig(type, dummyData);
-        navigator.clipboard.writeText(JSON.stringify(config, null, 2));
-        setCopiedIndex(index);
-        setTimeout(() => setCopiedIndex(null), 2000);
-    };
 
     return (
         <main className="min-h-screen bg-background text-foreground pt-24 pb-16 px-6 md:px-12 selection:bg-primary/20 overflow-x-hidden">
@@ -278,22 +286,6 @@ export function VisualizationsPage() {
                                         <div className="w-full h-full max-h-[220px]">
                                             <RealisticChart type={template.name} isHovered={hoveredIndex === i} />
                                         </div>
-                                    </div>
-
-                                    {/* Action Buttons Overlay */}
-                                    <div className="absolute top-6 right-6 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all duration-500 translate-y-2 group-hover:translate-y-0">
-                                        <button
-                                            onClick={() => handleCopy(template.name, i)}
-                                            className="p-3 rounded-2xl bg-background/80 backdrop-blur-md border border-border hover:bg-primary hover:text-white transition-all duration-300 pointer-events-auto shadow-xl flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest"
-                                        >
-                                            {copiedIndex === i ? <Check size={14} /> : <Copy size={14} />}
-                                            {copiedIndex === i ? "Copied!" : "Copy Config"}
-                                        </button>
-                                    </div>
-
-                                    {/* Icon Overlay */}
-                                    <div className="absolute top-6 left-6 p-2 rounded-xl bg-background/50 backdrop-blur-md border border-border group-hover:opacity-0 transition-opacity duration-1200">
-                                        <Zap size={16} className="text-primary" />
                                     </div>
                                 </div>
 
