@@ -162,7 +162,7 @@ function VisualizationPanel() {
             <div className="flex justify-center mt-8">
                 <Button variant="outline" className="gap-2 rounded-full px-8 hover:bg-secondary/80 transition-colors" asChild>
                     <a href="/templates">
-                        Explore More Benchmarks <ArrowRight size={16} />
+                        Explore Visualization Library <ArrowRight size={16} />
                     </a>
                 </Button>
             </div>

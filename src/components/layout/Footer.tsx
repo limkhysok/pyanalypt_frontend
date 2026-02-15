@@ -28,7 +28,7 @@ export function Footer() {
                         <h4 className="font-semibold text-foreground tracking-tight">Product</h4>
                         <ul className="space-y-2 text-sm text-muted-foreground">
                             <li><Link href="#" className="hover:text-foreground transition-colors">Features</Link></li>
-                            <li><Link href="#" className="hover:text-foreground transition-colors">Templates</Link></li>
+                            <li><Link href="/templates" className="hover:text-foreground transition-colors">Visualizations</Link></li>
                             <li><Link href="#" className="hover:text-foreground transition-colors">Integrations</Link></li>
                             <li><Link href="#" className="hover:text-foreground transition-colors">Changelog</Link></li>
                         </ul>

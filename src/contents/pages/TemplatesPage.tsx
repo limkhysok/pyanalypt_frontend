@@ -219,7 +219,7 @@ const itemVariants = {
     visible: { y: 0, opacity: 1, transition: { type: "spring" as const, stiffness: 260, damping: 20 } }
 };
 
-export function TemplatesPage() {
+export function VisualizationsPage() {
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
     return (
@@ -229,11 +229,11 @@ export function TemplatesPage() {
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                     <div className="space-y-3">
                         <div className="flex items-center gap-2 text-primary font-bold text-xs tracking-[0.3em] uppercase">
-                            <Zap size={14} className="fill-primary" /> Analysis Engine
+                            <Zap size={14} className="fill-primary" /> Visual Library
                         </div>
-                        <h1 className="text-4xl md:text-6xl font-black tracking-tight">Gallery Templates</h1>
+                        <h1 className="text-4xl md:text-6xl font-black tracking-tight">Analytical Visualizations</h1>
                         <p className="text-muted-foreground text-lg max-w-xl italic">
-                            Real-time data simulation using ECharts architecture. Hover to activate live streams.
+                            Choose from our suite of high-performance charts to unlock deep insights from your datasets.
                         </p>
                     </div>
                 </div>

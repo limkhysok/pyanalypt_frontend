@@ -70,7 +70,7 @@ export function Navbar() {
                             <NavigationMenuItem>
                                 <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
                                     <Link href="/templates" className="flex items-center gap-2">
-                                        Templates
+                                        Visualizations
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
@@ -137,7 +137,7 @@ export function Navbar() {
             {mobileMenuOpen && (
                 <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-xl absolute w-full p-4 flex flex-col gap-2 shadow-2xl animate-in slide-in-from-top-5">
                     <Link href="/" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors">Home</Link>
-                    <Link href="#" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors">Templates</Link>
+                    <Link href="/templates" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors">Visualizations</Link>
                     <Link href="#" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors">Product</Link>
                     <Link href="#" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors">Pricing</Link>
                     <Link href="#" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors">Docs</Link>
