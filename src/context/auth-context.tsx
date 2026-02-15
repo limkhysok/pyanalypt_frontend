@@ -17,15 +17,37 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = useState<User | null>(() => {
-        // Initial state from localStorage for faster flicker-free UI
-        if (typeof window !== 'undefined') {
-            const savedUser = localStorage.getItem('user_data');
-            return savedUser ? JSON.parse(savedUser) : null;
-        }
-        return null;
-    });
+    const [user, setUser] = useState<User | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isInitialized, setIsInitialized] = useState(false);
+
+    // Sync from localStorage only ONCE on mount to avoid hydration mismatch
+    useEffect(() => {
+        const hydrate = () => {
+            console.log("[AuthContext] Hydrating state from localStorage...");
+            try {
+                const savedUser = localStorage.getItem('user_data');
+                const hasTokens = !!tokenManager.getAccessToken();
+
+                console.log("[AuthContext] Cached user:", savedUser ? "Found" : "None");
+                console.log("[AuthContext] Has tokens:", hasTokens);
+
+                if (savedUser) {
+                    const parsedUser = JSON.parse(savedUser);
+                    setUser(parsedUser);
+                    console.log("[AuthContext] User state hydrated:", parsedUser.username);
+                }
+            } catch (err) {
+                console.error("[AuthContext] Failed to hydrate auth state:", err);
+                localStorage.removeItem('user_data');
+            } finally {
+                setIsInitialized(true);
+                console.log("[AuthContext] Initialization complete.");
+            }
+        };
+
+        hydrate();
+    }, []);
 
     const logout = useCallback(() => {
         authApi.logout();
@@ -39,7 +61,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }, []);
 
     const refreshUser = useCallback(async () => {
+        console.log("[AuthContext] refreshUser() triggered");
+
         if (!tokenManager.isAuthenticated()) {
+            console.log("[AuthContext] No authentication tokens found. Clearing state.");
             setUser(null);
             localStorage.removeItem('user_data');
             setIsLoading(false);
@@ -47,27 +72,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
 
         try {
-            // Fetch fresh user data to stay in sync with backend
+            console.log("[AuthContext] Fetching fresh user data from backend...");
             const userData = await authApi.getCurrentUser();
+
             if (userData) {
+                console.log("[AuthContext] User data sync success:", userData.username);
+                // Fallback for missing username
+                if (!userData.username) {
+                    userData.username = userData.full_name || userData.first_name || userData.email.split('@')[0] || "User";
+                }
                 setUser(userData);
                 localStorage.setItem('user_data', JSON.stringify(userData));
-            } else if (!tokenManager.isAuthenticated()) {
-                // If fetching fails and we have no token, definitely log out
-                logout();
+            } else {
+                console.warn("[AuthContext] getCurrentUser() returned null.");
+                if (!tokenManager.isAuthenticated()) {
+                    console.log("[AuthContext] Token lost during fetch. Logging out.");
+                    setUser(null);
+                    localStorage.removeItem('user_data');
+                }
             }
-            // If fetching fails but we HAVE a token, we keep the existing state (cached)
-            // as it might be a temporary network issue or endpoint not ready
         } catch (error) {
-            console.error('Failed to synchronize user state:', error);
+            console.error("[AuthContext] Sync failed (Network/Backend Error):", error);
         } finally {
             setIsLoading(false);
+            console.log("[AuthContext] Loading finished. Authenticated: Yes");
         }
-    }, [logout]);
+    }, []); // Removed user dependency to prevent infinite loop
 
     useEffect(() => {
-        refreshUser();
-    }, [refreshUser]);
+        if (isInitialized) {
+            refreshUser();
+        }
+    }, [isInitialized, refreshUser]);
 
     return (
         <AuthContext.Provider value={{

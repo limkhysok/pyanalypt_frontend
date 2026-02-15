@@ -14,9 +14,11 @@ import {
 import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const stats = [
     { title: "Total Analyses", value: "128", icon: BarChart2, trend: "+12.5%", color: "text-blue-500" },
@@ -33,10 +35,13 @@ const recentActivity = [
 
 export function DashboardPage() {
     const { user, isAuthenticated, isLoading } = useAuth();
+    const router = useRouter();
 
-    if (!isLoading && !isAuthenticated) {
-        redirect("/login");
-    }
+    React.useEffect(() => {
+        if (!isLoading && !isAuthenticated) {
+            router.push("/login");
+        }
+    }, [isLoading, isAuthenticated, router]);
 
     if (isLoading) {
         return (

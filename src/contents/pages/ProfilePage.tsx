@@ -19,14 +19,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { motion } from "framer-motion";
-import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 export function ProfilePage() {
     const { user, isAuthenticated, isLoading, logout } = useAuth();
+    const router = useRouter();
 
-    if (!isLoading && !isAuthenticated) {
-        redirect("/login");
-    }
+    React.useEffect(() => {
+        if (!isLoading && !isAuthenticated) {
+            router.push("/login");
+        }
+    }, [isLoading, isAuthenticated, router]);
 
     if (isLoading) {
         return (
