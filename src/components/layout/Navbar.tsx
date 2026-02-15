@@ -140,7 +140,7 @@ export function Navbar() {
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem asChild>
-                                    <Link href="/docs" className="cursor-pointer">
+                                    <Link href="/dashboard" className="cursor-pointer">
                                         <LayoutDashboard className="mr-2 h-4 w-4" />
                                         <span>Dashboard</span>
                                     </Link>
@@ -226,7 +226,7 @@ export function Navbar() {
                                     <span className="text-[10px] text-muted-foreground truncate">{user?.email}</span>
                                 </div>
                             </div>
-                            <Link href="/docs" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors flex items-center gap-3">
+                            <Link href="/dashboard" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors flex items-center gap-3">
                                 <LayoutDashboard size={18} /> Dashboard
                             </Link>
                             <button
