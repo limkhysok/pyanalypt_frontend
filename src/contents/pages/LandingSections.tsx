@@ -9,6 +9,8 @@ interface HeroSectionProps {
 
 import { TypewriterEffect } from "@/components/ui/text-animation";
 
+import Link from "next/link";
+
 export function HeroSection({ onStart }: HeroSectionProps) {
     return (
         <section className="min-h-[80vh] flex flex-col items-center justify-center text-center space-y-8 relative overflow-hidden">
@@ -38,13 +40,16 @@ export function HeroSection({ onStart }: HeroSectionProps) {
             >
                 <button
                     onClick={onStart}
-                    className="px-8 py-4 rounded-full bg-foreground text-background font-semibold hover:opacity-90 transition-opacity"
+                    className="px-8 py-4 rounded-full bg-foreground text-background font-semibold hover:opacity-90 transition-opacity whitespace-nowrap"
                 >
                     Start Analyzing Free
                 </button>
-                <button className="px-8 py-4 rounded-full border border-border bg-background/50 hover:bg-secondary transition-colors font-semibold">
-                    View Demo
-                </button>
+                <Link
+                    href="/playground"
+                    className="px-8 py-4 rounded-full border border-border bg-background/50 hover:bg-secondary transition-colors font-semibold whitespace-nowrap"
+                >
+                    Live Sandbox
+                </Link>
             </motion.div>
 
             {/* Hero Background Elements */}

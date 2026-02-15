@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
-import { Zap, Upload, FileJson, BarChart3, PieChart, LineChart, Play, Database, FileText, ArrowRight } from "lucide-react";
+import { Zap, Upload, FileJson, BarChart3, PieChart, LineChart, Play, Database, FileText, ArrowRight, Download } from "lucide-react";
 import ReactECharts from "echarts-for-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -16,15 +16,24 @@ Apr,2400,1500
 May,2900,1800
 Jun,3500,2200`;
 
+const MAX_CHARS = 10000; // Protection Limit
+
 export function PlaygroundPage() {
     const [csvData, setCsvData] = useState(DEFAULT_CSV);
     const [chartType, setChartType] = useState<"bar" | "line" | "pie">("bar");
     const [error, setError] = useState<string | null>(null);
+    const echartsRef = useRef<any>(null);
 
     // --- Parser Engine ---
     const parsedData = useMemo(() => {
+        if (csvData.length > MAX_CHARS) {
+            setError(`Input exceeds ${MAX_CHARS} characters. Please reduce dataset size to prevent overhead.`);
+            return null;
+        }
         try {
             const rows = csvData.trim().split("\n");
+            if (rows.length < 2) return null;
+
             const headers = rows[0].split(",").map(h => h.trim());
             const body = rows.slice(1).map(row => row.split(",").map(cell => cell.trim()));
 
@@ -33,7 +42,10 @@ export function PlaygroundPage() {
             const series: any[] = [];
 
             for (let i = 1; i < headers.length; i++) {
-                const values = body.map(row => parseFloat(row[i]));
+                const values = body.map(row => {
+                    const val = parseFloat(row[i]);
+                    return isNaN(val) ? 0 : val;
+                });
                 series.push({
                     name: headers[i],
                     data: values
@@ -43,10 +55,24 @@ export function PlaygroundPage() {
             setError(null);
             return { categories, series };
         } catch (e) {
-            setError("Invalid CSV format. Please ensure comma-separated values.");
+            setError("Invalid CSV format. Ensure comma-separated values (Category, Value1, Value2...)");
             return null;
         }
     }, [csvData]);
+
+    const handleExport = (type: 'png' | 'svg') => {
+        if (!echartsRef.current) return;
+        const instance = echartsRef.current.getEchartsInstance();
+        const url = instance.getDataURL({
+            type: type,
+            pixelRatio: 2,
+            backgroundColor: '#09090b' // Match card background
+        });
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `pyanalypt-export-${Date.now()}.${type}`;
+        link.click();
+    };
 
     const option = useMemo(() => {
         if (!parsedData) return {};
@@ -94,7 +120,7 @@ export function PlaygroundPage() {
                     </div>
                     <h1 className="text-4xl md:text-6xl font-black tracking-tight italic">Interactive Playground</h1>
                     <p className="text-muted-foreground text-lg max-w-2xl">
-                        Upload or paste your CSV datasets to see instant, high-performance ECharts visualizations.
+                        Open-access visualization tool. Paste your raw datasets to generate high-performance ECharts within client-side safety limits.
                     </p>
                 </div>
 
@@ -102,23 +128,32 @@ export function PlaygroundPage() {
 
                     {/* Input Panel */}
                     <div className="xl:col-span-4 space-y-6">
-                        <Card className="bg-card/40 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-800 rounded-[2rem] overflow-hidden">
+                        <Card className="bg-card/40 backdrop-blur-xl border-2 border-zinc-200 dark:border-zinc-800 rounded-[2rem] overflow-hidden transition-all hover:border-primary/20">
                             <CardHeader className="border-b border-border pb-4">
-                                <CardTitle className="text-sm font-bold flex items-center gap-2">
-                                    <FileText size={16} className="text-primary" /> CSV Input
+                                <CardTitle className="text-sm font-bold flex items-center justify-between font-mono">
+                                    <div className="flex items-center gap-2">
+                                        <FileText size={16} className="text-primary" /> CSV Raw Data
+                                    </div>
+                                    <span className={`text-[10px] ${csvData.length > (MAX_CHARS * 0.8) ? 'text-red-500' : 'text-muted-foreground'}`}>
+                                        {csvData.length}/{MAX_CHARS}
+                                    </span>
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="p-6 space-y-4">
                                 <textarea
-                                    className="w-full h-64 bg-secondary/20 rounded-xl p-4 text-xs font-mono outline-none border border-border focus:border-primary/50 transition-colors resize-none"
+                                    className="w-full h-64 bg-secondary/10 rounded-xl p-4 text-xs font-mono outline-none border border-border focus:border-primary/50 transition-colors resize-none"
                                     value={csvData}
                                     onChange={(e) => setCsvData(e.target.value)}
-                                    placeholder="Paste CSV here..."
+                                    placeholder="Paste CSV here... (e.g. Month, Value1, Value2)"
                                 />
-                                {error && <p className="text-red-500 text-[10px] font-bold uppercase">{error}</p>}
+                                {error && (
+                                    <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20">
+                                        <p className="text-red-500 text-[10px] font-bold uppercase">{error}</p>
+                                    </div>
+                                )}
 
                                 <div className="space-y-2">
-                                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Select Visualization</p>
+                                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Architectural View</p>
                                     <div className="grid grid-cols-3 gap-2">
                                         {[
                                             { id: 'bar', icon: BarChart3 },
@@ -136,30 +171,48 @@ export function PlaygroundPage() {
                                     </div>
                                 </div>
 
-                                <Button className="w-full bg-foreground text-background font-bold tracking-tight rounded-xl hover:opacity-90">
-                                    <Database size={16} className="mr-2" /> Sync Dataset
-                                </Button>
+                                <div className="p-4 rounded-xl bg-secondary/5 border border-border/50">
+                                    <p className="text-[10px] text-muted-foreground leading-relaxed italic">
+                                        * No files allowed. Raw text processing only to maintain zero server-side overhead and maximum privacy.
+                                    </p>
+                                </div>
                             </CardContent>
                         </Card>
                     </div>
 
                     {/* Preview Panel */}
                     <div className="xl:col-span-8 space-y-6">
-                        <Card className="h-full min-h-[500px] bg-card/60 backdrop-blur-3xl border-2 border-zinc-200 dark:border-zinc-800 rounded-[2.5rem] overflow-hidden flex flex-col">
+                        <Card className="h-full min-h-[500px] bg-card/60 backdrop-blur-3xl border-2 border-zinc-200 dark:border-zinc-800 rounded-[2.5rem] overflow-hidden flex flex-col transition-all hover:border-primary/20">
                             <CardHeader className="border-b border-border flex flex-row items-center justify-between p-8">
                                 <div className="space-y-1">
                                     <CardTitle className="text-xl font-black italic tracking-tight">Active Rendering</CardTitle>
-                                    <p className="text-xs text-muted-foreground">ECharts Canvas v6.0 • Low Latency</p>
+                                    <p className="text-xs text-muted-foreground">ECharts Canvas v6.0 • Client-Side Only</p>
                                 </div>
-                                <div className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-                                    <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Live Sync</span>
+                                <div className="flex items-center gap-3">
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        className="rounded-full text-[10px] font-bold border-border hover:bg-primary hover:text-white transition-all h-9 px-4 uppercase tracking-widest"
+                                        onClick={() => handleExport('svg')}
+                                    >
+                                        <Download size={12} className="mr-1.5" /> SVG
+                                    </Button>
+                                    <Button
+                                        className="rounded-full text-[10px] font-bold bg-foreground text-background hover:opacity-90 h-9 px-4 uppercase tracking-widest"
+                                        onClick={() => handleExport('png')}
+                                    >
+                                        <Download size={12} className="mr-1.5" /> PNG
+                                    </Button>
                                 </div>
                             </CardHeader>
                             <CardContent className="flex-1 p-8 flex items-center justify-center relative">
                                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
                                 <div className="w-full h-[400px]">
-                                    <ReactECharts option={option} style={{ height: '100%', width: '100%' }} />
+                                    <ReactECharts
+                                        ref={echartsRef}
+                                        option={option}
+                                        style={{ height: '100%', width: '100%' }}
+                                    />
                                 </div>
                             </CardContent>
                         </Card>
