@@ -3,7 +3,7 @@
 import React, { useMemo, useEffect, useState } from "react";
 import {
     BarChart3, BarChart, BarChart2, LineChart, PieChart, ScatterChart, AreaChart,
-    Activity, CandlestickChart, Radar, TrendingUp, ArrowUpRight, Grid3X3, Box,
+    Activity, CandlestickChart, Radar, TrendingUp, Grid3X3, Box,
     Layers, Share2, Zap, Target, Map as MapIcon, Calendar, Table, Filter,
     Layout, Network, Workflow, TrendingDown, Search, Database, Clock, Globe,
     MousePointer2, Percent, ArrowRight, Flame, Compass, Cpu, Briefcase,
@@ -11,7 +11,6 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactECharts from "echarts-for-react";
-import { Button } from "@/components/ui/button";
 
 // --- Global Config Helper for Export ---
 const getChartConfig = (type: string, data: number[]) => {
@@ -252,13 +251,6 @@ export function VisualizationsPage() {
                         <p className="text-muted-foreground text-lg max-w-xl italic">
                             Choose from our suite of high-performance charts to unlock deep insights from your datasets.
                         </p>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <Button className="rounded-full px-8 bg-primary hover:bg-primary/90 text-white font-bold" asChild>
-                            <a href="/playground">
-                                Try Interactive Sandbox <ArrowUpRight size={16} className="ml-2" />
-                            </a>
-                        </Button>
                     </div>
                 </div>
 
