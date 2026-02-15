@@ -60,6 +60,9 @@ const config: Config = {
             },
             fontFamily: {
                 sans: ['var(--font-custom)', 'sans-serif'],
+            },
+            transitionTimingFunction: {
+                reveal: 'cubic-bezier(0.19, 1, 0.22, 1)',
             }
         }
     },
