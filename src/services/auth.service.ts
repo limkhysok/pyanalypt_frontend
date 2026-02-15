@@ -1,6 +1,7 @@
 import apiClient from '@/lib/axios';
 import { tokenManager } from '@/lib/token';
 import {
+    User,
     AuthResponse,
     RegisterRequest,
     LoginRequest,
@@ -99,5 +100,19 @@ export const authApi = {
      */
     getAccessToken(): string | null {
         return tokenManager.getAccessToken();
+    },
+
+    /**
+     * Get current user profile from backend
+     */
+    async getCurrentUser(): Promise<User | null> {
+        try {
+            const response = await apiClient.get<User>('/auth/user/');
+            return response.data;
+        } catch (error) {
+            // If it's a 401, let the axios interceptor handle it or rethrow
+            // For other errors, return null so we can handle it gracefully
+            return null;
+        }
     },
 };

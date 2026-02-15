@@ -8,6 +8,7 @@ interface HeroSectionProps {
 }
 
 import { TypewriterEffect } from "@/components/ui/text-animation";
+import { Zap } from "lucide-react";
 
 import Link from "next/link";
 
@@ -38,17 +39,11 @@ export function HeroSection({ onStart }: HeroSectionProps) {
                 transition={{ delay: 0.4, duration: 0.5 }}
                 className="flex gap-4 relative z-10"
             >
-                <button
-                    onClick={onStart}
-                    className="px-8 py-4 rounded-full bg-foreground text-background font-semibold hover:opacity-90 transition-opacity whitespace-nowrap"
-                >
-                    Start Analyzing Free
-                </button>
                 <Link
                     href="/playground"
-                    className="px-8 py-4 rounded-full border border-border bg-background/50 hover:bg-secondary transition-colors font-semibold whitespace-nowrap"
+                    className="px-12 py-5 rounded-full bg-foreground text-background hover:opacity-90 transition-opacity font-bold whitespace-nowrap shadow-xl shadow-foreground/10 flex items-center gap-2"
                 >
-                    Live Sandbox
+                    <Zap size={18} className="fill-current" /> Live Sandbox
                 </Link>
             </motion.div>
 

@@ -8,6 +8,7 @@ import { cn } from "@/utils/utils";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useRouter } from "next/navigation";
 import { authApi, getErrorMessage, formatFieldErrors } from "@/services/api";
+import { useAuth } from "@/context/auth-context";
 
 // Shared Layout Component
 function AuthLayout({ children, title, subtitle }: { children: React.ReactNode, title: string, subtitle: string }) {
@@ -38,6 +39,7 @@ function AuthLayout({ children, title, subtitle }: { children: React.ReactNode, 
 
 export function LoginPage() {
     const router = useRouter();
+    const { login: setAuthUser } = useAuth();
     const [isLoading, setIsLoading] = React.useState(false);
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
@@ -49,8 +51,9 @@ export function LoginPage() {
         setError(null);
 
         try {
-            await authApi.login({ email, password });
-            router.push("/docs"); // Redirect to a dashboard or protected page
+            const response = await authApi.login({ email, password });
+            setAuthUser(response.user);
+            router.push("/");
         } catch (err) {
             setError(getErrorMessage(err));
         } finally {
@@ -63,8 +66,9 @@ export function LoginPage() {
             setIsLoading(true);
             setError(null);
             try {
-                await authApi.googleAuth(tokenResponse.access_token);
-                router.push("/docs");
+                const response = await authApi.googleAuth(tokenResponse.access_token);
+                setAuthUser(response.user);
+                router.push("/");
             } catch (err) {
                 setError(getErrorMessage(err));
                 setIsLoading(false);
@@ -181,6 +185,7 @@ export function LoginPage() {
 
 export function RegisterPage() {
     const router = useRouter();
+    const { login: setAuthUser } = useAuth();
     const [isLoading, setIsLoading] = React.useState(false);
     const [email, setEmail] = React.useState("");
     const [password, setPassword] = React.useState("");
@@ -200,7 +205,7 @@ export function RegisterPage() {
         const last_name = "";
 
         try {
-            await authApi.register({
+            const response = await authApi.register({
                 email,
                 username,
                 first_name,
@@ -209,7 +214,8 @@ export function RegisterPage() {
                 password1: password,
                 password2: password
             });
-            router.push("/docs");
+            setAuthUser(response.user);
+            router.push("/");
         } catch (err) {
             const formattedErrors = formatFieldErrors(err);
             if (formattedErrors) {
@@ -227,8 +233,9 @@ export function RegisterPage() {
             setIsLoading(true);
             setError(null);
             try {
-                await authApi.googleAuth(tokenResponse.access_token);
-                router.push("/docs");
+                const response = await authApi.googleAuth(tokenResponse.access_token);
+                setAuthUser(response.user);
+                router.push("/");
             } catch (err) {
                 setError(getErrorMessage(err));
                 setIsLoading(false);

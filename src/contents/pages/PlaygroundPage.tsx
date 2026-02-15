@@ -110,21 +110,25 @@ export function PlaygroundPage() {
     }, [parsedData, chartType]);
 
     return (
-        <main className="min-h-screen bg-background text-foreground pt-24 pb-16 px-6 md:px-12 selection:bg-primary/20 overflow-x-hidden">
-            <div className="max-w-[1400px] mx-auto space-y-10">
+        <main className="min-h-screen bg-background text-foreground pt-20 pb-8 px-6 md:px-12 selection:bg-primary/20 overflow-x-hidden">
+            <div className="max-w-[1500px] mx-auto space-y-6">
 
                 {/* Header */}
-                <div className="space-y-4">
-                    <div className="flex items-center gap-2 text-primary font-bold text-xs tracking-[0.3em] uppercase">
-                        <Zap size={14} className="fill-primary" /> Data Sandbox
+                <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-primary font-bold text-[10px] tracking-[0.3em] uppercase">
+                        <Zap size={12} className="fill-primary" /> Data Sandbox
                     </div>
-                    <h1 className="text-4xl md:text-6xl font-black tracking-tight italic">Interactive Playground</h1>
-                    <p className="text-muted-foreground text-lg max-w-2xl">
-                        Open-access visualization tool. Paste your raw datasets to generate high-performance ECharts within client-side safety limits.
-                    </p>
+                    <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+                        <div className="space-y-1">
+                            <h1 className="text-3xl md:text-5xl font-black tracking-tight italic">Interactive Playground</h1>
+                            <p className="text-muted-foreground text-sm max-w-xl">
+                                Open-access visualization tool. Paste your raw datasets to generate high-performance ECharts within client-side safety limits.
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
-                <div className="grid grid-cols-1 xl:grid-cols-12 gap-8">
+                <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
 
                     {/* Input Panel */}
                     <div className="xl:col-span-4 space-y-6">
@@ -139,9 +143,9 @@ export function PlaygroundPage() {
                                     </span>
                                 </CardTitle>
                             </CardHeader>
-                            <CardContent className="p-6 space-y-4">
+                            <CardContent className="p-5 space-y-4">
                                 <textarea
-                                    className="w-full h-64 bg-secondary/10 rounded-xl p-4 text-xs font-mono outline-none border border-border focus:border-primary/50 transition-colors resize-none"
+                                    className="w-full h-44 bg-secondary/10 rounded-xl p-4 text-xs font-mono outline-none border border-border focus:border-primary/50 transition-colors resize-none"
                                     value={csvData}
                                     onChange={(e) => setCsvData(e.target.value)}
                                     placeholder="Paste CSV here... (e.g. Month, Value1, Value2)"
@@ -163,7 +167,10 @@ export function PlaygroundPage() {
                                             <button
                                                 key={t.id}
                                                 onClick={() => setChartType(t.id as any)}
-                                                className={`p-3 rounded-xl border flex items-center justify-center transition-all ${chartType === t.id ? 'bg-primary border-primary text-white shadow-lg shadow-primary/20' : 'bg-background border-border hover:border-primary/50 text-muted-foreground'}`}
+                                                className={`p-3 rounded-xl border flex items-center justify-center transition-all ${chartType === t.id
+                                                        ? 'bg-primary border-primary text-primary-foreground shadow-lg shadow-primary/20'
+                                                        : 'bg-muted/50 border-input hover:border-primary/50 text-muted-foreground hover:bg-muted'
+                                                    }`}
                                             >
                                                 <t.icon size={18} />
                                             </button>
@@ -171,7 +178,7 @@ export function PlaygroundPage() {
                                     </div>
                                 </div>
 
-                                <div className="p-4 rounded-xl bg-secondary/5 border border-border/50">
+                                <div className="p-3 rounded-xl bg-secondary/5 border border-border/50">
                                     <p className="text-[10px] text-muted-foreground leading-relaxed italic">
                                         * No files allowed. Raw text processing only to maintain zero server-side overhead and maximum privacy.
                                     </p>
@@ -182,32 +189,32 @@ export function PlaygroundPage() {
 
                     {/* Preview Panel */}
                     <div className="xl:col-span-8 space-y-6">
-                        <Card className="h-full min-h-[500px] bg-card/60 backdrop-blur-3xl border-2 border-zinc-200 dark:border-zinc-800 rounded-[2.5rem] overflow-hidden flex flex-col transition-all hover:border-primary/20">
-                            <CardHeader className="border-b border-border flex flex-row items-center justify-between p-8">
+                        <Card className="h-full min-h-[450px] bg-card/60 backdrop-blur-3xl border-2 border-zinc-200 dark:border-zinc-800 rounded-[2.5rem] overflow-hidden flex flex-col transition-all hover:border-primary/20">
+                            <CardHeader className="border-b border-border flex flex-row items-center justify-between p-6">
                                 <div className="space-y-1">
-                                    <CardTitle className="text-xl font-black italic tracking-tight">Active Rendering</CardTitle>
-                                    <p className="text-xs text-muted-foreground">ECharts Canvas v6.0 • Client-Side Only</p>
+                                    <CardTitle className="text-lg font-black italic tracking-tight">Active Rendering</CardTitle>
+                                    <p className="text-[10px] text-muted-foreground">ECharts Canvas v6.0 • Client-Side Only</p>
                                 </div>
                                 <div className="flex items-center gap-3">
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        className="rounded-full text-[10px] font-bold border-border hover:bg-primary hover:text-white transition-all h-9 px-4 uppercase tracking-widest"
+                                        className="rounded-full text-[10px] font-bold border-border hover:bg-primary hover:text-white transition-all h-8 px-4 uppercase tracking-widest"
                                         onClick={() => handleExport('svg')}
                                     >
                                         <Download size={12} className="mr-1.5" /> SVG
                                     </Button>
                                     <Button
-                                        className="rounded-full text-[10px] font-bold bg-foreground text-background hover:opacity-90 h-9 px-4 uppercase tracking-widest"
+                                        className="rounded-full text-[10px] font-bold bg-foreground text-background hover:opacity-90 h-8 px-4 uppercase tracking-widest"
                                         onClick={() => handleExport('png')}
                                     >
                                         <Download size={12} className="mr-1.5" /> PNG
                                     </Button>
                                 </div>
                             </CardHeader>
-                            <CardContent className="flex-1 p-8 flex items-center justify-center relative">
+                            <CardContent className="flex-1 p-6 flex items-center justify-center relative">
                                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent pointer-events-none" />
-                                <div className="w-full h-[400px]">
+                                <div className="w-full h-[350px]">
                                     <ReactECharts
                                         ref={echartsRef}
                                         option={option}
