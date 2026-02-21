@@ -26,13 +26,9 @@ export const metadata: Metadata = {
   description: "Advanced Data Analysis Dashboard",
 };
 
-import { Navbar } from "@/components/layout/Navbar";
-
-import { Footer } from "@/components/layout/Footer";
-
 import { CursorFollower } from "@/components/ui/cursor-follower";
-
 import { Providers } from "@/context/providers";
+import { PublicShell } from "@/components/layout/PublicShell";
 
 export default function RootLayout({
   children,
@@ -46,11 +42,7 @@ export default function RootLayout({
       >
         <Providers>
           <CursorFollower />
-          <Navbar />
-          <div className="pt-16 min-h-screen">
-            {children}
-          </div>
-          <Footer />
+          <PublicShell>{children}</PublicShell>
         </Providers>
       </body>
     </html>

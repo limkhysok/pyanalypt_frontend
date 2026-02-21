@@ -53,7 +53,7 @@ export function LoginPage() {
         try {
             const response = await authApi.login({ email, password });
             setAuthUser(response.user);
-            router.push("/");
+            router.push("/dashboard");
         } catch (err) {
             setError(getErrorMessage(err));
         } finally {
@@ -68,7 +68,7 @@ export function LoginPage() {
             try {
                 const response = await authApi.googleAuth(tokenResponse.access_token);
                 setAuthUser(response.user);
-                router.push("/");
+                router.push("/dashboard");
             } catch (err) {
                 setError(getErrorMessage(err));
                 setIsLoading(false);
@@ -215,7 +215,7 @@ export function RegisterPage() {
                 password2: password
             });
             setAuthUser(response.user);
-            router.push("/");
+            router.push("/dashboard");
         } catch (err) {
             const formattedErrors = formatFieldErrors(err);
             if (formattedErrors) {
@@ -235,7 +235,7 @@ export function RegisterPage() {
             try {
                 const response = await authApi.googleAuth(tokenResponse.access_token);
                 setAuthUser(response.user);
-                router.push("/");
+                router.push("/dashboard");
             } catch (err) {
                 setError(getErrorMessage(err));
                 setIsLoading(false);
