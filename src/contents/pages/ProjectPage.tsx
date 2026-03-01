@@ -15,7 +15,8 @@ import {
     Pin,
     Projector,
     Plus,
-    Loader2
+    Loader2,
+    Archive
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
@@ -109,14 +110,29 @@ export function ProjectPage() {
         }
     };
 
+    const toggleArchive = async (project: Project) => {
+        try {
+            const newStatus = project.status === "archived" ? "active" : "archived";
+            const updated = await projectApi.patch(project.id, { status: newStatus });
+            setProjects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+        } catch (error) {
+            console.error("Failed to toggle archive:", error);
+        }
+    };
+
     const filteredProjects = projects.filter((project) => {
         const matchesSearch = project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            project.description.toLowerCase().includes(searchQuery.toLowerCase());
+            (project.description && project.description.toLowerCase().includes(searchQuery.toLowerCase()));
+
+        if (activeTab === "Archived") {
+            return matchesSearch && project.status === "archived";
+        }
+
+        // For all other tabs, hide archived projects
+        if (project.status === "archived") return false;
 
         if (activeTab === "Starred") return matchesSearch && project.is_favorite;
-        if (activeTab === "Archived") return matchesSearch && project.status === "archived";
         if (activeTab === "Recent") {
-            // Sort by last_accessed_at or updated_at (omitted for brevity, just filter)
             return matchesSearch;
         }
         return matchesSearch;
@@ -229,7 +245,10 @@ export function ProjectPage() {
                                         exit={{ opacity: 0, scale: 0.9, y: 20 }}
                                         transition={{ duration: 0.3, delay: i * 0.05 }}
                                     >
-                                        <Card className="h-full border-border/30 bg-card/30 backdrop-blur-xl hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/5 transition-all group overflow-hidden relative">
+                                        <Card
+                                            onClick={() => router.push(`/project/${project.id}`)}
+                                            className="h-full border-border/30 bg-card/30 backdrop-blur-xl hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/5 transition-all group overflow-hidden relative cursor-pointer"
+                                        >
                                             {project.is_favorite && (
                                                 <div className="absolute top-0 right-0 p-1">
                                                     <div className="bg-primary/10 text-primary p-1 rounded-bl-lg">
@@ -247,7 +266,7 @@ export function ProjectPage() {
                                                         {getIconForCategory(project.category)}
                                                     </div>
                                                     <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
+                                                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
                                                             <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-secondary/80">
                                                                 <MoreVertical className="h-4 w-4" />
                                                             </Button>
@@ -261,9 +280,9 @@ export function ProjectPage() {
                                                                 <Edit2 className="h-4 w-4" />
                                                                 Rename
                                                             </DropdownMenuItem>
-                                                            <DropdownMenuItem className="flex items-center gap-2">
-                                                                <Pin className="h-4 w-4" />
-                                                                Move to Archive
+                                                            <DropdownMenuItem onClick={() => toggleArchive(project)} className="flex items-center gap-2">
+                                                                <Archive className="h-4 w-4" />
+                                                                {project.status === "archived" ? "Restore from Archive" : "Move to Archive"}
                                                             </DropdownMenuItem>
                                                             <DropdownMenuSeparator />
                                                             <DropdownMenuItem
@@ -291,6 +310,11 @@ export function ProjectPage() {
                                                     {project.status === "active" && (
                                                         <Badge variant="outline" className="bg-emerald-500/5 text-emerald-500 border-emerald-500/10">
                                                             Active
+                                                        </Badge>
+                                                    )}
+                                                    {project.status === "archived" && (
+                                                        <Badge variant="outline" className="bg-amber-500/5 text-amber-500 border-amber-500/10">
+                                                            Archived
                                                         </Badge>
                                                     )}
                                                 </div>
