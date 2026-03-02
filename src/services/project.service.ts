@@ -1,5 +1,13 @@
 import apiClient from '@/lib/axios';
-import { Project, CreateProjectRequest, UpdateProjectRequest } from '@/types/project';
+import {
+    Project,
+    CreateProjectRequest,
+    UpdateProjectRequest,
+    Dataset,
+    UploadDatasetRequest,
+    PasteDatasetRequest,
+    DatasetPreview
+} from '@/types/project';
 
 /**
  * Project API Service
@@ -57,5 +65,60 @@ export const projectApi = {
     async delete(id: string): Promise<void> {
         console.log("[ProjectApi] Deleting project:", id);
         await apiClient.delete(`/projects/${id}/`);
+    },
+
+    /**
+     * Upload a dataset file
+     */
+    async uploadDataset(data: UploadDatasetRequest): Promise<Dataset> {
+        console.log("[ProjectApi] Uploading dataset file for project:", data.project);
+        const formData = new FormData();
+        formData.append('project', data.project);
+        formData.append('file', data.file);
+        if (data.name) formData.append('name', data.name);
+
+        const response = await apiClient.post<Dataset>('/datasets/upload/', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+        return response.data;
+    },
+
+    /**
+     * Paste a dataset as raw text
+     */
+    async pasteDataset(data: PasteDatasetRequest): Promise<Dataset> {
+        console.log("[ProjectApi] Pasting dataset for project:", data.project);
+        const response = await apiClient.post<Dataset>('/datasets/paste/', data);
+        return response.data;
+    },
+
+    /**
+     * Get a preview (columns and first 10 rows) of a dataset
+     */
+    async getDatasetPreview(datasetId: number | string, rows: number = 10): Promise<DatasetPreview> {
+        console.log("[ProjectApi] Fetching dataset preview:", datasetId, "Rows:", rows);
+        const response = await apiClient.get<DatasetPreview>(`/datasets/items/${datasetId}/preview/`, {
+            params: { rows }
+        });
+        return response.data;
+    },
+
+    /**
+     * Update dataset metadata (e.g., rename)
+     */
+    async updateDataset(datasetId: number | string, data: { name: string }): Promise<Dataset> {
+        console.log("[ProjectApi] Updating dataset:", datasetId);
+        const response = await apiClient.patch<Dataset>(`/datasets/items/${datasetId}/`, data);
+        return response.data;
+    },
+
+    /**
+     * Permanently delete a dataset
+     */
+    async deleteDataset(datasetId: number | string): Promise<void> {
+        console.log("[ProjectApi] Deleting dataset:", datasetId);
+        await apiClient.delete(`/datasets/items/${datasetId}/`);
     }
 };

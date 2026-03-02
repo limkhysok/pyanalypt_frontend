@@ -6,6 +6,7 @@ import { useAuth } from "@/context/auth-context";
 import { AppNavbar } from "@/components/layout/AppNavbar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { motion } from "framer-motion";
+import { Toaster } from "sonner";
 
 export default function ProjectLayout({
     children,
@@ -46,6 +47,7 @@ export default function ProjectLayout({
             >
                 {children}
             </motion.main>
+            <Toaster position="top-right" richColors />
         </div>
     );
 }

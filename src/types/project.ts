@@ -12,6 +12,7 @@ export interface Project {
     updated_at: string;
     last_accessed_at: string;
     settings: Record<string, any>;
+    datasets?: Dataset[];
 }
 
 export interface CreateProjectRequest {
@@ -24,3 +25,38 @@ export interface CreateProjectRequest {
 }
 
 export interface UpdateProjectRequest extends Partial<CreateProjectRequest> { }
+
+export interface Dataset {
+    id: number | string;
+    project: string;
+    file: string | null;
+    name: string;
+    file_format: string;
+    row_count?: number;
+    column_count?: number;
+    uploaded_at: string;
+}
+
+export interface UploadDatasetRequest {
+    project: string;
+    file: File;
+    name?: string;
+}
+
+export interface PasteDatasetRequest {
+    project: string;
+    raw_data: string;
+    name?: string;
+    format?: string;
+}
+
+export interface DatasetPreview {
+    columns: string[];
+    rows: Record<string, any>[];
+    metadata: {
+        dtypes: Record<string, string>;
+        shape: [number, number];
+    };
+    summary?: Record<string, any>;
+    total_rows_hint: number;
+}
