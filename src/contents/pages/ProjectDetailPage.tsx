@@ -31,7 +31,16 @@ import {
     Eraser,
     X,
     Plus,
-    RefreshCw
+    RefreshCw,
+    Scissors,
+    Edit3,
+    Hash,
+    Type,
+    Sliders,
+    Target,
+    CaseLower,
+    Variable,
+    Trash
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -40,6 +49,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -82,7 +93,23 @@ export function ProjectDetailPage() {
     const [castingType, setCastingType] = React.useState<string>("integer");
     const [isCleaningActive, setIsCleaningActive] = React.useState(false);
 
+    // Advanced Cleaning State
+    const [dropCols, setDropCols] = React.useState<string[]>([]);
+    const [renameMapping, setRenameMapping] = React.useState<Record<string, string>>({});
+    const [trimCols, setTrimCols] = React.useState<string>("none"); // none, all, or specific
+    const [caseCols, setCaseCols] = React.useState<string[]>([]);
+    const [caseType, setCaseType] = React.useState<string>("lower");
+    const [replaceCol, setReplaceCol] = React.useState<string>("");
+    const [replaceOld, setReplaceOld] = React.useState<string>("");
+    const [replaceNew, setReplaceNew] = React.useState<string>("");
+    const [outlierCols, setOutlierCols] = React.useState<string[]>([]);
+    const [outlierLower, setOutlierLower] = React.useState<number>(0.05);
+    const [outlierUpper, setOutlierUpper] = React.useState<number>(0.95);
+    const [roundCols, setRoundCols] = React.useState<string[]>([]);
+    const [roundDecimals, setRoundDecimals] = React.useState<number>(2);
+
     const fileInputRef = React.useRef<HTMLInputElement>(null);
+    const workbenchRef = React.useRef<HTMLDivElement>(null);
 
     const projectId = params.id as string;
 
@@ -225,6 +252,73 @@ export function ProjectDetailPage() {
             });
         }
 
+        // 4. Drop Columns
+        if (dropCols.length > 0) {
+            pipeline.push({
+                operation: "drop_columns",
+                params: { columns: dropCols }
+            });
+        }
+
+        // 5. Rename Columns
+        if (Object.keys(renameMapping).length > 0) {
+            pipeline.push({
+                operation: "rename_columns",
+                params: { mapping: renameMapping }
+            });
+        }
+
+        // 6. Trim Strings
+        if (trimCols !== "none") {
+            pipeline.push({
+                operation: "trim_strings",
+                params: { columns: trimCols === "all" ? "all" : [trimCols] }
+            });
+        }
+
+        // 7. Case Convert
+        if (caseCols.length > 0) {
+            pipeline.push({
+                operation: "case_convert",
+                params: { columns: caseCols, case: caseType }
+            });
+        }
+
+        // 8. Replace Value
+        if (replaceCol && (replaceOld !== "" || replaceNew !== "")) {
+            pipeline.push({
+                operation: "replace_value",
+                params: {
+                    column: replaceCol,
+                    old_value: replaceOld,
+                    new_value: replaceNew
+                }
+            });
+        }
+
+        // 9. Outlier Clip
+        if (outlierCols.length > 0) {
+            pipeline.push({
+                operation: "outlier_clip",
+                params: {
+                    columns: outlierCols,
+                    lower_quantile: outlierLower,
+                    upper_quantile: outlierUpper
+                }
+            });
+        }
+
+        // 10. Round Numeric
+        if (roundCols.length > 0) {
+            pipeline.push({
+                operation: "round_numeric",
+                params: {
+                    columns: roundCols,
+                    decimals: roundDecimals
+                }
+            });
+        }
+
         if (pipeline.length === 0) {
             toast.error("Please configure at least one cleaning operation.");
             setIsCleaningActive(false);
@@ -233,7 +327,7 @@ export function ProjectDetailPage() {
 
         try {
             const response = await projectApi.cleanDataset(selectedDatasetId, { pipeline });
-            toast.success("Dataset cleaned successfully!");
+            toast.success("Cleanup pipeline executed successfully!");
 
             // The response returns a new cleaned dataset preview
             setPreviewData(response);
@@ -244,7 +338,12 @@ export function ProjectDetailPage() {
                 fetchProjectDetails();
             }
 
-            setIsCleaningOpen(false);
+            // Reset complex states that depend on specific columns as they might have changed
+            setDropCols([]);
+            setRenameMapping({});
+            setCaseCols([]);
+            setOutlierCols([]);
+            setRoundCols([]);
         } catch (err: any) {
             console.error("Cleaning failed:", err);
             toast.error(err.response?.data?.message || "Cleaning operation failed.");
@@ -522,22 +621,6 @@ export function ProjectDetailPage() {
                                     Dataframe Preview
                                 </h3>
                                 <div className="flex items-center gap-3">
-                                    {/* Clean Data Action Button */}
-                                    {selectedDatasetId && (
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className={cn(
-                                                "bg-primary/10 border-primary/20 hover:bg-primary/20 text-primary transition-all font-bold",
-                                                isCleaningOpen && "ring-2 ring-primary bg-primary/20"
-                                            )}
-                                            onClick={() => setIsCleaningOpen(!isCleaningOpen)}
-                                        >
-                                            <Wand2 className="h-4 w-4 mr-2" />
-                                            Clean Data
-                                        </Button>
-                                    )}
-
                                     {/* Column Selector Dropdown */}
                                     {previewData && (
                                         <DropdownMenu>
@@ -742,6 +825,360 @@ export function ProjectDetailPage() {
                                     </div>
                                 )}
                             </Card>
+
+                            {/* Data Clean Workbench (EDA) - Positioned under Preview */}
+                            {previewData && (
+                                <div
+                                    className="mt-8 space-y-4"
+                                    ref={workbenchRef}
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="text-xl font-bold flex items-center gap-2">
+                                            <Wand2 className="h-5 w-5 text-primary" />
+                                            Data Clean Workbench (EDA)
+                                        </h3>
+                                        <Badge variant="secondary" className="px-3 py-1 bg-primary/10 text-primary border-primary/20">
+                                            10 Power Operations
+                                        </Badge>
+                                    </div>
+
+                                    <Card className="border-border/30 bg-card/40 backdrop-blur-md overflow-hidden">
+                                        <div className="grid grid-cols-1 lg:grid-cols-3 divide-x divide-y lg:divide-y-0 divide-border/10">
+                                            {/* Column 1: Core Operations */}
+                                            <div className="p-6 space-y-10">
+                                                {/* 1. Missing Values */}
+                                                <div className="space-y-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="p-1.5 bg-primary/10 rounded-md">
+                                                            <AlertCircle className="h-4 w-4 text-primary" />
+                                                        </div>
+                                                        <h4 className="text-sm font-bold">1. Missing Values (NA)</h4>
+                                                    </div>
+                                                    <div className="space-y-3 pl-8">
+                                                        <div className="space-y-2">
+                                                            <Label className="text-[10px] uppercase font-bold text-muted-foreground">Select Columns</Label>
+                                                            <select
+                                                                value={cleaningNACol}
+                                                                onChange={(e) => setCleaningNACol(e.target.value)}
+                                                                className="w-full bg-secondary/20 border border-border/20 rounded-md h-9 text-xs px-2 outline-none focus:ring-1 focus:ring-primary/40"
+                                                            >
+                                                                <option value="all">All Columns</option>
+                                                                {previewData?.columns.map(c => <option key={c} value={c}>{c}</option>)}
+                                                            </select>
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <Label className="text-[10px] uppercase font-bold text-muted-foreground">Action Strategy</Label>
+                                                            <div className="grid grid-cols-2 gap-2">
+                                                                {[
+                                                                    { id: "drop", label: "Drop Rows" },
+                                                                    { id: "fill_zero", label: "Fill Zero" },
+                                                                    { id: "fill_mean", label: "Fill Mean" },
+                                                                    { id: "fill_median", label: "Fill Median" }
+                                                                ].map(strategy => (
+                                                                    <Button
+                                                                        key={strategy.id}
+                                                                        variant={cleaningNAStrategy === strategy.id ? "secondary" : "outline"}
+                                                                        size="sm"
+                                                                        className={cn(
+                                                                            "text-[10px] h-8 justify-start font-medium",
+                                                                            cleaningNAStrategy === strategy.id && "ring-1 ring-primary/40"
+                                                                        )}
+                                                                        onClick={() => setCleaningNAStrategy(strategy.id)}
+                                                                    >
+                                                                        {strategy.label}
+                                                                    </Button>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* 2. Deduplication */}
+                                                <div className="space-y-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="p-1.5 bg-primary/10 rounded-md">
+                                                            <RefreshCw className="h-4 w-4 text-primary" />
+                                                        </div>
+                                                        <h4 className="text-sm font-bold">2. Deduplication</h4>
+                                                    </div>
+                                                    <div className="space-y-3 pl-8">
+                                                        <Button
+                                                            variant={isDeduplicationEnabled ? "secondary" : "outline"}
+                                                            className={cn(
+                                                                "w-full h-10 gap-2 border-dashed transition-all text-xs",
+                                                                isDeduplicationEnabled ? "border-primary bg-primary/10" : "border-primary/20 hover:border-primary/40"
+                                                            )}
+                                                            onClick={() => setIsDeduplicationEnabled(!isDeduplicationEnabled)}
+                                                        >
+                                                            {isDeduplicationEnabled ? "Deduplication Enabled" : "Enable Deduplication Scan"}
+                                                        </Button>
+                                                    </div>
+                                                </div>
+
+                                                {/* 3. Type Casting */}
+                                                <div className="space-y-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="p-1.5 bg-primary/10 rounded-md">
+                                                            <Variable className="h-4 w-4 text-primary" />
+                                                        </div>
+                                                        <h4 className="text-sm font-bold">3. Type Casting</h4>
+                                                    </div>
+                                                    <div className="space-y-3 pl-8">
+                                                        <div className="grid grid-cols-2 gap-2">
+                                                            <div className="space-y-1">
+                                                                <Label className="text-[10px] font-bold text-muted-foreground">Target Col</Label>
+                                                                <select
+                                                                    value={castingCol}
+                                                                    onChange={(e) => setCastingCol(e.target.value)}
+                                                                    className="w-full bg-secondary/20 border border-border/20 rounded-md h-8 text-[10px] px-1"
+                                                                >
+                                                                    {previewData?.columns.map(c => <option key={c} value={c}>{c}</option>)}
+                                                                </select>
+                                                            </div>
+                                                            <div className="space-y-1">
+                                                                <Label className="text-[10px] font-bold text-muted-foreground">To Type</Label>
+                                                                <select
+                                                                    value={castingType}
+                                                                    onChange={(e) => setCastingType(e.target.value)}
+                                                                    className="w-full bg-secondary/20 border border-border/20 rounded-md h-8 text-[10px] px-1"
+                                                                >
+                                                                    {["integer", "float", "string", "datetime"].map(t => <option key={t} value={t}>{t}</option>)}
+                                                                </select>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Column 2: Structural & Text */}
+                                            <div className="p-6 space-y-10">
+                                                {/* 4. Drop Columns */}
+                                                <div className="space-y-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="p-1.5 bg-primary/10 rounded-md">
+                                                            <Trash className="h-4 w-4 text-primary" />
+                                                        </div>
+                                                        <h4 className="text-sm font-bold">4. Drop Columns</h4>
+                                                    </div>
+                                                    <div className="space-y-3 pl-8">
+                                                        <div className="flex flex-wrap gap-1.5">
+                                                            {previewData?.columns.map(c => (
+                                                                <Badge
+                                                                    key={c}
+                                                                    variant={dropCols.includes(c) ? "destructive" : "outline"}
+                                                                    className="cursor-pointer text-[10px]"
+                                                                    onClick={() => {
+                                                                        if (dropCols.includes(c)) setDropCols(dropCols.filter(x => x !== c));
+                                                                        else setDropCols([...dropCols, c]);
+                                                                    }}
+                                                                >
+                                                                    {dropCols.includes(c) && <X className="h-2.5 w-2.5 mr-1" />}
+                                                                    {c}
+                                                                </Badge>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* 5. Rename Columns */}
+                                                <div className="space-y-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="p-1.5 bg-primary/10 rounded-md">
+                                                            <Edit3 className="h-4 w-4 text-primary" />
+                                                        </div>
+                                                        <h4 className="text-sm font-bold">5. Rename Columns</h4>
+                                                    </div>
+                                                    <div className="space-y-3 pl-8 max-h-[150px] overflow-y-auto custom-scrollbar">
+                                                        {Object.entries(renameMapping).map(([old, newVal]) => (
+                                                            <div key={old} className="flex items-center gap-2 mb-2">
+                                                                <div className="text-[10px] font-mono bg-secondary/40 px-2 py-1 rounded border border-border/20 w-1/3 truncate">{old}</div>
+                                                                <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
+                                                                <Input
+                                                                    value={newVal}
+                                                                    onChange={(e) => setRenameMapping({ ...renameMapping, [old]: e.target.value })}
+                                                                    className="h-7 text-[10px] w-1/3"
+                                                                />
+                                                                <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => {
+                                                                    const next = { ...renameMapping };
+                                                                    delete next[old];
+                                                                    setRenameMapping(next);
+                                                                }}>
+                                                                    <X className="h-3 w-3" />
+                                                                </Button>
+                                                            </div>
+                                                        ))}
+                                                        <select
+                                                            className="w-full bg-secondary/20 border border-border/20 rounded-md h-8 text-[10px] px-1 outline-none"
+                                                            onChange={(e) => {
+                                                                if (e.target.value) {
+                                                                    setRenameMapping({ ...renameMapping, [e.target.value]: e.target.value });
+                                                                    e.target.value = "";
+                                                                }
+                                                            }}
+                                                        >
+                                                            <option value="">+ Add Rename Mapping...</option>
+                                                            {previewData?.columns.filter(c => !renameMapping[c]).map(c => <option key={c} value={c}>{c}</option>)}
+                                                        </select>
+                                                    </div>
+                                                </div>
+
+                                                {/* 6. Trim & Strings */}
+                                                <div className="space-y-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="p-1.5 bg-primary/10 rounded-md">
+                                                            <Scissors className="h-4 w-4 text-primary" />
+                                                        </div>
+                                                        <h4 className="text-sm font-bold">6. Trim & Case</h4>
+                                                    </div>
+                                                    <div className="space-y-3 pl-8">
+                                                        <select
+                                                            value={trimCols}
+                                                            onChange={(e) => setTrimCols(e.target.value)}
+                                                            className="w-full bg-secondary/20 border border-border/20 rounded-md h-8 text-[10px] px-1 mb-2"
+                                                        >
+                                                            <option value="none">Trim: Disabled</option>
+                                                            <option value="all">Trim: All Columns</option>
+                                                            {previewData?.columns.map(c => <option key={c} value={c}>{c}</option>)}
+                                                        </select>
+                                                        <div className="flex gap-1.5 mb-2">
+                                                            {["lower", "upper", "title"].map(t => (
+                                                                <Button key={t} size="sm" variant={caseType === t ? "secondary" : "ghost"} className="text-[10px] h-6 px-2 capitalize" onClick={() => setCaseType(t)}>{t}</Button>
+                                                            ))}
+                                                        </div>
+                                                        <div className="flex flex-wrap gap-1 max-h-[80px] overflow-y-auto custom-scrollbar">
+                                                            {previewData?.columns.map(c => (
+                                                                <Badge key={c} variant={caseCols.includes(c) ? "secondary" : "outline"} className="cursor-pointer text-[9px] h-5 px-1.5 font-normal" onClick={() => {
+                                                                    if (caseCols.includes(c)) setCaseCols(caseCols.filter(x => x !== c));
+                                                                    else setCaseCols([...caseCols, c]);
+                                                                }}>{c}</Badge>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            {/* Column 3: Advanced Values & Math */}
+                                            <div className="p-6 space-y-10">
+                                                {/* 8. Replace Values */}
+                                                <div className="space-y-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="p-1.5 bg-primary/10 rounded-md">
+                                                            <Target className="h-4 w-4 text-primary" />
+                                                        </div>
+                                                        <h4 className="text-sm font-bold">8. Replace Value</h4>
+                                                    </div>
+                                                    <div className="space-y-3 pl-8">
+                                                        <select value={replaceCol} onChange={(e) => setReplaceCol(e.target.value)} className="w-full bg-secondary/20 border border-border/20 rounded-md h-8 text-[10px] px-1">
+                                                            <option value="">Select Column...</option>
+                                                            {previewData?.columns.map(c => <option key={c} value={c}>{c}</option>)}
+                                                        </select>
+                                                        <div className="grid grid-cols-2 gap-2">
+                                                            <Input placeholder="Old" className="h-8 text-[10px]" value={replaceOld} onChange={(e) => setReplaceOld(e.target.value)} />
+                                                            <Input placeholder="New" className="h-8 text-[10px]" value={replaceNew} onChange={(e) => setReplaceNew(e.target.value)} />
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* 9. Outliers */}
+                                                <div className="space-y-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="p-1.5 bg-primary/10 rounded-md">
+                                                            <Sliders className="h-4 w-4 text-primary" />
+                                                        </div>
+                                                        <h4 className="text-sm font-bold">9. Outlier Clipping</h4>
+                                                    </div>
+                                                    <div className="space-y-3 pl-8">
+                                                        <div className="flex gap-2 items-center mb-2">
+                                                            <Input type="number" step="0.01" value={outlierLower} onChange={e => setOutlierLower(Number(e.target.value))} className="h-7 w-20 text-[10px]" />
+                                                            <span className="text-[10px]">to</span>
+                                                            <Input type="number" step="0.01" value={outlierUpper} onChange={e => setOutlierUpper(Number(e.target.value))} className="h-7 w-20 text-[10px]" />
+                                                        </div>
+                                                        <div className="flex flex-wrap gap-1">
+                                                            {previewData?.columns.map(c => (
+                                                                <Badge key={c} variant={outlierCols.includes(c) ? "secondary" : "outline"} className="cursor-pointer text-[9px] h-5" onClick={() => {
+                                                                    if (outlierCols.includes(c)) setOutlierCols(outlierCols.filter(x => x !== c));
+                                                                    else setOutlierCols([...outlierCols, c]);
+                                                                }}>{c}</Badge>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                {/* 10. Rounding */}
+                                                <div className="space-y-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="p-1.5 bg-primary/10 rounded-md">
+                                                            <Variable className="h-4 w-4 text-primary" />
+                                                        </div>
+                                                        <h4 className="text-sm font-bold">10. Round Decimals</h4>
+                                                    </div>
+                                                    <div className="space-y-3 pl-8">
+                                                        <Input type="number" value={roundDecimals} onChange={e => setRoundDecimals(Number(e.target.value))} className="h-8 w-20 text-[10px] mb-2" />
+                                                        <div className="flex flex-wrap gap-1">
+                                                            {previewData?.columns.map(c => (
+                                                                <Badge key={c} variant={roundCols.includes(c) ? "secondary" : "outline"} className="cursor-pointer text-[9px] h-5" onClick={() => {
+                                                                    if (roundCols.includes(c)) setRoundCols(roundCols.filter(x => x !== c));
+                                                                    else setRoundCols([...roundCols, c]);
+                                                                }}>{c}</Badge>
+                                                            ))}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Action Bottom Bar */}
+                                        <div className="p-6 bg-secondary/10 border-t border-border/10 flex items-center justify-between gap-4">
+                                            <div className="text-xs text-muted-foreground italic">
+                                                Constructed pipeline ready with {[
+                                                    cleaningNAStrategy,
+                                                    isDeduplicationEnabled,
+                                                    castingCol && castingType,
+                                                    dropCols.length > 0,
+                                                    Object.keys(renameMapping).length > 0,
+                                                    trimCols !== "none",
+                                                    caseCols.length > 0,
+                                                    replaceCol && (replaceOld !== "" || replaceNew !== ""),
+                                                    outlierCols.length > 0,
+                                                    roundCols.length > 0
+                                                ].filter(Boolean).length} operations.
+                                            </div>
+                                            <div className="flex gap-3">
+                                                <Button
+                                                    variant="ghost"
+                                                    className="text-xs h-10 px-6"
+                                                    onClick={() => {
+                                                        setCleaningNAStrategy("fill_mean");
+                                                        setIsDeduplicationEnabled(false);
+                                                        setDropCols([]);
+                                                        setRenameMapping({});
+                                                        setTrimCols("none");
+                                                        setCaseCols([]);
+                                                        setReplaceCol("");
+                                                        setReplaceOld("");
+                                                        setReplaceNew("");
+                                                        setOutlierCols([]);
+                                                        setRoundCols([]);
+                                                    }}
+                                                >
+                                                    Reset Workspace
+                                                </Button>
+                                                <Button
+                                                    className="font-bold h-10 px-8 shadow-lg shadow-primary/20"
+                                                    onClick={handleRunCleanup}
+                                                    disabled={isCleaningActive || !previewData}
+                                                >
+                                                    {isCleaningActive ? (
+                                                        <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Executing...</>
+                                                    ) : (
+                                                        "Run Power Cleanup"
+                                                    )}
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </Card>
+                                </div>
+                            )}
                         </div>
                     </TabsContent>
 
@@ -787,179 +1224,6 @@ export function ProjectDetailPage() {
                     </TabsContent>
                 </Tabs>
             </div>
-
-            {/* Slide-in Cleaning Panel UI */}
-            <AnimatePresence>
-                {isCleaningOpen && (
-                    <>
-                        {/* Backdrop */}
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            onClick={() => setIsCleaningOpen(false)}
-                            className="fixed inset-0 bg-background/60 backdrop-blur-sm z-[100]"
-                        />
-                        {/* Panel */}
-                        <motion.div
-                            initial={{ x: "100%" }}
-                            animate={{ x: 0 }}
-                            exit={{ x: "100%" }}
-                            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                            className="fixed top-0 right-0 h-full w-[400px] bg-card border-l border-border/10 shadow-2xl z-[101] flex flex-col pt-20"
-                        >
-                            <div className="flex items-center justify-between px-6 pb-6 border-b border-border/10">
-                                <div className="space-y-1">
-                                    <h3 className="text-xl font-bold flex items-center gap-2">
-                                        <Eraser className="h-5 w-5 text-primary" />
-                                        Data Clean Workbench
-                                    </h3>
-                                    <p className="text-xs text-muted-foreground">Apply transformations & fix your datasets</p>
-                                </div>
-                                <Button variant="ghost" size="icon" onClick={() => setIsCleaningOpen(false)}>
-                                    <X className="h-4 w-4" />
-                                </Button>
-                            </div>
-
-                            <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
-                                {/* Section: Missing Values */}
-                                <div className="space-y-4">
-                                    <div className="text-xs font-bold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1.5 rounded-md inline-block">
-                                        1. Missing Values (NA)
-                                    </div>
-                                    <div className="space-y-3">
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] uppercase font-bold text-muted-foreground">Select Columns</label>
-                                            <select
-                                                value={cleaningNACol}
-                                                onChange={(e) => setCleaningNACol(e.target.value)}
-                                                className="w-full bg-secondary/20 border border-border/20 rounded-md h-9 text-xs px-2 outline-none focus:ring-1 focus:ring-primary/40"
-                                            >
-                                                <option value="all">All Columns</option>
-                                                {previewData?.columns.map(c => <option key={c} value={c}>{c}</option>)}
-                                            </select>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-[10px] uppercase font-bold text-muted-foreground">Action Strategy</label>
-                                            <div className="grid grid-cols-2 gap-2">
-                                                {[
-                                                    { id: "drop", label: "Drop Rows" },
-                                                    { id: "fill_zero", label: "Fill Zero" },
-                                                    { id: "fill_mean", label: "Fill Mean" },
-                                                    { id: "fill_median", label: "Fill Median" }
-                                                ].map(strategy => (
-                                                    <Button
-                                                        key={strategy.id}
-                                                        variant={cleaningNAStrategy === strategy.id ? "secondary" : "outline"}
-                                                        size="sm"
-                                                        className={cn(
-                                                            "text-[10px] h-8 justify-start font-medium",
-                                                            cleaningNAStrategy === strategy.id && "ring-1 ring-primary/40"
-                                                        )}
-                                                        onClick={() => setCleaningNAStrategy(strategy.id)}
-                                                    >
-                                                        <div className={cn(
-                                                            "w-1.5 h-1.5 rounded-full mr-2",
-                                                            cleaningNAStrategy === strategy.id ? "bg-primary" : "bg-primary/40"
-                                                        )} />
-                                                        {strategy.label}
-                                                    </Button>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Section: Deduplication */}
-                                <div className="space-y-4 pt-4 border-t border-border/10">
-                                    <div className="text-xs font-bold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1.5 rounded-md inline-block">
-                                        2. Deduplication
-                                    </div>
-                                    <div className="space-y-3">
-                                        <p className="text-[10px] text-muted-foreground">Remove duplicate rows based on unique column combinations.</p>
-                                        <Button
-                                            variant={isDeduplicationEnabled ? "secondary" : "outline"}
-                                            className={cn(
-                                                "w-full h-10 gap-2 border-dashed transition-all",
-                                                isDeduplicationEnabled ? "border-primary bg-primary/10" : "border-primary/20 hover:border-primary/40"
-                                            )}
-                                            onClick={() => setIsDeduplicationEnabled(!isDeduplicationEnabled)}
-                                        >
-                                            <RefreshCw className={cn("h-3.5 w-3.5", isDeduplicationEnabled && "animate-spin-slow")} />
-                                            {isDeduplicationEnabled ? "Deduplication Enabled" : "Enable Deduplication Scan"}
-                                        </Button>
-                                    </div>
-                                </div>
-
-                                {/* Section: Type Casting */}
-                                <div className="space-y-4 pt-4 border-t border-border/10">
-                                    <div className="text-xs font-bold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1.5 rounded-md inline-block">
-                                        3. Column Wizard (Schema)
-                                    </div>
-                                    <div className="space-y-3">
-                                        <div className="grid grid-cols-2 gap-2">
-                                            <div className="space-y-1">
-                                                <label className="text-[10px] font-bold text-muted-foreground">Target Col</label>
-                                                <select
-                                                    value={castingCol}
-                                                    onChange={(e) => setCastingCol(e.target.value)}
-                                                    className="w-full bg-secondary/20 border border-border/20 rounded-md h-8 text-[10px] px-1 outline-none"
-                                                >
-                                                    {previewData?.columns.map(c => <option key={c} value={c}>{c}</option>)}
-                                                </select>
-                                            </div>
-                                            <div className="space-y-1">
-                                                <label className="text-[10px] font-bold text-muted-foreground">To Type</label>
-                                                <select
-                                                    value={castingType}
-                                                    onChange={(e) => setCastingType(e.target.value)}
-                                                    className="w-full bg-secondary/20 border border-border/20 rounded-md h-8 text-[10px] px-1 outline-none"
-                                                >
-                                                    {[
-                                                        { id: "integer", label: "Integer" },
-                                                        { id: "float", label: "Float" },
-                                                        { id: "string", label: "String" },
-                                                        { id: "datetime", label: "Datetime" }
-                                                    ].map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
-                                                </select>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div className="p-6 bg-secondary/20 border-t border-border/10 space-y-3">
-                                <Button
-                                    className="w-full font-bold h-11 shadow-lg shadow-primary/20"
-                                    onClick={handleRunCleanup}
-                                    disabled={isCleaningActive}
-                                >
-                                    {isCleaningActive ? (
-                                        <>
-                                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                                            Cleaning Data...
-                                        </>
-                                    ) : (
-                                        "Run Cleaning Pipeline"
-                                    )}
-                                </Button>
-                                <Button
-                                    variant="ghost"
-                                    className="w-full text-xs h-9 text-muted-foreground"
-                                    onClick={() => {
-                                        setCleaningNAStrategy("");
-                                        setIsDeduplicationEnabled(false);
-                                        setCastingCol("");
-                                        setCastingType("integer");
-                                    }}
-                                >
-                                    Reset Workbench
-                                </Button>
-                            </div>
-                        </motion.div>
-                    </>
-                )}
-            </AnimatePresence>
         </div>
     );
 }
