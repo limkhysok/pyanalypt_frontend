@@ -24,7 +24,9 @@ import {
     ChevronUp,
     Info,
     PieChart,
-    BarChart3
+    BarChart3,
+    Columns,
+    Settings2
 } from "lucide-react";
 import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
@@ -36,7 +38,10 @@ import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
-    DropdownMenuTrigger
+    DropdownMenuTrigger,
+    DropdownMenuCheckboxItem,
+    DropdownMenuSeparator,
+    DropdownMenuLabel
 } from "@/components/ui/dropdown-menu";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
@@ -58,6 +63,7 @@ export function ProjectDetailPage() {
     const [isProcessing, setIsProcessing] = React.useState(false);
     const [selectedDatasetId, setSelectedDatasetId] = React.useState<number | string | null>(null);
     const [previewData, setPreviewData] = React.useState<DatasetPreview | null>(null);
+    const [visibleColumns, setVisibleColumns] = React.useState<string[]>([]);
     const [isPreviewLoading, setIsPreviewLoading] = React.useState(false);
     const [rowCount, setRowCount] = React.useState<number>(10);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -153,6 +159,10 @@ export function ProjectDetailPage() {
         try {
             const data = await projectApi.getDatasetPreview(datasetId, limit);
             setPreviewData(data);
+            // If it's a new dataset or columns haven't been set, initialize visible columns
+            if (data.columns) {
+                setVisibleColumns(data.columns);
+            }
         } catch (err) {
             console.error("Failed to fetch preview:", err);
             toast.error("Failed to load data preview.");
@@ -431,6 +441,41 @@ export function ProjectDetailPage() {
                                     Dataframe Preview
                                 </h3>
                                 <div className="flex items-center gap-3">
+                                    {/* Column Selector Dropdown */}
+                                    {previewData && (
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="outline" size="sm" className="bg-card/40 border-border/40 min-w-[140px] justify-between">
+                                                    <div className="flex items-center gap-2 overflow-hidden">
+                                                        <Columns className="h-3.5 w-3.5 text-primary shrink-0" />
+                                                        <span className="truncate">Columns ({visibleColumns.length})</span>
+                                                    </div>
+                                                    <ChevronDown className="h-4 w-4 ml-2 opacity-50" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="w-[180px] max-h-[400px] overflow-y-auto">
+                                                <DropdownMenuLabel>Select Columns</DropdownMenuLabel>
+                                                <DropdownMenuSeparator />
+                                                {previewData.columns.map((col) => (
+                                                    <DropdownMenuCheckboxItem
+                                                        key={col}
+                                                        checked={visibleColumns.includes(col)}
+                                                        onCheckedChange={(checked) => {
+                                                            if (checked) {
+                                                                setVisibleColumns([...visibleColumns, col]);
+                                                            } else {
+                                                                setVisibleColumns(visibleColumns.filter(c => c !== col));
+                                                            }
+                                                        }}
+                                                        onSelect={(e) => e.preventDefault()}
+                                                    >
+                                                        {col}
+                                                    </DropdownMenuCheckboxItem>
+                                                ))}
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    )}
+
                                     {/* Dataset Selector Dropdown */}
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
@@ -501,7 +546,7 @@ export function ProjectDetailPage() {
                                             <table className="w-full text-xs text-left">
                                                 <thead className="bg-secondary/50 text-muted-foreground uppercase font-semibold">
                                                     <tr>
-                                                        {previewData?.columns?.map((col) => (
+                                                        {previewData?.columns?.filter(c => visibleColumns.includes(c)).map((col) => (
                                                             <th key={col} className="px-4 py-3 border-r border-border/10 last:border-0">
                                                                 {col}
                                                             </th>
@@ -511,7 +556,7 @@ export function ProjectDetailPage() {
                                                 <tbody className="divide-y divide-border/10">
                                                     {previewData?.rows?.map((row, idx) => (
                                                         <tr key={idx} className="hover:bg-primary/5 transition-colors">
-                                                            {previewData.columns.map((col) => (
+                                                            {previewData.columns.filter(c => visibleColumns.includes(c)).map((col) => (
                                                                 <td key={col} className="px-4 py-3 whitespace-nowrap border-r border-border/10 last:border-0">
                                                                     {String(row[col] ?? "")}
                                                                 </td>
