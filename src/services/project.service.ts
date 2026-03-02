@@ -120,5 +120,14 @@ export const projectApi = {
     async deleteDataset(datasetId: number | string): Promise<void> {
         console.log("[ProjectApi] Deleting dataset:", datasetId);
         await apiClient.delete(`/datasets/items/${datasetId}/`);
+    },
+
+    /**
+     * Apply cleaning transformations to a dataset
+     */
+    async cleanDataset(datasetId: number | string, data: { pipeline: any[] }): Promise<DatasetPreview> {
+        console.log("[ProjectApi] Cleaning dataset:", datasetId);
+        const response = await apiClient.post<DatasetPreview>(`/datasets/items/${datasetId}/clean/`, data);
+        return response.data;
     }
 };

@@ -16,8 +16,8 @@ import {
     Search,
     Filter,
     FileSpreadsheet,
-    CheckCircle2,
     AlertCircle,
+    CheckCircle2,
     Trash2,
     Eye,
     ChevronDown,
@@ -26,8 +26,14 @@ import {
     PieChart,
     BarChart3,
     Columns,
-    Settings2
+    Settings2,
+    Wand2,
+    Eraser,
+    X,
+    Plus,
+    RefreshCw
 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
 import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -65,7 +71,17 @@ export function ProjectDetailPage() {
     const [previewData, setPreviewData] = React.useState<DatasetPreview | null>(null);
     const [visibleColumns, setVisibleColumns] = React.useState<string[]>([]);
     const [isPreviewLoading, setIsPreviewLoading] = React.useState(false);
+    const [isCleaningOpen, setIsCleaningOpen] = React.useState(false);
     const [rowCount, setRowCount] = React.useState<number>(10);
+
+    // Cleaning Workbench State
+    const [cleaningNACol, setCleaningNACol] = React.useState<string>("all");
+    const [cleaningNAStrategy, setCleaningNAStrategy] = React.useState<string>("fill_mean");
+    const [isDeduplicationEnabled, setIsDeduplicationEnabled] = React.useState(false);
+    const [castingCol, setCastingCol] = React.useState<string>("");
+    const [castingType, setCastingType] = React.useState<string>("integer");
+    const [isCleaningActive, setIsCleaningActive] = React.useState(false);
+
     const fileInputRef = React.useRef<HTMLInputElement>(null);
 
     const projectId = params.id as string;
@@ -162,6 +178,7 @@ export function ProjectDetailPage() {
             // If it's a new dataset or columns haven't been set, initialize visible columns
             if (data.columns) {
                 setVisibleColumns(data.columns);
+                if (!castingCol && data.columns.length > 0) setCastingCol(data.columns[0]);
             }
         } catch (err) {
             console.error("Failed to fetch preview:", err);
@@ -169,6 +186,70 @@ export function ProjectDetailPage() {
             setPreviewData(null);
         } finally {
             setIsPreviewLoading(false);
+        }
+    };
+
+    const handleRunCleanup = async () => {
+        if (!selectedDatasetId) return;
+
+        setIsCleaningActive(true);
+        const pipeline = [];
+
+        // 1. Missing Values
+        if (cleaningNAStrategy) {
+            pipeline.push({
+                operation: "handle_na",
+                params: {
+                    columns: cleaningNACol === "all" ? "all" : [cleaningNACol],
+                    strategy: cleaningNAStrategy
+                }
+            });
+        }
+
+        // 2. Deduplication
+        if (isDeduplicationEnabled) {
+            pipeline.push({
+                operation: "drop_duplicates",
+                params: { columns: "all" }
+            });
+        }
+
+        // 3. Type Casting
+        if (castingCol && castingType) {
+            pipeline.push({
+                operation: "astype",
+                params: {
+                    column: castingCol,
+                    target_type: castingType
+                }
+            });
+        }
+
+        if (pipeline.length === 0) {
+            toast.error("Please configure at least one cleaning operation.");
+            setIsCleaningActive(false);
+            return;
+        }
+
+        try {
+            const response = await projectApi.cleanDataset(selectedDatasetId, { pipeline });
+            toast.success("Dataset cleaned successfully!");
+
+            // The response returns a new cleaned dataset preview
+            setPreviewData(response);
+
+            // If the response contains the new dataset_id, we should refresh the project to see it in the list
+            if (response.dataset_id) {
+                setSelectedDatasetId(response.dataset_id);
+                fetchProjectDetails();
+            }
+
+            setIsCleaningOpen(false);
+        } catch (err: any) {
+            console.error("Cleaning failed:", err);
+            toast.error(err.response?.data?.message || "Cleaning operation failed.");
+        } finally {
+            setIsCleaningActive(false);
         }
     };
 
@@ -441,6 +522,22 @@ export function ProjectDetailPage() {
                                     Dataframe Preview
                                 </h3>
                                 <div className="flex items-center gap-3">
+                                    {/* Clean Data Action Button */}
+                                    {selectedDatasetId && (
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className={cn(
+                                                "bg-primary/10 border-primary/20 hover:bg-primary/20 text-primary transition-all font-bold",
+                                                isCleaningOpen && "ring-2 ring-primary bg-primary/20"
+                                            )}
+                                            onClick={() => setIsCleaningOpen(!isCleaningOpen)}
+                                        >
+                                            <Wand2 className="h-4 w-4 mr-2" />
+                                            Clean Data
+                                        </Button>
+                                    )}
+
                                     {/* Column Selector Dropdown */}
                                     {previewData && (
                                         <DropdownMenu>
@@ -690,6 +787,179 @@ export function ProjectDetailPage() {
                     </TabsContent>
                 </Tabs>
             </div>
+
+            {/* Slide-in Cleaning Panel UI */}
+            <AnimatePresence>
+                {isCleaningOpen && (
+                    <>
+                        {/* Backdrop */}
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setIsCleaningOpen(false)}
+                            className="fixed inset-0 bg-background/60 backdrop-blur-sm z-[100]"
+                        />
+                        {/* Panel */}
+                        <motion.div
+                            initial={{ x: "100%" }}
+                            animate={{ x: 0 }}
+                            exit={{ x: "100%" }}
+                            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+                            className="fixed top-0 right-0 h-full w-[400px] bg-card border-l border-border/10 shadow-2xl z-[101] flex flex-col pt-20"
+                        >
+                            <div className="flex items-center justify-between px-6 pb-6 border-b border-border/10">
+                                <div className="space-y-1">
+                                    <h3 className="text-xl font-bold flex items-center gap-2">
+                                        <Eraser className="h-5 w-5 text-primary" />
+                                        Data Clean Workbench
+                                    </h3>
+                                    <p className="text-xs text-muted-foreground">Apply transformations & fix your datasets</p>
+                                </div>
+                                <Button variant="ghost" size="icon" onClick={() => setIsCleaningOpen(false)}>
+                                    <X className="h-4 w-4" />
+                                </Button>
+                            </div>
+
+                            <div className="flex-1 overflow-y-auto p-6 space-y-8 custom-scrollbar">
+                                {/* Section: Missing Values */}
+                                <div className="space-y-4">
+                                    <div className="text-xs font-bold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1.5 rounded-md inline-block">
+                                        1. Missing Values (NA)
+                                    </div>
+                                    <div className="space-y-3">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] uppercase font-bold text-muted-foreground">Select Columns</label>
+                                            <select
+                                                value={cleaningNACol}
+                                                onChange={(e) => setCleaningNACol(e.target.value)}
+                                                className="w-full bg-secondary/20 border border-border/20 rounded-md h-9 text-xs px-2 outline-none focus:ring-1 focus:ring-primary/40"
+                                            >
+                                                <option value="all">All Columns</option>
+                                                {previewData?.columns.map(c => <option key={c} value={c}>{c}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] uppercase font-bold text-muted-foreground">Action Strategy</label>
+                                            <div className="grid grid-cols-2 gap-2">
+                                                {[
+                                                    { id: "drop", label: "Drop Rows" },
+                                                    { id: "fill_zero", label: "Fill Zero" },
+                                                    { id: "fill_mean", label: "Fill Mean" },
+                                                    { id: "fill_median", label: "Fill Median" }
+                                                ].map(strategy => (
+                                                    <Button
+                                                        key={strategy.id}
+                                                        variant={cleaningNAStrategy === strategy.id ? "secondary" : "outline"}
+                                                        size="sm"
+                                                        className={cn(
+                                                            "text-[10px] h-8 justify-start font-medium",
+                                                            cleaningNAStrategy === strategy.id && "ring-1 ring-primary/40"
+                                                        )}
+                                                        onClick={() => setCleaningNAStrategy(strategy.id)}
+                                                    >
+                                                        <div className={cn(
+                                                            "w-1.5 h-1.5 rounded-full mr-2",
+                                                            cleaningNAStrategy === strategy.id ? "bg-primary" : "bg-primary/40"
+                                                        )} />
+                                                        {strategy.label}
+                                                    </Button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Section: Deduplication */}
+                                <div className="space-y-4 pt-4 border-t border-border/10">
+                                    <div className="text-xs font-bold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1.5 rounded-md inline-block">
+                                        2. Deduplication
+                                    </div>
+                                    <div className="space-y-3">
+                                        <p className="text-[10px] text-muted-foreground">Remove duplicate rows based on unique column combinations.</p>
+                                        <Button
+                                            variant={isDeduplicationEnabled ? "secondary" : "outline"}
+                                            className={cn(
+                                                "w-full h-10 gap-2 border-dashed transition-all",
+                                                isDeduplicationEnabled ? "border-primary bg-primary/10" : "border-primary/20 hover:border-primary/40"
+                                            )}
+                                            onClick={() => setIsDeduplicationEnabled(!isDeduplicationEnabled)}
+                                        >
+                                            <RefreshCw className={cn("h-3.5 w-3.5", isDeduplicationEnabled && "animate-spin-slow")} />
+                                            {isDeduplicationEnabled ? "Deduplication Enabled" : "Enable Deduplication Scan"}
+                                        </Button>
+                                    </div>
+                                </div>
+
+                                {/* Section: Type Casting */}
+                                <div className="space-y-4 pt-4 border-t border-border/10">
+                                    <div className="text-xs font-bold uppercase tracking-wider text-primary bg-primary/10 px-3 py-1.5 rounded-md inline-block">
+                                        3. Column Wizard (Schema)
+                                    </div>
+                                    <div className="space-y-3">
+                                        <div className="grid grid-cols-2 gap-2">
+                                            <div className="space-y-1">
+                                                <label className="text-[10px] font-bold text-muted-foreground">Target Col</label>
+                                                <select
+                                                    value={castingCol}
+                                                    onChange={(e) => setCastingCol(e.target.value)}
+                                                    className="w-full bg-secondary/20 border border-border/20 rounded-md h-8 text-[10px] px-1 outline-none"
+                                                >
+                                                    {previewData?.columns.map(c => <option key={c} value={c}>{c}</option>)}
+                                                </select>
+                                            </div>
+                                            <div className="space-y-1">
+                                                <label className="text-[10px] font-bold text-muted-foreground">To Type</label>
+                                                <select
+                                                    value={castingType}
+                                                    onChange={(e) => setCastingType(e.target.value)}
+                                                    className="w-full bg-secondary/20 border border-border/20 rounded-md h-8 text-[10px] px-1 outline-none"
+                                                >
+                                                    {[
+                                                        { id: "integer", label: "Integer" },
+                                                        { id: "float", label: "Float" },
+                                                        { id: "string", label: "String" },
+                                                        { id: "datetime", label: "Datetime" }
+                                                    ].map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="p-6 bg-secondary/20 border-t border-border/10 space-y-3">
+                                <Button
+                                    className="w-full font-bold h-11 shadow-lg shadow-primary/20"
+                                    onClick={handleRunCleanup}
+                                    disabled={isCleaningActive}
+                                >
+                                    {isCleaningActive ? (
+                                        <>
+                                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                                            Cleaning Data...
+                                        </>
+                                    ) : (
+                                        "Run Cleaning Pipeline"
+                                    )}
+                                </Button>
+                                <Button
+                                    variant="ghost"
+                                    className="w-full text-xs h-9 text-muted-foreground"
+                                    onClick={() => {
+                                        setCleaningNAStrategy("");
+                                        setIsDeduplicationEnabled(false);
+                                        setCastingCol("");
+                                        setCastingType("integer");
+                                    }}
+                                >
+                                    Reset Workbench
+                                </Button>
+                            </div>
+                        </motion.div>
+                    </>
+                )}
+            </AnimatePresence>
         </div>
     );
 }

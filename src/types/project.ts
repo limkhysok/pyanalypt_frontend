@@ -59,4 +59,13 @@ export interface DatasetPreview {
     };
     summary?: Record<string, any>;
     total_rows_hint: number;
+    dataset_id?: number | string; // Returned in cleaning response
+    name?: string;               // Returned in cleaning response
+}
+
+export interface CleanDatasetRequest {
+    pipeline: {
+        operation: 'handle_na' | 'drop_duplicates' | 'astype' | string;
+        params: Record<string, any>;
+    }[];
 }

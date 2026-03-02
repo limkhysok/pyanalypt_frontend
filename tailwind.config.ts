@@ -63,6 +63,9 @@ const config: Config = {
             },
             transitionTimingFunction: {
                 reveal: 'cubic-bezier(0.19, 1, 0.22, 1)',
+            },
+            animation: {
+                'spin-slow': 'spin 3s linear infinite',
             }
         }
     },
