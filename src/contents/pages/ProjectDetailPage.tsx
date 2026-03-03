@@ -63,7 +63,7 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { projectApi } from "@/services/api";
-import { Project, DatasetPreview } from "@/types/project";
+import { Project, DatasetPreview, DatasetAnalysis } from "@/types/project";
 import { useAuth } from "@/context/auth-context";
 
 export function ProjectDetailPage() {
@@ -80,10 +80,13 @@ export function ProjectDetailPage() {
     const [isProcessing, setIsProcessing] = React.useState(false);
     const [selectedDatasetId, setSelectedDatasetId] = React.useState<number | string | null>(null);
     const [previewData, setPreviewData] = React.useState<DatasetPreview | null>(null);
+    const [cleanedPreviewData, setCleanedPreviewData] = React.useState<DatasetPreview | null>(null);
     const [visibleColumns, setVisibleColumns] = React.useState<string[]>([]);
     const [isPreviewLoading, setIsPreviewLoading] = React.useState(false);
     const [isCleaningOpen, setIsCleaningOpen] = React.useState(false);
     const [rowCount, setRowCount] = React.useState<number>(10);
+    const [analysisResult, setAnalysisResult] = React.useState<DatasetAnalysis | null>(null);
+    const [isAnalysisLoading, setIsAnalysisLoading] = React.useState(false);
 
     // Cleaning Workbench State
     const [cleaningNACol, setCleaningNACol] = React.useState<string>("all");
@@ -196,9 +199,24 @@ export function ProjectDetailPage() {
         }
     };
 
+    const handleAnalyzeDataset = async (datasetId: number | string) => {
+        setIsAnalysisLoading(true);
+        try {
+            const data = await projectApi.analyzeDataset(datasetId);
+            setAnalysisResult(data);
+        } catch (err) {
+            console.error("Analysis failed:", err);
+            // Don't toast error here as it might be secondary to preview
+        } finally {
+            setIsAnalysisLoading(false);
+        }
+    };
+
     const handleViewPreview = async (datasetId: number | string, limit: number = rowCount) => {
         setSelectedDatasetId(datasetId);
         setIsPreviewLoading(true);
+        setCleanedPreviewData(null); // Reset result when viewing new dataset
+        setAnalysisResult(null); // Reset analysis when viewing new dataset
         try {
             const data = await projectApi.getDatasetPreview(datasetId, limit);
             setPreviewData(data);
@@ -207,6 +225,8 @@ export function ProjectDetailPage() {
                 setVisibleColumns(data.columns);
                 if (!castingCol && data.columns.length > 0) setCastingCol(data.columns[0]);
             }
+            // Fetch smart insights
+            handleAnalyzeDataset(datasetId);
         } catch (err) {
             console.error("Failed to fetch preview:", err);
             toast.error("Failed to load data preview.");
@@ -330,11 +350,10 @@ export function ProjectDetailPage() {
             toast.success("Cleanup pipeline executed successfully!");
 
             // The response returns a new cleaned dataset preview
-            setPreviewData(response);
+            setCleanedPreviewData(response);
 
             // If the response contains the new dataset_id, we should refresh the project to see it in the list
             if (response.dataset_id) {
-                setSelectedDatasetId(response.dataset_id);
                 fetchProjectDetails();
             }
 
@@ -1178,6 +1197,135 @@ export function ProjectDetailPage() {
                                         </div>
                                     </Card>
                                 </div>
+                            )}
+
+                            {/* Data Cleaning Result Preview Section */}
+                            {cleanedPreviewData && (
+                                <motion.div
+                                    initial={{ opacity: 0, y: 10 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    className="mt-12 space-y-6"
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-2 bg-green-500/10 rounded-full">
+                                                <CheckCircle2 className="h-6 w-6 text-green-600" />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-xl font-bold text-foreground">Cleaned Data Results</h3>
+                                                <p className="text-xs text-muted-foreground italic">Operation successful. Review the results below.</p>
+                                            </div>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <Badge variant="outline" className="border-green-500/30 bg-green-500/10 text-green-600 px-3 py-1 font-bold">
+                                                {cleanedPreviewData.name || "Cleaned Result"}
+                                            </Badge>
+                                            {cleanedPreviewData.dataset_id && (
+                                                <Badge className="bg-green-600 text-white border-none text-[9px] h-5">
+                                                    Saved as New Dataset
+                                                </Badge>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <Card className="border-green-500/20 bg-green-500/[0.03] backdrop-blur-md p-6">
+                                        <div className="rounded-xl border border-green-500/10 overflow-hidden bg-card/60 shadow-sm">
+                                            <div className="overflow-x-auto custom-scrollbar">
+                                                <table className="w-full text-xs text-left">
+                                                    <thead className="text-[10px] uppercase bg-green-500/5 text-muted-foreground border-b border-green-500/10">
+                                                        <tr>
+                                                            {cleanedPreviewData.columns.map(col => (
+                                                                <th key={col} className="px-4 py-3 border-r border-green-500/5 last:border-0 font-bold text-green-700/70">
+                                                                    {col}
+                                                                </th>
+                                                            ))}
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-green-500/5">
+                                                        {cleanedPreviewData.rows?.map((row, idx) => (
+                                                            <tr key={idx} className="hover:bg-green-500/5 transition-colors">
+                                                                {cleanedPreviewData.columns.map((col) => (
+                                                                    <td key={col} className="px-4 py-3 whitespace-nowrap border-r border-green-500/5 last:border-0 font-mono text-[11px]">
+                                                                        {String(row[col] ?? "")}
+                                                                    </td>
+                                                                ))}
+                                                            </tr>
+                                                        ))}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                            <div className="px-4 py-2 text-[10px] text-muted-foreground flex justify-between items-center bg-green-500/10">
+                                                <div className="flex items-center gap-4">
+                                                    <span className="font-bold text-green-700">Preview: {cleanedPreviewData.rows?.length || 0} items</span>
+                                                    {cleanedPreviewData.metadata?.shape && (
+                                                        <span className="opacity-60 italic text-green-600">
+                                                            Actual Dataset Shape: ({cleanedPreviewData.metadata.shape[0]}, {cleanedPreviewData.metadata.shape[1]})
+                                                        </span>
+                                                    )}
+                                                </div>
+                                                <span className="font-bold text-green-700">Total Rows: {cleanedPreviewData.total_rows_hint}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Result Insights: Metadata & Summary */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+                                            {/* Metadata / Data Types */}
+                                            {cleanedPreviewData.metadata?.dtypes && (
+                                                <div className="bg-card/80 border-2 border-green-500/10 rounded-xl p-5 space-y-4 shadow-sm">
+                                                    <div className="flex items-center gap-3 text-base font-bold text-foreground border-b border-green-500/10 pb-3">
+                                                        <div className="p-2 bg-green-500/10 rounded-lg">
+                                                            <Info className="h-5 w-5 text-green-600" />
+                                                        </div>
+                                                        New Column Schema
+                                                    </div>
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                                                        {Object.entries(cleanedPreviewData.metadata.dtypes).map(([col, type]) => (
+                                                            <div key={col} className="flex flex-col p-3 bg-green-500/[0.02] rounded-lg border border-green-500/10 hover:border-green-500/30 transition-colors">
+                                                                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-1 truncate">
+                                                                    {col}
+                                                                </span>
+                                                                <span className="font-mono text-sm font-bold text-green-700">
+                                                                    {String(type)}
+                                                                </span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Summary Statistics */}
+                                            {cleanedPreviewData.summary && Object.keys(cleanedPreviewData.summary).length > 0 && (
+                                                <div className="bg-card/80 border-2 border-green-500/10 rounded-xl p-5 space-y-4 shadow-sm">
+                                                    <div className="flex items-center gap-3 text-base font-bold text-foreground border-b border-green-500/10 pb-3">
+                                                        <div className="p-2 bg-green-500/10 rounded-lg">
+                                                            <BarChart3 className="h-5 w-5 text-green-600" />
+                                                        </div>
+                                                        Statistics Comparison
+                                                    </div>
+                                                    <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                                                        {Object.entries(cleanedPreviewData.summary).map(([col, stats]) => (
+                                                            <div key={col} className="overflow-hidden rounded-lg border border-green-500/10 bg-green-500/[0.02]">
+                                                                <div className="bg-green-500/5 px-3 py-2 text-xs font-bold text-foreground border-b border-green-500/10 truncate">
+                                                                    {col}
+                                                                </div>
+                                                                <div className="grid grid-cols-2 gap-px bg-green-500/10">
+                                                                    {Object.entries(stats as Record<string, any>).map(([stat, val]) => (
+                                                                        <div key={stat} className="flex justify-between items-center bg-card p-2 text-xs">
+                                                                            <span className="text-muted-foreground capitalize">{stat}</span>
+                                                                            <span className="font-bold text-green-700">
+                                                                                {val}
+                                                                            </span>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </Card>
+                                </motion.div>
                             )}
                         </div>
                     </TabsContent>

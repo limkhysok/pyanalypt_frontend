@@ -6,7 +6,8 @@ import {
     Dataset,
     UploadDatasetRequest,
     PasteDatasetRequest,
-    DatasetPreview
+    DatasetPreview,
+    DatasetAnalysis
 } from '@/types/project';
 
 /**
@@ -128,6 +129,15 @@ export const projectApi = {
     async cleanDataset(datasetId: number | string, data: { pipeline: any[] }): Promise<DatasetPreview> {
         console.log("[ProjectApi] Cleaning dataset:", datasetId);
         const response = await apiClient.post<DatasetPreview>(`/datasets/items/${datasetId}/clean/`, data);
+        return response.data;
+    },
+
+    /**
+     * Get smart insights and statistical analysis for a dataset
+     */
+    async analyzeDataset(datasetId: number | string): Promise<DatasetAnalysis> {
+        console.log("[ProjectApi] Analyzing dataset:", datasetId);
+        const response = await apiClient.get<DatasetAnalysis>(`/datasets/items/${datasetId}/analyze/`);
         return response.data;
     }
 };

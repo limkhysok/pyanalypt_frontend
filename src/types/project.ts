@@ -69,3 +69,11 @@ export interface CleanDatasetRequest {
         params: Record<string, any>;
     }[];
 }
+export interface DatasetAnalysis {
+    correlations: Record<string, Record<string, number>>;
+    missing_values: Record<string, { count: number; percentage: number }>;
+    outlier_summary: Record<string, number>;
+    metadata: {
+        numeric_cols_count: number;
+    };
+}
