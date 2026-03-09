@@ -38,6 +38,8 @@ import {
     Type,
     Sliders,
     Target,
+    MoreVertical,
+    Layers,
     CaseLower,
     Variable,
     Trash
@@ -87,6 +89,7 @@ export function ProjectDetailPage() {
     const [rowCount, setRowCount] = React.useState<number>(10);
     const [analysisResult, setAnalysisResult] = React.useState<DatasetAnalysis | null>(null);
     const [isAnalysisLoading, setIsAnalysisLoading] = React.useState(false);
+    const [activeTab, setActiveTab] = React.useState("data");
 
     // Cleaning Workbench State
     const [cleaningNACol, setCleaningNACol] = React.useState<string>("all");
@@ -396,225 +399,249 @@ export function ProjectDetailPage() {
     }
 
     return (
-        <div className="py-8 px-6 md:px-12 bg-background/50">
-            <div className="max-w-7xl mx-auto space-y-8">
-                {/* Navigation Breadcrumb */}
-                <div className="flex items-center text-sm text-muted-foreground gap-2">
-                    <Button
-                        variant="link"
-                        size="sm"
-                        className="p-0 h-auto text-muted-foreground hover:text-primary"
-                        onClick={() => router.push("/project")}
-                    >
-                        Projects
-                    </Button>
-                    <ChevronRight className="h-3 w-3" />
-                    <span className="text-foreground font-medium truncate">{project.name}</span>
-                </div>
-
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-start justify-between gap-6">
-                    <div className="space-y-3">
-                        <div className="flex items-center gap-3">
-                            <div
-                                className="p-2 rounded-lg bg-primary/10 text-primary"
-                                style={{ backgroundColor: `${project.color_code}20` }}
-                            >
-                                <Database className="h-6 w-6" />
-                            </div>
-                            <h1 className="text-3xl font-extrabold tracking-tight">
-                                {project.name}
-                            </h1>
-                            <Badge variant={project.status === "archived" ? "secondary" : "outline"} className="capitalize">
-                                {project.status}
-                            </Badge>
-                        </div>
-                        <p className="text-muted-foreground text-lg max-w-2xl">
-                            {project.description || "No description provided for this project."}
-                        </p>
-                        <div className="flex flex-wrap gap-4 text-sm text-muted-foreground pt-1">
-                            <span className="flex items-center gap-1.5">
-                                <Calendar className="h-4 w-4" />
-                                Created {new Date(project.created_at).toLocaleDateString()}
-                            </span>
-                            <span className="flex items-center gap-1.5">
-                                <Clock className="h-4 w-4" />
-                                Updated {new Date(project.updated_at).toLocaleDateString()}
-                            </span>
-                        </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        <Button variant="outline" size="sm">
-                            <Settings className="mr-2 h-4 w-4" />
-                            Settings
-                        </Button>
-                        <input
-                            type="file"
-                            className="hidden"
-                            ref={fileInputRef}
-                            onChange={handleFileUpload}
-                            accept=".csv, .xlsx, .xls, .json"
-                        />
+        <div className="min-h-screen bg-background text-foreground">
+            <div className="max-w-7xl mx-auto py-8 px-6 md:px-12 space-y-10">
+                {/* Unified Header & Navigation */}
+                <div className="space-y-6">
+                    <nav className="flex items-center space-x-2 text-xs font-semibold uppercase tracking-widest text-muted-foreground/60">
                         <Button
-                            className="bg-primary hover:bg-primary/90"
-                            onClick={() => fileInputRef.current?.click()}
-                            disabled={isProcessing}
+                            variant="link"
+                            className="p-0 h-auto text-muted-foreground/60 hover:text-primary transition-colors"
+                            onClick={() => router.push("/project")}
                         >
-                            {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileUp className="mr-2 h-4 w-4" />}
-                            Import Data
+                            Hub
                         </Button>
+                        <ChevronRight className="h-3 w-3 opacity-40" />
+                        <span className="text-foreground tracking-normal lowercase first-letter:uppercase font-bold">{project.name}</span>
+                    </nav>
+
+                    <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-border/40">
+                        <div className="flex items-start gap-4">
+                            <div
+                                className="p-3.5 rounded-2xl bg-secondary/50 text-primary shadow-inner shrink-0"
+                                style={{ borderTop: `4px solid ${project.color_code || "#3b82f6"}` }}
+                            >
+                                <Database className="h-7 w-7" />
+                            </div>
+                            <div className="space-y-1.5">
+                                <div className="flex items-center gap-3">
+                                    <h1 className="text-3xl font-black tracking-tight text-foreground">
+                                        {project.name}
+                                    </h1>
+                                    <Badge variant="secondary" className="px-2 py-0.5 text-[10px] uppercase font-black tracking-widest bg-emerald-500/10 text-emerald-600 border-none">
+                                        {project.status || "Active"}
+                                    </Badge>
+                                </div>
+                                <p className="text-muted-foreground text-base max-w-3xl font-medium leading-relaxed">
+                                    {project.description || "Describe the analytical objectives and data structures contained within this project workspace."}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center gap-3">
+                            <TooltipProvider>
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Button variant="outline" size="icon" className="h-11 w-11 rounded-xl border-border/60 hover:bg-secondary/50">
+                                            <Settings className="h-5 w-5 opacity-60" />
+                                        </Button>
+                                    </TooltipTrigger>
+                                    <TooltipContent>Workspace Parameters</TooltipContent>
+                                </Tooltip>
+                            </TooltipProvider>
+
+                            <input
+                                type="file"
+                                className="hidden"
+                                ref={fileInputRef}
+                                onChange={handleFileUpload}
+                                accept=".csv, .xlsx, .xls, .json"
+                            />
+                            <Button
+                                size="lg"
+                                className="h-11 px-6 font-bold shadow-sm hover:shadow-md transition-all rounded-xl"
+                                onClick={() => fileInputRef.current?.click()}
+                                disabled={isProcessing}
+                            >
+                                {isProcessing ? <Loader2 className="mr-2.5 h-4 w-4 animate-spin text-white" /> : <FileUp className="mr-2.5 h-4 w-4" />}
+                                Upload Intelligence
+                            </Button>
+                        </div>
                     </div>
                 </div>
 
                 {/* Content Tabs */}
                 <Tabs defaultValue="data" className="w-full">
-                    <TabsList className="bg-card w-full justify-start border-b border-border/40 p-0 h-10 gap-6 rounded-none bg-transparent">
+                    <TabsList className="w-full flex justify-start items-center border-b border-border/40 bg-transparent h-12 p-0 gap-8 rounded-none">
                         <TabsTrigger
                             value="data"
-                            className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 h-10"
+                            className="bg-transparent border-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-1 text-sm font-bold transition-all"
                         >
                             <Table className="mr-2 h-4 w-4" />
-                            Data
+                            Repository
                         </TabsTrigger>
                         <TabsTrigger
                             value="analysis"
-                            className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 h-10"
+                            className="bg-transparent border-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-1 text-sm font-bold transition-all opacity-60 data-[state=active]:opacity-100"
                         >
-                            <Code className="mr-2 h-4 w-4" />
-                            Analysis
+                            <BarChart3 className="mr-2 h-4 w-4" />
+                            Insights
                         </TabsTrigger>
                         <TabsTrigger
                             value="logs"
-                            className="data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none px-2 h-10"
+                            className="bg-transparent border-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-1 text-sm font-bold transition-all opacity-60 data-[state=active]:opacity-100"
                         >
                             <Clock className="mr-2 h-4 w-4" />
-                            Activity Logs
+                            Historian
                         </TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="data" className="mt-8 space-y-6">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <Card className="border-border/30 bg-card/40 backdrop-blur-md">
-                                <CardHeader>
-                                    <div className="flex items-center justify-between">
-                                        <CardTitle className="text-lg flex items-center gap-2">
-                                            <FileUp className="h-5 w-5 text-primary" />
-                                            Upload Dataset
-                                        </CardTitle>
+                    <TabsContent value="data" className="mt-10 space-y-12">
+                        {/* Injection Zone */}
+                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                            <Card className="border-border/60 bg-muted/20 hover:bg-muted/30 transition-colors shadow-sm overflow-hidden">
+                                <CardHeader className="pb-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-primary/10 rounded-lg">
+                                            <FileUp className="h-4 w-4 text-primary" />
+                                        </div>
+                                        <div>
+                                            <CardTitle className="text-base font-bold">Standard Import</CardTitle>
+                                            <CardDescription className="text-xs">Process structured file formats (CSV, Excel).</CardDescription>
+                                        </div>
                                     </div>
-                                    <CardDescription>
-                                        Import your CSV, Excel, or JSON files to start analyzing.
-                                    </CardDescription>
                                 </CardHeader>
                                 <CardContent>
                                     <div
                                         onClick={() => fileInputRef.current?.click()}
-                                        className="border-2 border-dashed border-border/60 rounded-xl p-10 flex flex-col items-center justify-center text-center space-y-4 hover:border-primary/50 hover:bg-primary/5 transition-colors cursor-pointer group"
+                                        className="border-2 border-dashed border-border/40 rounded-2xl p-12 flex flex-col items-center justify-center text-center space-y-4 hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer group"
                                     >
-                                        <div className="p-4 bg-primary/10 text-primary rounded-full group-hover:scale-110 transition-transform">
-                                            {isProcessing ? <Loader2 className="h-8 w-8 animate-spin" /> : <FileUp className="h-8 w-8" />}
+                                        <div className="p-5 bg-background border rounded-full group-hover:scale-110 group-hover:border-primary/20 transition-all shadow-sm">
+                                            {isProcessing ? <Loader2 className="h-8 w-8 animate-spin text-primary" /> : <FileUp className="h-8 w-8 text-muted-foreground group-hover:text-primary" />}
                                         </div>
-                                        <div className="space-y-1">
-                                            <p className="font-medium">Click to upload or drag and drop</p>
-                                            <p className="text-xs text-muted-foreground">CSV, XLSX, JSON (Max 50MB)</p>
+                                        <div className="space-y-1.5">
+                                            <p className="font-bold text-sm tracking-tight text-foreground/80">Select Analytic Source</p>
+                                            <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/40">Drop local files or browse</p>
                                         </div>
                                     </div>
                                 </CardContent>
                             </Card>
 
-                            <Card className="border-border/30 bg-card/40 backdrop-blur-md">
-                                <CardHeader>
-                                    <CardTitle className="text-lg flex items-center gap-2">
-                                        <Code className="h-5 w-5 text-primary" />
-                                        Raw Data Paste
-                                    </CardTitle>
-                                    <CardDescription>
-                                        Quickly paste CSV data or logs from your clipboard.
-                                    </CardDescription>
+                            <Card className="border-border/60 bg-muted/20 hover:bg-muted/30 transition-colors shadow-sm overflow-hidden">
+                                <CardHeader className="pb-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="p-2 bg-primary/10 rounded-lg">
+                                            <Code className="h-4 w-4 text-primary" />
+                                        </div>
+                                        <div>
+                                            <CardTitle className="text-base font-bold">Raw Stream Injection</CardTitle>
+                                            <CardDescription className="text-xs">Directly paste text streams or CSV fragments.</CardDescription>
+                                        </div>
+                                    </div>
                                 </CardHeader>
-                                <CardContent>
+                                <CardContent className="space-y-4">
                                     <textarea
-                                        className="w-full h-40 bg-background/50 border border-border/40 rounded-lg p-3 text-sm font-mono focus:ring-1 focus:ring-primary/40 outline-none resize-none placeholder:text-muted-foreground/50"
-                                        placeholder="Paste your CSV data here...&#10;header1,header2&#10;data1,data2"
+                                        className="w-full h-[148px] bg-background border border-border/60 rounded-xl p-4 text-xs font-mono focus:ring-2 focus:ring-primary/20 outline-none resize-none placeholder:text-muted-foreground/30 transition-all"
+                                        placeholder="Paste CSV data header strings...&#10;val1,val2,val3"
                                         value={rawData}
                                         onChange={(e) => setRawData(e.target.value)}
                                         disabled={isProcessing}
                                     />
                                     <Button
-                                        className="w-full mt-4 bg-secondary hover:bg-secondary/80"
+                                        className="w-full h-11 font-bold rounded-lg shadow-sm"
+                                        variant="secondary"
                                         onClick={handleRawDataPaste}
                                         disabled={isProcessing || !rawData.trim()}
                                     >
-                                        {isProcessing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Code className="mr-2 h-4 w-4" />}
-                                        Process Raw Data
+                                        {isProcessing ? <Loader2 className="mr-2.5 h-4 w-4 animate-spin" /> : <Plus className="mr-2.5 h-4 w-4 text-primary" />}
+                                        Initialize From Stream
                                     </Button>
                                 </CardContent>
                             </Card>
                         </div>
 
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between">
-                                <h3 className="text-xl font-bold">Datasets</h3>
-                                <div className="flex gap-2">
-                                    <div className="relative">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                        <input
-                                            placeholder="Search datasets..."
-                                            className="pl-9 h-9 w-64 bg-card/40 border border-border/40 rounded-md text-sm focus:ring-1 focus:ring-primary/40 outline-none"
+                        {/* Inventory Section */}
+                        <div className="space-y-6">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div className="space-y-1">
+                                    <h3 className="text-xl font-black tracking-tight flex items-center gap-2">
+                                        Data Asset Inventory
+                                    </h3>
+                                    <p className="text-xs text-muted-foreground font-medium">Manage and explore contained analytical datasets.</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="relative group">
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground group-focus-within:text-primary transition-colors" />
+                                        <Input
+                                            placeholder="Search inventory..."
+                                            className="pl-9 h-9 w-64 bg-background border-border/60 text-xs shadow-sm"
                                         />
                                     </div>
-                                    <Button variant="outline" size="sm">
-                                        <Filter className="h-4 w-4 mr-2" />
-                                        Filter
-                                    </Button>
                                 </div>
                             </div>
 
-                            <Card className="border-border/10 bg-card/20 shadow-none overflow-hidden">
+                            <Card className="border-border/60 shadow-sm overflow-hidden bg-card/10">
                                 {project.datasets && project.datasets.length > 0 ? (
                                     <div className="overflow-x-auto">
-                                        <table className="w-full text-sm text-left">
-                                            <thead className="text-xs uppercase bg-secondary/30 text-muted-foreground font-medium">
-                                                <tr>
-                                                    <th className="px-6 py-4">Name</th>
-                                                    <th className="px-6 py-4">Format</th>
-                                                    <th className="px-6 py-4">Rows</th>
-                                                    <th className="px-6 py-4">Cols</th>
+                                        <table className="w-full text-xs text-left">
+                                            <thead>
+                                                <tr className="bg-muted/40 text-muted-foreground font-black uppercase tracking-widest text-[9px] border-b border-border/40">
+                                                    <th className="px-6 py-4">Descriptor</th>
+                                                    <th className="px-6 py-4">Schema</th>
+                                                    <th className="px-6 py-4">Volume</th>
+                                                    <th className="px-6 py-4">Dimensions</th>
                                                     <th className="px-6 py-4 text-right">Actions</th>
                                                 </tr>
                                             </thead>
-                                            <tbody className="divide-y divide-border/10">
+                                            <tbody className="divide-y divide-border/20">
                                                 {project.datasets.map((ds) => (
-                                                    <tr key={ds.id} className="hover:bg-primary/5 transition-colors group">
-                                                        <td className="px-6 py-4 font-medium flex items-center gap-2">
-                                                            <FileSpreadsheet className="h-4 w-4 text-primary" />
+                                                    <tr key={ds.id} className="hover:bg-primary/5 transition-colors group cursor-default">
+                                                        <td className="px-6 py-5 font-bold text-foreground/80 flex items-center gap-3">
+                                                            <div className="p-2 bg-secondary/50 rounded-lg group-hover:bg-primary/10 group-hover:text-primary transition-colors shadow-sm">
+                                                                <FileSpreadsheet className="h-4 w-4 opacity-70" />
+                                                            </div>
                                                             {ds.name}
                                                         </td>
-                                                        <td className="px-6 py-4">
-                                                            <Badge variant="outline" className="text-[10px] uppercase">
-                                                                {ds.file_format || "csv"}
+                                                        <td className="px-6 py-5">
+                                                            <Badge variant="outline" className="text-[10px] font-black uppercase tracking-wider bg-secondary/20 border-border/40 text-muted-foreground">
+                                                                {ds.file_format || "CSV"}
                                                             </Badge>
                                                         </td>
-                                                        <td className="px-6 py-4 text-muted-foreground">
-                                                            {ds.row_count?.toLocaleString() || "-"}
+                                                        <td className="px-6 py-5 font-mono text-[10px] text-muted-foreground font-bold">
+                                                            {ds.row_count?.toLocaleString() || "0"} <span className="text-[8px] opacity-40">rows</span>
                                                         </td>
-                                                        <td className="px-6 py-4 text-muted-foreground">
-                                                            {ds.column_count?.toLocaleString() || "-"}
+                                                        <td className="px-6 py-5 font-mono text-[10px] text-muted-foreground font-bold">
+                                                            {ds.column_count?.toLocaleString() || "0"} <span className="text-[8px] opacity-40">cols</span>
                                                         </td>
-                                                        <td className="px-6 py-4 text-right">
-                                                            <div className="flex justify-end gap-2">
+                                                        <td className="px-6 py-5 text-right">
+                                                            <div className="flex justify-end gap-1.5">
                                                                 <Button
                                                                     variant="ghost"
                                                                     size="sm"
-                                                                    className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        handleDeleteDataset(ds.id);
-                                                                    }}
+                                                                    className="h-8 px-3 text-[10px] font-bold uppercase tracking-widest hover:text-primary"
+                                                                    onClick={() => handleViewPreview(ds.id, rowCount)}
                                                                 >
-                                                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                                                    Analyze
                                                                 </Button>
+                                                                <DropdownMenu>
+                                                                    <DropdownMenuTrigger asChild>
+                                                                        <Button variant="ghost" size="icon" className="h-8 w-8 opacity-40 hover:opacity-100 transition-opacity">
+                                                                            <MoreVertical className="h-4 w-4" />
+                                                                        </Button>
+                                                                    </DropdownMenuTrigger>
+                                                                    <DropdownMenuContent align="end" className="w-48">
+                                                                        <DropdownMenuItem onClick={() => handleViewPreview(ds.id, rowCount)} className="gap-2">
+                                                                            <Eye className="h-4 w-4" /> View Preview
+                                                                        </DropdownMenuItem>
+                                                                        <DropdownMenuSeparator />
+                                                                        <DropdownMenuItem
+                                                                            onClick={() => handleDeleteDataset(ds.id)}
+                                                                            className="gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive"
+                                                                        >
+                                                                            <Trash2 className="h-4 w-4" /> Purge Dataset
+                                                                        </DropdownMenuItem>
+                                                                    </DropdownMenuContent>
+                                                                </DropdownMenu>
                                                             </div>
                                                         </td>
                                                     </tr>
@@ -623,37 +650,41 @@ export function ProjectDetailPage() {
                                         </table>
                                     </div>
                                 ) : (
-                                    <div className="py-12 flex flex-col items-center justify-center text-center space-y-3">
-                                        <Table className="h-12 w-12 text-muted-foreground/30" />
-                                        <p className="text-muted-foreground font-medium">No datasets found in this project.</p>
-                                        <p className="text-xs text-muted-foreground/60 max-w-[250px]">Upload a file or paste data above to see your tables here.</p>
+                                    <div className="py-20 flex flex-col items-center justify-center text-center space-y-4">
+                                        <div className="p-6 bg-muted/30 rounded-full text-muted-foreground/30 shadow-inner">
+                                            <Layers className="h-10 w-10" />
+                                        </div>
+                                        <div className="space-y-1">
+                                            <p className="text-base font-bold text-foreground/40">No Data Assets Identified</p>
+                                            <p className="text-xs text-muted-foreground/60 max-w-sm font-medium">Initialize the project by importing valid CSV or Excel data streams.</p>
+                                        </div>
                                     </div>
                                 )}
                             </Card>
                         </div>
 
                         {/* Dataframe Preview Section */}
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between">
-                                <h3 className="text-xl font-bold flex items-center gap-2">
-                                    <Table className="h-5 w-5 text-primary" />
-                                    Dataframe Preview
-                                </h3>
-                                <div className="flex items-center gap-3">
-                                    {/* Column Selector Dropdown */}
+                        <div className="space-y-6 pt-6">
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div className="space-y-1">
+                                    <h3 className="text-xl font-black tracking-tight flex items-center gap-2">
+                                        Dataframe Inspection
+                                    </h3>
+                                    <p className="text-xs text-muted-foreground font-medium">Deep dive into the underlying data structures.</p>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    {/* Column Selector */}
                                     {previewData && (
                                         <DropdownMenu>
                                             <DropdownMenuTrigger asChild>
-                                                <Button variant="outline" size="sm" className="bg-card/40 border-border/40 min-w-[140px] justify-between">
-                                                    <div className="flex items-center gap-2 overflow-hidden">
-                                                        <Columns className="h-3.5 w-3.5 text-primary shrink-0" />
-                                                        <span className="truncate">Columns ({visibleColumns.length})</span>
-                                                    </div>
-                                                    <ChevronDown className="h-4 w-4 ml-2 opacity-50" />
+                                                <Button variant="outline" size="sm" className="h-9 px-4 bg-background border-border/60 hover:bg-secondary/50 rounded-lg shadow-sm text-xs font-bold gap-2">
+                                                    <Columns className="h-3.5 w-3.5 text-primary" />
+                                                    Schema ({visibleColumns.length})
+                                                    <ChevronDown className="h-3.5 w-3.5 opacity-40" />
                                                 </Button>
                                             </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="w-[180px] max-h-[400px] overflow-y-auto">
-                                                <DropdownMenuLabel>Select Columns</DropdownMenuLabel>
+                                            <DropdownMenuContent align="end" className="w-56 max-h-[400px] overflow-y-auto">
+                                                <DropdownMenuLabel className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/60 p-3">Column Visibility</DropdownMenuLabel>
                                                 <DropdownMenuSeparator />
                                                 {previewData.columns.map((col) => (
                                                     <DropdownMenuCheckboxItem
@@ -667,6 +698,7 @@ export function ProjectDetailPage() {
                                                             }
                                                         }}
                                                         onSelect={(e) => e.preventDefault()}
+                                                        className="text-xs font-medium py-2"
                                                     >
                                                         {col}
                                                     </DropdownMenuCheckboxItem>
@@ -675,54 +707,55 @@ export function ProjectDetailPage() {
                                         </DropdownMenu>
                                     )}
 
-                                    {/* Dataset Selector Dropdown */}
+                                    {/* Dataset Selector */}
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="outline" size="sm" className="bg-card/40 border-border/40 min-w-[180px] justify-between">
-                                                <div className="flex items-center gap-2 overflow-hidden">
-                                                    <FileSpreadsheet className="h-3.5 w-3.5 text-primary shrink-0" />
-                                                    <span className="truncate">
-                                                        {selectedDatasetId ? (project.datasets?.find(d => d.id === selectedDatasetId)?.name) : "Select Dataset"}
-                                                    </span>
-                                                </div>
-                                                <ChevronDown className="h-4 w-4 ml-2 opacity-50" />
+                                            <Button variant="outline" size="sm" className="h-9 px-4 bg-background border-border/60 hover:bg-secondary/50 rounded-lg shadow-sm text-xs font-bold gap-2">
+                                                <FileSpreadsheet className="h-3.5 w-3.5 text-primary" />
+                                                <span className="max-w-[120px] truncate">
+                                                    {selectedDatasetId ? (project.datasets?.find(d => d.id === selectedDatasetId)?.name) : "Source"}
+                                                </span>
+                                                <ChevronDown className="h-3.5 w-3.5 opacity-40" />
                                             </Button>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent align="end" className="w-[200px] max-h-[300px] overflow-y-auto">
+                                        <DropdownMenuContent align="end" className="w-64 max-h-[300px] overflow-y-auto">
+                                            <DropdownMenuLabel className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/60 p-3">Select Active Source</DropdownMenuLabel>
+                                            <DropdownMenuSeparator />
                                             {project.datasets && project.datasets.length > 0 ? (
                                                 project.datasets.map((ds) => (
                                                     <DropdownMenuItem
                                                         key={ds.id}
                                                         onClick={() => handleViewPreview(ds.id, rowCount)}
-                                                        className={cn("cursor-pointer", selectedDatasetId === ds.id && "bg-primary/10 text-primary")}
+                                                        className={cn("text-xs font-medium py-2.5 gap-3", selectedDatasetId === ds.id && "bg-primary/5 text-primary")}
                                                     >
-                                                        <FileSpreadsheet className="h-4 w-4 mr-2" />
-                                                        <span className="truncate">{ds.name}</span>
+                                                        <FileSpreadsheet className="h-4 w-4 opacity-40" />
+                                                        <span className="truncate flex-1">{ds.name}</span>
+                                                        {selectedDatasetId === ds.id && <div className="h-1.5 w-1.5 rounded-full bg-primary" />}
                                                     </DropdownMenuItem>
                                                 ))
                                             ) : (
-                                                <div className="px-2 py-4 text-center text-xs text-muted-foreground">No datasets available</div>
+                                                <div className="px-4 py-8 text-center text-xs text-muted-foreground italic">Repository is currently empty.</div>
                                             )}
                                         </DropdownMenuContent>
                                     </DropdownMenu>
 
-                                    {/* Row Count Selector Dropdown */}
+                                    {/* Rows Selector */}
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="outline" size="sm" className="bg-card/40 border-border/40 w-24 justify-between">
-                                                <span>{rowCount} rows</span>
-                                                <ChevronDown className="h-4 w-4 ml-1 opacity-50" />
+                                            <Button variant="outline" size="sm" className="h-9 w-24 bg-background border-border/60 hover:bg-secondary/50 rounded-lg shadow-sm text-xs font-bold gap-2 justify-between">
+                                                <span>{rowCount} items</span>
+                                                <ChevronDown className="h-3.5 w-3.5 opacity-40" />
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent align="end" className="w-24">
-                                            {[10, 50, 100, 999].map((count) => (
+                                            {[10, 25, 50, 100].map((count) => (
                                                 <DropdownMenuItem
                                                     key={count}
                                                     onClick={() => {
                                                         setRowCount(count);
                                                         if (selectedDatasetId) handleViewPreview(selectedDatasetId, count);
                                                     }}
-                                                    className={cn("cursor-pointer justify-center", rowCount === count && "bg-primary/10 text-primary")}
+                                                    className={cn("text-xs font-medium py-2 justify-center", rowCount === count && "bg-primary/5 text-primary")}
                                                 >
                                                     {count}
                                                 </DropdownMenuItem>
@@ -732,31 +765,37 @@ export function ProjectDetailPage() {
                                 </div>
                             </div>
 
-                            <Card className="border-border/10 bg-card/20 shadow-none overflow-hidden min-h-[300px] relative">
-                                {isPreviewLoading ? (
-                                    <div className="absolute inset-0 flex items-center justify-center bg-background/20 backdrop-blur-sm z-10">
-                                        <Loader2 className="h-8 w-8 text-primary animate-spin" />
+                            <Card className="border-border/60 shadow-sm overflow-hidden bg-background/50 relative min-h-[400px]">
+                                {isPreviewLoading && (
+                                    <div className="absolute inset-0 flex items-center justify-center bg-background/40 backdrop-blur-[2px] z-50 transition-all">
+                                        <div className="flex flex-col items-center gap-3">
+                                            <Loader2 className="h-10 w-10 text-primary animate-spin" />
+                                            <p className="text-[10px] uppercase font-black tracking-widest text-primary animate-pulse">Scanning Vectors</p>
+                                        </div>
                                     </div>
-                                ) : null}
+                                )}
 
                                 {previewData ? (
-                                    <div className="space-y-4 p-1">
-                                        <div className="overflow-x-auto rounded-md border border-border/10">
-                                            <table className="w-full text-xs text-left">
-                                                <thead className="bg-secondary/50 text-muted-foreground uppercase font-semibold">
-                                                    <tr>
-                                                        {previewData?.columns?.filter(c => visibleColumns.includes(c)).map((col) => (
-                                                            <th key={col} className="px-4 py-3 border-r border-border/10 last:border-0">
-                                                                {col}
+                                    <div className="space-y-0">
+                                        <div className="overflow-x-auto max-h-[600px] border-b border-border/40 custom-scrollbar">
+                                            <table className="w-full text-left border-collapse">
+                                                <thead className="sticky top-0 z-10">
+                                                    <tr className="bg-muted/60 backdrop-blur-md border-b border-border/60 shadow-sm">
+                                                        {previewData.columns.filter(c => visibleColumns.includes(c)).map((col) => (
+                                                            <th key={col} className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground/80 border-r border-border/20 last:border-0 min-w-[150px]">
+                                                                <div className="flex items-center justify-between">
+                                                                    {col}
+                                                                    <div className="h-1.5 w-1.5 rounded-full bg-primary/20" />
+                                                                </div>
                                                             </th>
                                                         ))}
                                                     </tr>
                                                 </thead>
-                                                <tbody className="divide-y divide-border/10">
-                                                    {previewData?.rows?.map((row, idx) => (
-                                                        <tr key={idx} className="hover:bg-primary/5 transition-colors">
+                                                <tbody className="divide-y divide-border/20">
+                                                    {previewData.rows?.map((row, idx) => (
+                                                        <tr key={idx} className="hover:bg-primary/5 transition-colors group">
                                                             {previewData.columns.filter(c => visibleColumns.includes(c)).map((col) => (
-                                                                <td key={col} className="px-4 py-3 whitespace-nowrap border-r border-border/10 last:border-0">
+                                                                <td key={col} className="px-6 py-3.5 whitespace-nowrap border-r border-border/20 last:border-0 font-mono text-[11px] text-foreground/70 group-hover:text-foreground">
                                                                     {String(row[col] ?? "")}
                                                                 </td>
                                                             ))}
@@ -765,64 +804,67 @@ export function ProjectDetailPage() {
                                                 </tbody>
                                             </table>
                                         </div>
-                                        <div className="px-4 py-2 text-[10px] text-muted-foreground flex justify-between items-center bg-secondary/10 rounded-md">
-                                            <div className="flex items-center gap-4">
-                                                <span>Showing first {rowCount} rows</span>
+                                        <div className="px-6 py-3 text-[10px] font-bold text-muted-foreground flex justify-between items-center bg-muted/20">
+                                            <div className="flex items-center gap-6">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-foreground/40">Visible Range:</span>
+                                                    <span className="text-primary">{previewData.rows?.length || 0} items</span>
+                                                </div>
                                                 {previewData.metadata?.shape && (
-                                                    <span className="opacity-60 italic">
-                                                        Shape: ({previewData.metadata.shape[0]}, {previewData.metadata.shape[1]})
-                                                    </span>
+                                                    <div className="flex items-center gap-2">
+                                                        <span className="text-foreground/40">Geometric Shape:</span>
+                                                        <span className="text-foreground/60">{previewData.metadata.shape[0]} × {previewData.metadata.shape[1]}</span>
+                                                    </div>
                                                 )}
                                             </div>
-                                            <span className="font-medium">Total Rows: {previewData.metadata?.shape?.[0] || previewData.total_rows_hint}</span>
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-foreground/40 text-[9px]">TOTAL ESTIMATED VOLUME:</span>
+                                                <span className="text-foreground/80 px-2 py-0.5 bg-background border border-border/60 rounded uppercase tracking-tighter shadow-sm">{previewData.total_rows_hint.toLocaleString()} ROWS</span>
+                                            </div>
                                         </div>
 
-                                        {/* Analyst Insights: Metadata & Summary */}
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                                            {/* Metadata / Data Types */}
+                                        {/* Statistical Snapshots */}
+                                        <div className="grid grid-cols-1 md:grid-cols-2 divide-x divide-border/40 border-t border-border/40">
+                                            {/* Data Types */}
                                             {previewData.metadata?.dtypes && (
-                                                <div className="bg-card border-2 border-primary/10 rounded-xl p-5 space-y-4 shadow-sm">
-                                                    <div className="flex items-center gap-3 text-base font-bold text-foreground border-b border-border/10 pb-3">
+                                                <div className="p-8 space-y-6">
+                                                    <div className="flex items-center gap-3">
                                                         <div className="p-2 bg-primary/10 rounded-lg">
                                                             <Info className="h-5 w-5 text-primary" />
                                                         </div>
-                                                        Column Schema (Data Types)
+                                                        <h4 className="text-base font-black tracking-tight">Active Schema types</h4>
                                                     </div>
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                                                         {Object.entries(previewData.metadata.dtypes).map(([col, type]) => (
-                                                            <div key={col} className="flex flex-col p-3 bg-secondary/20 rounded-lg border border-border/40 hover:border-primary/30 transition-colors">
-                                                                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-1 truncate" title={col}>
-                                                                    {col}
-                                                                </span>
-                                                                <span className="font-mono text-sm font-bold text-foreground">
-                                                                    {String(type)}
-                                                                </span>
+                                                            <div key={col} className="p-3 bg-muted/30 rounded-xl border border-border/40 hover:border-primary/20 transition-all group">
+                                                                <p className="text-[9px] uppercase font-black tracking-widest text-muted-foreground/60 mb-1 truncate" title={col}>{col}</p>
+                                                                <p className="font-mono text-[11px] font-bold text-primary group-hover:scale-105 transition-transform origin-left">{String(type)}</p>
                                                             </div>
                                                         ))}
                                                     </div>
                                                 </div>
                                             )}
 
-                                            {/* Summary Statistics */}
+                                            {/* Descriptive Summary */}
                                             {previewData.summary && Object.keys(previewData.summary).length > 0 && (
-                                                <div className="bg-card border-2 border-primary/10 rounded-xl p-5 space-y-4 shadow-sm">
-                                                    <div className="flex items-center gap-3 text-base font-bold text-foreground border-b border-border/10 pb-3">
+                                                <div className="p-8 space-y-6">
+                                                    <div className="flex items-center gap-3">
                                                         <div className="p-2 bg-primary/10 rounded-lg">
                                                             <BarChart3 className="h-5 w-5 text-primary" />
                                                         </div>
-                                                        Descriptive Statistics Summary
+                                                        <h4 className="text-base font-black tracking-tight">Analytical Snapshots</h4>
                                                     </div>
                                                     <div className="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
                                                         {Object.entries(previewData.summary).map(([col, stats]) => (
-                                                            <div key={col} className="overflow-hidden rounded-lg border border-border/40 bg-secondary/5">
-                                                                <div className="bg-secondary/30 px-3 py-2 text-xs font-bold text-foreground border-b border-border/20 truncate">
+                                                            <div key={col} className="overflow-hidden rounded-2xl border border-border/60 bg-muted/10">
+                                                                <div className="bg-muted/40 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-foreground/60 border-b border-border/40 truncate">
                                                                     {col}
                                                                 </div>
                                                                 <div className="grid grid-cols-2 gap-px bg-border/20">
                                                                     {Object.entries(stats as Record<string, any>).map(([stat, val]) => (
-                                                                        <div key={stat} className="flex justify-between items-center bg-card p-2 text-xs">
-                                                                            <span className="text-muted-foreground capitalize">{stat}</span>
-                                                                            <span className="font-bold text-foreground">
+                                                                        <div key={stat} className="flex justify-between items-center bg-background p-3 text-[11px] font-medium">
+                                                                            <span className="text-muted-foreground/60 capitalize">{stat}</span>
+                                                                            <span className="font-mono font-bold text-foreground/80">
                                                                                 {typeof val === 'number' ? (Number.isInteger(val) ? val : val.toFixed(2)) : String(val)}
                                                                             </span>
                                                                         </div>
@@ -836,71 +878,73 @@ export function ProjectDetailPage() {
                                         </div>
                                     </div>
                                 ) : (
-                                    <div className="py-20 flex flex-col items-center justify-center text-center space-y-3 opacity-60">
-                                        <div className="p-4 bg-secondary/20 rounded-full">
-                                            <Table className="h-8 w-8 text-muted-foreground/50" />
+                                    <div className="py-32 flex flex-col items-center justify-center text-center space-y-6 opacity-40">
+                                        <div className="p-8 bg-muted/40 rounded-full text-muted-foreground shadow-inner">
+                                            <Table className="h-12 w-12" />
                                         </div>
-                                        <p className="text-muted-foreground font-medium">Select a dataset to view its dataframe preview.</p>
+                                        <div className="space-y-2">
+                                            <p className="text-lg font-black tracking-tight">Awaiting Source Selection</p>
+                                            <p className="text-xs text-muted-foreground font-medium max-w-xs mx-auto">Select a valid dataset from the repository above to initialize the visual inspection workspace.</p>
+                                        </div>
                                     </div>
                                 )}
                             </Card>
 
-                            {/* Data Clean Workbench (EDA) - Positioned under Preview */}
+                            {/* Data Clean Workbench (EDA) */}
                             {previewData && (
-                                <div
-                                    className="mt-8 space-y-4"
-                                    ref={workbenchRef}
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <h3 className="text-xl font-bold flex items-center gap-2">
-                                            <Wand2 className="h-5 w-5 text-primary" />
-                                            Data Clean Workbench (EDA)
-                                        </h3>
-                                        <Badge variant="secondary" className="px-3 py-1 bg-primary/10 text-primary border-primary/20">
-                                            10 Power Operations
+                                <div className="space-y-6 pt-16" ref={workbenchRef}>
+                                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                        <div className="space-y-1">
+                                            <h3 className="text-2xl font-black tracking-tight flex items-center gap-3">
+                                                <Wand2 className="h-6 w-6 text-primary" />
+                                                Data Transformation Engine
+                                            </h3>
+                                            <p className="text-xs text-muted-foreground font-medium uppercase tracking-widest opacity-60">Architectural Cleaning Workspace</p>
+                                        </div>
+                                        <Badge variant="secondary" className="px-4 py-1.5 bg-primary/10 text-primary border-primary/20 text-[10px] font-black tracking-widest uppercase">
+                                            12 Active Operations
                                         </Badge>
                                     </div>
 
-                                    <Card className="border-border/30 bg-card/40 backdrop-blur-md overflow-hidden">
-                                        <div className="grid grid-cols-1 lg:grid-cols-3 divide-x divide-y lg:divide-y-0 divide-border/10">
-                                            {/* Column 1: Core Operations */}
-                                            <div className="p-6 space-y-10">
-                                                {/* 1. Missing Values */}
-                                                <div className="space-y-4">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="p-1.5 bg-primary/10 rounded-md">
-                                                            <AlertCircle className="h-4 w-4 text-primary" />
+                                    <Card className="border-border/60 bg-muted/20 backdrop-blur-md overflow-hidden shadow-xl rounded-3xl">
+                                        <div className="grid grid-cols-1 lg:grid-cols-3 divide-x divide-border/40">
+                                            {/* Tier 1: Core Integrity */}
+                                            <div className="p-8 space-y-12">
+                                                <div className="space-y-6">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2.5 bg-primary/10 rounded-xl">
+                                                            <AlertCircle className="h-5 w-5 text-primary" />
                                                         </div>
-                                                        <h4 className="text-sm font-bold">1. Missing Values (NA)</h4>
+                                                        <h4 className="text-sm font-black tracking-widest uppercase">Null Management</h4>
                                                     </div>
-                                                    <div className="space-y-3 pl-8">
+                                                    <div className="space-y-4 pl-1">
                                                         <div className="space-y-2">
-                                                            <Label className="text-[10px] uppercase font-bold text-muted-foreground">Select Columns</Label>
+                                                            <Label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/60">Target Dimensions</Label>
                                                             <select
                                                                 value={cleaningNACol}
                                                                 onChange={(e) => setCleaningNACol(e.target.value)}
-                                                                className="w-full bg-secondary/20 border border-border/20 rounded-md h-9 text-xs px-2 outline-none focus:ring-1 focus:ring-primary/40"
+                                                                className="w-full bg-background border border-border/60 rounded-xl h-11 text-xs px-4 outline-none focus:ring-2 focus:ring-primary/20 transition-all font-bold"
                                                             >
-                                                                <option value="all">All Columns</option>
-                                                                {previewData?.columns.map(c => <option key={c} value={c}>{c}</option>)}
+                                                                <option value="all">Global Workspace (All)</option>
+                                                                {previewData.columns.map(c => <option key={c} value={c}>{c}</option>)}
                                                             </select>
                                                         </div>
                                                         <div className="space-y-2">
-                                                            <Label className="text-[10px] uppercase font-bold text-muted-foreground">Action Strategy</Label>
+                                                            <Label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/60">Execution Strategy</Label>
                                                             <div className="grid grid-cols-2 gap-2">
                                                                 {[
-                                                                    { id: "drop", label: "Drop Rows" },
-                                                                    { id: "fill_zero", label: "Fill Zero" },
-                                                                    { id: "fill_mean", label: "Fill Mean" },
-                                                                    { id: "fill_median", label: "Fill Median" }
+                                                                    { id: "drop", label: "Purge Rows" },
+                                                                    { id: "fill_zero", label: "Zero Fill" },
+                                                                    { id: "fill_mean", label: "Mean Imp" },
+                                                                    { id: "fill_median", label: "Median Imp" }
                                                                 ].map(strategy => (
                                                                     <Button
                                                                         key={strategy.id}
-                                                                        variant={cleaningNAStrategy === strategy.id ? "secondary" : "outline"}
+                                                                        variant={cleaningNAStrategy === strategy.id ? "default" : "secondary"}
                                                                         size="sm"
                                                                         className={cn(
-                                                                            "text-[10px] h-8 justify-start font-medium",
-                                                                            cleaningNAStrategy === strategy.id && "ring-1 ring-primary/40"
+                                                                            "text-[10px] h-9 font-bold rounded-lg shadow-sm transition-all",
+                                                                            cleaningNAStrategy === strategy.id ? "bg-primary text-white" : "hover:bg-primary/5"
                                                                         )}
                                                                         onClick={() => setCleaningNAStrategy(strategy.id)}
                                                                     >
@@ -912,260 +956,152 @@ export function ProjectDetailPage() {
                                                     </div>
                                                 </div>
 
-                                                {/* 2. Deduplication */}
-                                                <div className="space-y-4">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="p-1.5 bg-primary/10 rounded-md">
-                                                            <RefreshCw className="h-4 w-4 text-primary" />
+                                                <div className="space-y-6">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2.5 bg-primary/10 rounded-xl">
+                                                            <RefreshCw className="h-5 w-5 text-primary" />
                                                         </div>
-                                                        <h4 className="text-sm font-bold">2. Deduplication</h4>
+                                                        <h4 className="text-sm font-black tracking-widest uppercase">Deduplication</h4>
                                                     </div>
-                                                    <div className="space-y-3 pl-8">
-                                                        <Button
-                                                            variant={isDeduplicationEnabled ? "secondary" : "outline"}
-                                                            className={cn(
-                                                                "w-full h-10 gap-2 border-dashed transition-all text-xs",
-                                                                isDeduplicationEnabled ? "border-primary bg-primary/10" : "border-primary/20 hover:border-primary/40"
-                                                            )}
-                                                            onClick={() => setIsDeduplicationEnabled(!isDeduplicationEnabled)}
-                                                        >
-                                                            {isDeduplicationEnabled ? "Deduplication Enabled" : "Enable Deduplication Scan"}
-                                                        </Button>
-                                                    </div>
-                                                </div>
-
-                                                {/* 3. Type Casting */}
-                                                <div className="space-y-4">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="p-1.5 bg-primary/10 rounded-md">
-                                                            <Variable className="h-4 w-4 text-primary" />
-                                                        </div>
-                                                        <h4 className="text-sm font-bold">3. Type Casting</h4>
-                                                    </div>
-                                                    <div className="space-y-3 pl-8">
-                                                        <div className="grid grid-cols-2 gap-2">
-                                                            <div className="space-y-1">
-                                                                <Label className="text-[10px] font-bold text-muted-foreground">Target Col</Label>
-                                                                <select
-                                                                    value={castingCol}
-                                                                    onChange={(e) => setCastingCol(e.target.value)}
-                                                                    className="w-full bg-secondary/20 border border-border/20 rounded-md h-8 text-[10px] px-1"
-                                                                >
-                                                                    {previewData?.columns.map(c => <option key={c} value={c}>{c}</option>)}
-                                                                </select>
-                                                            </div>
-                                                            <div className="space-y-1">
-                                                                <Label className="text-[10px] font-bold text-muted-foreground">To Type</Label>
-                                                                <select
-                                                                    value={castingType}
-                                                                    onChange={(e) => setCastingType(e.target.value)}
-                                                                    className="w-full bg-secondary/20 border border-border/20 rounded-md h-8 text-[10px] px-1"
-                                                                >
-                                                                    {["integer", "float", "string", "datetime"].map(t => <option key={t} value={t}>{t}</option>)}
-                                                                </select>
-                                                            </div>
-                                                        </div>
-                                                    </div>
+                                                    <Button
+                                                        variant={isDeduplicationEnabled ? "default" : "secondary"}
+                                                        className={cn(
+                                                            "w-full h-12 gap-3 transition-all text-xs font-black tracking-widest uppercase rounded-xl",
+                                                            isDeduplicationEnabled ? "bg-primary/90" : "bg-background/40 hover:bg-primary/5"
+                                                        )}
+                                                        onClick={() => setIsDeduplicationEnabled(!isDeduplicationEnabled)}
+                                                    >
+                                                        {isDeduplicationEnabled ? "active_scan_enabled" : "initialize_scan"}
+                                                    </Button>
                                                 </div>
                                             </div>
 
-                                            {/* Column 2: Structural & Text */}
-                                            <div className="p-6 space-y-10">
-                                                {/* 4. Drop Columns */}
-                                                <div className="space-y-4">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="p-1.5 bg-primary/10 rounded-md">
-                                                            <Trash className="h-4 w-4 text-primary" />
+                                            {/* Tier 2: Vector Schema */}
+                                            <div className="p-8 space-y-12">
+                                                <div className="space-y-6">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2.5 bg-primary/10 rounded-xl">
+                                                            <Type className="h-5 w-5 text-primary" />
                                                         </div>
-                                                        <h4 className="text-sm font-bold">4. Drop Columns</h4>
+                                                        <h4 className="text-sm font-black tracking-widest uppercase">Type Casting</h4>
                                                     </div>
-                                                    <div className="space-y-3 pl-8">
-                                                        <div className="flex flex-wrap gap-1.5">
-                                                            {previewData?.columns.map(c => (
-                                                                <Badge
-                                                                    key={c}
-                                                                    variant={dropCols.includes(c) ? "destructive" : "outline"}
-                                                                    className="cursor-pointer text-[10px]"
-                                                                    onClick={() => {
-                                                                        if (dropCols.includes(c)) setDropCols(dropCols.filter(x => x !== c));
-                                                                        else setDropCols([...dropCols, c]);
-                                                                    }}
-                                                                >
-                                                                    {dropCols.includes(c) && <X className="h-2.5 w-2.5 mr-1" />}
-                                                                    {c}
-                                                                </Badge>
-                                                            ))}
+                                                    <div className="grid grid-cols-2 gap-4">
+                                                        <div className="space-y-2">
+                                                            <Label className="text-[10px] font-black tracking-widest text-muted-foreground/60">Source</Label>
+                                                            <select
+                                                                value={castingCol}
+                                                                onChange={(e) => setCastingCol(e.target.value)}
+                                                                className="w-full bg-background border border-border/60 rounded-xl h-11 text-xs px-3 font-bold outline-none"
+                                                            >
+                                                                {previewData.columns.map(c => <option key={c} value={c}>{c}</option>)}
+                                                            </select>
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <Label className="text-[10px] font-black tracking-widest text-muted-foreground/60">Target</Label>
+                                                            <select
+                                                                value={castingType}
+                                                                onChange={(e) => setCastingType(e.target.value)}
+                                                                className="w-full bg-background border border-border/60 rounded-xl h-11 text-xs px-3 font-bold outline-none"
+                                                            >
+                                                                {["integer", "float", "string", "datetime"].map(t => <option key={t} value={t}>{t}</option>)}
+                                                            </select>
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                {/* 5. Rename Columns */}
-                                                <div className="space-y-4">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="p-1.5 bg-primary/10 rounded-md">
-                                                            <Edit3 className="h-4 w-4 text-primary" />
+                                                <div className="space-y-6">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2.5 bg-primary/10 rounded-xl">
+                                                            <Trash className="h-5 w-5 text-primary" />
                                                         </div>
-                                                        <h4 className="text-sm font-bold">5. Rename Columns</h4>
+                                                        <h4 className="text-sm font-black tracking-widest uppercase">Dimension Purge</h4>
                                                     </div>
-                                                    <div className="space-y-3 pl-8 max-h-[150px] overflow-y-auto custom-scrollbar">
-                                                        {Object.entries(renameMapping).map(([old, newVal]) => (
-                                                            <div key={old} className="flex items-center gap-2 mb-2">
-                                                                <div className="text-[10px] font-mono bg-secondary/40 px-2 py-1 rounded border border-border/20 w-1/3 truncate">{old}</div>
-                                                                <ChevronRight className="h-3 w-3 text-muted-foreground shrink-0" />
-                                                                <Input
-                                                                    value={newVal}
-                                                                    onChange={(e) => setRenameMapping({ ...renameMapping, [old]: e.target.value })}
-                                                                    className="h-7 text-[10px] w-1/3"
-                                                                />
-                                                                <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => {
-                                                                    const next = { ...renameMapping };
-                                                                    delete next[old];
-                                                                    setRenameMapping(next);
-                                                                }}>
-                                                                    <X className="h-3 w-3" />
-                                                                </Button>
-                                                            </div>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {previewData.columns.map(c => (
+                                                            <Badge
+                                                                key={c}
+                                                                variant={dropCols.includes(c) ? "destructive" : "outline"}
+                                                                className="cursor-pointer text-[10px] font-bold h-7 px-3 rounded-lg transition-all"
+                                                                onClick={() => {
+                                                                    if (dropCols.includes(c)) setDropCols(dropCols.filter(x => x !== c));
+                                                                    else setDropCols([...dropCols, c]);
+                                                                }}
+                                                            >
+                                                                {c}
+                                                            </Badge>
                                                         ))}
-                                                        <select
-                                                            className="w-full bg-secondary/20 border border-border/20 rounded-md h-8 text-[10px] px-1 outline-none"
-                                                            onChange={(e) => {
-                                                                if (e.target.value) {
-                                                                    setRenameMapping({ ...renameMapping, [e.target.value]: e.target.value });
-                                                                    e.target.value = "";
-                                                                }
-                                                            }}
-                                                        >
-                                                            <option value="">+ Add Rename Mapping...</option>
-                                                            {previewData?.columns.filter(c => !renameMapping[c]).map(c => <option key={c} value={c}>{c}</option>)}
-                                                        </select>
-                                                    </div>
-                                                </div>
-
-                                                {/* 6. Trim & Strings */}
-                                                <div className="space-y-4">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="p-1.5 bg-primary/10 rounded-md">
-                                                            <Scissors className="h-4 w-4 text-primary" />
-                                                        </div>
-                                                        <h4 className="text-sm font-bold">6. Trim & Case</h4>
-                                                    </div>
-                                                    <div className="space-y-3 pl-8">
-                                                        <select
-                                                            value={trimCols}
-                                                            onChange={(e) => setTrimCols(e.target.value)}
-                                                            className="w-full bg-secondary/20 border border-border/20 rounded-md h-8 text-[10px] px-1 mb-2"
-                                                        >
-                                                            <option value="none">Trim: Disabled</option>
-                                                            <option value="all">Trim: All Columns</option>
-                                                            {previewData?.columns.map(c => <option key={c} value={c}>{c}</option>)}
-                                                        </select>
-                                                        <div className="flex gap-1.5 mb-2">
-                                                            {["lower", "upper", "title"].map(t => (
-                                                                <Button key={t} size="sm" variant={caseType === t ? "secondary" : "ghost"} className="text-[10px] h-6 px-2 capitalize" onClick={() => setCaseType(t)}>{t}</Button>
-                                                            ))}
-                                                        </div>
-                                                        <div className="flex flex-wrap gap-1 max-h-[80px] overflow-y-auto custom-scrollbar">
-                                                            {previewData?.columns.map(c => (
-                                                                <Badge key={c} variant={caseCols.includes(c) ? "secondary" : "outline"} className="cursor-pointer text-[9px] h-5 px-1.5 font-normal" onClick={() => {
-                                                                    if (caseCols.includes(c)) setCaseCols(caseCols.filter(x => x !== c));
-                                                                    else setCaseCols([...caseCols, c]);
-                                                                }}>{c}</Badge>
-                                                            ))}
-                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
 
-                                            {/* Column 3: Advanced Values & Math */}
-                                            <div className="p-6 space-y-10">
-                                                {/* 8. Replace Values */}
-                                                <div className="space-y-4">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="p-1.5 bg-primary/10 rounded-md">
-                                                            <Target className="h-4 w-4 text-primary" />
+                                            {/* Tier 3: Value Dynamics */}
+                                            <div className="p-8 space-y-12">
+                                                <div className="space-y-6">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2.5 bg-primary/10 rounded-xl">
+                                                            <Target className="h-5 w-5 text-primary" />
                                                         </div>
-                                                        <h4 className="text-sm font-bold">8. Replace Value</h4>
+                                                        <h4 className="text-sm font-black tracking-widest uppercase">Value Mapping</h4>
                                                     </div>
-                                                    <div className="space-y-3 pl-8">
-                                                        <select value={replaceCol} onChange={(e) => setReplaceCol(e.target.value)} className="w-full bg-secondary/20 border border-border/20 rounded-md h-8 text-[10px] px-1">
-                                                            <option value="">Select Column...</option>
-                                                            {previewData?.columns.map(c => <option key={c} value={c}>{c}</option>)}
+                                                    <div className="space-y-3">
+                                                        <select value={replaceCol} onChange={(e) => setReplaceCol(e.target.value)} className="w-full bg-background border border-border/60 rounded-xl h-11 text-xs px-4 font-bold outline-none">
+                                                            <option value="">Select Reference Column...</option>
+                                                            {previewData.columns.map(c => <option key={c} value={c}>{c}</option>)}
                                                         </select>
-                                                        <div className="grid grid-cols-2 gap-2">
-                                                            <Input placeholder="Old" className="h-8 text-[10px]" value={replaceOld} onChange={(e) => setReplaceOld(e.target.value)} />
-                                                            <Input placeholder="New" className="h-8 text-[10px]" value={replaceNew} onChange={(e) => setReplaceNew(e.target.value)} />
+                                                        <div className="grid grid-cols-2 gap-3">
+                                                            <Input placeholder="Search" className="h-11 rounded-xl text-xs font-bold" value={replaceOld} onChange={(e) => setReplaceOld(e.target.value)} />
+                                                            <Input placeholder="Replace" className="h-11 rounded-xl text-xs font-bold" value={replaceNew} onChange={(e) => setReplaceNew(e.target.value)} />
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                {/* 9. Outliers */}
-                                                <div className="space-y-4">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="p-1.5 bg-primary/10 rounded-md">
-                                                            <Sliders className="h-4 w-4 text-primary" />
+                                                <div className="space-y-6">
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="p-2.5 bg-primary/10 rounded-xl">
+                                                            <Sliders className="h-5 w-5 text-primary" />
                                                         </div>
-                                                        <h4 className="text-sm font-bold">9. Outlier Clipping</h4>
+                                                        <h4 className="text-sm font-black tracking-widest uppercase">Outlier Clamping</h4>
                                                     </div>
-                                                    <div className="space-y-3 pl-8">
-                                                        <div className="flex gap-2 items-center mb-2">
-                                                            <Input type="number" step="0.01" value={outlierLower} onChange={e => setOutlierLower(Number(e.target.value))} className="h-7 w-20 text-[10px]" />
-                                                            <span className="text-[10px]">to</span>
-                                                            <Input type="number" step="0.01" value={outlierUpper} onChange={e => setOutlierUpper(Number(e.target.value))} className="h-7 w-20 text-[10px]" />
-                                                        </div>
-                                                        <div className="flex flex-wrap gap-1">
-                                                            {previewData?.columns.map(c => (
-                                                                <Badge key={c} variant={outlierCols.includes(c) ? "secondary" : "outline"} className="cursor-pointer text-[9px] h-5" onClick={() => {
-                                                                    if (outlierCols.includes(c)) setOutlierCols(outlierCols.filter(x => x !== c));
-                                                                    else setOutlierCols([...outlierCols, c]);
-                                                                }}>{c}</Badge>
-                                                            ))}
-                                                        </div>
+                                                    <div className="flex items-center gap-3 mb-4 bg-background/40 p-3 rounded-xl border border-border/40">
+                                                        <Input type="number" step="0.01" value={outlierLower} onChange={e => setOutlierLower(Number(e.target.value))} className="h-8 w-20 text-[10px] font-black text-center" />
+                                                        <span className="text-[10px] font-black text-muted-foreground">⇄</span>
+                                                        <Input type="number" step="0.01" value={outlierUpper} onChange={e => setOutlierUpper(Number(e.target.value))} className="h-8 w-20 text-[10px] font-black text-center" />
                                                     </div>
-                                                </div>
-
-                                                {/* 10. Rounding */}
-                                                <div className="space-y-4">
-                                                    <div className="flex items-center gap-2">
-                                                        <div className="p-1.5 bg-primary/10 rounded-md">
-                                                            <Variable className="h-4 w-4 text-primary" />
-                                                        </div>
-                                                        <h4 className="text-sm font-bold">10. Round Decimals</h4>
-                                                    </div>
-                                                    <div className="space-y-3 pl-8">
-                                                        <Input type="number" value={roundDecimals} onChange={e => setRoundDecimals(Number(e.target.value))} className="h-8 w-20 text-[10px] mb-2" />
-                                                        <div className="flex flex-wrap gap-1">
-                                                            {previewData?.columns.map(c => (
-                                                                <Badge key={c} variant={roundCols.includes(c) ? "secondary" : "outline"} className="cursor-pointer text-[9px] h-5" onClick={() => {
-                                                                    if (roundCols.includes(c)) setRoundCols(roundCols.filter(x => x !== c));
-                                                                    else setRoundCols([...roundCols, c]);
-                                                                }}>{c}</Badge>
-                                                            ))}
-                                                        </div>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {previewData.columns.map(c => (
+                                                            <Badge key={c} variant={outlierCols.includes(c) ? "default" : "outline"} className="cursor-pointer text-[10px] font-bold h-7 px-3 rounded-lg" onClick={() => {
+                                                                if (outlierCols.includes(c)) setOutlierCols(outlierCols.filter(x => x !== c));
+                                                                else setOutlierCols([...outlierCols, c]);
+                                                            }}>{c}</Badge>
+                                                        ))}
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
 
-                                        {/* Action Bottom Bar */}
-                                        <div className="p-6 bg-secondary/10 border-t border-border/10 flex items-center justify-between gap-4">
-                                            <div className="text-xs text-muted-foreground italic">
-                                                Constructed pipeline ready with {[
-                                                    cleaningNAStrategy,
-                                                    isDeduplicationEnabled,
-                                                    castingCol && castingType,
-                                                    dropCols.length > 0,
-                                                    Object.keys(renameMapping).length > 0,
-                                                    trimCols !== "none",
-                                                    caseCols.length > 0,
-                                                    replaceCol && (replaceOld !== "" || replaceNew !== ""),
-                                                    outlierCols.length > 0,
-                                                    roundCols.length > 0
-                                                ].filter(Boolean).length} operations.
+                                        {/* Command Center Bottom Bar */}
+                                        <div className="p-8 bg-muted/40 border-t border-border/60 flex flex-col md:flex-row items-center justify-between gap-6">
+                                            <div className="space-y-1 text-center md:text-left">
+                                                <p className="text-[10px] font-black uppercase tracking-widest text-primary/60">Pipeline manifest</p>
+                                                <p className="text-sm font-bold text-foreground/80">
+                                                    {[
+                                                        cleaningNAStrategy,
+                                                        isDeduplicationEnabled,
+                                                        castingCol && castingType,
+                                                        dropCols.length > 0,
+                                                        Object.keys(renameMapping).length > 0,
+                                                        trimCols !== "none",
+                                                        caseCols.length > 0,
+                                                        replaceCol && (replaceOld !== "" || replaceNew !== ""),
+                                                        outlierCols.length > 0,
+                                                        roundCols.length > 0
+                                                    ].filter(Boolean).length} operations staged for execution
+                                                </p>
                                             </div>
-                                            <div className="flex gap-3">
+                                            <div className="flex items-center gap-4 w-full md:w-auto">
                                                 <Button
                                                     variant="ghost"
-                                                    className="text-xs h-10 px-6"
+                                                    className="h-12 px-8 font-black text-[11px] uppercase tracking-widest hover:text-destructive transition-colors shrink-0"
                                                     onClick={() => {
                                                         setCleaningNAStrategy("fill_mean");
                                                         setIsDeduplicationEnabled(false);
@@ -1180,189 +1116,213 @@ export function ProjectDetailPage() {
                                                         setRoundCols([]);
                                                     }}
                                                 >
-                                                    Reset Workspace
+                                                    Resync System
                                                 </Button>
                                                 <Button
-                                                    className="font-bold h-10 px-8 shadow-lg shadow-primary/20"
+                                                    className="h-12 px-10 font-black text-[11px] uppercase tracking-[0.2em] shadow-xl shadow-primary/20 flex-1 md:flex-none rounded-2xl"
                                                     onClick={handleRunCleanup}
                                                     disabled={isCleaningActive || !previewData}
                                                 >
                                                     {isCleaningActive ? (
-                                                        <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Executing...</>
+                                                        <><Loader2 className="h-4 w-4 mr-3 animate-spin" /> Processing...</>
                                                     ) : (
-                                                        "Run Power Cleanup"
+                                                        "Execute pipeline"
                                                     )}
                                                 </Button>
                                             </div>
                                         </div>
                                     </Card>
-                                </div>
-                            )}
 
-                            {/* Data Cleaning Result Preview Section */}
-                            {cleanedPreviewData && (
-                                <motion.div
-                                    initial={{ opacity: 0, y: 10 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="mt-12 space-y-6"
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-green-500/10 rounded-full">
-                                                <CheckCircle2 className="h-6 w-6 text-green-600" />
-                                            </div>
-                                            <div>
-                                                <h3 className="text-xl font-bold text-foreground">Cleaned Data Results</h3>
-                                                <p className="text-xs text-muted-foreground italic">Operation successful. Review the results below.</p>
-                                            </div>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <Badge variant="outline" className="border-green-500/30 bg-green-500/10 text-green-600 px-3 py-1 font-bold">
-                                                {cleanedPreviewData.name || "Cleaned Result"}
-                                            </Badge>
-                                            {cleanedPreviewData.dataset_id && (
-                                                <Badge className="bg-green-600 text-white border-none text-[9px] h-5">
-                                                    Saved as New Dataset
-                                                </Badge>
-                                            )}
-                                        </div>
-                                    </div>
-
-                                    <Card className="border-green-500/20 bg-green-500/[0.03] backdrop-blur-md p-6">
-                                        <div className="rounded-xl border border-green-500/10 overflow-hidden bg-card/60 shadow-sm">
-                                            <div className="overflow-x-auto custom-scrollbar">
-                                                <table className="w-full text-xs text-left">
-                                                    <thead className="text-[10px] uppercase bg-green-500/5 text-muted-foreground border-b border-green-500/10">
-                                                        <tr>
-                                                            {cleanedPreviewData.columns.map(col => (
-                                                                <th key={col} className="px-4 py-3 border-r border-green-500/5 last:border-0 font-bold text-green-700/70">
-                                                                    {col}
-                                                                </th>
-                                                            ))}
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody className="divide-y divide-green-500/5">
-                                                        {cleanedPreviewData.rows?.map((row, idx) => (
-                                                            <tr key={idx} className="hover:bg-green-500/5 transition-colors">
-                                                                {cleanedPreviewData.columns.map((col) => (
-                                                                    <td key={col} className="px-4 py-3 whitespace-nowrap border-r border-green-500/5 last:border-0 font-mono text-[11px]">
-                                                                        {String(row[col] ?? "")}
-                                                                    </td>
-                                                                ))}
-                                                            </tr>
-                                                        ))}
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                            <div className="px-4 py-2 text-[10px] text-muted-foreground flex justify-between items-center bg-green-500/10">
-                                                <div className="flex items-center gap-4">
-                                                    <span className="font-bold text-green-700">Preview: {cleanedPreviewData.rows?.length || 0} items</span>
-                                                    {cleanedPreviewData.metadata?.shape && (
-                                                        <span className="opacity-60 italic text-green-600">
-                                                            Actual Dataset Shape: ({cleanedPreviewData.metadata.shape[0]}, {cleanedPreviewData.metadata.shape[1]})
-                                                        </span>
+                                    {/* Data Cleaning Result Preview Section */}
+                                    {cleanedPreviewData && (
+                                        <motion.div
+                                            initial={{ opacity: 0, scale: 0.98 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            className="mt-16 space-y-8 pb-20"
+                                        >
+                                            <div className="flex flex-col md:flex-row items-center justify-between gap-6 p-8 bg-emerald-500/5 border border-emerald-500/20 rounded-3xl">
+                                                <div className="flex items-center gap-5">
+                                                    <div className="p-4 bg-emerald-500/20 rounded-2xl shadow-inner">
+                                                        <CheckCircle2 className="h-8 w-8 text-emerald-600" />
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <h3 className="text-2xl font-black tracking-tighter text-emerald-700">Cleaned dataset Ready</h3>
+                                                        <p className="text-xs font-bold text-emerald-600/70 uppercase tracking-widest">Operation success • Vector integrity verified</p>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-3">
+                                                    <Badge className="bg-emerald-600 text-white border-none px-4 py-1.5 rounded-full font-black text-[10px] tracking-widest uppercase">
+                                                        {cleanedPreviewData.name || "Cleaned Result"}
+                                                    </Badge>
+                                                    {cleanedPreviewData.dataset_id && (
+                                                        <Badge className="bg-background border-emerald-600/20 text-emerald-700 px-4 py-1.5 rounded-full font-black text-[10px] tracking-widest uppercase shadow-sm">
+                                                            Persistent Asset No. {cleanedPreviewData.dataset_id}
+                                                        </Badge>
                                                     )}
                                                 </div>
-                                                <span className="font-bold text-green-700">Total Rows: {cleanedPreviewData.total_rows_hint}</span>
                                             </div>
-                                        </div>
 
-                                        {/* Result Insights: Metadata & Summary */}
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-                                            {/* Metadata / Data Types */}
-                                            {cleanedPreviewData.metadata?.dtypes && (
-                                                <div className="bg-card/80 border-2 border-green-500/10 rounded-xl p-5 space-y-4 shadow-sm">
-                                                    <div className="flex items-center gap-3 text-base font-bold text-foreground border-b border-green-500/10 pb-3">
-                                                        <div className="p-2 bg-green-500/10 rounded-lg">
-                                                            <Info className="h-5 w-5 text-green-600" />
-                                                        </div>
-                                                        New Column Schema
-                                                    </div>
-                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                                                        {Object.entries(cleanedPreviewData.metadata.dtypes).map(([col, type]) => (
-                                                            <div key={col} className="flex flex-col p-3 bg-green-500/[0.02] rounded-lg border border-green-500/10 hover:border-green-500/30 transition-colors">
-                                                                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold mb-1 truncate">
-                                                                    {col}
-                                                                </span>
-                                                                <span className="font-mono text-sm font-bold text-green-700">
-                                                                    {String(type)}
-                                                                </span>
-                                                            </div>
-                                                        ))}
-                                                    </div>
-                                                </div>
-                                            )}
-
-                                            {/* Summary Statistics */}
-                                            {cleanedPreviewData.summary && Object.keys(cleanedPreviewData.summary).length > 0 && (
-                                                <div className="bg-card/80 border-2 border-green-500/10 rounded-xl p-5 space-y-4 shadow-sm">
-                                                    <div className="flex items-center gap-3 text-base font-bold text-foreground border-b border-green-500/10 pb-3">
-                                                        <div className="p-2 bg-green-500/10 rounded-lg">
-                                                            <BarChart3 className="h-5 w-5 text-green-600" />
-                                                        </div>
-                                                        Statistics Comparison
-                                                    </div>
-                                                    <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
-                                                        {Object.entries(cleanedPreviewData.summary).map(([col, stats]) => (
-                                                            <div key={col} className="overflow-hidden rounded-lg border border-green-500/10 bg-green-500/[0.02]">
-                                                                <div className="bg-green-500/5 px-3 py-2 text-xs font-bold text-foreground border-b border-green-500/10 truncate">
-                                                                    {col}
-                                                                </div>
-                                                                <div className="grid grid-cols-2 gap-px bg-green-500/10">
-                                                                    {Object.entries(stats as Record<string, any>).map(([stat, val]) => (
-                                                                        <div key={stat} className="flex justify-between items-center bg-card p-2 text-xs">
-                                                                            <span className="text-muted-foreground capitalize">{stat}</span>
-                                                                            <span className="font-bold text-green-700">
-                                                                                {val}
-                                                                            </span>
-                                                                        </div>
+                                            <Card className="border-border/60 shadow-2xl rounded-3xl overflow-hidden bg-background/50">
+                                                <div className="overflow-x-auto max-h-[500px] custom-scrollbar">
+                                                    <table className="w-full text-left border-collapse">
+                                                        <thead className="sticky top-0 z-10">
+                                                            <tr className="bg-muted border-b border-border/60">
+                                                                {cleanedPreviewData.columns.map(col => (
+                                                                    <th key={col} className="px-6 py-4 text-[10px] font-black uppercase tracking-widest text-muted-foreground border-r border-border/10 last:border-0 min-w-[150px]">
+                                                                        {col}
+                                                                    </th>
+                                                                ))}
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody className="divide-y divide-border/20">
+                                                            {cleanedPreviewData.rows?.map((row, idx) => (
+                                                                <tr key={idx} className="hover:bg-emerald-500/5 transition-colors group">
+                                                                    {cleanedPreviewData.columns.map((col) => (
+                                                                        <td key={col} className="px-6 py-3.5 whitespace-nowrap border-r border-border/10 last:border-0 font-mono text-[11px] text-foreground/60 group-hover:text-foreground">
+                                                                            {String(row[col] ?? "")}
+                                                                        </td>
                                                                     ))}
-                                                                </div>
-                                                            </div>
-                                                        ))}
-                                                    </div>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
                                                 </div>
-                                            )}
-                                        </div>
-                                    </Card>
-                                </motion.div>
+                                                <div className="px-8 py-4 text-[10px] font-black text-muted-foreground flex justify-between items-center bg-emerald-500/5">
+                                                    <div className="flex items-center gap-6">
+                                                        <span className="text-emerald-700">Preview: {cleanedPreviewData.rows?.length || 0} samples</span>
+                                                        {cleanedPreviewData.metadata?.shape && (
+                                                            <span className="opacity-40 italic">
+                                                                Physical Architecture: ({cleanedPreviewData.metadata.shape[0]} × {cleanedPreviewData.metadata.shape[1]})
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <span className="text-emerald-700 tracking-[0.2em]">TOTAL_ROWS_INDEX: {cleanedPreviewData.total_rows_hint}</span>
+                                                </div>
+
+                                                {/* Results Deep Dive */}
+                                                <div className="grid grid-cols-1 md:grid-cols-2 divide-x divide-border/40 border-t border-border/40">
+                                                    {cleanedPreviewData.metadata?.dtypes && (
+                                                        <div className="p-8 space-y-6">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="p-2 bg-emerald-500/10 rounded-lg">
+                                                                    <Info className="h-5 w-5 text-emerald-600" />
+                                                                </div>
+                                                                <h4 className="text-base font-black tracking-tight text-emerald-700">Refined Schema</h4>
+                                                            </div>
+                                                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                                                                {Object.entries(cleanedPreviewData.metadata.dtypes).map(([col, type]) => (
+                                                                    <div key={col} className="p-3 bg-emerald-500/[0.03] rounded-xl border border-emerald-500/10 hover:border-emerald-500/30 transition-all group">
+                                                                        <p className="text-[9px] uppercase font-black tracking-widest text-emerald-600/60 mb-1 truncate" title={col}>{col}</p>
+                                                                        <p className="font-mono text-[11px] font-bold text-emerald-700">{String(type)}</p>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+
+                                                    {cleanedPreviewData.summary && Object.keys(cleanedPreviewData.summary).length > 0 && (
+                                                        <div className="p-8 space-y-6">
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="p-2 bg-emerald-500/10 rounded-lg">
+                                                                    <BarChart3 className="h-5 w-5 text-emerald-600" />
+                                                                </div>
+                                                                <h4 className="text-base font-black tracking-tight text-emerald-700">Statistical Delta</h4>
+                                                            </div>
+                                                            <div className="space-y-4 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                                                                {Object.entries(cleanedPreviewData.summary).map(([col, stats]) => (
+                                                                    <div key={col} className="overflow-hidden rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.02]">
+                                                                        <div className="bg-emerald-500/10 px-4 py-2 text-[10px] font-black uppercase tracking-widest text-emerald-700 border-b border-emerald-500/10 truncate">
+                                                                            {col}
+                                                                        </div>
+                                                                        <div className="grid grid-cols-2 gap-px bg-emerald-500/10">
+                                                                            {Object.entries(stats as Record<string, any>).map(([stat, val]) => (
+                                                                                <div key={stat} className="flex justify-between items-center bg-background p-3 text-[11px]">
+                                                                                    <span className="text-muted-foreground capitalize">{stat}</span>
+                                                                                    <span className="font-mono font-bold text-emerald-700">{val}</span>
+                                                                                </div>
+                                                                            ))}
+                                                                        </div>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </Card>
+                                        </motion.div>
+                                    )}
+                                </div>
                             )}
                         </div>
                     </TabsContent>
 
-                    <TabsContent value="analysis" className="mt-8">
-                        <Card className="border-border/30 bg-card/40 backdrop-blur-md py-20">
-                            <div className="flex flex-col items-center justify-center text-center space-y-4">
-                                <div className="p-4 bg-secondary/30 text-muted-foreground/50 rounded-full">
-                                    <Code className="h-10 w-10" />
+                    <TabsContent value="analysis" className="mt-12">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <Card className="lg:col-span-2 border-border/60 shadow-xl rounded-3xl p-12 bg-muted/20 backdrop-blur-md">
+                                <div className="flex flex-col items-center justify-center text-center space-y-8 h-full">
+                                    <div className="p-8 bg-primary/5 rounded-full ring-1 ring-primary/20">
+                                        <BarChart3 className="h-16 w-16 text-primary/40 animate-pulse" />
+                                    </div>
+                                    <div className="space-y-4">
+                                        <h3 className="text-3xl font-black tracking-tighter">AI-Driven Intelligence</h3>
+                                        <p className="text-muted-foreground max-w-lg mx-auto text-base font-medium leading-relaxed">
+                                            Synthesize multifaceted data structures into actionable insights. Select an active asset from the repository to initialize behavioral analytics.
+                                        </p>
+                                    </div>
+                                    <Button size="lg" className="rounded-2xl h-14 px-10 font-black tracking-widest uppercase text-xs" variant="secondary" onClick={() => setActiveTab("data")}>
+                                        Initalize Analysis
+                                    </Button>
                                 </div>
-                                <div className="space-y-2">
-                                    <h3 className="text-xl font-bold">Analysis Workspace</h3>
-                                    <p className="text-muted-foreground max-w-sm">
-                                        Import some data first to start generating insights, visualizations, and automated reports.
-                                    </p>
-                                </div>
+                            </Card>
+
+                            <div className="space-y-8">
+                                <Card className="border-border/60 shadow-lg rounded-3xl p-6 bg-muted/20">
+                                    <h4 className="text-[10px] font-black tracking-[0.2em] uppercase text-muted-foreground/60 mb-6 flex items-center gap-2">
+                                        <Info className="h-3 w-3" /> System Parameters
+                                    </h4>
+                                    <div className="space-y-4">
+                                        {[
+                                            { label: "Vector Density", value: "High-Resolution" },
+                                            { label: "Auto-Cluster", value: "Enabled" },
+                                            { label: "Outlier Threshold", value: "0.95 quantile" }
+                                        ].map((item, i) => (
+                                            <div key={i} className="flex items-center justify-between p-4 bg-background border border-border/40 rounded-2xl">
+                                                <span className="text-xs font-bold text-muted-foreground/80">{item.label}</span>
+                                                <Badge variant="outline" className="text-[10px] font-black uppercase text-primary border-primary/20">{item.value}</Badge>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </Card>
                             </div>
-                        </Card>
+                        </div>
                     </TabsContent>
 
-                    <TabsContent value="logs" className="mt-8">
-                        <Card className="border-border/30 bg-card/40 backdrop-blur-md">
-                            <CardHeader>
-                                <CardTitle className="text-lg">Project Activity</CardTitle>
-                                <CardDescription>Tracking changes and updates to this project.</CardDescription>
+                    <TabsContent value="logs" className="mt-12">
+                        <Card className="border-border/60 shadow-xl rounded-3xl overflow-hidden bg-muted/20 backdrop-blur-md">
+                            <CardHeader className="p-8 border-b border-border/40 bg-muted/30">
+                                <div className="flex items-center gap-4">
+                                    <div className="p-3 bg-primary/10 rounded-2xl">
+                                        <Clock className="h-6 w-6 text-primary" />
+                                    </div>
+                                    <div>
+                                        <CardTitle className="text-xl font-black tracking-tight">Project Historian</CardTitle>
+                                        <CardDescription className="text-xs font-bold uppercase tracking-widest opacity-60">System-wide event tracking</CardDescription>
+                                    </div>
+                                </div>
                             </CardHeader>
-                            <CardContent>
-                                <div className="space-y-6">
-                                    {[1, 2].map((i) => (
-                                        <div key={i} className="flex gap-4 relative pb-6 last:pb-0">
-                                            {i === 1 && <div className="absolute left-2 top-8 bottom-0 w-0.5 bg-border/40" />}
-                                            <div className="h-4 w-4 rounded-full bg-primary/20 flex items-center justify-center z-10 mt-1">
-                                                <div className="h-2 w-2 rounded-full bg-primary" />
+                            <CardContent className="p-0">
+                                <div className="divide-y divide-border/20">
+                                    {[
+                                        { event: "Asset Repository Initialized", date: "Mar 1, 2026 - 12:00 PM", icon: <Database /> },
+                                        { event: "Vector Pipeline Configuration Update", date: "Mar 1, 2026 - 12:05 PM", icon: <Settings /> }
+                                    ].map((item, i) => (
+                                        <div key={i} className="flex items-center gap-6 p-8 hover:bg-primary/5 transition-colors group">
+                                            <div className="h-12 w-12 rounded-2xl bg-background border border-border/40 flex items-center justify-center text-muted-foreground group-hover:text-primary transition-colors shadow-sm">
+                                                {React.isValidElement(item.icon) ? React.cloneElement(item.icon as React.ReactElement<any>, { className: "h-5 w-5" }) : null}
                                             </div>
                                             <div className="space-y-1">
-                                                <p className="text-sm font-medium">Project Created</p>
-                                                <p className="text-xs text-muted-foreground">March 1, 2026 - 12:00 PM</p>
+                                                <p className="text-sm font-black text-foreground/80">{item.event}</p>
+                                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{item.date}</p>
                                             </div>
                                         </div>
                                     ))}

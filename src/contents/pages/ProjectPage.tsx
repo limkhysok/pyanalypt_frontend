@@ -21,7 +21,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Badge } from "../../components/ui/badge";
+import { Badge } from "@/components/ui/badge";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -177,48 +177,60 @@ export function ProjectPage() {
     }
 
     return (
-        <div className="py-8 px-6 md:px-12 bg-background/50">
-            <div className="max-w-7xl mx-auto space-y-8">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div>
-                        <h1 className="text-4xl font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/60">
-                            Your Projects
-                        </h1>
-                        <p className="text-muted-foreground mt-2 text-lg">
-                            Manage, organize and collaborate on your data science workspace.
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <div className="relative w-full md:w-72">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input
-                                placeholder="Search projects..."
-                                className="pl-9 bg-card/40 backdrop-blur-md border-border/40 focus:ring-primary/20"
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                            />
+        <div className="min-h-screen bg-background">
+            <div className="max-w-7xl mx-auto py-16 px-6 md:px-12 space-y-12">
+                {/* Enhanced Hero Section */}
+                <div className="relative group p-12 overflow-hidden rounded-[3rem] bg-muted/20 border border-border/40 backdrop-blur-sm">
+                    <div className="absolute top-0 right-0 -mr-16 -mt-16 w-64 h-64 bg-primary/5 rounded-full blur-[100px] group-hover:bg-primary/10 transition-colors duration-700" />
+                    <div className="absolute bottom-0 left-0 -ml-16 -mb-16 w-48 h-48 bg-emerald-500/5 rounded-full blur-[80px]" />
+
+                    <div className="relative z-10 flex flex-col xl:flex-row xl:items-center justify-between gap-10">
+                        <div className="space-y-4">
+                            <div className="flex items-center gap-3">
+                                <div className="p-3 bg-primary text-white rounded-2xl shadow-lg shadow-primary/20">
+                                    <FolderPlus className="h-6 w-6" />
+                                </div>
+                                <h1 className="text-4xl font-black tracking-tight text-foreground sm:text-5xl">
+                                    Project Intelligence
+                                </h1>
+                            </div>
+                            <p className="text-muted-foreground text-lg max-w-2xl font-medium leading-relaxed">
+                                Orchestrate your data workflows, specialized models, and high-fidelity analytical artifacts in one unified, high-performance workspace.
+                            </p>
                         </div>
-                        <Button
-                            onClick={openCreateModal}
-                            className="bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:scale-105 active:scale-95"
-                        >
-                            <FolderPlus className="mr-2 h-4 w-4" />
-                            New Project
-                        </Button>
+
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                            <div className="relative group/search flex-1 sm:min-w-[350px]">
+                                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60 group-focus-within/search:text-primary transition-colors" />
+                                <Input
+                                    placeholder="Locate intelligence assets..."
+                                    className="pl-12 h-14 bg-background/80 border-border/40 focus:border-primary/50 focus:ring-4 focus:ring-primary/5 rounded-2xl text-sm font-bold transition-all placeholder:text-muted-foreground/40 shadow-sm"
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                />
+                            </div>
+                            <Button
+                                onClick={openCreateModal}
+                                size="lg"
+                                className="h-14 px-10 shadow-xl shadow-primary/10 hover:shadow-primary/20 hover:-translate-y-0.5 transition-all duration-300 font-bold rounded-2xl gap-2 bg-primary text-primary-foreground"
+                            >
+                                <Plus className="h-5 w-5" />
+                                Initialize Forge
+                            </Button>
+                        </div>
                     </div>
                 </div>
 
-                {/* Filters/Tabs */}
-                <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+                {/* Filters/Tabs with Animation */}
+                <div className="flex items-center gap-3 overflow-x-auto pb-4 px-2 scrollbar-none">
                     {["All Projects", "Recent", "Starred", "Archived"].map((tab) => (
                         <Button
                             key={tab}
-                            variant={activeTab === tab ? "secondary" : "ghost"}
+                            variant={activeTab === tab ? "default" : "ghost"}
                             size="sm"
                             className={cn(
-                                "whitespace-nowrap transition-all",
-                                activeTab === tab ? "bg-primary/10 text-primary hover:bg-primary/20" : "hover:bg-secondary/50"
+                                "h-11 px-6 rounded-xl text-xs font-black uppercase tracking-widest transition-all duration-300",
+                                activeTab === tab ? "bg-primary shadow-lg shadow-primary/10" : "hover:bg-primary/5 text-muted-foreground hover:text-primary"
                             )}
                             onClick={() => setActiveTab(tab)}
                         >
@@ -227,113 +239,136 @@ export function ProjectPage() {
                     ))}
                 </div>
 
-                {/* Project Grid */}
+                {/* Project Grid with Premium Cards */}
                 <div className="relative min-h-[400px]">
                     {isLoading ? (
                         <div className="absolute inset-0 flex items-center justify-center">
-                            <Loader2 className="h-10 w-10 text-primary animate-spin" />
+                            <div className="flex flex-col items-center gap-4">
+                                <Loader2 className="h-12 w-12 text-primary animate-spin opacity-40" />
+                                <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground animate-pulse">Syncing Repository</p>
+                            </div>
                         </div>
                     ) : filteredProjects.length > 0 ? (
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
                             <AnimatePresence mode="popLayout">
                                 {filteredProjects.map((project, i) => (
                                     <motion.div
                                         key={project.id}
                                         layout
-                                        initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                                        exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                                        transition={{ duration: 0.3, delay: i * 0.05 }}
+                                        initial={{ opacity: 0, y: 30 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95 }}
+                                        transition={{ duration: 0.5, delay: i * 0.05, ease: [0.23, 1, 0.32, 1] }}
                                     >
                                         <Card
                                             onClick={() => router.push(`/project/${project.id}`)}
-                                            className="h-full border-border/30 bg-card/30 backdrop-blur-xl hover:border-primary/40 hover:shadow-2xl hover:shadow-primary/5 transition-all group overflow-hidden relative cursor-pointer"
+                                            className="h-full group flex flex-col border-border/40 hover:border-primary/40 hover:shadow-[0_20px_50px_rgba(0,0,0,0.05)] bg-muted/5 transition-all duration-500 cursor-pointer overflow-hidden p-0 rounded-[2.5rem] relative"
                                         >
-                                            {project.is_favorite && (
-                                                <div className="absolute top-0 right-0 p-1">
-                                                    <div className="bg-primary/10 text-primary p-1 rounded-bl-lg">
-                                                        <Star className="h-3 w-3 fill-primary" />
-                                                    </div>
-                                                </div>
-                                            )}
+                                            <div
+                                                className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full -mr-16 -mt-16 blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+                                                style={{ backgroundColor: `${project.color_code}10` || "#3b82f610" }}
+                                            />
 
-                                            <CardHeader className="pb-3">
-                                                <div className="flex items-start justify-between">
+                                            <CardHeader className="space-y-6 p-8">
+                                                <div className="flex items-center justify-between">
                                                     <div
-                                                        className="p-3 rounded-xl bg-gradient-to-br from-secondary to-secondary/50 text-primary group-hover:from-primary group-hover:to-primary/80 group-hover:text-primary-foreground transition-all duration-300 shadow-sm"
-                                                        style={{ backgroundColor: `${project.color_code}20` }}
+                                                        className="p-4 rounded-[1.5rem] bg-background border border-border/40 shadow-sm text-foreground group-hover:bg-primary/5 group-hover:text-primary transition-all duration-500 relative overflow-hidden"
                                                     >
-                                                        {getIconForCategory(project.category)}
+                                                        <div className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity" style={{ backgroundColor: project.color_code || "#3b82f6" }} />
+                                                        <div className="relative z-10">
+                                                            {(() => {
+                                                                const icon = getIconForCategory(project.category);
+                                                                return React.isValidElement(icon) ? React.cloneElement(icon as React.ReactElement<any>, { className: "h-6 w-6" }) : null;
+                                                            })()}
+                                                        </div>
                                                     </div>
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                                                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0 hover:bg-secondary/80">
-                                                                <MoreVertical className="h-4 w-4" />
-                                                            </Button>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end" className="w-48 p-1">
-                                                            <DropdownMenuItem onClick={() => toggleFavorite(project)} className="flex items-center gap-2">
-                                                                <Star className={cn("h-4 w-4", project.is_favorite && "fill-primary text-primary")} />
-                                                                {project.is_favorite ? "Unstar" : "Star"}
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => openEditModal(project)} className="flex items-center gap-2">
-                                                                <Edit2 className="h-4 w-4" />
-                                                                Rename
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuItem onClick={() => toggleArchive(project)} className="flex items-center gap-2">
-                                                                <Archive className="h-4 w-4" />
-                                                                {project.status === "archived" ? "Restore from Archive" : "Move to Archive"}
-                                                            </DropdownMenuItem>
-                                                            <DropdownMenuSeparator />
-                                                            <DropdownMenuItem
-                                                                onClick={() => handleDeleteProject(project.id)}
-                                                                className="flex items-center gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive"
-                                                            >
-                                                                <Trash2 className="h-4 w-4" />
-                                                                Delete
-                                                            </DropdownMenuItem>
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
+
+                                                    <div className="flex items-center gap-2">
+                                                        {project.is_favorite && (
+                                                            <div className="p-2 bg-amber-500/10 text-amber-600 rounded-full">
+                                                                <Star className="h-4 w-4 fill-current" />
+                                                            </div>
+                                                        )}
+                                                        <DropdownMenu>
+                                                            <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                                                                <Button variant="ghost" size="icon" className="h-10 w-10 text-muted-foreground/40 hover:text-foreground hover:bg-muted/40 rounded-full transition-all">
+                                                                    <MoreVertical className="h-5 w-5" />
+                                                                </Button>
+                                                            </DropdownMenuTrigger>
+                                                            <DropdownMenuContent align="end" className="w-60 p-2 shadow-2xl rounded-2xl border-border/40 backdrop-blur-xl">
+                                                                <DropdownMenuItem onClick={() => toggleFavorite(project)} className="rounded-xl gap-3 py-3 text-sm font-bold">
+                                                                    <Star className={cn("h-4 w-4 transition-colors", project.is_favorite && "fill-amber-500 text-amber-500")} />
+                                                                    {project.is_favorite ? "Remove Star" : "Star Project"}
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem onClick={() => openEditModal(project)} className="rounded-xl gap-3 py-3 text-sm font-bold">
+                                                                    <Edit2 className="h-4 w-4" />
+                                                                    Configure Workspace
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuItem onClick={() => toggleArchive(project)} className="rounded-xl gap-3 py-3 text-sm font-bold">
+                                                                    <Archive className="h-4 w-4" />
+                                                                    {project.status === "archived" ? "Restore to Active" : "Archive Workspace"}
+                                                                </DropdownMenuItem>
+                                                                <DropdownMenuSeparator className="my-2 opacity-10" />
+                                                                <DropdownMenuItem
+                                                                    onClick={() => handleDeleteProject(project.id)}
+                                                                    className="rounded-xl gap-3 py-3 text-sm font-bold text-destructive focus:bg-destructive/10 focus:text-destructive"
+                                                                >
+                                                                    <Trash2 className="h-4 w-4" />
+                                                                    Dissolve Project
+                                                                </DropdownMenuItem>
+                                                            </DropdownMenuContent>
+                                                        </DropdownMenu>
+                                                    </div>
                                                 </div>
-                                                <CardTitle className="mt-5 text-xl font-bold group-hover:text-primary transition-colors line-clamp-1">
-                                                    {project.name}
-                                                </CardTitle>
-                                                <CardDescription className="mt-2 line-clamp-2 min-h-[40px] text-muted-foreground/80 leading-relaxed">
-                                                    {project.description || "No description provided."}
-                                                </CardDescription>
+
+                                                <div className="space-y-3">
+                                                    <div className="flex items-center gap-3">
+                                                        <CardTitle className="text-2xl font-black tracking-tight text-foreground/90 group-hover:text-primary transition-colors duration-300">
+                                                            {project.name}
+                                                        </CardTitle>
+                                                        <div
+                                                            className="h-2 w-2 rounded-full animate-pulse"
+                                                            style={{ backgroundColor: project.color_code || "#3b82f6", boxShadow: `0 0 10px ${project.color_code || "#3b82f6"}80` }}
+                                                        />
+                                                    </div>
+                                                    <CardDescription className="line-clamp-2 text-sm text-muted-foreground/80 leading-relaxed font-bold tracking-tight">
+                                                        {project.description || "Initialize descriptive metadata for this analytical container."}
+                                                    </CardDescription>
+                                                </div>
                                             </CardHeader>
-                                            <CardContent>
+
+                                            <CardContent className="px-8 pb-8 flex-grow">
                                                 <div className="flex flex-wrap gap-2">
-                                                    <Badge variant="outline" className="bg-primary/5 text-primary border-primary/10 hover:bg-primary/10 transition-colors">
+                                                    <Badge variant="secondary" className="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-[0.1em] bg-muted shadow-sm border border-border/20">
                                                         {project.category}
                                                     </Badge>
-                                                    {project.status === "active" && (
-                                                        <Badge variant="outline" className="bg-emerald-500/5 text-emerald-500 border-emerald-500/10">
-                                                            Active
-                                                        </Badge>
-                                                    )}
-                                                    {project.status === "archived" && (
-                                                        <Badge variant="outline" className="bg-amber-500/5 text-amber-500 border-amber-500/10">
-                                                            Archived
-                                                        </Badge>
-                                                    )}
+                                                    <Badge
+                                                        variant="outline"
+                                                        className={cn(
+                                                            "px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-[0.1em] border-none shadow-sm",
+                                                            project.status === "active" ? "bg-emerald-500/10 text-emerald-600" : "bg-amber-500/10 text-amber-600"
+                                                        )}
+                                                    >
+                                                        {project.status} MODE
+                                                    </Badge>
                                                 </div>
                                             </CardContent>
-                                            <CardFooter className="pt-4 flex items-center justify-between text-xs text-muted-foreground border-t border-border/5 bg-secondary/5 mt-auto py-4 px-6">
-                                                <div className="flex items-center gap-4">
-                                                    <span className="flex items-center gap-1.5">
-                                                        <Clock className="h-3.5 w-3.5" />
-                                                        {formatDate(project.updated_at)}
-                                                    </span>
+
+                                            <CardFooter className="px-8 py-6 border-t border-border/40 bg-muted/10 flex items-center justify-between mt-auto">
+                                                <div className="flex items-center gap-3 text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-60">
+                                                    <Clock className="h-3.5 w-3.5" />
+                                                    Updated {formatDate(project.updated_at)}
                                                 </div>
-                                                <div className="flex items-center gap-2">
-                                                    <div
-                                                        className="h-2 w-2 rounded-full animate-pulse"
-                                                        style={{ backgroundColor: project.color_code || "#4F46E5" }}
-                                                    />
-                                                    <span className="font-medium text-[10px] uppercase tracking-wider">
-                                                        {project.status || "Active"}
+                                                <div className="flex items-center gap-3">
+                                                    <span className="font-black text-[9px] uppercase tracking-[0.3em] text-foreground/20 group-hover:text-primary transition-colors duration-500">
+                                                        SYSTEM_V1
                                                     </span>
+                                                    <div className="h-8 w-1.5 rounded-full overflow-hidden bg-muted/50">
+                                                        <div
+                                                            className="h-1/2 w-full transition-all duration-1000 group-hover:h-full"
+                                                            style={{ backgroundColor: project.color_code || "#3b82f6" }}
+                                                        />
+                                                    </div>
                                                 </div>
                                             </CardFooter>
                                         </Card>
@@ -342,20 +377,24 @@ export function ProjectPage() {
                             </AnimatePresence>
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center justify-center py-20 text-center space-y-4">
-                            <div className="p-6 rounded-full bg-secondary/30 text-muted-foreground/50">
-                                <Projector className="h-16 w-16" />
+                        <div className="flex flex-col items-center justify-center py-32 text-center space-y-8 bg-muted/5 rounded-[3.5rem] border border-dashed border-border/60">
+                            <div className="p-10 rounded-[3rem] bg-secondary/30 text-muted-foreground/30 shadow-inner">
+                                <Projector className="h-20 w-20" />
                             </div>
-                            <div className="max-w-xs space-y-2">
-                                <h3 className="text-xl font-semibold">No projects found</h3>
-                                <p className="text-muted-foreground">
-                                    {searchQuery ? "No projects match your search query." : "You haven't created any projects yet. Start by creating your first one!"}
+                            <div className="max-w-md space-y-3">
+                                <h3 className="text-3xl font-black tracking-tight">Vortex Empty</h3>
+                                <p className="text-muted-foreground font-medium text-lg italic">
+                                    {searchQuery ? `No artifacts found for "${searchQuery}"` : "The project repository is currently dormant. Initialize your first intelligence forge to begin."}
                                 </p>
                             </div>
                             {!searchQuery && (
-                                <Button onClick={openCreateModal} variant="outline" className="mt-4 border-dashed border-2 hover:bg-primary/5 hover:text-primary hover:border-primary/50">
-                                    <Plus className="mr-2 h-4 w-4" />
-                                    Initialize Project
+                                <Button
+                                    onClick={openCreateModal}
+                                    size="lg"
+                                    className="rounded-2xl h-14 px-10 font-black tracking-widest uppercase text-xs shadow-xl shadow-primary/10"
+                                >
+                                    <Plus className="mr-2 h-5 w-5" />
+                                    Initialize Repository
                                 </Button>
                             )}
                         </div>
