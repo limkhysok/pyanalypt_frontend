@@ -7,7 +7,11 @@ import {
     UploadDatasetRequest,
     PasteDatasetRequest,
     DatasetPreview,
-    DatasetAnalysis
+    DatasetAnalysis,
+    TrainModelRequest,
+    TrainModelResponse,
+    VisualizeRequest,
+    VisualizeResponse
 } from '@/types/project';
 
 /**
@@ -139,5 +143,44 @@ export const projectApi = {
         console.log("[ProjectApi] Analyzing dataset:", datasetId);
         const response = await apiClient.get<DatasetAnalysis>(`/datasets/items/${datasetId}/analyze/`);
         return response.data;
+    },
+
+    /**
+     * Train a machine learning model on a dataset
+     */
+    async trainModel(datasetId: number | string, data: TrainModelRequest): Promise<TrainModelResponse> {
+        console.log("[ProjectApi] Training model for dataset:", datasetId, "Type:", data.model_type, "Payload:", data);
+        const response = await apiClient.post<TrainModelResponse>(`/datasets/items/${datasetId}/train/`, data);
+        return response.data;
+    },
+
+    /**
+     * Get structured data for Apache ECharts visualization
+     */
+    async visualizeDataset(datasetId: number | string, data: VisualizeRequest): Promise<VisualizeResponse> {
+        console.log("[ProjectApi] Fetching visualization data for dataset:", datasetId);
+        const response = await apiClient.post<VisualizeResponse>(`/datasets/items/${datasetId}/visualize/`, data);
+        return response.data;
+    },
+
+    /**
+     * Download the dataset in a specific format
+     */
+    async exportDataset(datasetId: number | string, format: string = 'csv'): Promise<void> {
+        console.log("[ProjectApi] Exporting dataset:", datasetId, "Format:", format);
+        const response = await apiClient.get(`/datasets/items/${datasetId}/export/`, {
+            params: { format },
+            responseType: 'blob'
+        });
+
+        // Create a temporary link to download the file
+        const url = window.URL.createObjectURL(new Blob([response.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `dataset_${datasetId}.${format}`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
     }
 };

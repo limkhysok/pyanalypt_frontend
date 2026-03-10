@@ -42,7 +42,10 @@ import {
     Layers,
     CaseLower,
     Variable,
-    Trash
+    Trash,
+    BrainCircuit,
+    Presentation,
+    LineChart
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -65,8 +68,10 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { projectApi } from "@/services/api";
-import { Project, DatasetPreview, DatasetAnalysis } from "@/types/project";
+import { Project, DatasetPreview, DatasetAnalysis, TrainModelRequest, TrainModelResponse, VisualizeRequest, VisualizeResponse } from "@/types/project";
 import { useAuth } from "@/context/auth-context";
+import ReactECharts from 'echarts-for-react';
+import 'echarts-gl';
 
 export function ProjectDetailPage() {
     const params = useParams();
@@ -113,6 +118,23 @@ export function ProjectDetailPage() {
     const [outlierUpper, setOutlierUpper] = React.useState<number>(0.95);
     const [roundCols, setRoundCols] = React.useState<string[]>([]);
     const [roundDecimals, setRoundDecimals] = React.useState<number>(2);
+
+    // Model Training State
+    const [modelType, setModelType] = React.useState<'kmeans' | 'linear_regression'>('kmeans');
+    const [selectedFeatures, setSelectedFeatures] = React.useState<string[]>([]);
+    const [targetVariable, setTargetVariable] = React.useState<string>("");
+    const [numClusters, setNumClusters] = React.useState<number>(3);
+    const [isTraining, setIsTraining] = React.useState(false);
+    const [trainingResult, setTrainingResult] = React.useState<TrainModelResponse | null>(null);
+
+    // Visualization State
+    const [chartType, setChartType] = React.useState<'scatter' | 'bar' | 'line' | 'scatter3D'>('scatter');
+    const [vXAxis, setVXAxis] = React.useState("");
+    const [vYAxis, setVYAxis] = React.useState("");
+    const [vZAxis, setVZAxis] = React.useState("");
+    const [vCategoryCol, setVCategoryCol] = React.useState("");
+    const [chartData, setChartData] = React.useState<VisualizeResponse | null>(null);
+    const [isVisualizing, setIsVisualizing] = React.useState(false);
 
     const fileInputRef = React.useRef<HTMLInputElement>(null);
     const workbenchRef = React.useRef<HTMLDivElement>(null);
@@ -348,6 +370,7 @@ export function ProjectDetailPage() {
             return;
         }
 
+        console.log("[handleRunCleanup] Executing Pipeline:", pipeline);
         try {
             const response = await projectApi.cleanDataset(selectedDatasetId, { pipeline });
             toast.success("Cleanup pipeline executed successfully!");
@@ -367,10 +390,311 @@ export function ProjectDetailPage() {
             setOutlierCols([]);
             setRoundCols([]);
         } catch (err: any) {
-            console.error("Cleaning failed:", err);
-            toast.error(err.response?.data?.message || "Cleaning operation failed.");
+            console.error("[handleRunCleanup] Error:", err);
+
+            let errorMessage = "Cleaning operation failed.";
+            if (err.response?.data) {
+                const data = err.response.data;
+                if (typeof data === 'string') {
+                    errorMessage = data;
+                } else if (data.error || data.message || data.detail) {
+                    errorMessage = data.error || data.message || data.detail;
+                } else if (typeof data === 'object') {
+                    // Handle DRF field errors or nested pipeline errors
+                    errorMessage = Object.entries(data)
+                        .map(([key, val]) => `${key}: ${Array.isArray(val) ? val.join(", ") : val}`)
+                        .join(" | ");
+                }
+            }
+
+            toast.error(errorMessage);
         } finally {
             setIsCleaningActive(false);
+        }
+    };
+
+    const handleTrainModel = async () => {
+        if (!selectedDatasetId) {
+            toast.error("No dataset selected.");
+            return;
+        }
+        if (selectedFeatures.length === 0) {
+            toast.error("Please select at least one feature.");
+            return;
+        }
+        if (modelType === 'linear_regression' && !targetVariable) {
+            toast.error("Please select a target variable for regression.");
+            return;
+        }
+
+        const isNumeric = (col: string) => {
+            const dtype = previewData?.metadata?.dtypes?.[col]?.toLowerCase() || "";
+            return dtype.includes("int") || dtype.includes("float") || dtype.includes("number");
+        };
+
+        const nonNumericFeatures = selectedFeatures.filter(f => !isNumeric(f));
+        if (nonNumericFeatures.length > 0) {
+            toast.warning(`Warning: ${nonNumericFeatures.join(", ")} appear to be non-numeric. Models like KMeans and Linear Regression generally require numeric inputs.`);
+        }
+
+        setIsTraining(true);
+        setTrainingResult(null); // Clear previous results
+
+        try {
+            // Construct request payload strictly as per API spec
+            const request: any = {
+                model_type: modelType,
+                features: selectedFeatures
+            };
+
+            if (modelType === 'kmeans') {
+                request.params = { n_clusters: numClusters };
+            } else if (modelType === 'linear_regression') {
+                request.target = targetVariable;
+            }
+
+            console.log("[handleTrainModel] Sending Payload:", request);
+            const response = await projectApi.trainModel(selectedDatasetId, request);
+
+            setTrainingResult(response);
+            toast.success(`${response.evaluation.model} training complete!`);
+
+            if (response.new_dataset?.dataset_id) {
+                fetchProjectDetails();
+            }
+        } catch (err: any) {
+            console.error("[handleTrainModel] Failed:", err);
+
+            let errorMessage = "Model training failed.";
+            if (err.response?.data) {
+                const data = err.response.data;
+                if (typeof data === 'string') {
+                    errorMessage = data;
+                } else if (data.error || data.message || data.detail) {
+                    errorMessage = data.error || data.message || data.detail;
+                } else if (typeof data === 'object') {
+                    // Handle DRF field errors like { features: ["msg"], target: ["msg"] }
+                    errorMessage = Object.entries(data)
+                        .map(([key, val]) => `${key}: ${Array.isArray(val) ? val.join(", ") : val}`)
+                        .join(" | ");
+                }
+            }
+
+            toast.error(errorMessage || "Ensure all selected features are numeric and contain no null values.");
+        } finally {
+            setIsTraining(false);
+        }
+    };
+
+    const handleVisualize = async () => {
+        if (!selectedDatasetId || !vXAxis || !vYAxis) {
+            toast.error("X and Y axes are required for visualization.");
+            return;
+        }
+
+        const isNumeric = (col: string) => {
+            if (!previewData?.metadata?.dtypes) return false;
+            const dtype = (previewData.metadata.dtypes[col] || "").toLowerCase();
+            return dtype.includes("int") ||
+                dtype.includes("float") ||
+                dtype.includes("num") ||
+                dtype.includes("double") ||
+                dtype.includes("dec") ||
+                dtype.includes("real");
+        };
+
+        if (chartType === 'scatter3D' && !vZAxis) {
+            toast.error("Z-Axis dimension is required for 3D visualization.");
+            return;
+        }
+
+        // Strict validation: Ensure selected dimensions are actually numeric based on metadata
+        if (!isNumeric(vXAxis) || !isNumeric(vYAxis) || (chartType === 'scatter3D' && vZAxis && !isNumeric(vZAxis))) {
+            toast.error("Selected dimensions must be numeric. Please check the 'Neural Insights' tab to verify column types.");
+            return;
+        }
+
+        setIsVisualizing(true);
+        setChartData(null);
+
+        try {
+            // Lowercase snake_case chart type for backend consistency (Common in Python/DRF)
+            let backendChartType: string = chartType;
+            if (chartType === 'scatter3D') backendChartType = 'scatter_3d';
+
+            const payload: any = {
+                chart_type: backendChartType,
+                x_axis: vXAxis,
+                y_axis: vYAxis
+            };
+
+            // Only send z_axis if we are in 3D mode
+            if (chartType === 'scatter3D') {
+                payload.z_axis = vZAxis;
+            }
+
+            if (vCategoryCol) {
+                payload.category_col = vCategoryCol;
+            }
+
+            console.log("[handleVisualize] Synchronizing Pipeline Asset:", selectedDatasetId, "Payload:", payload);
+
+            const data = await projectApi.visualizeDataset(selectedDatasetId, payload);
+
+            setChartData(data);
+            toast.success("Tensor graph synchronized.");
+        } catch (err: any) {
+            console.error("[handleVisualize] Response Error:", err);
+
+            let errorMessage = "Failed to synchronize visualization stream.";
+            const data = err.response?.data;
+
+            if (data) {
+                if (typeof data === 'string') {
+                    errorMessage = data;
+                } else if (data.error || data.message || data.detail) {
+                    errorMessage = data.error || data.message || data.detail;
+                } else if (typeof data === 'object') {
+                    // Check for field-specific errors (common in 400 Bad Request)
+                    errorMessage = Object.entries(data)
+                        .map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(", ") : v}`)
+                        .join(" | ");
+                }
+            }
+
+            if (err.response?.status === 400 && errorMessage.toLowerCase().includes("chart type")) {
+                toast.error(`Architecture Reject: ${errorMessage}`);
+                errorMessage = "The backend analytical engine currently rejects this specific chart architecture.";
+            }
+
+            toast.error(errorMessage);
+        } finally {
+            setIsVisualizing(false);
+        }
+    };
+
+    const getChartOption = () => {
+        if (!chartData) return {};
+
+        const is3D = chartType === 'scatter3D';
+
+        const isNumeric = (col: string) => {
+            if (!previewData?.metadata?.dtypes) return false;
+            const dtype = (previewData.metadata.dtypes[col] || "").toLowerCase();
+            return dtype.includes("int") || dtype.includes("float") || dtype.includes("num") || dtype.includes("double") || dtype.includes("dec") || dtype.includes("real");
+        };
+
+        const xType = isNumeric(vXAxis) ? 'value' : 'category';
+        const yType = isNumeric(vYAxis) ? 'value' : 'category';
+
+        return {
+            backgroundColor: 'transparent',
+            tooltip: {
+                trigger: is3D ? 'item' : (xType === 'category' || yType === 'category' ? 'axis' : 'item'),
+                backgroundColor: 'rgba(0,0,0,0.8)',
+                borderColor: 'rgba(255,255,255,0.1)',
+                borderWidth: 1,
+                textStyle: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
+                padding: [10, 14],
+                borderRadius: 12
+            },
+            legend: {
+                show: !!vCategoryCol,
+                top: 0,
+                textStyle: { color: 'rgba(255,255,255,0.6)', fontSize: 10, fontWeight: 'bold' },
+                itemWidth: 10,
+                itemHeight: 10
+            },
+            grid: is3D ? undefined : {
+                left: '5%',
+                right: '5%',
+                bottom: '15%',
+                top: '15%',
+                containLabel: true
+            },
+            xAxis: is3D ? undefined : {
+                type: xType,
+                name: vXAxis,
+                nameLocation: 'middle',
+                nameGap: 35,
+                scale: xType === 'value',
+                splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)', type: 'dashed' } },
+                axisLabel: { color: 'rgba(255,255,255,0.4)', fontSize: 10, fontWeight: '600' },
+                axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } }
+            },
+            yAxis: is3D ? undefined : {
+                type: yType,
+                name: vYAxis,
+                scale: yType === 'value',
+                splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)', type: 'dashed' } },
+                axisLabel: { color: 'rgba(255,255,255,0.4)', fontSize: 10, fontWeight: '600' },
+                axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } }
+            },
+            xAxis3D: is3D ? { type: 'value', name: vXAxis, axisLabel: { color: '#fff' } } : undefined,
+            yAxis3D: is3D ? { type: 'value', name: vYAxis, axisLabel: { color: '#fff' } } : undefined,
+            zAxis3D: is3D ? { type: 'value', name: vZAxis, axisLabel: { color: '#fff' } } : undefined,
+            grid3D: is3D ? {
+                viewControl: {
+                    projection: 'perspective',
+                    autoRotate: true,
+                    autoRotateSpeed: 10,
+                    distance: 200
+                },
+                boxWidth: 100,
+                boxHeight: 100,
+                boxDepth: 100,
+                light: {
+                    main: { intensity: 1.5, shadow: true },
+                    ambient: { intensity: 0.5 }
+                },
+                postEffect: { enable: true },
+                splitLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
+                axisPointer: { lineStyle: { color: '#fff' } }
+            } : undefined,
+            series: (chartData?.series as any[])?.map(s => {
+                let sType: string = chartType;
+                if (chartType === 'scatter3D') sType = 'scatter3D'; // ECharts specific type
+
+                return {
+                    name: s.name,
+                    type: sType,
+                    data: s.data,
+                    symbolSize: is3D ? 8 : 12,
+                    smooth: true,
+                    showSymbol: true,
+                    itemStyle: {
+                        opacity: 0.85,
+                        borderRadius: 4,
+                        shadowBlur: 10,
+                        shadowColor: 'rgba(0,0,0,0.3)'
+                    },
+                    emphasis: {
+                        focus: 'series',
+                        itemStyle: {
+                            opacity: 1,
+                            shadowBlur: 20,
+                            shadowColor: 'rgba(0,0,0,0.5)'
+                        }
+                    }
+                };
+            }) || []
+        };
+    };
+
+    const handleExport = async (format: string) => {
+        if (!selectedDatasetId) return;
+        try {
+            await projectApi.exportDataset(selectedDatasetId, format);
+            toast.success(`Exporting as ${format.toUpperCase()}...`);
+        } catch (err: any) {
+            console.error("Export failed:", err);
+            let errorMessage = "Export failed.";
+            if (err.response?.data) {
+                const data = err.response.data;
+                if (typeof data === 'string') errorMessage = data;
+                else if (data.error || data.message || data.detail) errorMessage = data.error || data.message || data.detail;
+            }
+            toast.error(errorMessage);
         }
     };
 
@@ -628,9 +952,20 @@ export function ProjectDetailPage() {
                                                                             <MoreVertical className="h-4 w-4" />
                                                                         </Button>
                                                                     </DropdownMenuTrigger>
-                                                                    <DropdownMenuContent align="end" className="w-48">
+                                                                    <DropdownMenuContent align="end" className="w-56">
                                                                         <DropdownMenuItem onClick={() => handleViewPreview(ds.id, rowCount)} className="gap-2">
                                                                             <Eye className="h-4 w-4" /> View Preview
+                                                                        </DropdownMenuItem>
+                                                                        <DropdownMenuSeparator />
+                                                                        <DropdownMenuLabel className="text-[9px] uppercase font-black tracking-widest text-muted-foreground/60 py-2">Export formats</DropdownMenuLabel>
+                                                                        <DropdownMenuItem onClick={() => handleExport('csv')} className="gap-2">
+                                                                            <FileSpreadsheet className="h-4 w-4" /> Export as CSV
+                                                                        </DropdownMenuItem>
+                                                                        <DropdownMenuItem onClick={() => handleExport('excel')} className="gap-2">
+                                                                            <Table className="h-4 w-4" /> Export as Excel
+                                                                        </DropdownMenuItem>
+                                                                        <DropdownMenuItem onClick={() => handleExport('json')} className="gap-2">
+                                                                            <Code className="h-4 w-4" /> Export as JSON
                                                                         </DropdownMenuItem>
                                                                         <DropdownMenuSeparator />
                                                                         <DropdownMenuItem
@@ -761,6 +1096,32 @@ export function ProjectDetailPage() {
                                             ))}
                                         </DropdownMenuContent>
                                     </DropdownMenu>
+
+                                    {/* Export Button */}
+                                    {selectedDatasetId && (
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="outline" size="sm" className="h-9 px-4 bg-background border-border/60 hover:bg-secondary/50 rounded-lg shadow-sm text-xs font-bold gap-2">
+                                                    <FileUp className="h-3.5 w-3.5 text-primary rotate-180" />
+                                                    Export
+                                                    <ChevronDown className="h-3.5 w-3.5 opacity-40" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="w-48">
+                                                <DropdownMenuLabel className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/60 p-3">Format</DropdownMenuLabel>
+                                                <DropdownMenuSeparator />
+                                                <DropdownMenuItem onClick={() => handleExport('csv')} className="gap-3">
+                                                    <FileSpreadsheet className="h-4 w-4 opacity-40" /> Export CSV
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleExport('excel')} className="gap-3">
+                                                    <Table className="h-4 w-4 opacity-40" /> Export Excel
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleExport('json')} className="gap-3">
+                                                    <Code className="h-4 w-4 opacity-40" /> Export JSON
+                                                </DropdownMenuItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                    )}
                                 </div>
                             </div>
 
@@ -1255,64 +1616,332 @@ export function ProjectDetailPage() {
                         </div>
                     </div>
 
-                    {/* Step 3: Analytics & Insights */}
+                    {/* Step 3: Analytics & Visualization */}
                     <div className="space-y-8 pt-8 border-t border-border/40">
                         <div className="space-y-2">
                             <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary tracking-wide text-[10px] font-black uppercase backdrop-blur-md">
                                 STEP 3
                             </Badge>
                             <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
-                                Generate Automated Insights
+                                Visualize & Analyze
                             </h2>
                             <p className="text-muted-foreground text-sm max-w-2xl">
-                                Synthesize multifaceted data structures into actionable insights.
+                                Generate interactive visualizations and statistical deep-dives for your structured datasets.
                             </p>
                         </div>
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                            <Card className="lg:col-span-2 border-border/60 shadow-xl rounded-3xl p-12 bg-muted/20 backdrop-blur-md">
-                                <div className="flex flex-col items-center justify-center text-center space-y-8 h-full">
-                                    <div className="p-8 bg-primary/5 rounded-full ring-1 ring-primary/20">
-                                        <BarChart3 className="h-16 w-16 text-primary/40 animate-pulse" />
-                                    </div>
+
+                        <Card className="border-border/60 shadow-xl rounded-3xl overflow-hidden bg-muted/20 backdrop-blur-md p-8">
+                            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                                <div className="space-y-6">
                                     <div className="space-y-4">
-                                        <h3 className="text-3xl font-black tracking-tighter">AI-Driven Intelligence</h3>
-                                        <p className="text-muted-foreground max-w-lg mx-auto text-base font-medium leading-relaxed">
-                                            Synthesize multifaceted data structures into actionable insights. Select an active asset from the repository to initialize behavioral analytics.
-                                        </p>
+                                        <Label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/60">Chart Architecture</Label>
+                                        <div className="grid grid-cols-4 gap-2">
+                                            {[
+                                                { id: "scatter", icon: PieChart },
+                                                { id: "bar", icon: BarChart3 },
+                                                { id: "line", icon: LineChart },
+                                                { id: "scatter3D", icon: Layers }
+                                            ].map(chart => (
+                                                <Button
+                                                    key={chart.id}
+                                                    variant={chartType === chart.id ? "default" : "outline"}
+                                                    className="h-10 rounded-xl"
+                                                    onClick={() => {
+                                                        setChartType(chart.id as any);
+                                                        setChartData(null); // Force reset visualizer
+                                                    }}
+                                                    title={chart.id.toUpperCase()}
+                                                >
+                                                    <chart.icon className="h-4 w-4" />
+                                                </Button>
+                                            ))}
+                                        </div>
                                     </div>
-                                    <Button size="lg" className="rounded-2xl h-14 px-10 font-black tracking-widest uppercase text-xs" variant="secondary" onClick={() => setActiveTab("data")}>
-                                        Initalize Analysis
+
+                                    {previewData && (
+                                        <>
+                                            <div className="space-y-2">
+                                                <Label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/60">X-Axis Dimension (Numeric)</Label>
+                                                <select
+                                                    value={vXAxis}
+                                                    onChange={e => setVXAxis(e.target.value)}
+                                                    className="w-full bg-background border border-border/60 rounded-xl h-11 text-xs px-4 font-bold outline-none ring-offset-background focus:ring-2 focus:ring-primary/20 transition-all"
+                                                >
+                                                    <option value="">Select...</option>
+                                                    {previewData.columns
+                                                        .filter(c => {
+                                                            const dtype = previewData.metadata?.dtypes?.[c]?.toLowerCase() || "";
+                                                            return dtype.includes("int") || dtype.includes("float") || dtype.includes("number");
+                                                        })
+                                                        .map(c => <option key={c} value={c}>{c}</option>)
+                                                    }
+                                                </select>
+                                                {vXAxis && !(previewData.metadata?.dtypes?.[vXAxis]?.toLowerCase().includes("int") || previewData.metadata?.dtypes?.[vXAxis]?.toLowerCase().includes("float") || previewData.metadata?.dtypes?.[vXAxis]?.toLowerCase().includes("number")) && (
+                                                    <p className="text-[9px] text-amber-500 font-bold uppercase">Non-numeric column detected</p>
+                                                )}
+                                            </div>
+                                            <div className="space-y-2">
+                                                <Label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/60">Y-Axis Magnitude (Numeric)</Label>
+                                                <select
+                                                    value={vYAxis}
+                                                    onChange={e => setVYAxis(e.target.value)}
+                                                    className="w-full bg-background border border-border/60 rounded-xl h-11 text-xs px-4 font-bold outline-none ring-offset-background focus:ring-2 focus:ring-primary/20 transition-all"
+                                                >
+                                                    <option value="">Select...</option>
+                                                    {previewData.columns
+                                                        .filter(c => {
+                                                            const dtype = previewData.metadata?.dtypes?.[c]?.toLowerCase() || "";
+                                                            return dtype.includes("int") || dtype.includes("float") || dtype.includes("number");
+                                                        })
+                                                        .map(c => <option key={c} value={c}>{c}</option>)
+                                                    }
+                                                </select>
+                                            </div>
+                                            {chartType === 'scatter3D' && (
+                                                <div className="space-y-2">
+                                                    <Label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/60">Z-Axis Depth (Numeric)</Label>
+                                                    <select
+                                                        value={vZAxis}
+                                                        onChange={e => setVZAxis(e.target.value)}
+                                                        className="w-full bg-background border border-border/60 rounded-xl h-11 text-xs px-4 font-bold outline-none ring-offset-background focus:ring-2 focus:ring-primary/20 transition-all"
+                                                    >
+                                                        <option value="">Select...</option>
+                                                        {previewData.columns
+                                                            .filter(c => {
+                                                                const dtype = previewData.metadata?.dtypes?.[c]?.toLowerCase() || "";
+                                                                return dtype.includes("int") || dtype.includes("float") || dtype.includes("number");
+                                                            })
+                                                            .map(c => <option key={c} value={c}>{c}</option>)
+                                                        }
+                                                    </select>
+                                                </div>
+                                            )}
+                                            <div className="space-y-2">
+                                                <Label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/60">Categorical Group (Any)</Label>
+                                                <select value={vCategoryCol} onChange={e => setVCategoryCol(e.target.value)} className="w-full bg-background border border-border/60 rounded-xl h-11 text-xs px-4 font-bold outline-none">
+                                                    <option value="">None</option>
+                                                    {previewData.columns.map(c => <option key={c} value={c}>{c}</option>)}
+                                                </select>
+                                            </div>
+                                        </>
+                                    )}
+
+                                    <Button className="w-full h-12 font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20" onClick={handleVisualize} disabled={isVisualizing || !previewData}>
+                                        {isVisualizing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Wand2 className="h-4 w-4 mr-2" />}
+                                        Generate Tensor Graph
                                     </Button>
                                 </div>
-                            </Card>
 
-                            <div className="space-y-8">
-                                <Card className="border-border/60 shadow-lg rounded-3xl p-6 bg-muted/20">
-                                    <h4 className="text-[10px] font-black tracking-[0.2em] uppercase text-muted-foreground/60 mb-6 flex items-center gap-2">
-                                        <Info className="h-3 w-3" /> System Parameters
-                                    </h4>
-                                    <div className="space-y-4">
-                                        {[
-                                            { label: "Vector Density", value: "High-Resolution" },
-                                            { label: "Auto-Cluster", value: "Enabled" },
-                                            { label: "Outlier Threshold", value: "0.95 quantile" }
-                                        ].map((item, i) => (
-                                            <div key={i} className="flex items-center justify-between p-4 bg-background border border-border/40 rounded-2xl">
-                                                <span className="text-xs font-bold text-muted-foreground/80">{item.label}</span>
-                                                <Badge variant="outline" className="text-[10px] font-black uppercase text-primary border-primary/20">{item.value}</Badge>
+                                <div className="lg:col-span-3 min-h-[400px] bg-background/50 rounded-2xl border border-border/40 flex items-center justify-center p-8 text-center relative overflow-hidden">
+                                    {isVisualizing && (
+                                        <div className="absolute inset-0 bg-background/60 backdrop-blur-sm z-10 flex flex-center items-center justify-center">
+                                            <Loader2 className="h-10 w-10 text-primary animate-spin" />
+                                        </div>
+                                    )}
+                                    {chartData ? (
+                                        <div className="w-full h-full flex flex-col relative items-center justify-center">
+                                            <div className="w-full h-[400px]">
+                                                <ReactECharts
+                                                    key={`${chartType}-${selectedDatasetId}-${chartData ? 'active' : 'idle'}`}
+                                                    option={getChartOption()}
+                                                    style={{ height: '400px', width: '100%' }}
+                                                    opts={{ renderer: 'canvas' }}
+                                                    notMerge={true}
+                                                    lazyUpdate={false}
+                                                />
                                             </div>
-                                        ))}
-                                    </div>
-                                </Card>
+                                            <div className="absolute top-4 right-4 flex items-center gap-2">
+                                                <Badge variant="outline" className="bg-background/80 backdrop-blur-sm border-primary/20 text-primary font-black text-[9px] uppercase tracking-widest px-3 py-1">
+                                                    Interactive Stream
+                                                </Badge>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        <div className="space-y-4 opacity-30">
+                                            <BarChart3 className="h-16 w-16 mx-auto" />
+                                            <p className="text-sm font-bold uppercase tracking-[0.2em]">Awaiting visualization parameters</p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                        </div>
+                        </Card>
                     </div>
 
-                    {/* Step 4: Historian & Logs */}
+                    {/* Step 4: Model Training & Evaluation */}
                     <div className="space-y-8 pt-8 border-t border-border/40">
                         <div className="space-y-2">
                             <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary tracking-wide text-[10px] font-black uppercase backdrop-blur-md">
                                 STEP 4
+                            </Badge>
+                            <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
+                                Train Intelligence Models
+                            </h2>
+                            <p className="text-muted-foreground text-sm max-w-2xl">
+                                Execute machine learning algorithms to uncover predictive patterns and behavioral clusters.
+                            </p>
+                        </div>
+
+                        <Card className="border-border/60 shadow-xl rounded-3xl overflow-hidden bg-muted/20 backdrop-blur-md">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 divide-x divide-border/40">
+                                <div className="p-10 space-y-10">
+                                    <div className="space-y-6">
+                                        <div className="flex items-center gap-3">
+                                            <div className="p-3 bg-primary/10 rounded-2xl">
+                                                <BrainCircuit className="h-6 w-6 text-primary" />
+                                            </div>
+                                            <h3 className="text-xl font-black tracking-tight">Algorithm Selection</h3>
+                                        </div>
+                                        <div className="grid grid-cols-2 gap-3">
+                                            {[
+                                                { id: 'kmeans', label: 'Unsupervised: KMeans', desc: 'Behavioral Clustering' },
+                                                { id: 'linear_regression', label: 'Supervised: Linear Regression', desc: 'Trend Prediction' }
+                                            ].map(algo => (
+                                                <button
+                                                    key={algo.id}
+                                                    onClick={() => setModelType(algo.id as any)}
+                                                    className={cn(
+                                                        "p-5 rounded-2xl text-left border-2 transition-all group",
+                                                        modelType === algo.id
+                                                            ? "bg-primary text-white border-primary shadow-xl shadow-primary/20"
+                                                            : "bg-background border-border/40 hover:border-primary/20"
+                                                    )}
+                                                >
+                                                    <p className="font-black text-sm mb-1">{algo.label}</p>
+                                                    <p className={cn("text-[10px] font-medium uppercase tracking-widest", modelType === algo.id ? "text-white/60" : "text-muted-foreground/60")}>{algo.desc}</p>
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {previewData && (
+                                        <div className="space-y-6">
+                                            <div className="space-y-2">
+                                                <Label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/60">Feature Space (X)</Label>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {previewData.columns.map(c => {
+                                                        const dtype = previewData.metadata?.dtypes?.[c]?.toLowerCase() || "";
+                                                        const isNum = dtype.includes("int") || dtype.includes("float") || dtype.includes("number");
+                                                        return (
+                                                            <Badge
+                                                                key={c}
+                                                                variant={selectedFeatures.includes(c) ? "default" : "outline"}
+                                                                className={cn(
+                                                                    "cursor-pointer h-8 px-4 font-bold rounded-lg transition-all border-dashed",
+                                                                    selectedFeatures.includes(c) && !isNum && "bg-amber-500 hover:bg-amber-600 border-none",
+                                                                    !selectedFeatures.includes(c) && isNum && "border-primary/40 text-primary/60"
+                                                                )}
+                                                                onClick={() => {
+                                                                    if (selectedFeatures.includes(c)) setSelectedFeatures(selectedFeatures.filter(f => f !== c));
+                                                                    else setSelectedFeatures([...selectedFeatures, c]);
+                                                                }}
+                                                            >
+                                                                {c}
+                                                            </Badge>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+
+                                            {modelType === 'linear_regression' && (
+                                                <div className="space-y-2">
+                                                    <Label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/60">Target Objective (y)</Label>
+                                                    <div className="flex flex-wrap gap-2">
+                                                        {previewData.columns.map(c => (
+                                                            <Badge
+                                                                key={c}
+                                                                variant={targetVariable === c ? "default" : "outline"}
+                                                                className={cn("cursor-pointer h-8 px-4 font-bold rounded-lg transition-all", targetVariable === c && "bg-emerald-500 hover:bg-emerald-600 border-none")}
+                                                                onClick={() => setTargetVariable(c)}
+                                                            >
+                                                                {c}
+                                                            </Badge>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {modelType === 'kmeans' && (
+                                                <div className="space-y-2">
+                                                    <Label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/60">Cluster Centroids (k)</Label>
+                                                    <div className="flex items-center gap-4">
+                                                        <Input type="range" min="2" max="10" step="1" value={numClusters} onChange={e => setNumClusters(Number(e.target.value))} className="h-6 accent-primary" />
+                                                        <span className="text-xl font-black text-primary">{numClusters}</span>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    <Button size="lg" className="w-full h-14 rounded-2xl font-black tracking-widest uppercase text-xs shadow-xl shadow-primary/20" onClick={handleTrainModel} disabled={isTraining || !previewData}>
+                                        {isTraining ? <Loader2 className="h-5 w-5 animate-spin" /> : "Deploy Intelligence Forge"}
+                                    </Button>
+                                </div>
+
+                                <div className="p-10 bg-background/40 flex flex-col">
+                                    <div className="flex items-center justify-between mb-8">
+                                        <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/60">Evaluation Analytics</h4>
+                                        {trainingResult && <span className="text-[10px] font-black uppercase text-emerald-500 animate-pulse">Synced</span>}
+                                    </div>
+
+                                    {trainingResult ? (
+                                        <div className="space-y-8 flex-1">
+                                            <div className="grid grid-cols-2 gap-4">
+                                                {Object.entries(trainingResult.evaluation).map(([k, v]) => (
+                                                    k !== 'model' && (
+                                                        <div key={k} className="p-6 bg-background border border-border/40 rounded-3xl shadow-sm">
+                                                            <p className="text-[9px] uppercase font-black text-muted-foreground/60 mb-2 truncate" title={k}>{k.replace(/_/g, ' ')}</p>
+                                                            <p className="text-2xl font-black text-foreground">{typeof v === 'number' ? v.toFixed(4) : String(v)}</p>
+                                                        </div>
+                                                    )
+                                                ))}
+                                            </div>
+
+                                            {trainingResult.evaluation.coefficients && (
+                                                <div className="space-y-4 pt-4">
+                                                    <h5 className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40">Feature Influence Rankings</h5>
+                                                    <div className="space-y-2">
+                                                        {Object.entries(trainingResult.evaluation.coefficients).map(([feat, coef]) => (
+                                                            <div key={feat} className="flex items-center justify-between p-4 bg-muted/30 rounded-2xl border border-border/20">
+                                                                <span className="text-sm font-bold">{feat}</span>
+                                                                <Badge variant="secondary" className={cn("font-mono font-bold", (coef as number) > 0 ? "text-emerald-600" : "text-rose-600")}>{(coef as number).toFixed(6)}</Badge>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {trainingResult.new_dataset && (
+                                                <div className="p-6 bg-primary/5 rounded-3xl border border-primary/20 mt-auto">
+                                                    <div className="flex items-center gap-4">
+                                                        <div className="p-3 bg-primary/20 rounded-xl">
+                                                            <FileSpreadsheet className="h-5 w-5 text-primary" />
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <p className="text-sm font-black">Clustered Dataset Ready</p>
+                                                            <p className="text-[9px] font-medium uppercase tracking-widest text-muted-foreground/60">Persistent Asset No. {trainingResult.new_dataset.dataset_id}</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            )}
+                                        </div>
+                                    ) : (
+                                        <div className="flex-1 flex flex-col items-center justify-center text-center space-y-4 opacity-30">
+                                            <div className="p-8 bg-muted border rounded-full">
+                                                <BrainCircuit className="h-12 w-12" />
+                                            </div>
+                                            <p className="text-sm font-bold uppercase tracking-[0.2em]">Idle Engine</p>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </Card>
+                    </div>
+
+                    {/* Step 5: Historian & Logs */}
+                    <div className="space-y-8 pt-8 border-t border-border/40">
+                        <div className="space-y-2">
+                            <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary tracking-wide text-[10px] font-black uppercase backdrop-blur-md">
+                                STEP 5
                             </Badge>
                             <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
                                 Project Historian Logs

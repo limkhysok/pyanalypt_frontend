@@ -77,3 +77,31 @@ export interface DatasetAnalysis {
         numeric_cols_count: number;
     };
 }
+
+export interface TrainModelRequest {
+    model_type: 'kmeans' | 'linear_regression' | string;
+    features: string[];
+    target?: string;
+    params?: Record<string, any>;
+}
+
+export interface TrainModelResponse {
+    evaluation: {
+        model: string;
+        [key: string]: any;
+    };
+    new_dataset?: DatasetPreview;
+}
+
+export interface VisualizeRequest {
+    chart_type: 'scatter' | 'line' | 'bar' | 'scatter3D' | string;
+    x_axis: string;
+    y_axis: string;
+    z_axis?: string;
+    category_col?: string;
+}
+
+export interface VisualizeResponse {
+    series?: any[];
+    xAxis?: string[];
+}
