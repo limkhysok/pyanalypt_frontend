@@ -39,22 +39,21 @@ export function Navbar() {
     });
 
     return (
-        <motion.div
-            initial={{ y: -100 }}
-            animate={{ y: 0 }}
-            transition={{ duration: 0.6 }}
-            className={cn(
-                "w-full fixed top-0 z-50 transition-all duration-300 border-b",
-                scrolled
-                    ? "border-border/40 bg-background/80 backdrop-blur-xl py-2"
-                    : "border-transparent bg-transparent py-4"
-            )}
-        >
-            <div className="flex items-center justify-between px-6 md:px-12 h-16 max-w-[1700px] mx-auto">
-
+        <div className="fixed top-0 inset-x-0 z-50 flex justify-center pt-4 sm:pt-6 px-4 pointer-events-none">
+            <motion.div
+                initial={{ y: -100, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ duration: 0.6, type: "spring", stiffness: 100, damping: 20 }}
+                className={cn(
+                    "relative pointer-events-auto flex items-center justify-between px-3 md:px-6 h-16 transition-all duration-500 rounded-full border shadow-2xl mx-auto",
+                    scrolled
+                        ? "w-full max-w-3xl bg-background/85 backdrop-blur-xl border-border/50 shadow-black/10 dark:shadow-white/5"
+                        : "w-full max-w-[1700px] bg-background/40 backdrop-blur-md border-border/20 shadow-transparent"
+                )}
+            >
                 {/* Logo */}
-                <Link href="/" className="flex items-center gap-2 group">
-                    <div className="p-1.5 rounded-lg bg-foreground text-background transition-transform group-hover:scale-110 relative overflow-hidden">
+                <Link href="/" className="flex items-center gap-2 group mr-2">
+                    <div className="p-1.5 rounded-full bg-foreground text-background transition-all duration-300 group-hover:scale-110 group-hover:bg-blue-600 group-hover:ambient-glow-blue relative overflow-hidden">
                         <motion.div
                             whileHover={{ rotate: 180 }}
                             transition={{ duration: 0.5 }}
@@ -62,43 +61,44 @@ export function Navbar() {
                             <Sparkles size={16} fill="currentColor" />
                         </motion.div>
                     </div>
-                    <span className="text-lg font-bold tracking-tight text-foreground group-hover:opacity-80 transition-opacity">
+                    {/* Hide text on scrolled mobile if space is tight, though max-w-3xl might fit it. Let's keep it visible. */}
+                    <span className="text-lg font-bold tracking-tight text-foreground transition-all duration-300 group-hover:text-glow-blue hidden sm:block">
                         PyAnalypt
                     </span>
                 </Link>
 
                 {/* Center Menu - Desktop */}
-                <div className="hidden md:flex">
+                <div className="hidden md:flex flex-1 justify-center">
                     <NavigationMenu>
-                        <NavigationMenuList className="gap-2">
+                        <NavigationMenuList className="gap-1 bg-secondary/30 rounded-full px-2 py-1">
                             <NavigationMenuItem>
-                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
+                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "rounded-full bg-transparent text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-background focus:bg-background focus:text-foreground h-9 px-3")}>
                                     <Link href="/" className="flex items-center gap-2">
-                                        <Home size={16} /> Home
+                                        <Home size={14} /> Home
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
 
                             <NavigationMenuItem>
-                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
+                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "rounded-full bg-transparent text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-background focus:bg-background focus:text-foreground h-9 px-3")}>
                                     <Link href="/templates" className="flex items-center gap-2">
-                                        <BarChart3 size={16} /> Visualizations
+                                        <BarChart3 size={14} /> Visuals
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
 
                             <NavigationMenuItem>
-                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
+                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "rounded-full bg-transparent text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-background focus:bg-background focus:text-foreground h-9 px-3")}>
                                     <Link href="/playground" className="flex items-center gap-2">
-                                        <FlaskConical size={16} /> Playground
+                                        <FlaskConical size={14} /> Play
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
 
                             <NavigationMenuItem>
-                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "bg-transparent text-base font-medium text-muted-foreground hover:text-foreground hover:bg-accent focus:bg-accent focus:text-foreground")}>
+                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "rounded-full bg-transparent text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-background focus:bg-background focus:text-foreground h-9 px-3")}>
                                     <Link href="/docs" className="flex items-center gap-2">
-                                        <BookOpen size={16} /> Docs
+                                        <BookOpen size={14} /> Docs
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
@@ -107,29 +107,31 @@ export function Navbar() {
                 </div>
 
                 {/* Right Actions - Desktop */}
-                <div className="hidden md:flex items-center gap-4">
-                    <Button variant="ghost" size="icon" asChild className="text-muted-foreground hover:text-foreground">
+                <div className="hidden md:flex items-center gap-2 ml-2">
+                    <Button variant="ghost" size="icon" asChild className="text-muted-foreground hover:text-foreground rounded-full h-9 w-9">
                         <Link href="https://github.com/soklimkhy/pyanalypt_frontend" target="_blank">
-                            <Github size={20} />
+                            <Github size={18} />
                         </Link>
                     </Button>
-                    <ModeToggle />
+                    <div className="scale-90">
+                        <ModeToggle />
+                    </div>
 
                     {isLoading ? (
-                        <div className="h-10 w-24 rounded-lg bg-accent/20 animate-pulse border border-border/50" />
+                        <div className="h-9 w-20 rounded-full bg-accent/20 animate-pulse border border-border/50 ml-2" />
                     ) : isAuthenticated ? (
                         <DropdownMenu modal={false}>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="relative h-10 w-10 rounded-full">
-                                    <Avatar className="h-10 w-10 border border-border transition-transform hover:scale-105">
+                                <Button variant="ghost" className="relative h-9 w-9 rounded-full ml-1">
+                                    <Avatar className="h-9 w-9 border border-border transition-all duration-300 hover:border-blue-500/50 hover:ambient-glow-blue">
                                         <AvatarImage src={user?.profile_picture} alt={user?.username} />
-                                        <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                                        <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
                                             {user?.username?.substring(0, 2).toUpperCase()}
                                         </AvatarFallback>
                                     </Avatar>
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-56" align="end" forceMount>
+                            <DropdownMenuContent className="w-56 rounded-2xl" align="end" forceMount>
                                 <DropdownMenuLabel className="font-normal">
                                     <div className="flex flex-col space-y-1">
                                         <p className="text-sm font-medium leading-none">{user?.username}</p>
@@ -139,19 +141,19 @@ export function Navbar() {
                                     </div>
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator />
-                                <DropdownMenuItem asChild>
+                                <DropdownMenuItem asChild className="rounded-xl">
                                     <Link href="/dashboard" className="cursor-pointer">
                                         <LayoutDashboard className="mr-2 h-4 w-4" />
                                         <span>Dashboard</span>
                                     </Link>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem asChild>
+                                <DropdownMenuItem asChild className="rounded-xl">
                                     <Link href="/profile" className="cursor-pointer">
                                         <UserIcon className="mr-2 h-4 w-4" />
                                         <span>Profile</span>
                                     </Link>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem asChild>
+                                <DropdownMenuItem asChild className="rounded-xl">
                                     <Link href="/settings" className="cursor-pointer">
                                         <Settings className="mr-2 h-4 w-4" />
                                         <span>Settings</span>
@@ -159,7 +161,7 @@ export function Navbar() {
                                 </DropdownMenuItem>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuItem
-                                    className="text-destructive focus:text-destructive cursor-pointer"
+                                    className="text-destructive focus:text-destructive cursor-pointer rounded-xl"
                                     onClick={() => logout()}
                                 >
                                     <LogOut className="mr-2 h-4 w-4" />
@@ -168,55 +170,57 @@ export function Navbar() {
                             </DropdownMenuContent>
                         </DropdownMenu>
                     ) : (
-                        <>
-                            <Button variant="ghost" className="text-muted-foreground hover:text-foreground" asChild>
+                        <div className="flex items-center gap-1.5 ml-2">
+                            <Button variant="ghost" className="text-muted-foreground hover:text-foreground hover:text-glow-mono transition-all rounded-full h-9 px-4 text-sm" asChild>
                                 <Link href="/login">
                                     Log in
                                 </Link>
                             </Button>
-                            <Button className="bg-foreground text-background hover:bg-foreground/90" asChild>
+                            <Button className="bg-foreground text-background hover:bg-blue-600 hover:text-white transition-all duration-300 hover:ambient-glow-blue rounded-full h-9 px-4 text-sm" asChild>
                                 <Link href="/register">
                                     Register
                                 </Link>
                             </Button>
-                        </>
+                        </div>
                     )}
                 </div>
 
                 {/* Mobile Menu Toggle */}
-                <div className="md:hidden flex items-center gap-2">
-                    <Button variant="ghost" size="icon" asChild className="text-muted-foreground hover:text-foreground">
+                <div className="md:hidden flex items-center gap-1">
+                    <Button variant="ghost" size="icon" asChild className="text-muted-foreground hover:text-foreground h-9 w-9 rounded-full">
                         <Link href="https://github.com/soklimkhy/pyanalypt_frontend" target="_blank">
-                            <Github size={20} />
+                            <Github size={18} />
                         </Link>
                     </Button>
-                    <ModeToggle />
-                    <Button variant="ghost" size="icon" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
-                        {mobileMenuOpen ? <X /> : <Menu />}
+                    <div className="scale-90">
+                        <ModeToggle />
+                    </div>
+                    <Button variant="ghost" size="icon" className="h-9 w-9 rounded-full" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                        {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
                     </Button>
                 </div>
-            </div>
+            </motion.div>
 
             {/* Mobile Menu Dropdown */}
             {mobileMenuOpen && (
-                <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-xl absolute w-full p-4 flex flex-col gap-2 shadow-2xl animate-in slide-in-from-top-5">
-                    <Link href="/" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors flex items-center gap-3">
+                <div className="md:hidden mt-4 border border-border/50 bg-background/95 backdrop-blur-xl w-full max-w-sm mx-auto rounded-3xl p-4 flex flex-col gap-2 shadow-2xl animate-in fade-in slide-in-from-top-4 pointer-events-auto relative z-40">
+                    <Link href="/" className="p-3 hover:bg-accent rounded-xl text-muted-foreground hover:text-foreground transition-colors flex items-center gap-3">
                         <Home size={18} /> Home
                     </Link>
-                    <Link href="/templates" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors flex items-center gap-3">
+                    <Link href="/templates" className="p-3 hover:bg-accent rounded-xl text-muted-foreground hover:text-foreground transition-colors flex items-center gap-3">
                         <BarChart3 size={18} /> Visualizations
                     </Link>
-                    <Link href="/playground" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors flex items-center gap-3">
+                    <Link href="/playground" className="p-3 hover:bg-accent rounded-xl text-muted-foreground hover:text-foreground transition-colors flex items-center gap-3">
                         <FlaskConical size={18} /> Playground
                     </Link>
-                    <Link href="/docs" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors flex items-center gap-3">
+                    <Link href="/docs" className="p-3 hover:bg-accent rounded-xl text-muted-foreground hover:text-foreground transition-colors flex items-center gap-3">
                         <BookOpen size={18} /> Docs
                     </Link>
-                    <div className="h-px bg-border my-2" />
+                    <div className="h-px bg-border/50 my-2 mx-2" />
 
                     {isAuthenticated ? (
                         <div className="space-y-2 p-2">
-                            <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-secondary/50 mb-2">
+                            <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-secondary/50 mb-2">
                                 <Avatar className="h-10 w-10 border border-border">
                                     <AvatarImage src={user?.profile_picture} />
                                     <AvatarFallback>{user?.username?.substring(0, 2).toUpperCase()}</AvatarFallback>
@@ -226,28 +230,28 @@ export function Navbar() {
                                     <span className="text-[10px] text-muted-foreground truncate">{user?.email}</span>
                                 </div>
                             </div>
-                            <Link href="/dashboard" className="p-3 hover:bg-accent rounded-md text-muted-foreground hover:text-foreground transition-colors flex items-center gap-3">
+                            <Link href="/dashboard" className="p-3 hover:bg-accent rounded-xl text-muted-foreground hover:text-foreground transition-colors flex items-center gap-3">
                                 <LayoutDashboard size={18} /> Dashboard
                             </Link>
                             <button
                                 onClick={() => logout()}
-                                className="w-full text-left p-3 hover:bg-destructive/10 rounded-md text-destructive transition-colors flex items-center gap-3"
+                                className="w-full text-left p-3 hover:bg-destructive/10 rounded-xl text-destructive transition-colors flex items-center gap-3"
                             >
                                 <LogOut size={18} /> Log out
                             </button>
                         </div>
                     ) : (
-                        <div className="flex gap-4 p-2">
-                            <Button variant="ghost" className="flex-1 text-muted-foreground hover:text-foreground" asChild>
+                        <div className="flex gap-3 p-2">
+                            <Button variant="ghost" className="flex-1 text-muted-foreground hover:text-foreground hover:text-glow-mono rounded-xl transition-all" asChild>
                                 <Link href="/login">Log in</Link>
                             </Button>
-                            <Button className="flex-1 bg-foreground text-background hover:bg-foreground/90" asChild>
+                            <Button className="flex-1 bg-foreground text-background hover:bg-blue-600 hover:text-white rounded-xl transition-all duration-300 hover:ambient-glow-blue" asChild>
                                 <Link href="/register">Register</Link>
                             </Button>
                         </div>
                     )}
                 </div>
             )}
-        </motion.div>
+        </div>
     );
 }

@@ -60,7 +60,7 @@ export function AppNavbar({ collapsed }: AppNavbarProps) {
                             variant="ghost"
                             className="relative h-8 w-8 rounded-full"
                         >
-                            <Avatar className="h-8 w-8 border border-border hover:ring-2 hover:ring-foreground/20 transition-all">
+                            <Avatar className="h-8 w-8 border border-border transition-all duration-300 hover:border-blue-500/50 hover:ambient-glow-blue">
                                 <AvatarImage
                                     src={user?.profile_picture}
                                     alt={user?.username}

@@ -108,9 +108,32 @@
     @apply bg-background/50 backdrop-blur-lg border border-border shadow-xl rounded-xl transition-all duration-300 hover:bg-accent/50 hover:border-accent;
   }
 
-  /* Subtle glow instead of neon */
+  /* Subtle text glows */
   .mono-glow {
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+  }
+  .text-glow-blue {
+    text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+  }
+  .text-glow-purple {
+    text-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+  }
+  .text-glow-emerald {
+    text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+  }
+
+  /* Ambient container/card glows */
+  .ambient-glow-mono {
+    box-shadow: 0 0 40px -10px rgba(255, 255, 255, 0.1);
+  }
+  .ambient-glow-blue {
+    box-shadow: 0 0 40px -10px rgba(59, 130, 246, 0.15);
+  }
+  .ambient-glow-purple {
+    box-shadow: 0 0 40px -10px rgba(168, 85, 247, 0.15);
+  }
+  .ambient-glow-emerald {
+    box-shadow: 0 0 40px -10px rgba(16, 185, 129, 0.15);
   }
 
   /* Smooth scrollbar */
