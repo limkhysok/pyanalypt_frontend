@@ -239,19 +239,46 @@ export function VisualizationsPage() {
     const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
 
     return (
-        <main className="min-h-screen bg-background text-foreground pt-24 pb-16 px-6 md:px-12 selection:bg-primary/20 overflow-x-hidden">
-            <div className="max-w-[1400px] mx-auto space-y-10">
+        <main className="min-h-screen bg-zinc-50/50 dark:bg-zinc-950/50 text-foreground pt-32 pb-24 px-6 md:px-12 selection:bg-primary/20 overflow-x-hidden relative z-0">
+            {/* Background Ambience */}
+            <div className="absolute inset-0 pointer-events-none -z-10">
+                {/* Modern subtle grid pattern */}
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
+                <div className="absolute top-[0%] left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-blue-500/5 blur-[150px] rounded-full" />
+                <div className="absolute bottom-[0%] right-[-10%] w-[600px] h-[600px] bg-purple-500/5 blur-[120px] rounded-full" />
+            </div>
 
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                    <div className="space-y-3">
-                        <div className="flex items-center gap-2 text-primary font-bold text-xs tracking-[0.3em] uppercase">
-                            <Zap size={14} className="fill-primary" /> Visual Library
-                        </div>
-                        <h1 className="text-4xl md:text-6xl font-black tracking-tight">Analytical Visualizations</h1>
-                        <p className="text-muted-foreground text-lg max-w-xl italic">
-                            Choose from our suite of high-performance charts to unlock deep insights from your datasets.
-                        </p>
-                    </div>
+            <div className="max-w-[1400px] mx-auto space-y-16">
+
+                <div className="flex flex-col md:items-center text-center justify-center gap-6 max-w-3xl mx-auto">
+                    <motion.div
+                        initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
+                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                        className="mx-auto w-fit p-1 rounded-full border border-border/50 bg-background/50 backdrop-blur-md shadow-sm"
+                    >
+                        <span className="flex items-center gap-2 text-[11px] font-bold tracking-[0.2em] px-3 py-1.5 uppercase text-muted-foreground">
+                            <Zap size={14} className="fill-primary text-primary animate-pulse" /> Visual Library
+                        </span>
+                    </motion.div>
+
+                    <motion.h1
+                        initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
+                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                        transition={{ duration: 0.8, delay: 0.15, ease: "easeOut" }}
+                        className="text-5xl md:text-[4rem] font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-foreground to-foreground/70 leading-[1.1] pb-2"
+                    >
+                        Analytical Visualizations
+                    </motion.h1>
+
+                    <motion.p
+                        initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
+                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                        transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
+                        className="text-muted-foreground/80 text-lg md:text-xl font-medium leading-relaxed"
+                    >
+                        Choose from our suite of high-performance, dynamic charts to unlock deep insights and reveal the hidden patterns within your datasets.
+                    </motion.p>
                 </div>
 
                 <motion.div
@@ -268,36 +295,43 @@ export function VisualizationsPage() {
                             onMouseEnter={() => setHoveredIndex(i)}
                             onMouseLeave={() => setHoveredIndex(null)}
                         >
-                            <div className="group relative w-full h-full bg-card/60 backdrop-blur-xl rounded-[2.5rem] border-2 border-zinc-300 dark:border-zinc-800 overflow-hidden transition-all duration-500 hover:border-primary/50 hover:shadow-[0_0_80px_-20px_rgba(32,190,255,0.15)]">
-                                {/* The Interactive ECharts Visual Area - Subtler, synced glide */}
-                                <div className="relative w-full h-[310px] overflow-hidden bg-secondary/5">
-                                    <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-1200" />
+                            {/* Nested Island Glass Structure */}
+                            <div className="group relative w-full h-[400px] bg-background/40 backdrop-blur-2xl rounded-[3rem] border border-border/30 transition-all duration-700 hover:-translate-y-3 hover:shadow-2xl hover:shadow-primary/20 hover:border-primary/50 hover:bg-background/60">
 
-                                    {/* Centered Chart - Subtler glide to maintain 'clean' look */}
-                                    <div className="absolute inset-0 flex items-center justify-center p-3 transition-transform duration-1200 ease-reveal group-hover:-translate-y-8 will-change-transform">
-                                        <div className="w-full h-full max-h-[220px]">
+                                {/* Inner Floating Island for the Chart */}
+                                <div className="absolute top-3 left-3 right-3 h-[250px] bg-secondary/10 rounded-[2.5rem] border border-white/5 overflow-hidden transition-all duration-700 group-hover:bg-secondary/30 group-hover:shadow-[inset_0_0_30px_rgba(32,190,255,0.05)]">
+                                    <div className="absolute inset-0 bg-gradient-to-b from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+
+                                    {/* Centered Chart with gentle scale on hover */}
+                                    <div className="absolute inset-0 flex items-center justify-center p-4 transition-transform duration-700 ease-out group-hover:scale-105">
+                                        <div className="w-full h-full max-h-[200px]">
                                             <RealisticChart type={template.name} isHovered={hoveredIndex === i} />
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Simplified Content Section - Synchronized Cinematic Glide */}
-                                <div className="absolute bottom-0 left-0 right-0 p-8 pb-12 flex flex-col justify-end pointer-events-none">
-                                    <div className="flex flex-col transition-transform duration-1200 ease-reveal group-hover:-translate-y-6 will-change-transform">
-                                        {/* Persistent Title - Matching cadence */}
-                                        <h3 className="text-xl font-black text-foreground tracking-tighter leading-tight transition-colors duration-1200 group-hover:text-primary">
+                                {/* Floating Content Deck */}
+                                <div className="absolute bottom-0 left-0 right-0 p-8 pb-10 flex flex-col justify-end pointer-events-none">
+                                    <div className="flex flex-col transition-transform duration-700 ease-out group-hover:-translate-y-2">
+
+                                        {/* Persistent Title */}
+                                        <h3 className="text-xl font-black text-foreground tracking-tighter leading-tight transition-colors duration-700 group-hover:text-primary">
                                             {template.name}
                                         </h3>
 
-                                        {/* Revealable Description - In-flow reveal */}
-                                        <div className="opacity-0 group-hover:opacity-100 translate-y-2 group-hover:translate-y-0 transition-all duration-1200 ease-reveal delay-150 overflow-hidden h-0 group-hover:h-auto">
-                                            <p className="mt-3 text-muted-foreground text-[12px] leading-relaxed font-medium line-clamp-2">
-                                                {template.desc}
-                                            </p>
+                                        {/* Revealable Description using Grid trick for smooth height transition */}
+                                        <div className="grid transition-all duration-700 grid-rows-[0fr] group-hover:grid-rows-[1fr] opacity-0 group-hover:opacity-100">
+                                            <div className="overflow-hidden">
+                                                <p className="mt-2 text-muted-foreground text-[12px] leading-relaxed font-medium line-clamp-2">
+                                                    {template.desc}
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                                <div className="absolute inset-0 pointer-events-none border-2 border-transparent group-hover:border-primary/20 rounded-[2.5rem] transition-colors duration-1200" />
+
+                                {/* Interactive Border Ring */}
+                                <div className="absolute inset-0 pointer-events-none border-2 border-transparent group-hover:border-primary/20 rounded-[3rem] transition-colors duration-700" />
                             </div>
                         </motion.div>
                     ))}

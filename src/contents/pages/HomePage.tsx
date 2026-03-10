@@ -65,8 +65,8 @@ function AnalysisFeatures() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
                 {analysisTypes.map((type, i) => (
-                    <TiltCard key={i} className="border-0 group" classNameContent="p-8 h-full flex flex-col items-start gap-6 bg-background/40 backdrop-blur-sm rounded-lg">
-                        <div className={`p-4 rounded-xl bg-gradient-to-br ${type.color} group-hover:scale-110 transition-transform duration-500 shadow-lg`}>
+                    <TiltCard key={i} className="border-0 group" classNameContent="p-8 h-full flex flex-col items-start gap-6 bg-background/40 backdrop-blur-sm rounded-3xl border border-border/40 hover:ambient-glow-mono transition-all">
+                        <div className={`p-4 rounded-2xl bg-gradient-to-br ${type.color} group-hover:scale-110 transition-transform duration-500 shadow-lg ring-1 ring-border/50`}>
                             <type.icon className="w-8 h-8 text-foreground" />
                         </div>
                         <div className="space-y-3">
@@ -130,7 +130,7 @@ function VisualizationPanel() {
         <div className="space-y-6 px-4">
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                 {charts.map((chart, i) => (
-                    <TiltCard key={i} className="border-0 group" classNameContent="p-0 bg-background/40 backdrop-blur-sm rounded-lg overflow-hidden border border-white/5 flex flex-col">
+                    <TiltCard key={i} className="border-0 group" classNameContent="p-0 bg-background/40 backdrop-blur-sm rounded-3xl overflow-hidden border border-border/40 hover:ambient-glow-blue transition-all flex flex-col">
                         <CardHeader className="pb-2 flex flex-row items-center justify-between">
                             <div className="space-y-1">
                                 <CardTitle className="text-sm font-bold text-foreground tracking-tight">{chart.title}</CardTitle>
@@ -138,18 +138,18 @@ function VisualizationPanel() {
                                     <span className="px-1.5 py-0.5 rounded bg-blue-500/10 text-[9px] font-bold uppercase tracking-widest text-blue-400 border border-blue-500/20">{chart.type}</span>
                                 </div>
                             </div>
-                            <chart.icon className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                            <chart.icon className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors mt-2 mr-2" />
                         </CardHeader>
-                        <CardContent className="flex-1 space-y-4">
-                            <div className="relative">
+                        <CardContent className="flex-1 space-y-4 px-6 pb-6 pt-2">
+                            <div className="relative rounded-2xl overflow-hidden bg-secondary/10 border border-border/30">
                                 <ReactECharts option={chart.option} style={{ height: '220px', width: '100%' }} />
                                 <div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent pointer-events-none" />
                             </div>
-                            <div className="pt-4 border-t border-white/5 space-y-2 px-1 pb-4">
+                            <div className="pt-4 border-t border-border/40 space-y-2 pb-2">
                                 <p className="text-xs text-muted-foreground leading-relaxed italic">
                                     "{chart.desc}"
                                 </p>
-                                <div className="bg-secondary/20 p-2.5 rounded-md border border-white/5 group-hover:border-primary/20 transition-all">
+                                <div className="bg-secondary/20 p-3 rounded-2xl border border-border/40 group-hover:border-primary/30 transition-all">
                                     <p className="text-[10px] font-bold text-primary uppercase tracking-wider mb-1">Key Insight</p>
                                     <p className="text-[11px] text-foreground/80 leading-snug">{chart.insight}</p>
                                 </div>

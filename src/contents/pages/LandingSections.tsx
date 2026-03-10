@@ -159,7 +159,7 @@ export function FeatureSection() {
                 { title: "AI-Driven Insights", desc: "Our engine automatically detects patterns and anomalies." },
                 { title: "Export & Share", desc: "Download high-res reports or share interactive links." }
             ].map((feature, i) => (
-                <TiltCard key={i} className="group" classNameContent="p-8 rounded-2xl border border-border bg-background/50 backdrop-blur-sm hover:bg-secondary/20 transition-colors h-full flex flex-col justify-center">
+                <TiltCard key={i} className="group border-0" classNameContent="p-8 rounded-3xl border border-border/40 bg-background/50 backdrop-blur-sm hover:ambient-glow-mono transition-all h-full flex flex-col justify-center">
                     <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors">{feature.title}</h3>
                     <p className="text-muted-foreground">{feature.desc}</p>
                 </TiltCard>
