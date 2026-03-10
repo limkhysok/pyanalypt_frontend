@@ -30,43 +30,39 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
 
     return (
         <motion.aside
-            animate={{ width: collapsed ? 64 : 220 }}
+            animate={{ width: collapsed ? 72 : 230 }}
             transition={{ duration: 0.25, ease: "easeInOut" }}
             className="fixed left-0 top-0 h-full z-[51] flex flex-col border-r border-border bg-background/95 backdrop-blur-xl overflow-hidden"
         >
             {/* Header */}
-            <div className="flex items-center justify-between h-14 px-3 border-b border-border shrink-0">
-                {/* Logo — hidden when collapsed */}
-                <AnimatePresence>
-                    {!collapsed && (
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.15 }}
-                        >
-                            <Link href="/dashboard" className="flex items-center gap-2.5 min-w-0">
-                                <div className="p-1.5 rounded-lg bg-foreground text-background shrink-0">
-                                    <Sparkles size={14} fill="currentColor" />
-                                </div>
-                                <span className="text-sm font-bold tracking-tight text-foreground whitespace-nowrap">
-                                    PyAnalypt
-                                </span>
-                            </Link>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+            <div className={cn("flex items-center h-14 border-b border-border shrink-0 transition-all", collapsed ? "justify-center gap-1.5 px-0" : "justify-between px-4")}>
+                {/* Logo */}
+                <Link href="/dashboard" className="flex items-center gap-2.5 min-w-0">
+                    <div className="p-1.5 rounded-lg bg-foreground text-background shrink-0 flex items-center justify-center">
+                        <Sparkles size={16} fill="currentColor" />
+                    </div>
+                    <AnimatePresence>
+                        {!collapsed && (
+                            <motion.span
+                                initial={{ opacity: 0, width: 0 }}
+                                animate={{ opacity: 1, width: "auto" }}
+                                exit={{ opacity: 0, width: 0 }}
+                                transition={{ duration: 0.15 }}
+                                className="text-sm font-bold tracking-tight text-foreground whitespace-nowrap overflow-hidden"
+                            >
+                                PyAnalypt
+                            </motion.span>
+                        )}
+                    </AnimatePresence>
+                </Link>
 
-                {/* Toggle icon — centered when collapsed, right-aligned when expanded */}
+                {/* Toggle icon */}
                 <button
                     onClick={onToggle}
                     title={collapsed ? "Expand" : "Collapse"}
-                    className={cn(
-                        "shrink-0 p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent transition-colors",
-                        collapsed && "mx-auto"
-                    )}
+                    className="shrink-0 p-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-accent/50 transition-colors flex items-center justify-center"
                 >
-                    <PanelLeft size={16} />
+                    <PanelLeft size={18} />
                 </button>
             </div>
 
@@ -80,19 +76,20 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
                             href={href}
                             title={collapsed ? label : undefined}
                             className={cn(
-                                "group flex items-center gap-3 px-2.5 py-2.5 rounded-lg text-sm font-medium transition-all duration-150",
+                                "group flex items-center gap-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150",
+                                collapsed ? "justify-center px-0" : "px-3",
                                 isActive
-                                    ? "bg-foreground text-background"
-                                    : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                                    ? "bg-foreground text-background shadow-md"
+                                    : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
                             )}
                         >
-                            <Icon size={17} className="shrink-0" />
+                            <Icon size={20} className="shrink-0" />
                             <AnimatePresence>
                                 {!collapsed && (
                                     <motion.span
-                                        initial={{ opacity: 0, x: -6 }}
-                                        animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -6 }}
+                                        initial={{ opacity: 0, x: -6, width: 0 }}
+                                        animate={{ opacity: 1, x: 0, width: "auto" }}
+                                        exit={{ opacity: 0, x: -6, width: 0 }}
                                         transition={{ duration: 0.16 }}
                                         className="whitespace-nowrap overflow-hidden"
                                     >

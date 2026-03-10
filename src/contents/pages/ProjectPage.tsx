@@ -29,6 +29,14 @@ import {
     DropdownMenuTrigger,
     DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
@@ -49,6 +57,10 @@ export function ProjectPage() {
     // Modal State
     const [isModalOpen, setIsModalOpen] = React.useState(false);
     const [editingProject, setEditingProject] = React.useState<Project | undefined>();
+
+    // Delete Confirmation State
+    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
+    const [projectToDelete, setProjectToDelete] = React.useState<string | null>(null);
 
     const fetchProjects = React.useCallback(async () => {
         setIsLoading(true);
@@ -91,13 +103,21 @@ export function ProjectPage() {
         }
     };
 
-    const handleDeleteProject = async (id: string) => {
-        if (!confirm("Are you sure you want to delete this project?")) return;
+    const confirmDeleteProject = (id: string) => {
+        setProjectToDelete(id);
+        setIsDeleteDialogOpen(true);
+    };
+
+    const handleDeleteProject = async () => {
+        if (!projectToDelete) return;
         try {
-            await projectApi.delete(id);
-            setProjects((prev) => prev.filter((p) => p.id !== id));
+            await projectApi.delete(projectToDelete);
+            setProjects((prev) => prev.filter((p) => p.id !== projectToDelete));
         } catch (error) {
             console.error("Failed to delete project:", error);
+        } finally {
+            setIsDeleteDialogOpen(false);
+            setProjectToDelete(null);
         }
     };
 
@@ -301,35 +321,37 @@ export function ProjectPage() {
                                                                     <Star className="h-4 w-4 fill-current" />
                                                                 </div>
                                                             )}
-                                                            <DropdownMenu>
-                                                                <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
-                                                                    <Button variant="ghost" size="icon" className="h-10 w-10 text-muted-foreground/40 hover:text-foreground hover:bg-muted/80 rounded-full transition-all">
-                                                                        <MoreVertical className="h-4 w-4" />
-                                                                    </Button>
-                                                                </DropdownMenuTrigger>
-                                                                <DropdownMenuContent align="end" className="w-60 p-2 shadow-2xl rounded-2xl border-border/40 backdrop-blur-xl">
-                                                                    <DropdownMenuItem onClick={() => toggleFavorite(project)} className="rounded-xl gap-3 py-3 text-sm font-bold">
-                                                                        <Star className={cn("h-4 w-4 transition-colors", project.is_favorite && "fill-amber-500 text-amber-500")} />
-                                                                        {project.is_favorite ? "Remove Star" : "Star Project"}
-                                                                    </DropdownMenuItem>
-                                                                    <DropdownMenuItem onClick={() => openEditModal(project)} className="rounded-xl gap-3 py-3 text-sm font-bold">
-                                                                        <Edit2 className="h-4 w-4" />
-                                                                        Configure Workspace
-                                                                    </DropdownMenuItem>
-                                                                    <DropdownMenuItem onClick={() => toggleArchive(project)} className="rounded-xl gap-3 py-3 text-sm font-bold">
-                                                                        <Archive className="h-4 w-4" />
-                                                                        {project.status === "archived" ? "Restore to Active" : "Archive Workspace"}
-                                                                    </DropdownMenuItem>
-                                                                    <DropdownMenuSeparator className="my-2 opacity-10" />
-                                                                    <DropdownMenuItem
-                                                                        onClick={() => handleDeleteProject(project.id)}
-                                                                        className="rounded-xl gap-3 py-3 text-sm font-bold text-destructive focus:bg-destructive/10 focus:text-destructive"
-                                                                    >
-                                                                        <Trash2 className="h-4 w-4" />
-                                                                        Dissolve Project
-                                                                    </DropdownMenuItem>
-                                                                </DropdownMenuContent>
-                                                            </DropdownMenu>
+                                                            <div onClick={(e) => e.stopPropagation()} onPointerDown={(e) => e.stopPropagation()}>
+                                                                <DropdownMenu>
+                                                                    <DropdownMenuTrigger asChild>
+                                                                        <Button variant="ghost" size="icon" className="h-10 w-10 text-muted-foreground/40 hover:text-foreground hover:bg-muted/80 rounded-full transition-all">
+                                                                            <MoreVertical className="h-4 w-4" />
+                                                                        </Button>
+                                                                    </DropdownMenuTrigger>
+                                                                    <DropdownMenuContent onClick={(e) => e.stopPropagation()} align="end" className="w-60 p-2 shadow-2xl rounded-2xl border-border/40 backdrop-blur-xl">
+                                                                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); toggleFavorite(project); }} className="rounded-xl gap-3 py-3 text-sm font-bold">
+                                                                            <Star className={cn("h-4 w-4 transition-colors", project.is_favorite && "fill-amber-500 text-amber-500")} />
+                                                                            {project.is_favorite ? "Remove Star" : "Star Project"}
+                                                                        </DropdownMenuItem>
+                                                                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); openEditModal(project); }} className="rounded-xl gap-3 py-3 text-sm font-bold">
+                                                                            <Edit2 className="h-4 w-4" />
+                                                                            Configure Workspace
+                                                                        </DropdownMenuItem>
+                                                                        <DropdownMenuItem onClick={(e) => { e.stopPropagation(); toggleArchive(project); }} className="rounded-xl gap-3 py-3 text-sm font-bold">
+                                                                            <Archive className="h-4 w-4" />
+                                                                            {project.status === "archived" ? "Restore to Active" : "Archive Workspace"}
+                                                                        </DropdownMenuItem>
+                                                                        <DropdownMenuSeparator className="my-2 opacity-10" />
+                                                                        <DropdownMenuItem
+                                                                            onClick={(e) => { e.stopPropagation(); confirmDeleteProject(project.id); }}
+                                                                            className="rounded-xl gap-3 py-3 text-sm font-bold text-destructive focus:bg-destructive/10 focus:text-destructive"
+                                                                        >
+                                                                            <Trash2 className="h-4 w-4" />
+                                                                            Dissolve Project
+                                                                        </DropdownMenuItem>
+                                                                    </DropdownMenuContent>
+                                                                </DropdownMenu>
+                                                            </div>
                                                         </div>
                                                     </div>
 
@@ -422,6 +444,37 @@ export function ProjectPage() {
                 onSubmit={editingProject ? handleUpdateProject : handleCreateProject}
                 project={editingProject}
             />
+
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+                <DialogContent className="border-border/40 backdrop-blur-2xl rounded-[2rem] p-8 shadow-2xl">
+                    <DialogHeader className="space-y-4">
+                        <div className="mx-auto w-16 h-16 rounded-full bg-destructive/10 flex items-center justify-center mb-4 border border-destructive/20">
+                            <Trash2 className="h-8 w-8 text-destructive" />
+                        </div>
+                        <DialogTitle className="text-2xl font-black text-center tracking-tight">Dissolve Project?</DialogTitle>
+                        <DialogDescription className="text-center text-muted-foreground/80 leading-relaxed font-medium">
+                            Are you absolutely sure you want to dissolve this project? This action cannot be undone. All analytical containers, metadata, and connected resources will be permanently erased from the network.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="mt-8 flex flex-col sm:flex-row gap-3">
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsDeleteDialogOpen(false)}
+                            className="flex-1 rounded-xl h-12 font-bold bg-background shadow-sm hover:bg-muted/50 border-border/50 transition-all"
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={handleDeleteProject}
+                            className="flex-1 rounded-xl h-12 font-bold shadow-lg shadow-destructive/20 hover:shadow-none transition-all"
+                        >
+                            Dissolve Project
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </main>
     );
 }

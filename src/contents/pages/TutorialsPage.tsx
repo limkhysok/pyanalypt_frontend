@@ -1,86 +1,106 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import {
-    BookOpen,
-    Play,
-    Search,
-    CheckCircle,
-    Clock,
-    Users,
-    Trophy,
-    Zap,
-    TrendingUp,
-    Github,
-    Code
+    Database,
+    Wand2,
+    LineChart,
+    BrainCircuit,
+    Presentation,
+    ChevronRight,
+    PlayCircle,
+    FileSpreadsheet,
+    Code2,
+    CheckCircle2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Badge } from "../../components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { motion } from "framer-motion";
+import { Badge } from "@/components/ui/badge";
+import { motion, AnimatePresence, Variants } from "framer-motion";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
+import { cn } from "@/lib/utils";
 
-const tutorials = [
+const tutorialSteps = [
     {
-        id: "1",
-        title: "Introduction to Data Cleaning with Python",
-        description: "Learn essential techniques to handle missing data, duplicates, and outliers in your datasets.",
-        difficulty: "Beginner",
-        duration: "45 mins",
-        students: "1.2k",
-        rating: 4.8,
-        progress: 85,
-        type: "Course",
-        instructors: ["Sarah Chen"],
-        color: "bg-blue-500"
+        id: "step-1",
+        title: "Step 1: Connect & Ingest Data",
+        description: "Securely connect your databases or upload flat files (CSV, Excel). PyAnalypt instantly profiles your schema and detects data types.",
+        icon: Database,
+        visualIcon: FileSpreadsheet,
+        color: "from-blue-500/20 to-cyan-500/20",
+        borderColor: "border-blue-500/30",
+        iconColor: "text-blue-500",
+        features: ["CSV, Excel, JSON Support", "PostgreSQL, MySQL Integrations", "Automatic Schema Detection", "Secure Data Vault"]
     },
     {
-        id: "2",
-        title: "Advanced Machine Learning Pipelines",
-        description: "Master feature engineering and model evaluation using Scikit-learn and PyTorch.",
-        difficulty: "Intermediate",
-        duration: "2.5 hours",
-        students: "850",
-        rating: 4.9,
-        progress: 30,
-        type: "Specialization",
-        instructors: ["Marcus Thorne"],
-        color: "bg-purple-500"
+        id: "step-2",
+        title: "Step 2: Clean & Preprocess",
+        description: "Handle missing values, encode categoricals, and scale numerical features with our intuitive UI. No pandas boilerplate required.",
+        icon: Wand2,
+        visualIcon: Code2,
+        color: "from-purple-500/20 to-pink-500/20",
+        borderColor: "border-purple-500/30",
+        iconColor: "text-purple-500",
+        features: ["Smart Imputation Algorithms", "One-Hot & Label Encoding", "Standard & Min-Max Scaling", "Outlier Detection"]
     },
     {
-        id: "3",
-        title: "Visualizing Geospatial Data in R",
-        description: "Explore mapping techniques using ggplot2 and leaflet for spatial analysis.",
-        difficulty: "Advanced",
-        duration: "1.5 hours",
-        students: "420",
-        rating: 4.7,
-        progress: 0,
-        type: "Hands-on Lab",
-        instructors: ["Elena Rodriguez"],
-        color: "bg-amber-500"
+        id: "step-3",
+        title: "Step 3: Exploratory Data Analysis",
+        description: "Uncover hidden patterns instantly. Generate statistical summaries, correlation matrices, and distribution plots in real-time.",
+        icon: LineChart,
+        visualIcon: LineChart,
+        color: "from-amber-500/20 to-orange-500/20",
+        borderColor: "border-amber-500/30",
+        iconColor: "text-amber-500",
+        features: ["Interactive Correlation Heatmaps", "Distribution & Box Plots", "Target Variable Analysis", "Automated Insights"]
     },
     {
-        id: "4",
-        title: "Optimizing SQL Queries for Large Datasets",
-        description: "Deep dive into indexing, query execution plans, and performance tuning for BigQuery.",
-        difficulty: "Intermediate",
-        duration: "1 hour",
-        students: "2.1k",
-        rating: 4.9,
-        progress: 0,
-        type: "Workshop",
-        instructors: ["James Wilson"],
-        color: "bg-emerald-500"
+        id: "step-4",
+        title: "Step 4: Train & Evaluate Models",
+        description: "Configure and train machine learning models. PyAnalypt handles cross-validation and provides comprehensive performance metrics.",
+        icon: BrainCircuit,
+        visualIcon: BrainCircuit,
+        color: "from-emerald-500/20 to-green-500/20",
+        borderColor: "border-emerald-500/30",
+        iconColor: "text-emerald-500",
+        features: ["Classification & Regression", "Random Forests, XGBoost, SVM", "Hyperparameter Tuning", "ROC, AUC, Confusion Matrix"]
+    },
+    {
+        id: "step-5",
+        title: "Step 5: Visualize & Export Reports",
+        description: "Translate complex models into business value. Create stunning dashboards and export comprehensive PDF/HTML reports.",
+        icon: Presentation,
+        visualIcon: Presentation,
+        color: "from-rose-500/20 to-red-500/20",
+        borderColor: "border-rose-500/30",
+        iconColor: "text-rose-500",
+        features: ["Interactive Dashboard Builder", "Feature Importance Visuals", "PDF & HTML Export", "Shareable Links"]
     }
 ];
+
+const containerVariants: Variants = {
+    hidden: { opacity: 0 },
+    show: {
+        opacity: 1,
+        transition: {
+            staggerChildren: 0.15
+        }
+    }
+};
+
+const itemVariants: Variants = {
+    hidden: { opacity: 0, y: 30 },
+    show: {
+        opacity: 1,
+        y: 0,
+        transition: { type: "spring", stiffness: 300, damping: 24 }
+    }
+};
 
 export function TutorialsPage() {
     const { isAuthenticated, isLoading } = useAuth();
     const router = useRouter();
+    const [activeStep, setActiveStep] = useState(tutorialSteps[0].id);
 
     React.useEffect(() => {
         if (!isLoading && !isAuthenticated) {
@@ -90,168 +110,195 @@ export function TutorialsPage() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
+            <div className="min-h-screen flex items-center justify-center bg-zinc-50/50 dark:bg-zinc-950/50">
                 <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
             </div>
         );
     }
 
     return (
-        <div className="py-8 px-6 md:px-12">
-            <div className="max-w-7xl mx-auto space-y-8">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-                    <div>
-                        <h1 className="text-4xl font-extrabold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">Tutorial Library</h1>
-                        <p className="text-muted-foreground mt-2 max-w-xl">
-                            Expand your skills with curated courses, workshops, and hands-on labs designed by industry experts.
-                        </p>
-                    </div>
-                    <div className="flex items-center gap-3">
-                        <div className="relative w-full md:w-64">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                            <Input placeholder="Search tutorials..." className="pl-9 bg-card/60 border-primary/10" />
-                        </div>
-                    </div>
-                </div>
-
-                {/* Hero Feature */}
-                <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20 overflow-hidden group">
-                    <div className="grid md:grid-cols-2 gap-8 items-center">
-                        <div className="p-8 space-y-4">
-                            <Badge className="bg-primary/20 text-primary border-primary/30 py-1 transition-all">Featured Workshop</Badge>
-                            <h2 className="text-3xl font-bold tracking-tight">AI Deployment with Docker & Kubernetes</h2>
-                            <p className="text-muted-foreground">Learn how to containerize your ML models and deploy them at scale with modern orchestration tools.</p>
-                            <div className="flex items-center gap-6 text-sm text-foreground/70 font-medium">
-                                <span className="flex items-center gap-2"><Clock className="h-4 w-4" /> 4 Hours</span>
-                                <span className="flex items-center gap-2"><Trophy className="h-4 w-4" /> Professional Cert</span>
-                                <span className="flex items-center gap-2"><Zap className="h-4 w-4" /> Hands-on Lab</span>
-                            </div>
-                            <Button size="lg" className="mt-4 bg-primary px-8 hover:scale-105 transition-transform duration-300">
-                                <Play className="mr-2 h-4 w-4" /> Start Learning Now
-                            </Button>
-                        </div>
-                        <div className="hidden md:flex h-full items-center justify-center p-8 bg-primary/5">
-                            <div className="relative">
-                                <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full" />
-                                <div className="relative p-8 rounded-3xl bg-card border border-primary/20 shadow-2xl rotate-3 translate-x-4">
-                                    <div className="flex items-center gap-3 mb-6">
-                                        <div className="p-2 rounded-lg bg-primary/10"><Code className="h-6 w-6 text-primary" /></div>
-                                        <div className="space-y-1">
-                                            <div className="h-2 w-32 bg-primary/10 rounded-full" />
-                                            <div className="h-2 w-24 bg-primary/20 rounded-full" />
-                                        </div>
-                                    </div>
-                                    <div className="space-y-4">
-                                        {[1, 2, 3].map(i => (
-                                            <div key={i} className="flex items-center gap-3">
-                                                <div className="h-2 w-2 rounded-full bg-primary/40" />
-                                                <div className="h-1.5 w-48 bg-secondary rounded-full" />
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </Card>
-
-                {/* Categories */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    {[
-                        { name: "Python", icon: Code, count: 24 },
-                        { name: "Data Viz", icon: TrendingUp, count: 18 },
-                        { name: "ML/AI", icon: Zap, count: 12 },
-                        { name: "Databases", icon: Github, count: 9 }
-                    ].map((cat, i) => (
-                        <motion.div
-                            key={cat.name}
-                            whileHover={{ y: -5 }}
-                            className="p-6 rounded-2xl bg-card/40 border border-border/40 hover:border-primary/40 text-center space-y-3 cursor-pointer transition-all"
-                        >
-                            <div className="mx-auto p-3 rounded-xl bg-secondary w-fit">
-                                <cat.icon className="h-6 w-6 text-primary" />
-                            </div>
-                            <h3 className="font-semibold">{cat.name}</h3>
-                            <p className="text-xs text-muted-foreground">{cat.count} tutorials</p>
-                        </motion.div>
-                    ))}
-                </div>
-
-                {/* Tutorial Grid */}
-                <div>
-                    <div className="flex items-center justify-between mb-6">
-                        <h2 className="text-2xl font-bold tracking-tight">Popular Courses</h2>
-                        <Button variant="ghost" className="text-primary">See All Resources</Button>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                        {tutorials.map((tutorial, i) => (
-                            <motion.div
-                                key={tutorial.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: i * 0.1 }}
-                            >
-                                <Card className="h-full border-border/40 bg-card/30 backdrop-blur-md overflow-hidden hover:border-primary/30 transition-all flex flex-col group">
-                                    <div className={`h-2 ${tutorial.color} w-full`} />
-                                    <CardHeader className="p-5 flex-1">
-                                        <div className="flex items-center justify-between mb-3">
-                                            <Badge variant="secondary" className="text-[10px] font-bold uppercase tracking-wider">{tutorial.difficulty}</Badge>
-                                            <div className="flex items-center gap-1 text-xs font-medium text-amber-500">
-                                                <Star fill="currentColor" className="h-3.5 w-3.5" />
-                                                {tutorial.rating}
-                                            </div>
-                                        </div>
-                                        <CardTitle className="text-lg leading-tight group-hover:text-primary transition-colors">{tutorial.title}</CardTitle>
-                                        <CardDescription className="line-clamp-2 mt-2 leading-relaxed">
-                                            {tutorial.description}
-                                        </CardDescription>
-                                    </CardHeader>
-                                    <CardContent className="px-5 pb-5">
-                                        <div className="flex items-center justify-between text-xs text-muted-foreground mb-4">
-                                            <span className="flex items-center gap-1.5"><Clock className="h-3.5 w-3.5" /> {tutorial.duration}</span>
-                                            <span className="flex items-center gap-1.5"><Users className="h-3.5 w-3.5" /> {tutorial.students}</span>
-                                        </div>
-                                        {tutorial.progress > 0 && (
-                                            <div className="space-y-2">
-                                                <div className="flex justify-between items-center text-[10px] font-bold uppercase text-muted-foreground">
-                                                    <span>Progression</span>
-                                                    <span>{tutorial.progress}%</span>
-                                                </div>
-                                                <Progress value={tutorial.progress} className="h-1.5 bg-secondary" />
-                                            </div>
-                                        )}
-                                    </CardContent>
-                                    <CardFooter className="px-5 pb-5 pt-0 mt-auto">
-                                        <Button className="w-full text-xs font-bold py-5 bg-secondary text-foreground hover:bg-primary hover:text-primary-foreground">
-                                            {tutorial.progress > 0 ? 'Continue' : 'Enroll Now'}
-                                        </Button>
-                                    </CardFooter>
-                                </Card>
-                            </motion.div>
-                        ))}
-                    </div>
-                </div>
+        <main className="min-h-screen pt-16 pb-12 px-6 md:px-12 bg-zinc-50/50 dark:bg-zinc-950/50 relative z-0">
+            {/* Background Ambience */}
+            <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
+                <div className="absolute top-[-10%] left-1/4 w-[600px] h-[600px] bg-indigo-500/10 blur-[120px] rounded-full" />
+                <div className="absolute bottom-[-10%] right-1/4 w-[600px] h-[600px] bg-rose-500/10 blur-[120px] rounded-full" />
             </div>
-        </div>
-    );
-}
 
-function Star(props: React.SVGProps<SVGSVGElement>) {
-    return (
-        <svg
-            {...props}
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        >
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
-        </svg>
-    )
+            <div className="max-w-6xl mx-auto space-y-12">
+                {/* Header Section */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="text-center space-y-4 max-w-3xl mx-auto"
+                >
+                    <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary tracking-wide text-xs font-bold uppercase backdrop-blur-md">
+                        Platform Workflow
+                    </Badge>
+                    <h1 className="text-4xl md:text-5xl font-black tracking-tight text-foreground">
+                        Master the PyAnalypt Pipeline
+                    </h1>
+                    <p className="text-lg text-muted-foreground leading-relaxed">
+                        Learn how to transform raw data into actionable intelligence in minutes. Follow our comprehensive guide from ingestion to final visualization.
+                    </p>
+                </motion.div>
+
+                <div className="grid lg:grid-cols-[1fr_400px] gap-8 items-start">
+                    {/* Steps Container */}
+                    <motion.div
+                        variants={containerVariants}
+                        initial="hidden"
+                        animate="show"
+                        className="space-y-6 relative"
+                    >
+                        {/* Connecting Line */}
+                        <div className="absolute left-[2.25rem] top-8 bottom-8 w-px bg-border/40 -z-10 hidden md:block" />
+
+                        {tutorialSteps.map((step, index) => {
+                            const isActive = activeStep === step.id;
+                            const StepIcon = step.icon;
+
+                            return (
+                                <motion.div
+                                    key={step.id}
+                                    variants={itemVariants}
+                                    onMouseEnter={() => setActiveStep(step.id)}
+                                    className="relative group cursor-pointer"
+                                >
+                                    <div className={cn(
+                                        "relative p-6 md:p-8 overflow-hidden rounded-[2.5rem] border backdrop-blur-xl transition-all duration-500 ease-out",
+                                        isActive
+                                            ? "bg-card/80 border-primary/30 shadow-[0_8px_32px_-12px_rgba(0,0,0,0.1)] dark:shadow-[0_8px_32px_-12px_rgba(255,255,255,0.05)] scale-[1.02]"
+                                            : "bg-muted/30 border-border/40 hover:bg-muted/50 hover:border-border/80"
+                                    )}>
+                                        {/* Nested Glass Background Glow (Active State) */}
+                                        <div className={cn(
+                                            "absolute inset-0 bg-gradient-to-br opacity-0 transition-opacity duration-500 pointer-events-none",
+                                            step.color,
+                                            isActive && "opacity-100"
+                                        )} />
+
+                                        <div className="relative z-10 flex flex-col md:flex-row gap-6 items-start md:items-center">
+                                            {/* Icon Node */}
+                                            <div className={cn(
+                                                "shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center transition-all duration-500 shadow-sm",
+                                                isActive ? "bg-background border-2 border-primary" : "bg-secondary text-muted-foreground"
+                                            )}>
+                                                <StepIcon className={cn(
+                                                    "w-8 h-8 transition-colors duration-500",
+                                                    isActive ? step.iconColor : ""
+                                                )} />
+                                            </div>
+
+                                            {/* Content */}
+                                            <div className="flex-1 space-y-2">
+                                                <h3 className={cn(
+                                                    "text-2xl font-bold tracking-tight transition-colors duration-300",
+                                                    isActive ? "text-foreground" : "text-foreground/80"
+                                                )}>
+                                                    {step.title}
+                                                </h3>
+                                                <p className="text-muted-foreground leading-relaxed">
+                                                    {step.description}
+                                                </p>
+                                            </div>
+
+                                            {/* Action Button (Visible on Active/Hover) */}
+                                            <div className={cn(
+                                                "shrink-0 transition-all duration-300",
+                                                isActive ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 hidden md:block"
+                                            )}>
+                                                <Button variant={isActive ? "default" : "secondary"} className="rounded-full shadow-lg">
+                                                    <PlayCircle className="w-4 h-4 mr-2" />
+                                                    View Tutorial
+                                                </Button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            );
+                        })}
+                    </motion.div>
+
+                    {/* Interactive Preview Panel */}
+                    <div className="sticky top-24 hidden lg:block">
+                        <motion.div
+                            initial={{ opacity: 0, x: 20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ duration: 0.5, delay: 0.3 }}
+                            className="p-8 rounded-[3rem] bg-card/60 backdrop-blur-2xl border border-border/50 shadow-2xl overflow-hidden h-[600px] flex flex-col relative"
+                        >
+                            {/* Decorative Top Glow */}
+                            <div className="absolute -top-32 -left-32 w-64 h-64 bg-primary/20 blur-[80px] rounded-full pointer-events-none" />
+
+                            <AnimatePresence mode="wait">
+                                {tutorialSteps.map((step) => {
+                                    if (step.id !== activeStep) return null;
+                                    const VisualIcon = step.visualIcon;
+
+                                    return (
+                                        <motion.div
+                                            key={step.id}
+                                            initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                                            animate={{ opacity: 1, y: 0, scale: 1 }}
+                                            exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                                            transition={{ duration: 0.4, ease: "easeOut" }}
+                                            className="flex flex-col h-full relative z-10"
+                                        >
+                                            <div className={cn(
+                                                "w-20 h-20 rounded-3xl flex items-center justify-center mb-6 bg-gradient-to-br border shadow-inner",
+                                                step.color,
+                                                step.borderColor
+                                            )}>
+                                                <VisualIcon className={cn("w-10 h-10", step.iconColor)} />
+                                            </div>
+
+                                            <h4 className="text-2xl font-bold mb-4 tracking-tight">Key Capabilities</h4>
+
+                                            <div className="space-y-4 flex-1">
+                                                {step.features.map((feature, i) => (
+                                                    <motion.div
+                                                        key={i}
+                                                        initial={{ opacity: 0, x: -10 }}
+                                                        animate={{ opacity: 1, x: 0 }}
+                                                        transition={{ delay: 0.2 + (i * 0.1) }}
+                                                        className="flex items-center gap-4 p-4 rounded-2xl bg-secondary/40 border border-border/30 backdrop-blur-sm"
+                                                    >
+                                                        <CheckCircle2 className={cn("w-5 h-5 shrink-0", step.iconColor)} />
+                                                        <span className="font-medium text-sm md:text-base text-foreground/90">{feature}</span>
+                                                    </motion.div>
+                                                ))}
+                                            </div>
+
+                                            <div className="mt-8 pt-6 border-t border-border/40">
+                                                <Button className="w-full rounded-2xl h-14 text-base font-semibold bg-foreground text-background hover:bg-foreground/90 transition-all hover:scale-[1.02]">
+                                                    Start Interactive Demo <ChevronRight className="w-5 h-5 ml-2" />
+                                                </Button>
+                                            </div>
+                                        </motion.div>
+                                    );
+                                })}
+                            </AnimatePresence>
+                        </motion.div>
+                    </div>
+                </div>
+
+                {/* Global CTAs */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    className="flex flex-col md:flex-row items-center justify-center gap-4 pt-12 pb-8 border-t border-border/20"
+                >
+                    <Button size="lg" className="rounded-full px-8 bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg hover:shadow-primary/25 transition-all w-full md:w-auto">
+                        Open New Project
+                    </Button>
+                    <Button size="lg" variant="outline" className="rounded-full px-8 font-bold w-full md:w-auto bg-card/50 backdrop-blur-sm">
+                        Read Full Documentation
+                    </Button>
+                </motion.div>
+            </div>
+        </main>
+    );
 }

@@ -470,34 +470,21 @@ export function ProjectDetailPage() {
                     </div>
                 </div>
 
-                {/* Content Tabs */}
-                <Tabs defaultValue="data" className="w-full">
-                    <TabsList className="w-full flex justify-start items-center border-b border-border/40 bg-transparent h-12 p-0 gap-8 rounded-none">
-                        <TabsTrigger
-                            value="data"
-                            className="bg-transparent border-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-1 text-sm font-bold transition-all"
-                        >
-                            <Table className="mr-2 h-4 w-4" />
-                            Repository
-                        </TabsTrigger>
-                        <TabsTrigger
-                            value="analysis"
-                            className="bg-transparent border-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-1 text-sm font-bold transition-all opacity-60 data-[state=active]:opacity-100"
-                        >
-                            <BarChart3 className="mr-2 h-4 w-4" />
-                            Insights
-                        </TabsTrigger>
-                        <TabsTrigger
-                            value="logs"
-                            className="bg-transparent border-none data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none h-full px-1 text-sm font-bold transition-all opacity-60 data-[state=active]:opacity-100"
-                        >
-                            <Clock className="mr-2 h-4 w-4" />
-                            Historian
-                        </TabsTrigger>
-                    </TabsList>
-
-                    <TabsContent value="data" className="mt-10 space-y-12">
-                        {/* Injection Zone */}
+                {/* Step-by-Step Workflow */}
+                <div className="space-y-24 w-full">
+                    {/* Step 1: Ingestion Zone */}
+                    <div className="space-y-8">
+                        <div className="space-y-2">
+                            <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary tracking-wide text-[10px] font-black uppercase backdrop-blur-md">
+                                STEP 1
+                            </Badge>
+                            <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
+                                Connect & Ingest Data
+                            </h2>
+                            <p className="text-muted-foreground text-sm max-w-2xl">
+                                Securely connect your databases or upload flat files (CSV, Excel). PyAnalypt instantly profiles your schema and detects data types.
+                            </p>
+                        </div>
                         <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
                             <Card className="border-border/60 bg-muted/20 hover:bg-muted/30 transition-colors shadow-sm overflow-hidden">
                                 <CardHeader className="pb-4">
@@ -560,14 +547,26 @@ export function ProjectDetailPage() {
                             </Card>
                         </div>
 
-                        {/* Inventory Section */}
-                        <div className="space-y-6">
+                        {/* Step 2: Data Exploration & Inventory */}
+                        <div className="space-y-8 pt-8 border-t border-border/40">
+                            <div className="space-y-2">
+                                <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary tracking-wide text-[10px] font-black uppercase backdrop-blur-md">
+                                    STEP 2
+                                </Badge>
+                                <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
+                                    Inspect Data Assets
+                                </h2>
+                                <p className="text-muted-foreground text-sm max-w-2xl">
+                                    Manage, explore, and view raw structures of the initialized analytical datasets.
+                                </p>
+                            </div>
+
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                 <div className="space-y-1">
                                     <h3 className="text-xl font-black tracking-tight flex items-center gap-2">
                                         Data Asset Inventory
                                     </h3>
-                                    <p className="text-xs text-muted-foreground font-medium">Manage and explore contained analytical datasets.</p>
+                                    <p className="text-xs text-muted-foreground font-medium">Repository contents.</p>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <div className="relative group">
@@ -1254,9 +1253,21 @@ export function ProjectDetailPage() {
                                 </div>
                             )}
                         </div>
-                    </TabsContent>
+                    </div>
 
-                    <TabsContent value="analysis" className="mt-12">
+                    {/* Step 3: Analytics & Insights */}
+                    <div className="space-y-8 pt-8 border-t border-border/40">
+                        <div className="space-y-2">
+                            <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary tracking-wide text-[10px] font-black uppercase backdrop-blur-md">
+                                STEP 3
+                            </Badge>
+                            <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
+                                Generate Automated Insights
+                            </h2>
+                            <p className="text-muted-foreground text-sm max-w-2xl">
+                                Synthesize multifaceted data structures into actionable insights.
+                            </p>
+                        </div>
                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                             <Card className="lg:col-span-2 border-border/60 shadow-xl rounded-3xl p-12 bg-muted/20 backdrop-blur-md">
                                 <div className="flex flex-col items-center justify-center text-center space-y-8 h-full">
@@ -1295,9 +1306,21 @@ export function ProjectDetailPage() {
                                 </Card>
                             </div>
                         </div>
-                    </TabsContent>
+                    </div>
 
-                    <TabsContent value="logs" className="mt-12">
+                    {/* Step 4: Historian & Logs */}
+                    <div className="space-y-8 pt-8 border-t border-border/40">
+                        <div className="space-y-2">
+                            <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary tracking-wide text-[10px] font-black uppercase backdrop-blur-md">
+                                STEP 4
+                            </Badge>
+                            <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
+                                Project Historian Logs
+                            </h2>
+                            <p className="text-muted-foreground text-sm max-w-2xl">
+                                System-wide event tracking and timeline for this specific workspace.
+                            </p>
+                        </div>
                         <Card className="border-border/60 shadow-xl rounded-3xl overflow-hidden bg-muted/20 backdrop-blur-md">
                             <CardHeader className="p-8 border-b border-border/40 bg-muted/30">
                                 <div className="flex items-center gap-4">
@@ -1329,9 +1352,10 @@ export function ProjectDetailPage() {
                                 </div>
                             </CardContent>
                         </Card>
-                    </TabsContent>
-                </Tabs>
+                    </div>
+                </div>
             </div>
         </div>
+
     );
 }
