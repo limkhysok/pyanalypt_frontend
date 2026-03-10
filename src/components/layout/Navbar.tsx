@@ -45,10 +45,10 @@ export function Navbar() {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.6, type: "spring", stiffness: 100, damping: 20 }}
                 className={cn(
-                    "relative pointer-events-auto flex items-center justify-between px-3 md:px-6 h-16 transition-all duration-500 rounded-full border shadow-2xl mx-auto",
+                    "relative pointer-events-auto flex items-center justify-between px-3 md:px-6 h-16 transition-all duration-500 rounded-full border mx-auto w-full max-w-3xl",
                     scrolled
-                        ? "w-full max-w-3xl bg-background/85 backdrop-blur-xl border-border/50 shadow-black/10 dark:shadow-white/5"
-                        : "w-full max-w-[1700px] bg-background/40 backdrop-blur-md border-border/20 shadow-transparent"
+                        ? "bg-background/85 backdrop-blur-xl border-border/50 shadow-2xl shadow-black/10 dark:shadow-white/5"
+                        : "bg-background/40 backdrop-blur-md border-border/20 shadow-transparent"
                 )}
             >
                 {/* Logo */}
@@ -72,33 +72,33 @@ export function Navbar() {
                     <NavigationMenu>
                         <NavigationMenuList className="gap-1 bg-secondary/30 rounded-full px-2 py-1">
                             <NavigationMenuItem>
-                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "rounded-full bg-transparent text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-background focus:bg-background focus:text-foreground h-9 px-3")}>
-                                    <Link href="/" className="flex items-center gap-2">
-                                        <Home size={14} /> Home
+                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "rounded-full bg-transparent text-[11px] font-bold tracking-wider uppercase text-muted-foreground hover:text-foreground hover:bg-background focus:bg-background focus:text-foreground h-9 px-3")}>
+                                    <Link href="/" className="flex items-center gap-1.5">
+                                        <Home size={14} /> HOME
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
 
                             <NavigationMenuItem>
-                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "rounded-full bg-transparent text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-background focus:bg-background focus:text-foreground h-9 px-3")}>
-                                    <Link href="/templates" className="flex items-center gap-2">
-                                        <BarChart3 size={14} /> Visuals
+                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "rounded-full bg-transparent text-[11px] font-bold tracking-wider uppercase text-muted-foreground hover:text-foreground hover:bg-background focus:bg-background focus:text-foreground h-9 px-3")}>
+                                    <Link href="/templates" className="flex items-center gap-1.5">
+                                        <BarChart3 size={14} /> VISUALS
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
 
                             <NavigationMenuItem>
-                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "rounded-full bg-transparent text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-background focus:bg-background focus:text-foreground h-9 px-3")}>
-                                    <Link href="/playground" className="flex items-center gap-2">
-                                        <FlaskConical size={14} /> Play
+                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "rounded-full bg-transparent text-[11px] font-bold tracking-wider uppercase text-muted-foreground hover:text-foreground hover:bg-background focus:bg-background focus:text-foreground h-9 px-3")}>
+                                    <Link href="/playground" className="flex items-center gap-1.5">
+                                        <FlaskConical size={14} /> PLAY
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
 
                             <NavigationMenuItem>
-                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "rounded-full bg-transparent text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-background focus:bg-background focus:text-foreground h-9 px-3")}>
-                                    <Link href="/docs" className="flex items-center gap-2">
-                                        <BookOpen size={14} /> Docs
+                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "rounded-full bg-transparent text-[11px] font-bold tracking-wider uppercase text-muted-foreground hover:text-foreground hover:bg-background focus:bg-background focus:text-foreground h-9 px-3")}>
+                                    <Link href="/docs" className="flex items-center gap-1.5">
+                                        <BookOpen size={14} /> DOCS
                                     </Link>
                                 </NavigationMenuLink>
                             </NavigationMenuItem>
@@ -171,14 +171,14 @@ export function Navbar() {
                         </DropdownMenu>
                     ) : (
                         <div className="flex items-center gap-1.5 ml-2">
-                            <Button variant="ghost" className="text-muted-foreground hover:text-foreground hover:text-glow-mono transition-all rounded-full h-9 px-4 text-sm" asChild>
+                            <Button variant="ghost" className="text-muted-foreground hover:text-foreground hover:text-glow-mono transition-all rounded-full h-9 px-4 text-[11px] font-bold tracking-wider uppercase" asChild>
                                 <Link href="/login">
-                                    Log in
+                                    LOG IN
                                 </Link>
                             </Button>
-                            <Button className="bg-foreground text-background hover:bg-blue-600 hover:text-white transition-all duration-300 hover:ambient-glow-blue rounded-full h-9 px-4 text-sm" asChild>
+                            <Button className="bg-foreground text-background hover:bg-blue-600 hover:text-white transition-all duration-300 hover:ambient-glow-blue rounded-full h-9 px-4 text-[11px] font-bold tracking-wider uppercase" asChild>
                                 <Link href="/register">
-                                    Register
+                                    REGISTER
                                 </Link>
                             </Button>
                         </div>
@@ -242,11 +242,11 @@ export function Navbar() {
                         </div>
                     ) : (
                         <div className="flex gap-3 p-2">
-                            <Button variant="ghost" className="flex-1 text-muted-foreground hover:text-foreground hover:text-glow-mono rounded-xl transition-all" asChild>
-                                <Link href="/login">Log in</Link>
+                            <Button variant="ghost" className="flex-1 text-muted-foreground hover:text-foreground hover:text-glow-mono rounded-xl transition-all text-xs font-bold tracking-wider uppercase" asChild>
+                                <Link href="/login">LOG IN</Link>
                             </Button>
-                            <Button className="flex-1 bg-foreground text-background hover:bg-blue-600 hover:text-white rounded-xl transition-all duration-300 hover:ambient-glow-blue" asChild>
-                                <Link href="/register">Register</Link>
+                            <Button className="flex-1 bg-foreground text-background hover:bg-blue-600 hover:text-white rounded-xl transition-all duration-300 hover:ambient-glow-blue text-xs font-bold tracking-wider uppercase" asChild>
+                                <Link href="/register">REGISTER</Link>
                             </Button>
                         </div>
                     )}
