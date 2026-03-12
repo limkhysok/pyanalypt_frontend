@@ -1,4 +1,4 @@
-import { DashboardPage } from "@/contents/pages/DashboardPage";
+import { DashboardPage } from "@/pages/DashboardPage";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

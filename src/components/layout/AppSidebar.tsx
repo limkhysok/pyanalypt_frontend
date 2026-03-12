@@ -96,7 +96,8 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
             {/* Nav Items */}
             <nav className="flex-1 py-4 px-2 space-y-1 overflow-y-auto custom-scrollbar overflow-x-hidden">
                 {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
-                    const isActive = pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
+                    const safePathname = pathname || "";
+                    const isActive = safePathname === href || (href !== "/dashboard" && safePathname.startsWith(href));
                     const isProjectFolder = label === "Project";
 
                     return (
@@ -132,7 +133,7 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
                             </Link>
 
                             {/* Dropdown for Projects */}
-                            {!collapsed && isProjectFolder && (isActive || pathname.includes("/project/")) && (
+                            {!collapsed && isProjectFolder && (isActive || safePathname.includes("/project/")) && (
                                 <motion.div
                                     initial={{ opacity: 0, height: 0 }}
                                     animate={{ opacity: 1, height: "auto" }}
@@ -140,7 +141,7 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
                                 >
                                     {projects.length > 0 ? (
                                         projects.map((p) => {
-                                            const isCurrentProject = pathname.includes(`/project/${p.id}`);
+                                            const isCurrentProject = safePathname.includes(`/project/${p.id}`);
                                             return (
                                                 <Link
                                                     key={p.id}

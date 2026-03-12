@@ -1,4 +1,4 @@
-import { TutorialsPage } from "@/contents/pages/TutorialsPage";
+import { TutorialsPage } from "@/pages/TutorialsPage";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

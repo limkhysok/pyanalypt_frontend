@@ -46,7 +46,34 @@ import {
     BrainCircuit,
     Presentation,
     LineChart,
-    Upload
+    Upload,
+    PieChart as PieChartIcon,
+    AreaChart,
+    Activity,
+    BoxSelect,
+    Radar,
+    LayoutGrid,
+    Grid3X3,
+    TrendingUp,
+    CircleDot,
+    Cpu,
+    Circle,
+    Hexagon,
+    GitBranch,
+    Workflow,
+    Spline,
+    Waves,
+    Sun,
+    Maximize,
+    Network,
+    Share2,
+    Share,
+    SquareStack,
+    GanttChartSquare,
+    Library,
+    Package,
+    CircleDot as CircleDotIcon,
+    ChevronDown as ChevronDownIcon
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -130,7 +157,8 @@ export function ProjectDetailPage() {
     const [trainingResult, setTrainingResult] = React.useState<TrainModelResponse | null>(null);
 
     // Visualization State
-    const [chartType, setChartType] = React.useState<'scatter' | 'bar' | 'line' | 'scatter3D'>('scatter');
+    const [chartType, setChartType] = React.useState<string>('scatter');
+    const [selectedScenario, setSelectedScenario] = React.useState<string>("All Scenarios");
     const [vXAxis, setVXAxis] = React.useState("");
     const [vYAxis, setVYAxis] = React.useState("");
     const [vZAxis, setVZAxis] = React.useState("");
@@ -138,6 +166,52 @@ export function ProjectDetailPage() {
     const [chartData, setChartData] = React.useState<VisualizeResponse | null>(null);
     const [isVisualizing, setIsVisualizing] = React.useState(false);
     const [visualizationKey, setVisualizationKey] = React.useState(0);
+    const [isAnalyzeOpen, setIsAnalyzeOpen] = React.useState(false);
+    const [searchTerm, setSearchTerm] = React.useState("");
+
+    const VISUALIZATIONS_CATALOG = [
+        { id: 'alluvial', label: 'Alluvial Diagram', scenarios: ['Correlations', 'Proportions'], icon: Activity, desc: 'Tracks flow between points and correlates categories.' },
+        { id: 'arc', label: 'Arc Diagram', scenarios: ['Networks'], icon: Share2, desc: 'Visualizes network connections along a linear axis.' },
+        { id: 'bar', label: 'Bar Chart', scenarios: ['Correlations'], icon: BarChart3, desc: 'Standard comparison of values across categories.' },
+        { id: 'multi_bar', label: 'Multi-set Bar Chart', scenarios: ['Correlations', 'Proportions'], icon: BarChart3, desc: 'Groups multiple dimensions within categorical bars.' },
+        { id: 'stacked_bar', label: 'Stacked Bar Chart', scenarios: ['Correlations', 'Proportions'], icon: SquareStack, desc: 'Displays part-to-whole relationships across categories.' },
+        { id: 'beeswarm', label: 'Beeswarm Plot', scenarios: ['Distributions', 'Time Series', 'Proportions'], icon: LayoutGrid, desc: 'Densely packed points showing distribution without overlap.' },
+        { id: 'box', label: 'Box Plot', scenarios: ['Distributions'], icon: BoxSelect, desc: 'Five-number summary of distributions and outliers.' },
+        { id: 'bubble', label: 'Bubble Chart', scenarios: ['Correlations', 'Proportions'], icon: CircleDot, desc: 'Adds a third magnitude dimension via circle size.' },
+        { id: 'bump', label: 'Bumpchart', scenarios: ['Time Series', 'Correlations', 'Proportions'], icon: TrendingUp, desc: 'Tracks changes in rank over time.' },
+        { id: 'calendar', label: 'Calendar Heatmap', scenarios: ['Time Chunks', 'Proportions'], icon: Calendar, desc: 'Shows temporal patterns across daily or monthly cycles.' },
+        { id: 'chord', label: 'Chord Diagram', scenarios: ['Networks'], icon: Cpu, desc: 'Represents intersections and relationships in a circle.' },
+        { id: 'circle_packing', label: 'Circle Packing', scenarios: ['Hierarchies', 'Proportions'], icon: Circle, desc: 'Nested circles for hierarchical proportion analysis.' },
+        { id: 'circular_dendrogram', label: 'Circular Dendrogram', scenarios: ['Hierarchies', 'Proportions'], icon: Network, desc: 'Radial tree layout for complex hierarchies.' },
+        { id: 'contour', label: 'Contour Plot', scenarios: ['Correlations', 'Distributions'], icon: Layers, desc: 'Topographical representation of 2D data density.' },
+        { id: 'convex_hull', label: 'Convex Hull', scenarios: ['Correlations', 'Proportions'], icon: Hexagon, desc: 'Groups data points by their minimum boundary.' },
+        { id: 'linear_dendrogram', label: 'Linear Dendrogram', scenarios: ['Hierarchies', 'Proportions'], icon: GitBranch, desc: 'Standard tree hierarchy mapping.' },
+        { id: 'gantt', label: 'Gantt Chart', scenarios: ['Time Series', 'Correlations'], icon: GanttChartSquare, desc: 'Tracks project schedules and temporal intervals.' },
+        { id: 'hexbin', label: 'Hexagonal Binning', scenarios: ['Correlations', 'Distributions'], icon: Grid3X3, desc: 'Aggregates point density into clean hexagons.' },
+        { id: 'horizon', label: 'Horizon Graph', scenarios: ['Time Series', 'Correlations'], icon: Activity, desc: 'Compressed line plots for high-density time series.' },
+        { id: 'line', label: 'Line Chart', scenarios: ['Time Series', 'Correlations'], icon: LineChart, desc: 'Classic visualization for trends over an axis.' },
+        { id: 'matrix', label: 'Matrix Plot', scenarios: ['Correlations', 'Time Series', 'Proportions'], icon: Grid3X3, desc: 'Grid representation of pairwise relationships.' },
+        { id: 'parallel', label: 'Parallel Coordinates', scenarios: ['Correlations', 'Distributions'], icon: Spline, desc: 'Visualizes high-dimensional data along parallel axes.' },
+        { id: 'pie', label: 'Pie Chart', scenarios: ['Proportions'], icon: PieChart, desc: 'Simple representation of static part-to-whole ratios.' },
+        { id: 'radar', label: 'Radar Chart', scenarios: ['Correlations'], icon: Radar, desc: 'Compares multiple quantitative variables.' },
+        { id: 'sankey', label: 'Sankey Diagram', scenarios: ['Networks'], icon: Workflow, desc: 'Models energy or information flows across nodes.' },
+        { id: 'slope', label: 'Slope Chart', scenarios: ['Correlations'], icon: Share, desc: 'Focuses on the change between two discrete points.' },
+        { id: 'stream', label: 'Streamgraph', scenarios: ['Time Series', 'Correlations', 'Proportions'], icon: Waves, desc: 'Organic area chart centered around a baseline.' },
+        { id: 'sunburst', label: 'Sunburst Diagram', scenarios: ['Hierarchies', 'Proportions'], icon: Sun, desc: 'Multi-level ring structure for hierarchies.' },
+        { id: 'treemap', label: 'Treemap', scenarios: ['Hierarchies', 'Proportions'], icon: LayoutGrid, desc: 'Uses rectangles to represent quantitative hierarchies.' },
+        { id: 'violin', label: 'Violin Plot', scenarios: ['Distributions'], icon: Activity, desc: 'Combination of boxplot and kernel density plot.' },
+        { id: 'voronoi', label: 'Voronoi Diagram', scenarios: ['Correlations'], icon: Package, desc: 'Partitions space based on distance to specific points.' },
+        { id: 'voronoi_treemap', label: 'Treemap (Voronoi)', scenarios: ['Hierarchies', 'Proportions'], icon: Maximize, desc: 'Irregular polygons for hierarchical visualization.' },
+    ];
+
+    const SCENARIOS = ["All Scenarios", "Correlations", "Proportions", "Networks", "Distributions", "Time Series", "Hierarchies", "Time Chunks"];
+
+    const activeChartData = VISUALIZATIONS_CATALOG.find(c => c.id === chartType) || VISUALIZATIONS_CATALOG[2];
+
+    const filteredCatalog = VISUALIZATIONS_CATALOG.filter(c => 
+        (selectedScenario === "All Scenarios" || c.scenarios.includes(selectedScenario)) &&
+        (c.label.toLowerCase().includes(searchTerm.toLowerCase()) || c.desc.toLowerCase().includes(searchTerm.toLowerCase()))
+    );
 
     const fileInputRef = React.useRef<HTMLInputElement>(null);
     const workbenchRef = React.useRef<HTMLDivElement>(null);
@@ -530,10 +604,21 @@ export function ProjectDetailPage() {
             return;
         }
 
-        // Strict validation: Ensure selected dimensions are actually numeric based on metadata
-        if (!isNumeric(vXAxis) || !isNumeric(vYAxis) || (chartType === 'scatter3D' && vZAxis && !isNumeric(vZAxis))) {
-            toast.error("Selected dimensions must be numeric. Please check the 'Neural Insights' tab to verify column types.");
-            return;
+        // Allow categorical X-axis for comparison/trend charts
+        const categoricalFriendly = ['bar', 'line', 'area', 'pie', 'radar', 'heatmap', 'box'];
+        const needsStrictNumeric = ['scatter', 'scatter3D'];
+
+        if (needsStrictNumeric.includes(chartType)) {
+            if (!isNumeric(vXAxis) || !isNumeric(vYAxis) || (chartType === 'scatter3D' && vZAxis && !isNumeric(vZAxis))) {
+                toast.error("Scatter architectures require strictly numeric dimensions.");
+                return;
+            }
+        } else {
+            // Even for categorical charts, the Y-axis (magnitude) usually needs to be numeric
+            if (!isNumeric(vYAxis) && chartType !== 'heatmap' && chartType !== 'radar') {
+                toast.error("Magnitude (Y-Axis) must be a numeric dimension for this chart type.");
+                return;
+            }
         }
 
         setIsVisualizing(true);
@@ -596,10 +681,83 @@ export function ProjectDetailPage() {
         }
     };
 
+    const getExampleChartOption = (type: string) => {
+        const isPie = ['pie', 'circle_packing', 'sunburst', 'treemap'].includes(type);
+        const isRadar = type === 'radar';
+        const is3D = type.includes('3d');
+
+        const exampleData: any = {
+            series: [{
+                name: 'Example Stream',
+                data: isPie 
+                    ? [['Alpha', 40], ['Beta', 25], ['Gamma', 20], ['Delta', 15]]
+                    : isRadar
+                        ? [[80, 70, 90, 60, 85]]
+                        : Array.from({ length: 15 }, (_, i) => [i, Math.sin(i / 2) * 10 + 20])
+            }]
+        };
+
+        const xType = 'category';
+        const yType = 'value';
+
+        const option: any = {
+            backgroundColor: 'transparent',
+            tooltip: { trigger: 'axis' },
+            legend: { show: false },
+            grid: (is3D || isPie || isRadar) ? undefined : {
+                left: '10%', right: '10%', bottom: '15%', top: '15%', containLabel: true
+            },
+            xAxis: (is3D || isPie || isRadar) ? undefined : {
+                type: xType,
+                splitLine: { show: false },
+                axisLabel: { color: 'rgba(255,255,255,0.2)', fontSize: 9 }
+            },
+            yAxis: (is3D || isPie || isRadar) ? undefined : {
+                type: yType,
+                splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } },
+                axisLabel: { color: 'rgba(255,255,255,0.2)', fontSize: 9 }
+            },
+            series: exampleData.series.map((s: any) => {
+                let sType = type;
+                if (type === 'box') sType = 'boxplot';
+                else if (['area', 'horizon'].includes(type)) sType = 'line';
+                else if (['calendar', 'matrix'].includes(type)) sType = 'heatmap';
+                else if (['circle_packing', 'sunburst'].includes(type)) sType = 'sunburst';
+
+                const base: any = {
+                    type: sType,
+                    data: isPie ? s.data.map((p: any) => ({ name: p[0], value: p[1] })) : s.data,
+                    smooth: true,
+                    itemStyle: { color: '#6366f1' }
+                };
+                if (isPie) base.radius = ['40%', '70%'];
+                return base;
+            })
+        };
+
+        if (isRadar) {
+            option.radar = {
+                indicator: [
+                    { name: 'Metric A', max: 100 },
+                    { name: 'Metric B', max: 100 },
+                    { name: 'Metric C', max: 100 },
+                    { name: 'Metric D', max: 100 },
+                    { name: 'Metric E', max: 100 }
+                ],
+                splitArea: { show: false },
+                axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } }
+            };
+        }
+
+        return option;
+    };
+
     const getChartOption = () => {
         if (!chartData) return {};
 
         const is3D = chartType === 'scatter3D';
+        const isPie = chartType === 'pie';
+        const isRadar = chartType === 'radar';
 
         const isNumeric = (col: string) => {
             if (!previewData?.metadata?.dtypes) return false;
@@ -610,32 +768,34 @@ export function ProjectDetailPage() {
         const xType = isNumeric(vXAxis) ? 'value' : 'category';
         const yType = isNumeric(vYAxis) ? 'value' : 'category';
 
-        return {
+        const option: any = {
             backgroundColor: 'transparent',
+            animationDuration: 1500,
             tooltip: {
-                trigger: is3D ? 'item' : (xType === 'category' || yType === 'category' ? 'axis' : 'item'),
-                backgroundColor: 'rgba(0,0,0,0.8)',
+                trigger: is3D || isPie ? 'item' : (xType === 'category' || yType === 'category' ? 'axis' : 'item'),
+                backgroundColor: 'rgba(0,0,0,0.85)',
                 borderColor: 'rgba(255,255,255,0.1)',
                 borderWidth: 1,
                 textStyle: { color: '#fff', fontSize: 10, fontWeight: 'bold' },
-                padding: [10, 14],
-                borderRadius: 12
+                padding: [12, 16],
+                borderRadius: 12,
+                backdropFilter: 'blur(8px)'
             },
             legend: {
-                show: !!vCategoryCol,
+                show: !!vCategoryCol || isPie,
                 top: 0,
                 textStyle: { color: 'rgba(255,255,255,0.6)', fontSize: 10, fontWeight: 'bold' },
                 itemWidth: 10,
                 itemHeight: 10
             },
-            grid: is3D ? undefined : {
-                left: '5%',
-                right: '5%',
-                bottom: '15%',
-                top: '15%',
+            grid: (is3D || isPie || isRadar) ? undefined : {
+                left: '6%',
+                right: '4%',
+                bottom: '12%',
+                top: '12%',
                 containLabel: true
             },
-            xAxis: is3D ? undefined : {
+            xAxis: (is3D || isPie || isRadar) ? undefined : {
                 type: xType,
                 name: vXAxis,
                 nameLocation: 'middle',
@@ -645,7 +805,7 @@ export function ProjectDetailPage() {
                 axisLabel: { color: 'rgba(255,255,255,0.4)', fontSize: 10, fontWeight: '600' },
                 axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } }
             },
-            yAxis: is3D ? undefined : {
+            yAxis: (is3D || isPie || isRadar) ? undefined : {
                 type: yType,
                 name: vYAxis,
                 scale: yType === 'value',
@@ -653,55 +813,92 @@ export function ProjectDetailPage() {
                 axisLabel: { color: 'rgba(255,255,255,0.4)', fontSize: 10, fontWeight: '600' },
                 axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } }
             },
-            xAxis3D: is3D ? { type: 'value', name: vXAxis, axisLabel: { color: '#fff' } } : undefined,
-            yAxis3D: is3D ? { type: 'value', name: vYAxis, axisLabel: { color: '#fff' } } : undefined,
-            zAxis3D: is3D ? { type: 'value', name: vZAxis, axisLabel: { color: '#fff' } } : undefined,
-            grid3D: is3D ? {
-                viewControl: {
-                    projection: 'perspective',
-                    autoRotate: true,
-                    autoRotateSpeed: 10,
-                    distance: 200
-                },
-                boxWidth: 100,
-                boxHeight: 100,
-                boxDepth: 100,
-                light: {
-                    main: { intensity: 1.5, shadow: true },
-                    ambient: { intensity: 0.5 }
-                },
-                postEffect: { enable: true },
-                splitLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } },
-                axisPointer: { lineStyle: { color: '#fff' } }
-            } : undefined,
             series: (chartData?.series as any[])?.map(s => {
                 let sType: string = chartType;
-                if (chartType === 'scatter3D') sType = 'scatter3D'; // ECharts specific type
+                
+                // Map internal IDs to ECharts chart types
+                if (chartType === 'box') sType = 'boxplot';
+                else if (chartType === 'area') sType = 'line';
+                else if (chartType === 'calendar' || chartType === 'matrix') sType = 'heatmap';
+                else if (chartType === 'circle_packing' || chartType === 'sunburst') sType = 'sunburst';
+                else if (chartType === 'multi_bar' || chartType === 'stacked_bar') sType = 'bar';
+                else if (chartType === 'horizon') sType = 'line';
 
-                return {
+                // Data transformation for specific chart types
+                let seriesData = s.data;
+                if (isPie || chartType === 'sunburst' || chartType === 'treemap') {
+                    seriesData = s.data.map((point: any) => {
+                        if (Array.isArray(point)) {
+                            return { name: String(point[0]), value: point[1] };
+                        }
+                        return point;
+                    });
+                } else if (isRadar) {
+                    // Radar data usually needs a nested value array
+                    seriesData = [{ value: s.data.map((p: any) => Array.isArray(p) ? p[1] : p), name: s.name }];
+                }
+
+                const baseSeries: any = {
                     name: s.name,
                     type: sType,
-                    data: s.data,
-                    symbolSize: is3D ? 8 : 12,
-                    smooth: true,
-                    showSymbol: true,
-                    itemStyle: {
-                        opacity: 0.85,
-                        borderRadius: 4,
-                        shadowBlur: 10,
-                        shadowColor: 'rgba(0,0,0,0.3)'
-                    },
-                    emphasis: {
-                        focus: 'series',
-                        itemStyle: {
-                            opacity: 1,
-                            shadowBlur: 20,
-                            shadowColor: 'rgba(0,0,0,0.5)'
-                        }
-                    }
+                    data: seriesData,
+                    emphasis: { focus: 'series' }
                 };
+
+                // Type-specific styling
+                if (chartType === 'area') {
+                    const echarts = (window as any).echarts;
+                    if (echarts) {
+                        baseSeries.areaStyle = {
+                            opacity: 0.3,
+                            color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                                { offset: 0, color: 'rgba(99, 102, 241, 0.5)' },
+                                { offset: 1, color: 'rgba(99, 102, 241, 0)' }
+                            ])
+                        };
+                    }
+                    baseSeries.smooth = true;
+                }
+
+                if (isPie) {
+                    baseSeries.radius = ['40%', '75%'];
+                    baseSeries.itemStyle = { borderRadius: 12, borderColor: '#fff', borderWidth: 2 };
+                    baseSeries.label = { show: true, fontSize: 10, fontWeight: 'bold' };
+                }
+
+                if (chartType === 'scatter' || chartType === 'bubble') {
+                    baseSeries.symbolSize = (val: any) => {
+                        if (chartType === 'bubble' && Array.isArray(val) && val[2]) return Math.sqrt(val[2]) * 2;
+                        return 10;
+                    };
+                }
+
+                if (chartType === 'stacked_bar') {
+                    baseSeries.stack = 'total';
+                }
+
+                if (sType === 'heatmap') {
+                    baseSeries.label = { show: true, fontSize: 8 };
+                }
+
+                if (chartType === 'line') baseSeries.smooth = true;
+
+                return baseSeries;
             }) || []
         };
+
+        if (is3D) {
+            option.xAxis3D = { type: 'value', name: vXAxis };
+            option.yAxis3D = { type: 'value', name: vYAxis };
+            option.zAxis3D = { type: 'value', name: vZAxis };
+            option.grid3D = {
+                viewControl: { autoRotate: true },
+                postEffect: { enable: true },
+                light: { main: { intensity: 1.2 } }
+            };
+        }
+
+        return option;
     };
 
     const handleExport = async (format: string) => {
@@ -827,6 +1024,7 @@ export function ProjectDetailPage() {
                                 { name: 'Import', icon: <Upload className="h-3.5 w-3.5" /> },
                                 { name: 'Dataset', icon: <FileSpreadsheet className="h-3.5 w-3.5" /> },
                                 { name: 'Visualizations', icon: <LineChart className="h-3.5 w-3.5" /> },
+                                { name: 'Analyze', icon: <Sliders className="h-3.5 w-3.5" /> },
                                 { name: 'Models', icon: <BrainCircuit className="h-3.5 w-3.5" /> },
                                 { name: 'Activities', icon: <Clock className="h-3.5 w-3.5" /> },
                             ].map(({ name, icon }) => (
@@ -920,7 +1118,7 @@ export function ProjectDetailPage() {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
-                                className="space-y-24"
+                                className="space-y-12"
                             >
                                 {/* Step 1: Ingestion Zone */}
                                 <div className="space-y-8">
@@ -1067,17 +1265,17 @@ export function ProjectDetailPage() {
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0, y: -10 }}
-                                className="space-y-24"
+                                className="space-y-12"
                             >
                                 <div className="space-y-8 pt-0">
                                     <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
                                         <div className="space-y-1.5">
                                             <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary tracking-wide text-[12px] font-black uppercase backdrop-blur-md">
-                                                STEP 2 — DATASET
+                                                STEP 2
                                             </Badge>
                                             <h2 className="text-3xl font-black tracking-tight">Your Datasets</h2>
                                             <p className="text-muted-foreground text-sm max-w-2xl">
-                                                Browse, inspect, and export the datasets attached to this project. Click <strong className="text-foreground/70">Inspect</strong> on any row to load a live preview below.
+                                                Click <strong className="text-foreground/70">Inspect</strong> on any row to load a live preview below.
                                             </p>
                                         </div>
                                         {project.datasets && project.datasets.length > 0 && (
@@ -1851,162 +2049,370 @@ export function ProjectDetailPage() {
                         {activeTab === 'Visualizations' && (
                             <motion.div
                                 key="visual-view"
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0, y: -10 }}
-                                className="space-y-16"
+                                initial={{ opacity: 0, scale: 0.98 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.98 }}
+                                className="space-y-10"
                             >
-                                {/* Step 3: Analytics & Visualization (Charts only) */}
-                                <div className="space-y-8 pt-0">
+                                {/* Catalog Header */}
+                                <div className="flex items-center justify-between px-4">
                                     <div className="space-y-2">
-                                        <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary tracking-wide text-[12px] font-black uppercase backdrop-blur-md">
-                                            STEP 3
+                                        <Badge variant="outline" className="px-5 py-1.5 rounded-full border-primary/30 bg-primary/10 text-primary tracking-widest text-[9px] font-black uppercase">
+                                            Architecture Registry
                                         </Badge>
-                                        <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
-                                            Visualize & Analyze
-                                        </h2>
-                                        <p className="text-muted-foreground text-sm max-w-2xl">
-                                            Generate interactive visualizations and statistical deep-dives for your structured datasets.
-                                        </p>
+                                        <h2 className="text-3xl font-black tracking-tighter uppercase">Visual Encyclopedia</h2>
                                     </div>
+                                    <div className="relative group w-80">
+                                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/30 group-focus-within:text-primary transition-colors" />
+                                        <Input 
+                                            placeholder="Filter catalog..." 
+                                            className="pl-12 h-12 bg-background/40 backdrop-blur-xl border-border/40 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg focus:ring-primary/20 transition-all"
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                        />
+                                    </div>
+                                </div>
 
-                                    <Card className="border-border/60 shadow-xl rounded-3xl overflow-hidden bg-muted/20 backdrop-blur-md p-8">
-                                        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-                                            <div className="space-y-6">
+                                <Card className="border-border/40 shadow-3xl rounded-[3.5rem] overflow-hidden bg-background/5 backdrop-blur-3xl border-dashed">
+                                    <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[800px] divide-x divide-border/10">
+                                        
+                                        {/* Left Side: List of Architectures */}
+                                        <div className="lg:col-span-4 flex flex-col bg-muted/5">
+                                            <div className="p-8 border-b border-border/10 bg-muted/10 flex justify-between items-center">
+                                                <div className="flex items-center gap-3">
+                                                    <Library className="h-4 w-4 text-primary" />
+                                                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/80">Select Architecture</h3>
+                                                </div>
+                                                <Badge className="bg-primary/10 text-primary border-primary/20 text-[8px] font-black">{filteredCatalog.length} TOTAL</Badge>
+                                            </div>
+                                            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-2">
+                                                {filteredCatalog.map(chart => (
+                                                    <motion.div
+                                                        key={chart.id}
+                                                        whileHover={{ x: 6 }}
+                                                        onClick={() => { setChartType(chart.id); setChartData(null); }}
+                                                        className={cn(
+                                                            "group cursor-pointer rounded-2xl p-4 transition-all duration-300 flex items-center gap-4 relative",
+                                                            chartType === chart.id 
+                                                                ? "bg-primary shadow-xl shadow-primary/20 text-white" 
+                                                                : "bg-background/40 border border-border/40 hover:bg-muted/40 hover:border-primary/20"
+                                                        )}
+                                                    >
+                                                        <div className={cn(
+                                                            "p-2.5 rounded-[1rem] transition-colors shrink-0",
+                                                            chartType === chart.id ? "bg-white/20" : "bg-primary/5 group-hover:bg-primary/10"
+                                                        )}>
+                                                            <chart.icon className={cn("h-4 w-4", chartType === chart.id ? "text-white" : "text-primary")} />
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="text-[10px] font-black uppercase tracking-widest truncate">{chart.label}</p>
+                                                            <p className={cn(
+                                                                "text-[7px] font-bold uppercase tracking-[0.1em] opacity-40",
+                                                                chartType === chart.id ? "text-white/80" : "text-muted-foreground"
+                                                            )}>
+                                                                {chart.scenarios[0]}
+                                                            </p>
+                                                        </div>
+                                                    </motion.div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* Right Side: Detailed View + Example Chart */}
+                                        <div className="lg:col-span-8 flex flex-col bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,0.03),transparent_50%)]">
+                                            <div className="p-12 space-y-10">
+                                                <div className="space-y-6">
+                                                    <div className="flex items-center gap-6">
+                                                        <div className="p-6 bg-primary/20 rounded-[2rem] shadow-2xl">
+                                                            <activeChartData.icon className="h-10 w-10 text-primary" />
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                            <h1 className="text-5xl font-black tracking-tighter uppercase">{activeChartData.label}</h1>
+                                                            <div className="flex flex-wrap gap-2 pt-2">
+                                                                {activeChartData.scenarios.map(sc => (
+                                                                    <Badge key={sc} variant="outline" className="text-[8px] font-black uppercase border-primary/20 text-primary/60 px-3 py-1 rounded-full">MATCH: {sc}</Badge>
+                                                                ))}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <p className="text-xl text-muted-foreground/80 font-medium leading-relaxed max-w-2xl border-l-4 border-primary/20 pl-8">
+                                                        {activeChartData.desc}
+                                                    </p>
+                                                </div>
+
                                                 <div className="space-y-4">
-                                                    <Label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/60">Chart Architecture</Label>
-                                                    <div className="grid grid-cols-4 gap-2">
-                                                        {[
-                                                            { id: "scatter", icon: PieChart },
-                                                            { id: "bar", icon: BarChart3 },
-                                                            { id: "line", icon: LineChart },
-                                                            { id: "scatter3D", icon: Layers }
-                                                        ].map(chart => (
-                                                            <Button
-                                                                key={chart.id}
-                                                                variant={chartType === chart.id ? "default" : "outline"}
-                                                                className="h-10 rounded-xl"
-                                                                onClick={() => {
-                                                                    setChartType(chart.id as any);
-                                                                    setChartData(null); // Force reset visualizer
-                                                                }}
-                                                                title={chart.id.toUpperCase()}
-                                                            >
-                                                                <chart.icon className="h-4 w-4" />
-                                                            </Button>
-                                                        ))}
+                                                    <div className="flex items-center gap-3 ml-2">
+                                                        <Eye className="h-4 w-4 text-primary" />
+                                                        <span className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">Visual Specimen (Example Data)</span>
+                                                    </div>
+                                                    <div className="rounded-[3rem] bg-background/40 border border-border/40 p-10 h-[500px] flex items-center justify-center relative overflow-hidden group shadow-inner">
+                                                        <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                                                        <ReactECharts
+                                                            option={getExampleChartOption(activeChartData.id)}
+                                                            style={{ height: '100%', width: '100%' }}
+                                                            theme="dark"
+                                                        />
                                                     </div>
                                                 </div>
 
-                                                {previewData && (
-                                                    <>
-                                                        <div className="space-y-2">
-                                                            <Label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/60">X-Axis Dimension (Numeric)</Label>
-                                                            <select
-                                                                value={vXAxis}
-                                                                onChange={e => setVXAxis(e.target.value)}
-                                                                className="w-full bg-background border border-border/60 rounded-xl h-11 text-xs px-4 font-bold outline-none ring-offset-background focus:ring-2 focus:ring-primary/20 transition-all"
-                                                            >
-                                                                <option value="">Select...</option>
-                                                                {previewData.columns
-                                                                    .filter(c => {
-                                                                        const dtype = previewData.metadata?.dtypes?.[c]?.toLowerCase() || "";
-                                                                        return dtype.includes("int") || dtype.includes("float") || dtype.includes("number");
-                                                                    })
-                                                                    .map(c => <option key={c} value={c}>{c}</option>)
-                                                                }
-                                                            </select>
-                                                            {vXAxis && !(previewData.metadata?.dtypes?.[vXAxis]?.toLowerCase().includes("int") || previewData.metadata?.dtypes?.[vXAxis]?.toLowerCase().includes("float") || previewData.metadata?.dtypes?.[vXAxis]?.toLowerCase().includes("number")) && (
-                                                                <p className="text-[9px] text-amber-500 font-bold uppercase">Non-numeric column detected</p>
-                                                            )}
-                                                        </div>
-                                                        <div className="space-y-2">
-                                                            <Label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/60">Y-Axis Magnitude (Numeric)</Label>
-                                                            <select
-                                                                value={vYAxis}
-                                                                onChange={e => setVYAxis(e.target.value)}
-                                                                className="w-full bg-background border border-border/60 rounded-xl h-11 text-xs px-4 font-bold outline-none ring-offset-background focus:ring-2 focus:ring-primary/20 transition-all"
-                                                            >
-                                                                <option value="">Select...</option>
-                                                                {previewData.columns
-                                                                    .filter(c => {
-                                                                        const dtype = previewData.metadata?.dtypes?.[c]?.toLowerCase() || "";
-                                                                        return dtype.includes("int") || dtype.includes("float") || dtype.includes("number");
-                                                                    })
-                                                                    .map(c => <option key={c} value={c}>{c}</option>)
-                                                                }
-                                                            </select>
-                                                        </div>
-                                                        {chartType === 'scatter3D' && (
-                                                            <div className="space-y-2">
-                                                                <Label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/60">Z-Axis Depth (Numeric)</Label>
-                                                                <select
-                                                                    value={vZAxis}
-                                                                    onChange={e => setVZAxis(e.target.value)}
-                                                                    className="w-full bg-background border border-border/60 rounded-xl h-11 text-xs px-4 font-bold outline-none ring-offset-background focus:ring-2 focus:ring-primary/20 transition-all"
-                                                                >
-                                                                    <option value="">Select...</option>
-                                                                    {previewData.columns
-                                                                        .filter(c => {
-                                                                            const dtype = previewData.metadata?.dtypes?.[c]?.toLowerCase() || "";
-                                                                            return dtype.includes("int") || dtype.includes("float") || dtype.includes("number");
-                                                                        })
-                                                                        .map(c => <option key={c} value={c}>{c}</option>)
-                                                                    }
-                                                                </select>
-                                                            </div>
-                                                        )}
-                                                        <div className="space-y-2">
-                                                            <Label className="text-[10px] uppercase font-black tracking-widest text-muted-foreground/60">Categorical Group (Any)</Label>
-                                                            <select value={vCategoryCol} onChange={e => setVCategoryCol(e.target.value)} className="w-full bg-background border border-border/60 rounded-xl h-11 text-xs px-4 font-bold outline-none">
-                                                                <option value="">None</option>
-                                                                {previewData.columns.map(c => <option key={c} value={c}>{c}</option>)}
-                                                            </select>
-                                                        </div>
-                                                    </>
-                                                )}
+                                                <div className="pt-8 border-t border-border/10 flex justify-between items-center">
+                                                    <div className="space-y-1">
+                                                        <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40">Next Step</p>
+                                                        <p className="text-sm font-bold text-foreground/60">Ready to map your real data dimensions?</p>
+                                                    </div>
+                                                    <Button 
+                                                        onClick={() => setActiveTab('Analyze')}
+                                                        className="h-14 px-10 rounded-2xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-2xl shadow-primary/20 group"
+                                                    >
+                                                        Proceed to Forge <ArrowLeft className="ml-3 h-4 w-4 rotate-180 group-hover:translate-x-1 transition-transform" />
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Card>
+                            </motion.div>
+                        )}
 
-                                                <Button className="w-full h-12 font-black text-[10px] uppercase tracking-widest rounded-xl shadow-lg shadow-primary/20" onClick={handleVisualize} disabled={isVisualizing || !previewData}>
-                                                    {isVisualizing ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Wand2 className="h-4 w-4 mr-2" />}
-                                                    Generate Tensor Graph
+                        {activeTab === 'Analyze' && (
+                            <motion.div
+                                key="analyze-view"
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0, y: -20 }}
+                                className="space-y-10"
+                            >
+                                {/* Header: Analysis Forge */}
+                                <div className="px-4">
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-3">
+                                            <Badge variant="outline" className="px-5 py-1.5 rounded-full border-emerald-500/30 bg-emerald-500/10 text-emerald-500 tracking-widest text-[10px] font-black uppercase">
+                                                ANALYTICAL WORKFLOW ACTIVE
+                                            </Badge>
+                                            <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.8)]" />
+                                        </div>
+                                        <h2 className="text-4xl font-black tracking-tighter bg-gradient-to-r from-foreground to-foreground/40 bg-clip-text text-transparent uppercase text-shadow">
+                                            The Forge
+                                        </h2>
+                                        <p className="text-muted-foreground text-sm max-w-xl font-medium leading-relaxed">
+                                            Phase 2: Fine-tune vector mapping and synchronize the graphical output stream.
+                                        </p>
+                                    </div>
+                                </div>
+
+                                <Card className="border-border/40 shadow-3xl rounded-[3.5rem] overflow-hidden bg-background/20 backdrop-blur-2xl p-0 border-dashed">
+                                    <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[850px] divide-x divide-border/10">
+                                        
+                                        {/* Parameter Side (Col-Span-4) */}
+                                        <div className="lg:col-span-4 flex flex-col bg-muted/5 p-10 space-y-12 overflow-y-auto custom-scrollbar">
+                                            <div className="flex items-center justify-between">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="p-2.5 bg-primary/10 rounded-xl">
+                                                        <Settings2 className="h-5 w-5 text-primary" />
+                                                    </div>
+                                                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/80">Configure Tensors</h3>
+                                                </div>
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="sm" 
+                                                    className="text-[9px] font-black border border-primary/10 text-primary hover:bg-primary/5 rounded-full px-4" 
+                                                    onClick={() => setActiveTab('Visualizations')}
+                                                >
+                                                    <Library className="h-3 w-3 mr-2" />
+                                                    Catalog
                                                 </Button>
                                             </div>
 
-                                            <div className="lg:col-span-3 min-h-[400px] bg-background/50 rounded-2xl border border-border/40 flex items-center justify-center p-8 text-center relative overflow-hidden">
-                                                {isVisualizing && (
-                                                    <div className="absolute inset-0 bg-background/60 backdrop-blur-sm z-10 flex flex-center items-center justify-center">
-                                                        <Loader2 className="h-10 w-10 text-primary animate-spin" />
-                                                    </div>
-                                                )}
-                                                {chartData ? (
-                                                    <div className="w-full h-full flex flex-col relative items-center justify-center">
-                                                        <div className="w-full h-[400px]">
-                                                            <ReactECharts
-                                                                key={`chart-${visualizationKey}`}
-                                                                option={getChartOption()}
-                                                                style={{ height: '400px', width: '100%' }}
-                                                                opts={{ renderer: 'canvas' }}
-                                                                notMerge={true}
-                                                                lazyUpdate={false}
-                                                            />
+                                            {/* Architecture Selector */}
+                                            <div className="space-y-4">
+                                                <div className="flex items-center gap-2 ml-2">
+                                                    <LayoutGrid className="h-3 w-3 text-primary/50" />
+                                                    <Label className="text-[9px] uppercase font-black tracking-[0.2em] text-muted-foreground/60">Selected Architecture</Label>
+                                                </div>
+                                                <div className="relative group">
+                                                    <select
+                                                        value={chartType}
+                                                        onChange={e => { setChartType(e.target.value); setChartData(null); }}
+                                                        className="w-full bg-primary/5 border border-primary/20 rounded-[2rem] h-20 text-[10px] px-16 font-black outline-none focus:ring-4 focus:ring-primary/10 transition-all appearance-none cursor-pointer hover:bg-primary/10 shadow-xl text-primary uppercase tracking-widest"
+                                                    >
+                                                        {VISUALIZATIONS_CATALOG.map(c => <option key={c.id} value={c.id} className="text-foreground bg-popover font-bold py-4">{c.label}</option>)}
+                                                    </select>
+                                                    <activeChartData.icon className="absolute left-6 top-1/2 -translate-y-1/2 h-6 w-6 pointer-events-none" />
+                                                    <ChevronDown className="absolute right-7 top-1/2 -translate-y-1/2 h-4 w-4 pointer-events-none opacity-40 group-hover:translate-y-px transition-transform" />
+                                                </div>
+                                            </div>
+
+                                            {/* Input Tensors */}
+                                            <div className="space-y-8 flex-1">
+                                                <div className="grid grid-cols-1 gap-6">
+                                                    <div className="space-y-3">
+                                                        <div className="flex items-center gap-2 ml-2">
+                                                            <Hash className="h-3 w-3 text-primary/40" />
+                                                            <Label className="text-[9px] uppercase font-black tracking-widest text-muted-foreground/50">X-Axis Domain</Label>
                                                         </div>
-                                                        <div className="absolute top-4 right-4 flex items-center gap-2">
-                                                            <Badge variant="outline" className="bg-background/80 backdrop-blur-sm border-primary/20 text-primary font-black text-[9px] uppercase tracking-widest px-3 py-1">
-                                                                Interactive Stream
-                                                            </Badge>
-                                                        </div>
+                                                        <select
+                                                            value={vXAxis}
+                                                            onChange={e => setVXAxis(e.target.value)}
+                                                            className="w-full bg-background/60 border border-border/40 rounded-2xl h-14 text-[10px] px-6 font-black outline-none focus:ring-4 focus:ring-primary/5 transition-all appearance-none cursor-pointer hover:border-primary/30 shadow-sm"
+                                                        >
+                                                            <option value="">Select Column...</option>
+                                                            {previewData?.columns.map(c => <option key={c} value={c}>{c}</option>)}
+                                                        </select>
                                                     </div>
-                                                ) : (
-                                                    <div className="space-y-4 opacity-30">
-                                                        <BarChart3 className="h-16 w-16 mx-auto" />
-                                                        <p className="text-sm font-bold uppercase tracking-[0.2em]">Awaiting visualization parameters</p>
+
+                                                    <div className="space-y-3">
+                                                        <div className="flex items-center gap-2 ml-2">
+                                                            <TrendingUp className="h-3 w-3 text-primary/40" />
+                                                            <Label className="text-[9px] uppercase font-black tracking-widest text-muted-foreground/50">Y-Axis Magnitude</Label>
+                                                        </div>
+                                                        <select
+                                                            value={vYAxis}
+                                                            onChange={e => setVYAxis(e.target.value)}
+                                                            className="w-full bg-background/60 border border-border/40 rounded-2xl h-14 text-[10px] px-6 font-black outline-none focus:ring-4 focus:ring-primary/5 transition-all appearance-none cursor-pointer hover:border-primary/30 shadow-sm"
+                                                        >
+                                                            <option value="">Select Column...</option>
+                                                            {previewData?.columns.map(c => <option key={c} value={c}>{c}</option>)}
+                                                        </select>
+                                                    </div>
+
+                                                    <div className="space-y-3">
+                                                        <div className="flex items-center gap-2 ml-2">
+                                                            <PieChartIcon className="h-3 w-3 text-primary/40" />
+                                                            <Label className="text-[9px] uppercase font-black tracking-widest text-muted-foreground/50">Categorical Pivot</Label>
+                                                        </div>
+                                                        <select
+                                                            value={vCategoryCol}
+                                                            onChange={e => setVCategoryCol(e.target.value)}
+                                                            className="w-full bg-background/60 border border-border/40 rounded-2xl h-14 text-[10px] px-6 font-black outline-none focus:ring-4 focus:ring-primary/5 transition-all appearance-none cursor-pointer hover:border-primary/30 shadow-sm"
+                                                        >
+                                                            <option value="">No Pivot (Monochrome)</option>
+                                                            {previewData?.columns.map(c => <option key={c} value={c}>{c}</option>)}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div className="pt-6 relative">
+                                                <Button
+                                                    className="w-full h-20 rounded-3xl shadow-2xl shadow-primary/20 text-[11px] font-black uppercase tracking-[0.4em] group bg-primary hover:bg-primary/90 transition-all text-white border-0"
+                                                    onClick={handleVisualize}
+                                                    disabled={isVisualizing || !vXAxis || !vYAxis}
+                                                >
+                                                    {isVisualizing ? (
+                                                        <><Loader2 className="mr-4 h-6 w-6 animate-spin" /> Syncing Pipeline...</>
+                                                    ) : (
+                                                        <><RefreshCw className="mr-4 h-6 w-6 group-hover:rotate-180 transition-all duration-700" /> Execute Tensor Plot</>
+                                                    )}
+                                                </Button>
+                                                <div className="mt-8 flex items-center justify-center gap-6 opacity-30">
+                                                    <div className="h-px flex-1 bg-border/20" />
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                                        <span className="text-[8px] font-black uppercase tracking-widest">Tensor-Ready</span>
+                                                    </div>
+                                                    <div className="h-px flex-1 bg-border/20" />
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Viewport Side (Col-Span-8) */}
+                                        <div className="lg:col-span-8 flex flex-col bg-[radial-gradient(ellipse_at_top,rgba(99,102,241,0.06),transparent_50%)]">
+                                            <div className="p-8 border-b border-border/10 flex justify-between items-center bg-background/5 backdrop-blur-3xl">
+                                                <div className="flex items-center gap-5">
+                                                    <div className="p-3 bg-primary/10 rounded-2xl border border-primary/20">
+                                                        <Presentation className="h-6 w-6 text-primary" />
+                                                    </div>
+                                                    <div>
+                                                        <h4 className="text-sm font-black tracking-[0.2em] uppercase">Visual Viewport</h4>
+                                                        <p className="text-[9px] text-muted-foreground/40 font-bold uppercase tracking-widest mt-1">High-Fidelity Graphical Sink</p>
+                                                    </div>
+                                                </div>
+                                                
+                                                {chartData && (
+                                                    <div className="flex items-center gap-6">
+                                                        <div className="text-right border-r border-border/10 pr-6 mr-6">
+                                                            <p className="text-[9px] font-black text-foreground/70 uppercase tracking-widest">{chartData.series?.[0]?.data?.length || 0} Data Points</p>
+                                                            <p className="text-[7px] font-bold text-emerald-500/60 uppercase tracking-tight">Latency: 0.002s</p>
+                                                        </div>
+                                                        <Button variant="outline" size="sm" className="h-10 rounded-xl border-border/40 hover:bg-primary/5 transition-all text-[9px] font-black uppercase tracking-widest px-4">
+                                                            <Upload className="h-3 w-3 mr-2" /> Export
+                                                        </Button>
                                                     </div>
                                                 )}
                                             </div>
-                                        </div>
-                                    </Card>
-                                </div>
 
+                                            <div className="flex-1 flex items-center justify-center p-12 relative overflow-hidden">
+                                                {isVisualizing && (
+                                                    <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-3xl z-50">
+                                                        <div className="flex flex-col items-center gap-6 text-center">
+                                                            <div className="relative h-24 w-24">
+                                                                <div className="absolute inset-0 rounded-full border-4 border-primary/20 border-t-primary animate-spin" />
+                                                                <div className="absolute inset-4 rounded-full border-4 border-emerald-500/10 border-b-emerald-500 animate-[spin_1.5s_linear_infinite]" />
+                                                                <div className="absolute inset-0 flex items-center justify-center">
+                                                                    <Activity className="h-8 w-8 text-primary animate-pulse" />
+                                                                </div>
+                                                            </div>
+                                                            <div className="space-y-2">
+                                                                <p className="text-[10px] uppercase font-black tracking-[0.6em] text-primary animate-pulse">Synchronizing Neural Plot</p>
+                                                                <p className="text-[7px] text-muted-foreground/40 font-black uppercase tracking-[0.3em]">Transforming high-dimensional vectors...</p>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                )}
+
+                                                {chartData ? (
+                                                    <div className="w-full h-full p-8 bg-background/30 rounded-[3rem] border border-border/20 shadow-[-20px_20px_60px_rgba(0,0,0,0.1)] relative">
+                                                        <div className="absolute top-10 left-10 p-3 rounded-full bg-emerald-500/20 border border-emerald-500/30 animate-pulse z-10">
+                                                            <div className="h-2 w-2 rounded-full bg-emerald-500" />
+                                                        </div>
+                                                        <ReactECharts
+                                                            key={visualizationKey}
+                                                            option={getChartOption()}
+                                                            style={{ height: '650px', width: '100%' }}
+                                                            opts={{ renderer: 'canvas' }}
+                                                            theme="dark"
+                                                        />
+                                                    </div>
+                                                ) : (
+                                                    <div className="text-center group cursor-default p-20 max-w-lg">
+                                                        <div className="relative inline-block mb-10 translate-y-4">
+                                                            <div className="absolute inset-0 bg-primary/20 blur-[120px] rounded-full scale-150 animate-pulse" />
+                                                            <div className="p-20 bg-muted/10 rounded-[4rem] border border-border/20 relative backdrop-blur-3xl shadow-3xl group-hover:bg-muted/20 transition-all duration-700 hover:rotate-2">
+                                                                <activeChartData.icon className="h-24 w-24 text-muted-foreground/10 group-hover:scale-110 group-hover:text-primary transition-all duration-1000" />
+                                                            </div>
+                                                        </div>
+                                                        <div className="space-y-6 pt-10">
+                                                            <h3 className="text-3xl font-black tracking-tighter text-foreground/30 uppercase tracking-[0.1em]">Awaiting Tensor Map</h3>
+                                                            <p className="text-[10px] uppercase font-black tracking-[0.3em] text-muted-foreground/40 leading-relaxed">
+                                                                Bind dataset columns to the <span className="text-primary/60">{activeChartData.label}</span> neural core to begin rendering.
+                                                            </p>
+                                                            <Badge variant="outline" className="text-[9px] font-black uppercase tracking-[0.3em] border-emerald-500/20 text-emerald-500/40 px-8 py-2.5 rounded-full bg-emerald-500/5 border-dashed">ENGINE_READY_FOR_DATA</Badge>
+                                                        </div>
+                                                    </div>
+                                                )}
+                                            </div>
+                                            
+                                            <div className="p-8 border-t border-border/10 bg-muted/10 flex items-center justify-between backdrop-blur-xl">
+                                                <div className="flex gap-16">
+                                                    <div className="flex flex-col gap-1.5 px-6 border-l border-border/20">
+                                                        <span className="text-[8px] font-black text-muted-foreground/30 uppercase tracking-[0.2em]">Compute Node</span>
+                                                        <span className="text-[10px] font-bold text-foreground/40 uppercase tracking-widest">ECharts Canvas v5.4</span>
+                                                    </div>
+                                                    <div className="flex flex-col gap-1.5 px-6 border-l border-border/20">
+                                                        <span className="text-[8px] font-black text-muted-foreground/30 uppercase tracking-[0.2em]">Buffer Status</span>
+                                                        <span className="text-[10px] font-bold text-emerald-500/60 uppercase tracking-widest flex items-center gap-2">
+                                                            Optimized <div className="h-1 w-1 rounded-full bg-emerald-500" />
+                                                        </span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-4 text-[9px] font-black text-muted-foreground/20 uppercase tracking-[0.3em] pr-8">
+                                                    <div className="h-px w-12 bg-border/20" />
+                                                    PYANALYPT WORKBENCH CORE
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </Card>
                             </motion.div>
                         )}
 
