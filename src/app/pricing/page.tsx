@@ -1,2 +1,2 @@
-import { PricingPage } from "@/contents/pages/PricingPage";
+import { PricingPage } from "@/pages/PricingPage";
 export default function Pricing() { return <PricingPage />; }

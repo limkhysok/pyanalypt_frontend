@@ -1,2 +1,2 @@
-import { LoginPage } from "@/contents/pages/Auth";
+import { LoginPage } from "@/pages/Auth";
 export default function Login() { return <LoginPage />; }

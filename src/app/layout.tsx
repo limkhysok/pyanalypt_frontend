@@ -26,13 +26,10 @@ export const metadata: Metadata = {
   description: "Advanced Data Analysis Dashboard",
 };
 
-import { Navbar } from "@/components/layout/Navbar";
-
-import { Footer } from "@/components/layout/Footer";
-
 import { CursorFollower } from "@/components/ui/cursor-follower";
-
 import { Providers } from "@/context/providers";
+import { PublicShell } from "@/components/layout/PublicShell";
+import { SmoothScroll } from "@/components/ui/smooth-scroll";
 
 export default function RootLayout({
   children,
@@ -44,14 +41,12 @@ export default function RootLayout({
       <body
         className={`${customFont.variable} antialiased VscScroolbar font-sans bg-background text-foreground`}
       >
-        <Providers>
-          <CursorFollower />
-          <Navbar />
-          <div className="pt-16 min-h-screen">
-            {children}
-          </div>
-          <Footer />
-        </Providers>
+        <SmoothScroll>
+          <Providers>
+            <CursorFollower />
+            <PublicShell>{children}</PublicShell>
+          </Providers>
+        </SmoothScroll>
       </body>
     </html>
   );

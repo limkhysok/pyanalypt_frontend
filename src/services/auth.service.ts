@@ -1,6 +1,7 @@
 import apiClient from '@/lib/axios';
 import { tokenManager } from '@/lib/token';
 import {
+    User,
     AuthResponse,
     RegisterRequest,
     LoginRequest,
@@ -17,11 +18,16 @@ export const authApi = {
      * Register a new user with email and password
      */
     async register(data: RegisterRequest): Promise<AuthResponse> {
+        console.log("[AuthApi] Registering user:", data.email);
         const response = await apiClient.post<AuthResponse>('/auth/registration/', data);
+        console.log("[AuthApi] Registration Response:", response.data);
 
         // Store tokens after successful registration
-        if (response.data.access && response.data.refresh) {
-            tokenManager.setTokens(response.data.access, response.data.refresh);
+        if (response.data.access) {
+            tokenManager.setTokens(response.data.access, response.data.refresh || "");
+            console.log("[AuthApi] Tokens stored successfully.");
+        } else {
+            console.warn("[AuthApi] Access token missing in registration response!", response.data);
         }
 
         return response.data;
@@ -31,11 +37,16 @@ export const authApi = {
      * Login with email and password
      */
     async login(data: LoginRequest): Promise<AuthResponse> {
+        console.log("[AuthApi] Logging in user:", data.email);
         const response = await apiClient.post<AuthResponse>('/auth/login/', data);
+        console.log("[AuthApi] Login Response:", response.data);
 
         // Store tokens after successful login
-        if (response.data.access && response.data.refresh) {
-            tokenManager.setTokens(response.data.access, response.data.refresh);
+        if (response.data.access) {
+            tokenManager.setTokens(response.data.access, response.data.refresh || "");
+            console.log("[AuthApi] Tokens stored successfully.");
+        } else {
+            console.warn("[AuthApi] Access token missing in login response!", response.data);
         }
 
         return response.data;
@@ -46,13 +57,18 @@ export const authApi = {
      * @param accessToken - Google access token from Google Sign-In
      */
     async googleAuth(accessToken: string): Promise<AuthResponse> {
+        console.log("[AuthApi] Authenticating with Google...");
         const response = await apiClient.post<AuthResponse>('/auth/google/', {
             access_token: accessToken,
         } as GoogleAuthRequest);
+        console.log("[AuthApi] Google Auth Response:", response.data);
 
         // Store tokens after successful Google auth
-        if (response.data.access && response.data.refresh) {
-            tokenManager.setTokens(response.data.access, response.data.refresh);
+        if (response.data.access) {
+            tokenManager.setTokens(response.data.access, response.data.refresh || "");
+            console.log("[AuthApi] Tokens stored successfully.");
+        } else {
+            console.warn("[AuthApi] Access token missing in Google auth response!", response.data);
         }
 
         return response.data;
@@ -99,5 +115,26 @@ export const authApi = {
      */
     getAccessToken(): string | null {
         return tokenManager.getAccessToken();
+    },
+
+    /**
+     * Get current user profile from backend
+     */
+    async getCurrentUser(): Promise<User | null> {
+        console.log("[AuthApi] Calling /auth/user/...");
+        try {
+            const response = await apiClient.get<User>('/auth/user/');
+            console.log("[AuthApi] /auth/user/ Response:", response.data);
+            return response.data;
+        } catch (error: any) {
+            console.error("[AuthApi] /auth/user/ Error:", {
+                status: error.response?.status,
+                data: error.response?.data,
+                message: error.message
+            });
+            // If it's a 401, let the axios interceptor handle it or rethrow
+            // For other errors, return null so we can handle it gracefully
+            return null;
+        }
     },
 };

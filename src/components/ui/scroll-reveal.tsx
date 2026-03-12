@@ -10,8 +10,9 @@ export function ScrollReveal({ children }: { children: React.ReactNode }) {
         offset: ["0 1", "1.2 1"],
     });
 
-    const scaleProgress = useTransform(scrollYProgress, [0, 1], [0.8, 1]);
-    const opacityProgress = useTransform(scrollYProgress, [0, 1], [0.3, 1]);
+    const scaleProgress = useTransform(scrollYProgress, [0, 1], [0.9, 1]);
+    const opacityProgress = useTransform(scrollYProgress, [0, 1], [0, 1]);
+    const yProgress = useTransform(scrollYProgress, [0, 1], [100, 0]);
 
     return (
         <motion.div
@@ -19,6 +20,7 @@ export function ScrollReveal({ children }: { children: React.ReactNode }) {
             style={{
                 scale: scaleProgress,
                 opacity: opacityProgress,
+                y: yProgress,
             }}
             className="mb-8"
         >

@@ -8,6 +8,7 @@ export { default as apiClient } from '@/lib/axios';
 
 // Services
 export { authApi } from './auth.service';
+export { projectApi } from './project.service';
 
 // Utilities
 export { tokenManager } from '@/lib/token';
@@ -24,3 +25,9 @@ export type {
     RefreshTokenResponse,
     ApiError,
 } from '@/types/api';
+
+export type {
+    Project,
+    CreateProjectRequest,
+    UpdateProjectRequest,
+} from '@/types/project';
