@@ -12,7 +12,7 @@ import {
     Sparkles,
     Hash,
 } from "lucide-react";
-import { cn } from "@/utils/utils";
+import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { projectApi } from "@/services/project.service";
 import { Project } from "@/types/project";

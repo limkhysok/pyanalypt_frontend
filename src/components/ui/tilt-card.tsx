@@ -2,7 +2,7 @@
 
 import React, { useRef, useState } from "react";
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
-import { cn } from "@/utils/utils";
+import { cn } from "@/lib/utils";
 
 interface TiltCardProps {
     children: React.ReactNode;
