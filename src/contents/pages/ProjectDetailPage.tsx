@@ -135,6 +135,7 @@ export function ProjectDetailPage() {
     const [vCategoryCol, setVCategoryCol] = React.useState("");
     const [chartData, setChartData] = React.useState<VisualizeResponse | null>(null);
     const [isVisualizing, setIsVisualizing] = React.useState(false);
+    const [visualizationKey, setVisualizationKey] = React.useState(0);
 
     const fileInputRef = React.useRef<HTMLInputElement>(null);
     const workbenchRef = React.useRef<HTMLDivElement>(null);
@@ -542,6 +543,7 @@ export function ProjectDetailPage() {
             const data = await projectApi.visualizeDataset(selectedDatasetId, payload);
 
             setChartData(data);
+            setVisualizationKey(prev => prev + 1); // Force clean remount of ECharts instance
             toast.success("Tensor graph synchronized.");
         } catch (err: any) {
             console.error("[handleVisualize] Response Error:", err);
@@ -733,7 +735,7 @@ export function ProjectDetailPage() {
                             className="p-0 h-auto text-muted-foreground/60 hover:text-primary transition-colors"
                             onClick={() => router.push("/project")}
                         >
-                            Hub
+                            Project
                         </Button>
                         <ChevronRight className="h-3 w-3 opacity-40" />
                         <span className="text-foreground tracking-normal lowercase first-letter:uppercase font-bold">{project.name}</span>
@@ -761,36 +763,6 @@ export function ProjectDetailPage() {
                                 </p>
                             </div>
                         </div>
-
-                        <div className="flex items-center gap-3">
-                            <TooltipProvider>
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <Button variant="outline" size="icon" className="h-11 w-11 rounded-xl border-border/60 hover:bg-secondary/50">
-                                            <Settings className="h-5 w-5 opacity-60" />
-                                        </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent>Workspace Parameters</TooltipContent>
-                                </Tooltip>
-                            </TooltipProvider>
-
-                            <input
-                                type="file"
-                                className="hidden"
-                                ref={fileInputRef}
-                                onChange={handleFileUpload}
-                                accept=".csv, .xlsx, .xls, .json"
-                            />
-                            <Button
-                                size="lg"
-                                className="h-11 px-6 font-bold shadow-sm hover:shadow-md transition-all rounded-xl"
-                                onClick={() => fileInputRef.current?.click()}
-                                disabled={isProcessing}
-                            >
-                                {isProcessing ? <Loader2 className="mr-2.5 h-4 w-4 animate-spin text-white" /> : <FileUp className="mr-2.5 h-4 w-4" />}
-                                Upload Intelligence
-                            </Button>
-                        </div>
                     </div>
                 </div>
 
@@ -799,7 +771,7 @@ export function ProjectDetailPage() {
                     {/* Step 1: Ingestion Zone */}
                     <div className="space-y-8">
                         <div className="space-y-2">
-                            <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary tracking-wide text-[10px] font-black uppercase backdrop-blur-md">
+                            <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary tracking-wide text-[12px] font-black uppercase backdrop-blur-md">
                                 STEP 1
                             </Badge>
                             <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
@@ -809,7 +781,7 @@ export function ProjectDetailPage() {
                                 Securely connect your databases or upload flat files (CSV, Excel). PyAnalypt instantly profiles your schema and detects data types.
                             </p>
                         </div>
-                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8">
+                        <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 relative">
                             <Card className="border-border/60 bg-muted/20 hover:bg-muted/30 transition-colors shadow-sm overflow-hidden">
                                 <CardHeader className="pb-4">
                                     <div className="flex items-center gap-3">
@@ -837,6 +809,19 @@ export function ProjectDetailPage() {
                                     </div>
                                 </CardContent>
                             </Card>
+
+                            {/* UX Separator for multiple ingestion paths */}
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 hidden xl:flex items-center justify-center">
+                                <div className="bg-background border border-border/40 rounded-full h-10 w-10 flex items-center justify-center text-[10px] font-black tracking-widest text-muted-foreground/60 shadow-2xl backdrop-blur-md ring-8 ring-background/50">
+                                    OR
+                                </div>
+                            </div>
+
+                            <div className="xl:hidden flex items-center justify-center -my-4 relative z-10">
+                                <div className="bg-background border border-border/40 rounded-full h-10 w-10 flex items-center justify-center text-[10px] font-black tracking-widest text-muted-foreground/60 shadow-xl backdrop-blur-md ring-4 ring-background">
+                                    OR
+                                </div>
+                            </div>
 
                             <Card className="border-border/60 bg-muted/20 hover:bg-muted/30 transition-colors shadow-sm overflow-hidden">
                                 <CardHeader className="pb-4">
@@ -872,9 +857,9 @@ export function ProjectDetailPage() {
                         </div>
 
                         {/* Step 2: Data Exploration & Inventory */}
-                        <div className="space-y-8 pt-8 border-t border-border/40">
+                        <div className="space-y-8 pt-8 border-t border-border/80">
                             <div className="space-y-2">
-                                <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary tracking-wide text-[10px] font-black uppercase backdrop-blur-md">
+                                <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary tracking-wide text-[12px] font-black uppercase backdrop-blur-md">
                                     STEP 2
                                 </Badge>
                                 <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
@@ -1617,9 +1602,9 @@ export function ProjectDetailPage() {
                     </div>
 
                     {/* Step 3: Analytics & Visualization */}
-                    <div className="space-y-8 pt-8 border-t border-border/40">
+                    <div className="space-y-8 pt-8 border-t border-border/80">
                         <div className="space-y-2">
-                            <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary tracking-wide text-[10px] font-black uppercase backdrop-blur-md">
+                            <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary tracking-wide text-[12px] font-black uppercase backdrop-blur-md">
                                 STEP 3
                             </Badge>
                             <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
@@ -1742,7 +1727,7 @@ export function ProjectDetailPage() {
                                         <div className="w-full h-full flex flex-col relative items-center justify-center">
                                             <div className="w-full h-[400px]">
                                                 <ReactECharts
-                                                    key={`${chartType}-${selectedDatasetId}-${chartData ? 'active' : 'idle'}`}
+                                                    key={`chart-${visualizationKey}`}
                                                     option={getChartOption()}
                                                     style={{ height: '400px', width: '100%' }}
                                                     opts={{ renderer: 'canvas' }}
@@ -1768,9 +1753,9 @@ export function ProjectDetailPage() {
                     </div>
 
                     {/* Step 4: Model Training & Evaluation */}
-                    <div className="space-y-8 pt-8 border-t border-border/40">
+                    <div className="space-y-8 pt-8 border-t border-border/80">
                         <div className="space-y-2">
-                            <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary tracking-wide text-[10px] font-black uppercase backdrop-blur-md">
+                            <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary tracking-wide text-[12px] font-black uppercase backdrop-blur-md">
                                 STEP 4
                             </Badge>
                             <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
@@ -1938,9 +1923,9 @@ export function ProjectDetailPage() {
                     </div>
 
                     {/* Step 5: Historian & Logs */}
-                    <div className="space-y-8 pt-8 border-t border-border/40">
+                    <div className="space-y-8 pt-8 border-t border-border/80">
                         <div className="space-y-2">
-                            <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary tracking-wide text-[10px] font-black uppercase backdrop-blur-md">
+                            <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary tracking-wide text-[12px] font-black uppercase backdrop-blur-md">
                                 STEP 5
                             </Badge>
                             <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">

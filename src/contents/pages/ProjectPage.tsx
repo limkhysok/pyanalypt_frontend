@@ -86,6 +86,7 @@ export function ProjectPage() {
         try {
             const newProject = await projectApi.create(data);
             setProjects((prev) => [newProject, ...prev]);
+            window.dispatchEvent(new CustomEvent('projects-changed'));
         } catch (error) {
             console.error("Failed to create project:", error);
             throw error;
@@ -97,6 +98,7 @@ export function ProjectPage() {
         try {
             const updated = await projectApi.patch(editingProject.id, data);
             setProjects((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
+            window.dispatchEvent(new CustomEvent('projects-changed'));
         } catch (error) {
             console.error("Failed to update project:", error);
             throw error;
@@ -113,6 +115,7 @@ export function ProjectPage() {
         try {
             await projectApi.delete(projectToDelete);
             setProjects((prev) => prev.filter((p) => p.id !== projectToDelete));
+            window.dispatchEvent(new CustomEvent('projects-changed'));
         } catch (error) {
             console.error("Failed to delete project:", error);
         } finally {
