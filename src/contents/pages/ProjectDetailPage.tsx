@@ -45,7 +45,8 @@ import {
     Trash,
     BrainCircuit,
     Presentation,
-    LineChart
+    LineChart,
+    Upload
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
@@ -95,7 +96,7 @@ export function ProjectDetailPage() {
     const [rowCount, setRowCount] = React.useState<number>(10);
     const [analysisResult, setAnalysisResult] = React.useState<DatasetAnalysis | null>(null);
     const [isAnalysisLoading, setIsAnalysisLoading] = React.useState(false);
-    const [activeTab, setActiveTab] = React.useState("Task");
+    const [activeTab, setActiveTab] = React.useState("Overview");
 
     // Cleaning Workbench State
     const [cleaningNACol, setCleaningNACol] = React.useState<string>("all");
@@ -781,8 +782,8 @@ export function ProjectDetailPage() {
                                         project.status === 'completed'
                                             ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20"
                                             : project.status === 'archived'
-                                            ? "bg-muted text-muted-foreground border-border"
-                                            : "bg-primary/10 text-primary border-primary/20"
+                                                ? "bg-muted text-muted-foreground border-border"
+                                                : "bg-primary/10 text-primary border-primary/20"
                                     )}>
                                         {project.status ?? 'active'}
                                     </span>
@@ -822,12 +823,12 @@ export function ProjectDetailPage() {
                         {/* Tab Bar */}
                         <div className="flex items-center border-t border-border bg-muted/30 overflow-x-auto scrollbar-none">
                             {[
-                                { name: 'Overview',       icon: <BarChart3 className="h-3.5 w-3.5" /> },
-                                { name: 'Task',           icon: <Plus className="h-3.5 w-3.5" /> },
-                                { name: 'Dataset',        icon: <FileSpreadsheet className="h-3.5 w-3.5" /> },
+                                { name: 'Overview', icon: <BarChart3 className="h-3.5 w-3.5" /> },
+                                { name: 'Import', icon: <Upload className="h-3.5 w-3.5" /> },
+                                { name: 'Dataset', icon: <FileSpreadsheet className="h-3.5 w-3.5" /> },
                                 { name: 'Visualizations', icon: <LineChart className="h-3.5 w-3.5" /> },
-                                { name: 'Models',         icon: <BrainCircuit className="h-3.5 w-3.5" /> },
-                                { name: 'Activities',     icon: <Clock className="h-3.5 w-3.5" /> },
+                                { name: 'Models', icon: <BrainCircuit className="h-3.5 w-3.5" /> },
+                                { name: 'Activities', icon: <Clock className="h-3.5 w-3.5" /> },
                             ].map(({ name, icon }) => (
                                 <button
                                     key={name}
@@ -910,136 +911,10 @@ export function ProjectDetailPage() {
                                         </Card>
                                     ))}
                                 </div>
-
-                                {/* Overview: Project Details + Dataset List */}
-                                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-                                    {/* Project Info Card */}
-                                    <Card className="border-border/60 shadow-sm rounded-2xl overflow-hidden bg-card/10">
-                                        <CardHeader className="pb-3 border-b border-border/40">
-                                            <div className="flex items-center gap-3">
-                                                <div className="p-2 bg-primary/10 rounded-lg">
-                                                    <Settings className="h-4 w-4 text-primary" />
-                                                </div>
-                                                <CardTitle className="text-sm font-black">Project Details</CardTitle>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent className="p-0">
-                                            {[
-                                                { label: 'Project Name', value: project.name },
-                                                { label: 'Category', value: project.category || 'General' },
-                                                { label: 'Description', value: project.description || '—' },
-                                                { label: 'Created', value: new Date(project.created_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) },
-                                                { label: 'Last Updated', value: new Date(project.updated_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) },
-                                                { label: 'Last Accessed', value: project.last_accessed_at ? new Date(project.last_accessed_at).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '—' },
-                                            ].map((row, i) => (
-                                                <div key={i} className={`flex justify-between items-start px-6 py-3.5 text-xs gap-4 ${i % 2 === 0 ? 'bg-muted/20' : ''} border-b border-border/20 last:border-0`}>
-                                                    <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/50 shrink-0">{row.label}</span>
-                                                    <span className="font-bold text-foreground/80 text-right">{row.value}</span>
-                                                </div>
-                                            ))}
-                                        </CardContent>
-                                    </Card>
-
-                                    {/* Datasets Quick List */}
-                                    <Card className="border-border/60 shadow-sm rounded-2xl overflow-hidden bg-card/10">
-                                        <CardHeader className="pb-3 border-b border-border/40">
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex items-center gap-3">
-                                                    <div className="p-2 bg-primary/10 rounded-lg">
-                                                        <Database className="h-4 w-4 text-primary" />
-                                                    </div>
-                                                    <CardTitle className="text-sm font-black">Datasets</CardTitle>
-                                                </div>
-                                                <Badge variant="outline" className="text-[10px] font-black border-border/40">
-                                                    {project.datasets?.length ?? 0} files
-                                                </Badge>
-                                            </div>
-                                        </CardHeader>
-                                        <CardContent className="p-0">
-                                            {project.datasets && project.datasets.length > 0 ? (
-                                                <div className="divide-y divide-border/20">
-                                                    {project.datasets.map((ds, i) => (
-                                                        <div key={ds.id} className={`flex items-center justify-between px-6 py-3.5 gap-4 hover:bg-primary/5 transition-colors ${i % 2 === 0 ? 'bg-muted/10' : ''}`}>
-                                                            <div className="flex items-center gap-3 min-w-0">
-                                                                <div className="p-1.5 bg-secondary/50 rounded-lg shrink-0">
-                                                                    <FileSpreadsheet className="h-3.5 w-3.5 text-muted-foreground/60" />
-                                                                </div>
-                                                                <div className="min-w-0">
-                                                                    <p className="text-xs font-bold truncate" title={ds.name}>{ds.name}</p>
-                                                                    <p className="text-[10px] text-muted-foreground/50 font-medium">{ds.file_format || 'CSV'} &bull; {ds.row_count?.toLocaleString() ?? 0} rows &bull; {ds.column_count ?? 0} cols</p>
-                                                                </div>
-                                                            </div>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                className="h-7 px-3 text-[10px] font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 shrink-0"
-                                                                onClick={() => { setActiveTab('Dataset'); handleViewPreview(ds.id, rowCount); }}
-                                                            >
-                                                                <Eye className="h-3 w-3 mr-1" /> Open
-                                                            </Button>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            ) : (
-                                                <div className="py-14 flex flex-col items-center justify-center text-center space-y-3">
-                                                    <div className="p-4 bg-muted/30 rounded-2xl text-muted-foreground/30">
-                                                        <Layers className="h-7 w-7" />
-                                                    </div>
-                                                    <div className="space-y-1">
-                                                        <p className="text-sm font-bold text-foreground/40">No datasets yet</p>
-                                                        <p className="text-xs text-muted-foreground/40 font-medium">Go to the Task tab to upload data.</p>
-                                                    </div>
-                                                    <Button size="sm" variant="outline" className="mt-2 h-8 text-xs font-bold" onClick={() => setActiveTab('Task')}>
-                                                        Upload Data
-                                                    </Button>
-                                                </div>
-                                            )}
-                                        </CardContent>
-                                    </Card>
-                                </div>
-
-                                {/* Overview: Workflow Checklist */}
-                                <Card className="border-border/60 shadow-sm rounded-2xl overflow-hidden bg-card/10">
-                                    <CardHeader className="pb-3 border-b border-border/40">
-                                        <div className="flex items-center gap-3">
-                                            <div className="p-2 bg-primary/10 rounded-lg">
-                                                <Target className="h-4 w-4 text-primary" />
-                                            </div>
-                                            <CardTitle className="text-sm font-black">Workflow Progress</CardTitle>
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent className="p-6">
-                                        <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-3">
-                                            {[
-                                                { step: '01', label: 'Ingest Data', tab: 'Task', done: (project.datasets?.length ?? 0) > 0 },
-                                                { step: '02', label: 'Inspect Dataset', tab: 'Dataset', done: (project.datasets?.length ?? 0) > 0 },
-                                                { step: '03', label: 'Visualize', tab: 'Visualizations', done: false },
-                                                { step: '04', label: 'Train Models', tab: 'Models', done: false },
-                                                { step: '05', label: 'Review Logs', tab: 'Activities', done: false },
-                                            ].map((s) => (
-                                                <button
-                                                    key={s.step}
-                                                    onClick={() => setActiveTab(s.tab)}
-                                                    className={cn(
-                                                        'flex flex-col items-start p-4 rounded-xl border-2 text-left transition-all hover:border-primary/40 hover:bg-primary/5 group',
-                                                        s.done ? 'border-emerald-500/40 bg-emerald-500/5' : 'border-border/40 bg-muted/20'
-                                                    )}
-                                                >
-                                                    <span className={cn('text-[9px] font-black uppercase tracking-widest mb-2', s.done ? 'text-emerald-500' : 'text-muted-foreground/40')}>
-                                                        {s.done ? 'Completed' : `Step ${s.step}`}
-                                                    </span>
-                                                    <span className="text-sm font-black text-foreground/70 group-hover:text-primary transition-colors">{s.label}</span>
-                                                    {s.done && <CheckCircle2 className="h-4 w-4 text-emerald-500 mt-2" />}
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </CardContent>
-                                </Card>
                             </motion.div>
                         )}
 
-                        {activeTab === 'Task' && (
+                        {activeTab === 'Import' && (
                             <motion.div
                                 key="task-view"
                                 initial={{ opacity: 0, y: 10 }}
@@ -1054,10 +929,10 @@ export function ProjectDetailPage() {
                                             STEP 1
                                         </Badge>
                                         <h2 className="text-3xl font-black tracking-tight flex items-center gap-3">
-                                            Connect & Ingest Data
+                                            Import Your Data
                                         </h2>
                                         <p className="text-muted-foreground text-sm max-w-2xl">
-                                            Securely connect your databases or upload flat files (CSV, Excel). PyAnalypt instantly profiles your schema and detects data types.
+                                            Upload your dataset files or paste raw data directly. Supported formats: <span className="font-semibold text-foreground/70">.csv</span>, <span className="font-semibold text-foreground/70">.xlsx</span>, <span className="font-semibold text-foreground/70">.parquet</span>, and <span className="font-semibold text-foreground/70">.json</span>.
                                         </p>
                                     </div>
                                     <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 relative">
@@ -1078,7 +953,7 @@ export function ProjectDetailPage() {
                                             <input
                                                 ref={fileInputRef}
                                                 type="file"
-                                                 accept=".csv,.xlsx,.xls,.parquet,.json"
+                                                accept=".csv,.xlsx,.xls,.parquet,.json"
                                                 className="hidden"
                                                 onChange={handleFileUpload}
                                                 disabled={isProcessing}
@@ -1098,7 +973,7 @@ export function ProjectDetailPage() {
                                                     <p className={cn("text-base font-black tracking-tight transition-colors", isDragging ? "text-primary" : "text-foreground/70 group-hover:text-foreground")}>
                                                         {isDragging ? "Drop your file here" : "Drag & drop or click to upload"}
                                                     </p>
-                                                     <p className="text-[11px] text-muted-foreground/50 font-medium">
+                                                    <p className="text-[11px] text-muted-foreground/50 font-medium">
                                                         Supports CSV, Excel, Parquet &amp; JSON
                                                     </p>
                                                 </div>
@@ -1117,6 +992,22 @@ export function ProjectDetailPage() {
                                                 </Button>
                                             </CardContent>
                                         </Card>
+
+                                        {/* OR Divider */}
+                                        <div className="hidden xl:flex absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex-col items-center gap-2 z-10 pointer-events-none">
+                                            <div className="w-px h-16 bg-gradient-to-b from-transparent to-border/60" />
+                                            <div className="flex items-center justify-center w-8 h-8 rounded-full bg-background border-2 border-border/60 shadow-md">
+                                                <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/50">or</span>
+                                            </div>
+                                            <div className="w-px h-16 bg-gradient-to-t from-transparent to-border/60" />
+                                        </div>
+
+                                        {/* Mobile OR divider */}
+                                        <div className="flex xl:hidden items-center gap-3 px-2">
+                                            <div className="flex-1 h-px bg-border/50" />
+                                            <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 px-2">or</span>
+                                            <div className="flex-1 h-px bg-border/50" />
+                                        </div>
 
                                         {/* Panel 2: Raw CSV Paste */}
                                         <Card className="border-border/60 bg-muted/20 hover:bg-muted/30 transition-colors shadow-sm overflow-hidden">
@@ -1179,89 +1070,131 @@ export function ProjectDetailPage() {
                                 className="space-y-24"
                             >
                                 <div className="space-y-8 pt-0">
-                                    <div className="space-y-1.5">
-                                        <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary tracking-wide text-[12px] font-black uppercase backdrop-blur-md">
-                                            STEP 2
-                                        </Badge>
-                                        <h2 className="text-3xl font-black tracking-tight">Inspect Data Assets</h2>
-                                        <p className="text-muted-foreground text-sm max-w-2xl">
-                                            Browse, explore, and inspect the raw structure of your uploaded datasets.
-                                        </p>
+                                    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                                        <div className="space-y-1.5">
+                                            <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary tracking-wide text-[12px] font-black uppercase backdrop-blur-md">
+                                                STEP 2 — DATASET
+                                            </Badge>
+                                            <h2 className="text-3xl font-black tracking-tight">Your Datasets</h2>
+                                            <p className="text-muted-foreground text-sm max-w-2xl">
+                                                Browse, inspect, and export the datasets attached to this project. Click <strong className="text-foreground/70">Inspect</strong> on any row to load a live preview below.
+                                            </p>
+                                        </div>
+                                        {project.datasets && project.datasets.length > 0 && (
+                                            <Badge className="shrink-0 text-xs font-black px-3 py-1.5 bg-primary/10 text-primary border border-primary/20 rounded-full">
+                                                {project.datasets.length} {project.datasets.length === 1 ? 'file' : 'files'}
+                                            </Badge>
+                                        )}
                                     </div>
                                 </div>
 
-                                <Card className="border-border/60 shadow-sm overflow-hidden bg-card/10">
+                                <Card className="border-border/60 shadow-sm overflow-hidden bg-card">
+                                    {/* Card header */}
+                                    <div className="flex items-center justify-between px-5 py-4 border-b border-border/40 bg-muted/20">
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="p-1.5 bg-primary/10 rounded-lg">
+                                                <FileSpreadsheet className="h-3.5 w-3.5 text-primary" />
+                                            </div>
+                                            <span className="text-xs font-black uppercase tracking-widest text-foreground/70">Dataset Files</span>
+                                        </div>
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            className="h-7 px-3 text-[10px] font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5 gap-1.5"
+                                            onClick={() => setActiveTab('Import')}
+                                        >
+                                            <Upload className="h-3 w-3" /> Add Dataset
+                                        </Button>
+                                    </div>
+
                                     {project.datasets && project.datasets.length > 0 ? (
                                         <div className="overflow-x-auto">
                                             <table className="w-full text-xs text-left">
                                                 <thead>
-                                                    <tr className="bg-muted/50 text-muted-foreground font-black uppercase tracking-widest text-[9px] border-b border-border/40">
-                                                        <th className="px-5 py-3.5">Name</th>
-                                                        <th className="px-5 py-3.5">Format</th>
-                                                        <th className="px-5 py-3.5">Rows</th>
-                                                        <th className="px-5 py-3.5">Columns</th>
-                                                        <th className="px-5 py-3.5 text-right">Actions</th>
+                                                    <tr className="bg-muted/30 text-muted-foreground/60 font-black uppercase tracking-widest text-[9px] border-b border-border/40">
+                                                        <th className="px-5 py-3.5 font-black">Name</th>
+                                                        <th className="px-5 py-3.5 font-black">Format</th>
+                                                        <th className="px-5 py-3.5 font-black">Rows</th>
+                                                        <th className="px-5 py-3.5 font-black">Columns</th>
+                                                        <th className="px-5 py-3.5 text-right font-black">Actions</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-border/20">
                                                     {project.datasets.map((ds) => (
-                                                        <tr key={ds.id} className="hover:bg-primary/5 transition-colors group cursor-default border-b border-border/10 last:border-0">
-                                                            <td className="px-5 py-4 font-bold text-foreground/80">
+                                                        <tr key={ds.id} className={cn(
+                                                            "hover:bg-primary/5 transition-colors group cursor-default border-b border-border/10 last:border-0",
+                                                            selectedDatasetId === ds.id && "bg-primary/5"
+                                                        )}>
+                                                            <td className="px-5 py-3.5 font-bold text-foreground/80">
                                                                 <div className="flex items-center gap-3">
-                                                                    <div className="p-2 bg-secondary/50 rounded-lg group-hover:bg-primary/10 group-hover:text-primary transition-colors">
-                                                                        <FileSpreadsheet className="h-3.5 w-3.5 opacity-70" />
+                                                                    <div className={cn(
+                                                                        "p-2 rounded-lg transition-colors",
+                                                                        selectedDatasetId === ds.id
+                                                                            ? "bg-primary/15 text-primary"
+                                                                            : "bg-muted/60 group-hover:bg-primary/10 group-hover:text-primary text-muted-foreground/60"
+                                                                    )}>
+                                                                        <FileSpreadsheet className="h-3.5 w-3.5" />
                                                                     </div>
-                                                                    <span className="truncate max-w-[200px]" title={ds.name}>{ds.name}</span>
+                                                                    <div>
+                                                                        <p className="truncate max-w-[200px] text-xs font-bold" title={ds.name}>{ds.name}</p>
+                                                                        <p className="text-[10px] text-muted-foreground/40 font-medium">
+                                                                            {new Date(ds.uploaded_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
+                                                                        </p>
+                                                                    </div>
                                                                 </div>
                                                             </td>
-                                                            <td className="px-5 py-4">
-                                                                <Badge variant="outline" className="text-[10px] font-black uppercase tracking-wider bg-secondary/20 border-border/40 text-muted-foreground">
+                                                            <td className="px-5 py-3.5">
+                                                                <Badge variant="outline" className="text-[10px] font-black uppercase tracking-wider bg-muted/30 border-border/40 text-muted-foreground">
                                                                     {ds.file_format || "CSV"}
                                                                 </Badge>
                                                             </td>
-                                                            <td className="px-5 py-4 font-mono text-[11px] text-foreground/70 font-bold">
+                                                            <td className="px-5 py-3.5 font-mono text-[11px] text-foreground/60 font-bold">
                                                                 {ds.row_count?.toLocaleString() || "—"}
                                                             </td>
-                                                            <td className="px-5 py-4 font-mono text-[11px] text-foreground/70 font-bold">
+                                                            <td className="px-5 py-3.5 font-mono text-[11px] text-foreground/60 font-bold">
                                                                 {ds.column_count?.toLocaleString() || "—"}
                                                             </td>
-                                                            <td className="px-5 py-4 text-right">
+                                                            <td className="px-5 py-3.5 text-right">
                                                                 <div className="flex justify-end gap-1.5">
                                                                     <Button
-                                                                        variant="ghost"
+                                                                        variant={selectedDatasetId === ds.id ? "default" : "ghost"}
                                                                         size="sm"
-                                                                        className="h-7 px-3 text-[10px] font-bold uppercase tracking-widest hover:text-primary hover:bg-primary/5"
+                                                                        className={cn(
+                                                                            "h-7 px-3 text-[10px] font-bold uppercase tracking-widest",
+                                                                            selectedDatasetId !== ds.id && "hover:text-primary hover:bg-primary/5"
+                                                                        )}
                                                                         onClick={() => handleViewPreview(ds.id, rowCount)}
                                                                     >
-                                                                        <Eye className="h-3 w-3 mr-1.5" /> Inspect
+                                                                        <Eye className="h-3 w-3 mr-1.5" />
+                                                                        {selectedDatasetId === ds.id ? 'Active' : 'Inspect'}
                                                                     </Button>
                                                                     <DropdownMenu>
                                                                         <DropdownMenuTrigger asChild>
-                                                                            <Button variant="ghost" size="icon" className="h-8 w-8 opacity-40 hover:opacity-100 transition-opacity">
-                                                                                <MoreVertical className="h-4 w-4" />
+                                                                            <Button variant="ghost" size="icon" className="h-7 w-7 opacity-40 hover:opacity-100 transition-opacity">
+                                                                                <MoreVertical className="h-3.5 w-3.5" />
                                                                             </Button>
                                                                         </DropdownMenuTrigger>
-                                                                        <DropdownMenuContent align="end" className="w-56">
-                                                                            <DropdownMenuItem onClick={() => handleViewPreview(ds.id, rowCount)} className="gap-2">
-                                                                                <Eye className="h-4 w-4" /> View Preview
+                                                                        <DropdownMenuContent align="end" className="w-52">
+                                                                            <DropdownMenuItem onClick={() => handleViewPreview(ds.id, rowCount)} className="gap-2 text-xs">
+                                                                                <Eye className="h-3.5 w-3.5" /> Inspect Dataset
                                                                             </DropdownMenuItem>
                                                                             <DropdownMenuSeparator />
-                                                                            <DropdownMenuLabel className="text-[9px] uppercase font-black tracking-widest text-muted-foreground/60 py-2">Export formats</DropdownMenuLabel>
-                                                                            <DropdownMenuItem onClick={() => handleExport('csv')} className="gap-2">
-                                                                                <FileSpreadsheet className="h-4 w-4" /> Export as CSV
+                                                                            <DropdownMenuLabel className="text-[9px] uppercase font-black tracking-widest text-muted-foreground/60 py-2">Export As</DropdownMenuLabel>
+                                                                            <DropdownMenuItem onClick={() => handleExport('csv')} className="gap-2 text-xs">
+                                                                                <FileSpreadsheet className="h-3.5 w-3.5" /> CSV
                                                                             </DropdownMenuItem>
-                                                                            <DropdownMenuItem onClick={() => handleExport('excel')} className="gap-2">
-                                                                                <Table className="h-4 w-4" /> Export as Excel
+                                                                            <DropdownMenuItem onClick={() => handleExport('excel')} className="gap-2 text-xs">
+                                                                                <Table className="h-3.5 w-3.5" /> Excel
                                                                             </DropdownMenuItem>
-                                                                            <DropdownMenuItem onClick={() => handleExport('json')} className="gap-2">
-                                                                                <Code className="h-4 w-4" /> Export as JSON
+                                                                            <DropdownMenuItem onClick={() => handleExport('json')} className="gap-2 text-xs">
+                                                                                <Code className="h-3.5 w-3.5" /> JSON
                                                                             </DropdownMenuItem>
                                                                             <DropdownMenuSeparator />
                                                                             <DropdownMenuItem
                                                                                 onClick={() => handleDeleteDataset(ds.id)}
-                                                                                className="gap-2 text-destructive focus:bg-destructive/10 focus:text-destructive"
+                                                                                className="gap-2 text-xs text-destructive focus:bg-destructive/10 focus:text-destructive"
                                                                             >
-                                                                                <Trash2 className="h-4 w-4" /> Purge Dataset
+                                                                                <Trash2 className="h-3.5 w-3.5" /> Delete
                                                                             </DropdownMenuItem>
                                                                         </DropdownMenuContent>
                                                                     </DropdownMenu>
@@ -1279,8 +1212,11 @@ export function ProjectDetailPage() {
                                             </div>
                                             <div className="space-y-1">
                                                 <p className="text-sm font-bold text-foreground/50">No datasets yet</p>
-                                                <p className="text-xs text-muted-foreground/50 max-w-xs font-medium">Go to the Task tab and upload a file or paste CSV data to get started.</p>
+                                                <p className="text-xs text-muted-foreground/50 max-w-xs font-medium">Head to the Import tab to upload a file or paste raw data.</p>
                                             </div>
+                                            <Button size="sm" variant="outline" className="h-8 text-xs font-bold gap-2" onClick={() => setActiveTab('Import')}>
+                                                <Upload className="h-3.5 w-3.5" /> Import Data
+                                            </Button>
                                         </div>
                                     )}
                                 </Card>
@@ -1290,9 +1226,17 @@ export function ProjectDetailPage() {
                                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                         <div className="space-y-0.5">
                                             <h3 className="text-base font-black tracking-tight flex items-center gap-2">
-                                                Dataframe Preview
+                                                <Table className="h-4 w-4 text-primary" />
+                                                Data Preview
+                                                {selectedDatasetId && (
+                                                    <span className="text-xs font-bold text-muted-foreground/50 normal-case tracking-normal">
+                                                        — {project.datasets?.find(d => d.id === selectedDatasetId)?.name}
+                                                    </span>
+                                                )}
                                             </h3>
-                                            <p className="text-xs text-muted-foreground font-medium">Select a dataset above to load its preview.</p>
+                                            <p className="text-xs text-muted-foreground/60 font-medium">
+                                                {selectedDatasetId ? 'Showing a live row sample from the selected dataset.' : 'Click Inspect on a dataset above to load its preview here.'}
+                                            </p>
                                         </div>
                                         <div className="flex items-center gap-2">
                                             {/* Column Selector */}
@@ -1415,10 +1359,10 @@ export function ProjectDetailPage() {
 
                                     <Card className="border-border/60 shadow-sm overflow-hidden bg-background/50 relative min-h-[400px]">
                                         {isPreviewLoading && (
-                                            <div className="absolute inset-0 flex items-center justify-center bg-background/40 backdrop-blur-[2px] z-50 transition-all">
+                                            <div className="absolute inset-0 flex items-center justify-center bg-background/60 backdrop-blur-[2px] z-50">
                                                 <div className="flex flex-col items-center gap-3">
-                                                    <Loader2 className="h-10 w-10 text-primary animate-spin" />
-                                                    <p className="text-[10px] uppercase font-black tracking-widest text-primary animate-pulse">Scanning Vectors</p>
+                                                    <Loader2 className="h-9 w-9 text-primary animate-spin" />
+                                                    <p className="text-[10px] uppercase font-black tracking-widest text-muted-foreground animate-pulse">Loading preview…</p>
                                                 </div>
                                             </div>
                                         )}
@@ -1452,22 +1396,23 @@ export function ProjectDetailPage() {
                                                         </tbody>
                                                     </table>
                                                 </div>
-                                                <div className="px-6 py-3 text-[10px] font-bold text-muted-foreground flex justify-between items-center bg-muted/20">
-                                                    <div className="flex items-center gap-6">
-                                                    <div className="flex items-center gap-2">
-                                                                <span className="text-foreground/40">Showing:</span>
-                                                                <span className="text-primary">{previewData.rows?.length || 0} rows</span>
-                                                            </div>
-                                                            {previewData.metadata?.shape && (
-                                                                <div className="flex items-center gap-2">
-                                                                    <span className="text-foreground/40">Shape:</span>
-                                                                    <span className="text-foreground/60">{previewData.metadata.shape[0]} × {previewData.metadata.shape[1]}</span>
-                                                                </div>
-                                                            )}
+                                                <div className="px-6 py-3 text-[10px] font-bold text-muted-foreground/60 flex justify-between items-center bg-muted/20 border-t border-border/30">
+                                                    <div className="flex items-center gap-5">
+                                                        <span>
+                                                            <span className="text-muted-foreground/40 mr-1">Showing</span>
+                                                            <span className="text-primary font-black">{previewData.rows?.length || 0}</span>
+                                                            <span className="text-muted-foreground/40 ml-1">rows</span>
+                                                        </span>
+                                                        {previewData.metadata?.shape && (
+                                                            <span>
+                                                                <span className="text-muted-foreground/40 mr-1">Shape</span>
+                                                                <span className="font-mono font-bold text-foreground/60">{previewData.metadata.shape[0]} × {previewData.metadata.shape[1]}</span>
+                                                            </span>
+                                                        )}
                                                     </div>
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-foreground/40 text-[9px]">TOTAL ROWS:</span>
-                                                        <span className="text-foreground/80 px-2 py-0.5 bg-background border border-border/60 rounded font-bold shadow-sm">{previewData.total_rows_hint.toLocaleString()}</span>
+                                                        <span className="text-muted-foreground/40">Total</span>
+                                                        <span className="text-foreground/80 px-2 py-0.5 bg-background border border-border/60 rounded-md font-bold shadow-sm">{previewData.total_rows_hint.toLocaleString()} rows</span>
                                                     </div>
                                                 </div>
 
