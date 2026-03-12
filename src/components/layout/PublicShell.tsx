@@ -10,7 +10,7 @@ const APP_ROUTES = ["/dashboard", "/profile", "/project", "/tutorials", "/settin
 
 export function PublicShell({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
-    const isAppRoute = APP_ROUTES.some((route) => pathname.startsWith(route));
+    const isAppRoute = pathname ? APP_ROUTES.some((route) => pathname.startsWith(route)) : false;
 
     if (isAppRoute) {
         // App pages handle their own layout — render children only
