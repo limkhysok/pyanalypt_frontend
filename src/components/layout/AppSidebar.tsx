@@ -2,10 +2,11 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
     LayoutDashboard,
     FolderKanban,
+    BarChart3,
     BookOpenCheck,
     ChevronRight,
     PanelLeft,
@@ -16,7 +17,7 @@ import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 import { projectApi } from "@/services/project.service";
 import { Project } from "@/types/project";
-import { useRouter } from "next/navigation";
+import { VISUALIZATIONS_CATALOG, ChartArchitecture } from "@/lib/visualizations-data";
 
 const NAV_ITEMS = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
@@ -32,6 +33,7 @@ interface AppSidebarProps {
 export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
     const pathname = usePathname();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const [projects, setProjects] = React.useState<Project[]>([]);
     const [isLoadingProjects, setIsLoadingProjects] = React.useState(false);
 
@@ -99,6 +101,7 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
                     const safePathname = pathname || "";
                     const isActive = safePathname === href || (href !== "/dashboard" && safePathname.startsWith(href));
                     const isProjectFolder = label === "Project";
+                    const isVisualsFolder = label === "Visualizations";
 
                     return (
                         <div key={href} className="space-y-1">
@@ -127,7 +130,7 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
                                         </motion.span>
                                     )}
                                 </AnimatePresence>
-                                {!collapsed && isActive && !isProjectFolder && (
+                                {!collapsed && isActive && !isProjectFolder && !isVisualsFolder && (
                                     <ChevronRight size={14} className="ml-auto shrink-0 opacity-60" />
                                 )}
                             </Link>
@@ -166,6 +169,52 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
                                     {isLoadingProjects && (
                                         <div className="h-4 w-4 border-2 border-primary/30 border-t-primary animate-spin rounded-full mx-auto my-2" />
                                     )}
+                                </motion.div>
+                            )}
+
+                            {/* Dropdown for Visualizations Architectures */}
+                            {!collapsed && isVisualsFolder && (isActive || safePathname.includes("/templates")) && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    className="pl-9 pr-2 space-y-1 pb-4"
+                                >
+                                    <div className="space-y-4">
+                                        {/* Scenarios Grouping */}
+                                        {["Correlations", "Proportions", "Networks", "Distributions", "Hierarchies", "Time Series", "Time Chunks"].map((scenario) => (
+                                            <div key={scenario} className="space-y-1">
+                                                <span className="text-[10px] uppercase tracking-wider text-muted-foreground/60 font-bold px-2">
+                                                    {scenario}
+                                                </span>
+                                                <div className="space-y-0.5">
+                                                    {VISUALIZATIONS_CATALOG.filter((v: ChartArchitecture) => v.scenarios.includes(scenario)).map((v: ChartArchitecture) => {
+                                                        const isSelected = searchParams?.get('chart') === v.id;
+                                                        const Icon = v.icon;
+                                                        const projectIdMatch = safePathname.match(/\/project\/([^\/?]+)/);
+                                                        const targetHref = projectIdMatch
+                                                            ? `/project/${projectIdMatch[1]}?tab=Analyze&chart=${v.id}`
+                                                            : `/templates?chart=${v.id}`;
+
+                                                        return (
+                                                            <Link
+                                                                key={v.id}
+                                                                href={targetHref}
+                                                                className={cn(
+                                                                    "flex items-center gap-2 py-1.5 px-2 rounded-md text-[11px] transition-all",
+                                                                    isSelected
+                                                                        ? "bg-primary/10 text-primary font-bold"
+                                                                        : "text-muted-foreground hover:text-foreground hover:bg-accent/30"
+                                                                )}
+                                                            >
+                                                                <Icon size={12} className="shrink-0 opacity-70" />
+                                                                <span className="truncate">{v.label}</span>
+                                                            </Link>
+                                                        );
+                                                    })}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </motion.div>
                             )}
                         </div>

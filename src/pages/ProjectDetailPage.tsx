@@ -77,7 +77,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { toast } from "sonner";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -98,12 +98,14 @@ import { cn } from "@/lib/utils";
 import { projectApi } from "@/services/api";
 import { Project, DatasetPreview, DatasetAnalysis, TrainModelRequest, TrainModelResponse, VisualizeRequest, VisualizeResponse } from "@/types/project";
 import { useAuth } from "@/context/auth-context";
+import { VISUALIZATIONS_CATALOG, SCENARIOS } from "@/lib/visualizations-data";
 import ReactECharts from 'echarts-for-react';
 import 'echarts-gl';
 
 export function ProjectDetailPage() {
     const params = useParams();
     const router = useRouter();
+    const searchParams = useSearchParams();
     const { isAuthenticated, isLoading: authLoading } = useAuth();
 
     const [project, setProject] = React.useState<Project | null>(null);
@@ -169,47 +171,27 @@ export function ProjectDetailPage() {
     const [isAnalyzeOpen, setIsAnalyzeOpen] = React.useState(false);
     const [searchTerm, setSearchTerm] = React.useState("");
 
-    const VISUALIZATIONS_CATALOG = [
-        { id: 'alluvial', label: 'Alluvial Diagram', scenarios: ['Correlations', 'Proportions'], icon: Activity, desc: 'Tracks flow between points and correlates categories.' },
-        { id: 'arc', label: 'Arc Diagram', scenarios: ['Networks'], icon: Share2, desc: 'Visualizes network connections along a linear axis.' },
-        { id: 'bar', label: 'Bar Chart', scenarios: ['Correlations'], icon: BarChart3, desc: 'Standard comparison of values across categories.' },
-        { id: 'multi_bar', label: 'Multi-set Bar Chart', scenarios: ['Correlations', 'Proportions'], icon: BarChart3, desc: 'Groups multiple dimensions within categorical bars.' },
-        { id: 'stacked_bar', label: 'Stacked Bar Chart', scenarios: ['Correlations', 'Proportions'], icon: SquareStack, desc: 'Displays part-to-whole relationships across categories.' },
-        { id: 'beeswarm', label: 'Beeswarm Plot', scenarios: ['Distributions', 'Time Series', 'Proportions'], icon: LayoutGrid, desc: 'Densely packed points showing distribution without overlap.' },
-        { id: 'box', label: 'Box Plot', scenarios: ['Distributions'], icon: BoxSelect, desc: 'Five-number summary of distributions and outliers.' },
-        { id: 'bubble', label: 'Bubble Chart', scenarios: ['Correlations', 'Proportions'], icon: CircleDot, desc: 'Adds a third magnitude dimension via circle size.' },
-        { id: 'bump', label: 'Bumpchart', scenarios: ['Time Series', 'Correlations', 'Proportions'], icon: TrendingUp, desc: 'Tracks changes in rank over time.' },
-        { id: 'calendar', label: 'Calendar Heatmap', scenarios: ['Time Chunks', 'Proportions'], icon: Calendar, desc: 'Shows temporal patterns across daily or monthly cycles.' },
-        { id: 'chord', label: 'Chord Diagram', scenarios: ['Networks'], icon: Cpu, desc: 'Represents intersections and relationships in a circle.' },
-        { id: 'circle_packing', label: 'Circle Packing', scenarios: ['Hierarchies', 'Proportions'], icon: Circle, desc: 'Nested circles for hierarchical proportion analysis.' },
-        { id: 'circular_dendrogram', label: 'Circular Dendrogram', scenarios: ['Hierarchies', 'Proportions'], icon: Network, desc: 'Radial tree layout for complex hierarchies.' },
-        { id: 'contour', label: 'Contour Plot', scenarios: ['Correlations', 'Distributions'], icon: Layers, desc: 'Topographical representation of 2D data density.' },
-        { id: 'convex_hull', label: 'Convex Hull', scenarios: ['Correlations', 'Proportions'], icon: Hexagon, desc: 'Groups data points by their minimum boundary.' },
-        { id: 'linear_dendrogram', label: 'Linear Dendrogram', scenarios: ['Hierarchies', 'Proportions'], icon: GitBranch, desc: 'Standard tree hierarchy mapping.' },
-        { id: 'gantt', label: 'Gantt Chart', scenarios: ['Time Series', 'Correlations'], icon: GanttChartSquare, desc: 'Tracks project schedules and temporal intervals.' },
-        { id: 'hexbin', label: 'Hexagonal Binning', scenarios: ['Correlations', 'Distributions'], icon: Grid3X3, desc: 'Aggregates point density into clean hexagons.' },
-        { id: 'horizon', label: 'Horizon Graph', scenarios: ['Time Series', 'Correlations'], icon: Activity, desc: 'Compressed line plots for high-density time series.' },
-        { id: 'line', label: 'Line Chart', scenarios: ['Time Series', 'Correlations'], icon: LineChart, desc: 'Classic visualization for trends over an axis.' },
-        { id: 'matrix', label: 'Matrix Plot', scenarios: ['Correlations', 'Time Series', 'Proportions'], icon: Grid3X3, desc: 'Grid representation of pairwise relationships.' },
-        { id: 'parallel', label: 'Parallel Coordinates', scenarios: ['Correlations', 'Distributions'], icon: Spline, desc: 'Visualizes high-dimensional data along parallel axes.' },
-        { id: 'pie', label: 'Pie Chart', scenarios: ['Proportions'], icon: PieChart, desc: 'Simple representation of static part-to-whole ratios.' },
-        { id: 'radar', label: 'Radar Chart', scenarios: ['Correlations'], icon: Radar, desc: 'Compares multiple quantitative variables.' },
-        { id: 'sankey', label: 'Sankey Diagram', scenarios: ['Networks'], icon: Workflow, desc: 'Models energy or information flows across nodes.' },
-        { id: 'slope', label: 'Slope Chart', scenarios: ['Correlations'], icon: Share, desc: 'Focuses on the change between two discrete points.' },
-        { id: 'stream', label: 'Streamgraph', scenarios: ['Time Series', 'Correlations', 'Proportions'], icon: Waves, desc: 'Organic area chart centered around a baseline.' },
-        { id: 'sunburst', label: 'Sunburst Diagram', scenarios: ['Hierarchies', 'Proportions'], icon: Sun, desc: 'Multi-level ring structure for hierarchies.' },
-        { id: 'treemap', label: 'Treemap', scenarios: ['Hierarchies', 'Proportions'], icon: LayoutGrid, desc: 'Uses rectangles to represent quantitative hierarchies.' },
-        { id: 'violin', label: 'Violin Plot', scenarios: ['Distributions'], icon: Activity, desc: 'Combination of boxplot and kernel density plot.' },
-        { id: 'voronoi', label: 'Voronoi Diagram', scenarios: ['Correlations'], icon: Package, desc: 'Partitions space based on distance to specific points.' },
-        { id: 'voronoi_treemap', label: 'Treemap (Voronoi)', scenarios: ['Hierarchies', 'Proportions'], icon: Maximize, desc: 'Irregular polygons for hierarchical visualization.' },
-    ];
-
-    const SCENARIOS = ["All Scenarios", "Correlations", "Proportions", "Networks", "Distributions", "Time Series", "Hierarchies", "Time Chunks"];
+    // SYNC with Sidebar/URL Parameter
+    React.useEffect(() => {
+        const tab = searchParams?.get('tab');
+        const chart = searchParams?.get('chart');
+        
+        if (tab === 'Visualizations' || tab === 'Analyze') {
+            setActiveTab('Analyze');
+        } else if (tab) {
+            setActiveTab(tab);
+        }
+        
+        if (chart) {
+            setChartType(chart);
+            setChartData(null); // Reset when switching
+        }
+    }, [searchParams]);
 
     const activeChartData = VISUALIZATIONS_CATALOG.find(c => c.id === chartType) || VISUALIZATIONS_CATALOG[2];
 
-    const filteredCatalog = VISUALIZATIONS_CATALOG.filter(c => 
-        (selectedScenario === "All Scenarios" || c.scenarios.includes(selectedScenario)) &&
+    const filteredCatalog = VISUALIZATIONS_CATALOG.filter((c: any) => 
+        (selectedScenario === "All Scenarios" || (c.scenarios && c.scenarios.includes(selectedScenario))) &&
         (c.label.toLowerCase().includes(searchTerm.toLowerCase()) || c.desc.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
@@ -234,7 +216,7 @@ export function ProjectDetailPage() {
         }
     };
 
-    const projectId = params.id as string;
+    const projectId = params?.id as string;
 
     const fetchProjectDetails = React.useCallback(async () => {
         if (!projectId) return;
@@ -1023,7 +1005,6 @@ export function ProjectDetailPage() {
                                 { name: 'Overview', icon: <BarChart3 className="h-3.5 w-3.5" /> },
                                 { name: 'Import', icon: <Upload className="h-3.5 w-3.5" /> },
                                 { name: 'Dataset', icon: <FileSpreadsheet className="h-3.5 w-3.5" /> },
-                                { name: 'Visualizations', icon: <LineChart className="h-3.5 w-3.5" /> },
                                 { name: 'Analyze', icon: <Sliders className="h-3.5 w-3.5" /> },
                                 { name: 'Models', icon: <BrainCircuit className="h-3.5 w-3.5" /> },
                                 { name: 'Activities', icon: <Clock className="h-3.5 w-3.5" /> },
@@ -2046,133 +2027,7 @@ export function ProjectDetailPage() {
 
                         )}
 
-                        {activeTab === 'Visualizations' && (
-                            <motion.div
-                                key="visual-view"
-                                initial={{ opacity: 0, scale: 0.98 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.98 }}
-                                className="space-y-10"
-                            >
-                                {/* Catalog Header */}
-                                <div className="flex items-center justify-between px-4">
-                                    <div className="space-y-2">
-                                        <Badge variant="outline" className="px-5 py-1.5 rounded-full border-primary/30 bg-primary/10 text-primary tracking-widest text-[9px] font-black uppercase">
-                                            Architecture Registry
-                                        </Badge>
-                                        <h2 className="text-3xl font-black tracking-tighter uppercase">Visual Encyclopedia</h2>
-                                    </div>
-                                    <div className="relative group w-80">
-                                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/30 group-focus-within:text-primary transition-colors" />
-                                        <Input 
-                                            placeholder="Filter catalog..." 
-                                            className="pl-12 h-12 bg-background/40 backdrop-blur-xl border-border/40 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-lg focus:ring-primary/20 transition-all"
-                                            value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                        />
-                                    </div>
-                                </div>
 
-                                <Card className="border-border/40 shadow-3xl rounded-[3.5rem] overflow-hidden bg-background/5 backdrop-blur-3xl border-dashed">
-                                    <div className="grid grid-cols-1 lg:grid-cols-12 min-h-[800px] divide-x divide-border/10">
-                                        
-                                        {/* Left Side: List of Architectures */}
-                                        <div className="lg:col-span-4 flex flex-col bg-muted/5">
-                                            <div className="p-8 border-b border-border/10 bg-muted/10 flex justify-between items-center">
-                                                <div className="flex items-center gap-3">
-                                                    <Library className="h-4 w-4 text-primary" />
-                                                    <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/80">Select Architecture</h3>
-                                                </div>
-                                                <Badge className="bg-primary/10 text-primary border-primary/20 text-[8px] font-black">{filteredCatalog.length} TOTAL</Badge>
-                                            </div>
-                                            <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-2">
-                                                {filteredCatalog.map(chart => (
-                                                    <motion.div
-                                                        key={chart.id}
-                                                        whileHover={{ x: 6 }}
-                                                        onClick={() => { setChartType(chart.id); setChartData(null); }}
-                                                        className={cn(
-                                                            "group cursor-pointer rounded-2xl p-4 transition-all duration-300 flex items-center gap-4 relative",
-                                                            chartType === chart.id 
-                                                                ? "bg-primary shadow-xl shadow-primary/20 text-white" 
-                                                                : "bg-background/40 border border-border/40 hover:bg-muted/40 hover:border-primary/20"
-                                                        )}
-                                                    >
-                                                        <div className={cn(
-                                                            "p-2.5 rounded-[1rem] transition-colors shrink-0",
-                                                            chartType === chart.id ? "bg-white/20" : "bg-primary/5 group-hover:bg-primary/10"
-                                                        )}>
-                                                            <chart.icon className={cn("h-4 w-4", chartType === chart.id ? "text-white" : "text-primary")} />
-                                                        </div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className="text-[10px] font-black uppercase tracking-widest truncate">{chart.label}</p>
-                                                            <p className={cn(
-                                                                "text-[7px] font-bold uppercase tracking-[0.1em] opacity-40",
-                                                                chartType === chart.id ? "text-white/80" : "text-muted-foreground"
-                                                            )}>
-                                                                {chart.scenarios[0]}
-                                                            </p>
-                                                        </div>
-                                                    </motion.div>
-                                                ))}
-                                            </div>
-                                        </div>
-
-                                        {/* Right Side: Detailed View + Example Chart */}
-                                        <div className="lg:col-span-8 flex flex-col bg-[radial-gradient(circle_at_top_right,rgba(99,102,241,0.03),transparent_50%)]">
-                                            <div className="p-12 space-y-10">
-                                                <div className="space-y-6">
-                                                    <div className="flex items-center gap-6">
-                                                        <div className="p-6 bg-primary/20 rounded-[2rem] shadow-2xl">
-                                                            <activeChartData.icon className="h-10 w-10 text-primary" />
-                                                        </div>
-                                                        <div className="space-y-1">
-                                                            <h1 className="text-5xl font-black tracking-tighter uppercase">{activeChartData.label}</h1>
-                                                            <div className="flex flex-wrap gap-2 pt-2">
-                                                                {activeChartData.scenarios.map(sc => (
-                                                                    <Badge key={sc} variant="outline" className="text-[8px] font-black uppercase border-primary/20 text-primary/60 px-3 py-1 rounded-full">MATCH: {sc}</Badge>
-                                                                ))}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                    <p className="text-xl text-muted-foreground/80 font-medium leading-relaxed max-w-2xl border-l-4 border-primary/20 pl-8">
-                                                        {activeChartData.desc}
-                                                    </p>
-                                                </div>
-
-                                                <div className="space-y-4">
-                                                    <div className="flex items-center gap-3 ml-2">
-                                                        <Eye className="h-4 w-4 text-primary" />
-                                                        <span className="text-[9px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">Visual Specimen (Example Data)</span>
-                                                    </div>
-                                                    <div className="rounded-[3rem] bg-background/40 border border-border/40 p-10 h-[500px] flex items-center justify-center relative overflow-hidden group shadow-inner">
-                                                        <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-                                                        <ReactECharts
-                                                            option={getExampleChartOption(activeChartData.id)}
-                                                            style={{ height: '100%', width: '100%' }}
-                                                            theme="dark"
-                                                        />
-                                                    </div>
-                                                </div>
-
-                                                <div className="pt-8 border-t border-border/10 flex justify-between items-center">
-                                                    <div className="space-y-1">
-                                                        <p className="text-[8px] font-black uppercase tracking-widest text-muted-foreground/40">Next Step</p>
-                                                        <p className="text-sm font-bold text-foreground/60">Ready to map your real data dimensions?</p>
-                                                    </div>
-                                                    <Button 
-                                                        onClick={() => setActiveTab('Analyze')}
-                                                        className="h-14 px-10 rounded-2xl bg-primary text-white text-[10px] font-black uppercase tracking-widest shadow-2xl shadow-primary/20 group"
-                                                    >
-                                                        Proceed to Forge <ArrowLeft className="ml-3 h-4 w-4 rotate-180 group-hover:translate-x-1 transition-transform" />
-                                                    </Button>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </Card>
-                            </motion.div>
-                        )}
 
                         {activeTab === 'Analyze' && (
                             <motion.div
@@ -2216,10 +2071,10 @@ export function ProjectDetailPage() {
                                                     variant="ghost" 
                                                     size="sm" 
                                                     className="text-[9px] font-black border border-primary/10 text-primary hover:bg-primary/5 rounded-full px-4" 
-                                                    onClick={() => setActiveTab('Visualizations')}
+                                                    onClick={() => router.push('/templates')}
                                                 >
                                                     <Library className="h-3 w-3 mr-2" />
-                                                    Catalog
+                                                    Visual Discovery Lab
                                                 </Button>
                                             </div>
 
