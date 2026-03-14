@@ -8,6 +8,7 @@ export interface User {
     last_name?: string;
     full_name?: string;
     profile_picture?: string;
+    bio?: string;
     email_verified?: boolean;
 }
 

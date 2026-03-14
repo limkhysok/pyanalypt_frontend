@@ -97,7 +97,7 @@ export function AppNavbar({ collapsed }: AppNavbarProps) {
                             </Link>
                         </DropdownMenuItem>
                         <DropdownMenuItem asChild>
-                            <Link href="/settings" className="cursor-pointer">
+                            <Link href="/profile/setting" className="cursor-pointer">
                                 <Settings className="mr-2 h-4 w-4" />
                                 Settings
                             </Link>
