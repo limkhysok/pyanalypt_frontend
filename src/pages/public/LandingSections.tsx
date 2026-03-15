@@ -1,18 +1,18 @@
 "use client";
 
-import React, { useRef } from "react";
-import { useScroll, useTransform, motion } from "framer-motion";
+import React from "react";
+import { motion } from "framer-motion";
 
 interface HeroSectionProps {
     onStart: () => void;
 }
 
 import { TypewriterEffect } from "@/components/ui/text-animation";
-import { Zap, BarChart2, LineChart, PieChart, TrendingUp, Github, Activity } from "lucide-react";
+import { Zap, BarChart2, LineChart, PieChart, TrendingUp, GithubIcon, Activity } from "lucide-react";
 
 import Link from "next/link";
 
-export function HeroSection({ onStart }: HeroSectionProps) {
+export function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
     return (
         <section className="min-h-[90vh] flex flex-col items-center justify-center text-center space-y-8 relative overflow-hidden bg-zinc-50/50 dark:bg-zinc-950/50 pt-24 pb-16">
 
@@ -70,8 +70,7 @@ export function HeroSection({ onStart }: HeroSectionProps) {
                     className="mx-auto w-fit p-1 rounded-full border border-border/50 bg-background/50 backdrop-blur-md mb-4 shadow-sm"
                 >
                     <span className="text-[11px] font-bold px-3 py-1.5 flex items-center gap-2 text-muted-foreground uppercase tracking-widest">
-                        <span className="flex h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse"></span>
-                        AI-Powered Analytics v2.0
+                        <span className="flex h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" /> AI-Powered Analytics v2.0
                     </span>
                 </motion.div>
 
@@ -114,7 +113,7 @@ export function HeroSection({ onStart }: HeroSectionProps) {
                     target="_blank"
                     className="px-8 py-4 rounded-full bg-background border border-border/50 text-foreground hover:bg-secondary/50 transition-all duration-300 font-bold whitespace-nowrap flex items-center justify-center gap-2"
                 >
-                    <Github size={18} /> View GitHub
+                    <GithubIcon size={18} /> View GitHub
                 </Link>
             </motion.div>
 
@@ -158,8 +157,8 @@ export function FeatureSection() {
                 { title: "Instant Visualization", desc: "Drag & drop CSVs to see immediate charts and graphs." },
                 { title: "AI-Driven Insights", desc: "Our engine automatically detects patterns and anomalies." },
                 { title: "Export & Share", desc: "Download high-res reports or share interactive links." }
-            ].map((feature, i) => (
-                <TiltCard key={i} className="group border-0" classNameContent="p-8 rounded-3xl border border-border/40 bg-background/50 backdrop-blur-sm hover:ambient-glow-mono transition-all h-full flex flex-col justify-center">
+            ].map((feature) => (
+                <TiltCard key={feature.title} className="group border-0" classNameContent="p-8 rounded-3xl border border-border/40 bg-background/50 backdrop-blur-sm hover:ambient-glow-mono transition-all h-full flex flex-col justify-center">
                     <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors">{feature.title}</h3>
                     <p className="text-muted-foreground">{feature.desc}</p>
                 </TiltCard>

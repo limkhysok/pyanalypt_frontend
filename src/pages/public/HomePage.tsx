@@ -1,26 +1,19 @@
 "use client";
 
-import { useState } from "react";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import { motion } from "framer-motion";
 import { HeroSection, FeatureSection } from "@/pages/public/LandingSections";
-import { Sparkles, Activity, Database, Server, Zap, ArrowRight } from "lucide-react";
+import { Database, ArrowRight, Search, History, TrendingUp, Compass } from "lucide-react";
 
 import { LogoTicker } from "@/components/ui/logo-ticker";
 import { CTASection } from "@/components/layout/CTASection";
 
 // Direct imports for the logic being moved in
 import ReactECharts from "echarts-for-react";
-import * as echarts from "echarts"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import * as echarts from "echarts";
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { TiltCard } from "@/components/ui/tilt-card";
 import { Button } from "@/components/ui/button";
 
-import { FileText, MoreHorizontal, Download, Globe, Clock, Layout, BarChart2 } from "lucide-react";
-
-
-
-import { Search, History, TrendingUp, Compass } from "lucide-react";
 
 function AnalysisFeatures() {
     const analysisTypes = [
@@ -64,8 +57,8 @@ function AnalysisFeatures() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
-                {analysisTypes.map((type, i) => (
-                    <TiltCard key={i} className="border-0 group" classNameContent="p-8 h-full flex flex-col items-start gap-6 bg-background/40 backdrop-blur-sm rounded-3xl border border-border/40 hover:ambient-glow-mono transition-all">
+                {analysisTypes.map((type) => (
+                    <TiltCard key={type.title} className="border-0 group" classNameContent="p-8 h-full flex flex-col items-start gap-6 bg-background/40 backdrop-blur-sm rounded-3xl border border-border/40 hover:ambient-glow-mono transition-all">
                         <div className={`p-4 rounded-2xl bg-gradient-to-br ${type.color} group-hover:scale-110 transition-transform duration-500 shadow-lg ring-1 ring-border/50`}>
                             <type.icon className="w-8 h-8 text-foreground" />
                         </div>
@@ -108,7 +101,7 @@ function VisualizationPanel() {
 
     // 3. Bubble Chart: Multivariate
     const bubbleData = [
-        [10.0, 8.04, 10, 'A'], [8.07, 6.95, 20, 'B'], [13.0, 7.58, 30, 'C'], [9.05, 8.81, 15, 'D'], [11.0, 8.33, 25, 'E'], [14.0, 7.66, 40, 'F'], [12.5, 6.82, 35, 'G']
+        [10, 8.04, 10, 'A'], [8.07, 6.95, 20, 'B'], [13, 7.58, 30, 'C'], [9.05, 8.81, 15, 'D'], [11, 8.33, 25, 'E'], [14, 7.66, 40, 'F'], [12.5, 6.82, 35, 'G']
     ];
     const bubbleOption = {
         backgroundColor: 'transparent',
@@ -129,8 +122,8 @@ function VisualizationPanel() {
     return (
         <div className="space-y-6 px-4">
             <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-                {charts.map((chart, i) => (
-                    <TiltCard key={i} className="border-0 group" classNameContent="p-0 bg-background/40 backdrop-blur-sm rounded-3xl overflow-hidden border border-border/40 hover:ambient-glow-blue transition-all flex flex-col">
+                {charts.map((chart) => (
+                    <TiltCard key={chart.title} className="border-0 group" classNameContent="p-0 bg-background/40 backdrop-blur-sm rounded-3xl overflow-hidden border border-border/40 hover:ambient-glow-blue transition-all flex flex-col">
                         <CardHeader className="pb-2 flex flex-row items-center justify-between">
                             <div className="space-y-1">
                                 <CardTitle className="text-sm font-bold text-foreground tracking-tight">{chart.title}</CardTitle>

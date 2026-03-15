@@ -2,7 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
-import { Sparkles, Github, Mail, Lock, User, ArrowRight, Loader2, AlertCircle } from "lucide-react";
+import { Sparkles, Mail, Lock, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useGoogleLogin } from "@react-oauth/google";
@@ -11,7 +11,7 @@ import { authApi, getErrorMessage, formatFieldErrors } from "@/services/api";
 import { useAuth } from "@/context/auth-context";
 
 // Shared Layout Component
-function AuthLayout({ children, title, subtitle }: { children: React.ReactNode, title: string, subtitle: string }) {
+function AuthLayout({ children, title, subtitle }: Readonly<{ children: React.ReactNode, title: string, subtitle: string }>) {
     return (
         <main className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-background text-foreground p-4">
             {/* Background Ambience */}
@@ -36,6 +36,26 @@ function AuthLayout({ children, title, subtitle }: { children: React.ReactNode, 
         </main>
     );
 }
+
+// Shared helper for Google Auth to avoid duplication
+const handleGoogleLoginSuccess = async (
+    accessToken: string,
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>,
+    setError: React.Dispatch<React.SetStateAction<string | null>>,
+    setAuthUser: (user: any) => void,
+    router: any
+) => {
+    setIsLoading(true);
+    setError(null);
+    try {
+        const response = await authApi.googleAuth(accessToken);
+        setAuthUser(response.user);
+        router.push("/dashboard");
+    } catch (err) {
+        setError(getErrorMessage(err));
+        setIsLoading(false);
+    }
+};
 
 export function LoginPage() {
     const router = useRouter();
@@ -62,17 +82,14 @@ export function LoginPage() {
     };
 
     const loginWithGoogle = useGoogleLogin({
-        onSuccess: async (tokenResponse) => {
-            setIsLoading(true);
-            setError(null);
-            try {
-                const response = await authApi.googleAuth(tokenResponse.access_token);
-                setAuthUser(response.user);
-                router.push("/dashboard");
-            } catch (err) {
-                setError(getErrorMessage(err));
-                setIsLoading(false);
-            }
+        onSuccess: (tokenResponse) => {
+            handleGoogleLoginSuccess(
+                tokenResponse.access_token,
+                setIsLoading,
+                setError,
+                setAuthUser,
+                router
+            );
         },
         onError: () => {
             setError("Google login failed. Please try again.");
@@ -199,7 +216,7 @@ export function RegisterPage() {
         setFieldErrors({});
 
         // Derive necessary fields from email since Full Name was removed
-        const emailPrefix = email.split("@")[0].replace(/[^a-zA-Z0-9]/g, "");
+        const emailPrefix = email.split("@")[0].replaceAll(/[^a-zA-Z0-9]/g, "");
         const username = emailPrefix + Math.floor(Math.random() * 1000);
         const first_name = emailPrefix;
         const last_name = "";
@@ -229,17 +246,14 @@ export function RegisterPage() {
     };
 
     const loginWithGoogle = useGoogleLogin({
-        onSuccess: async (tokenResponse) => {
-            setIsLoading(true);
-            setError(null);
-            try {
-                const response = await authApi.googleAuth(tokenResponse.access_token);
-                setAuthUser(response.user);
-                router.push("/dashboard");
-            } catch (err) {
-                setError(getErrorMessage(err));
-                setIsLoading(false);
-            }
+        onSuccess: (tokenResponse) => {
+            handleGoogleLoginSuccess(
+                tokenResponse.access_token,
+                setIsLoading,
+                setError,
+                setAuthUser,
+                router
+            );
         },
         onError: () => {
             setError("Google registration failed. Please try again.");

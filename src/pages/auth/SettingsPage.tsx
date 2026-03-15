@@ -3,31 +3,23 @@
 import React from "react";
 import {
     User,
-    Mail,
     Shield,
-    Key,
-    Laptop,
     Smartphone,
     Monitor,
     ShieldCheck,
     LogOut,
-    CheckCircle2,
-    Settings,
     Bell,
     Lock,
     Eye,
-    Globe,
     CreditCard,
-    History,
-    MoreHorizontal,
     Trash2
 } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
+import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -67,22 +59,18 @@ const SESSIONS = [
 ];
 
 export function SettingsPage() {
-    const { user, isAuthenticated, isLoading } = useAuth();
+    const { user, isLoading } = useAuth();
     const [activeTab, setActiveTab] = React.useState("general");
 
     const containerVariants = {
         hidden: { opacity: 0, y: 20 },
-        visible: { 
-            opacity: 1, 
+        visible: {
+            opacity: 1,
             y: 0,
             transition: { duration: 0.4, staggerChildren: 0.1 }
         }
     };
 
-    const itemVariants = {
-        hidden: { opacity: 0, x: -10 },
-        visible: { opacity: 1, x: 0 }
-    };
 
     if (isLoading) {
         return (
@@ -94,7 +82,7 @@ export function SettingsPage() {
 
     return (
         <div className="container max-w-6xl mx-auto py-10 px-6">
-            <motion.div 
+            <motion.div
                 initial="hidden"
                 animate="visible"
                 variants={containerVariants}
@@ -119,12 +107,12 @@ export function SettingsPage() {
                             <button
                                 key={item.id}
                                 onClick={() => setActiveTab(item.id)}
-                                className={React.useMemo(() => (`
-                                    w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all
-                                    ${activeTab === item.id 
-                                        ? "bg-primary text-primary-foreground shadow-md ring-1 ring-primary" 
-                                        : "text-muted-foreground hover:bg-accent hover:text-foreground"}
-                                `), [activeTab, item.id])}
+                                className={cn(
+                                    "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all",
+                                    activeTab === item.id
+                                        ? "bg-primary text-primary-foreground shadow-md ring-1 ring-primary"
+                                        : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                                )}
                             >
                                 <item.icon size={18} />
                                 {item.label}
@@ -184,7 +172,7 @@ export function SettingsPage() {
                                                 <div className="sm:col-span-2 space-y-2">
                                                     <Label htmlFor="bio">Bio</Label>
                                                     <div className="relative">
-                                                        <textarea 
+                                                        <textarea
                                                             id="bio"
                                                             className="flex min-h-[100px] w-full rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-sm placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
                                                             placeholder="Tell us a bit about yourself..."
@@ -300,10 +288,13 @@ export function SettingsPage() {
 
                                         <div className="grid grid-cols-1 gap-3">
                                             {SESSIONS.map((session) => (
-                                                <Card key={session.id} className={React.useMemo(() => (`
-                                                    border-border/40 hover:border-primary/20 transition-colors
-                                                    ${session.isCurrent ? "bg-primary/[0.02] border-primary/20" : "bg-card/30"}
-                                                `), [session.isCurrent])}>
+                                                <Card
+                                                    key={session.id}
+                                                    className={cn(
+                                                        "border-border/40 hover:border-primary/20 transition-colors",
+                                                        session.isCurrent ? "bg-primary/[0.02] border-primary/20" : "bg-card/30"
+                                                    )}
+                                                >
                                                     <CardContent className="p-4 flex items-center justify-between">
                                                         <div className="flex items-center gap-4">
                                                             <div className="h-10 w-10 rounded-lg bg-secondary/50 flex items-center justify-center text-muted-foreground border border-border/40">
