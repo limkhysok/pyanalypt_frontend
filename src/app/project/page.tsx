@@ -1,4 +1,4 @@
-import { ProjectPage } from "@/pages/ProjectPage";
+import { ProjectPage } from "@/pages/auth/ProjectPage";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

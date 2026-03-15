@@ -1,4 +1,4 @@
-import { PlaygroundPage } from "@/pages/PlaygroundPage";
+import { PlaygroundPage } from "@/pages/public/PlaygroundPage";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

@@ -1,4 +1,4 @@
-import { SettingsPage } from "@/pages/SettingsPage";
+import { SettingsPage } from "@/pages/auth/SettingsPage";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

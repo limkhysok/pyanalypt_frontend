@@ -1,4 +1,4 @@
-import { ProfileAuthPage } from "@/pages/ProfileAuthPage";
+import { ProfileAuthPage } from "@/pages/auth/ProfileAuthPage";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

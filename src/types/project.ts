@@ -63,9 +63,11 @@ export interface DatasetPreview {
     name?: string;               // Returned in cleaning response
 }
 
+export type DataOperation = 'handle_na' | 'drop_duplicates' | 'astype';
+
 export interface CleanDatasetRequest {
     pipeline: {
-        operation: 'handle_na' | 'drop_duplicates' | 'astype' | string;
+        operation: DataOperation;
         params: Record<string, any>;
     }[];
 }
@@ -78,8 +80,10 @@ export interface DatasetAnalysis {
     };
 }
 
+export type ModelType = 'kmeans' | 'linear_regression';
+
 export interface TrainModelRequest {
-    model_type: 'kmeans' | 'linear_regression' | string;
+    model_type: ModelType;
     features: string[];
     target?: string;
     params?: Record<string, any>;
@@ -90,11 +94,15 @@ export interface TrainModelResponse {
         model: string;
         [key: string]: any;
     };
+    metrics?: Record<string, any>;
+    summary?: any;
     new_dataset?: DatasetPreview;
 }
 
+export type ChartType = 'scatter' | 'line' | 'bar' | 'scatter3D' | 'pie' | 'stacked_bar';
+
 export interface VisualizeRequest {
-    chart_type: 'scatter' | 'line' | 'bar' | 'scatter3D' | string;
+    chart_type: ChartType;
     x_axis: string;
     y_axis: string;
     z_axis?: string;

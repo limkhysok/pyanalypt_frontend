@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { motion } from "framer-motion";
-import { HeroSection, FeatureSection } from "@/pages/LandingSections";
+import { HeroSection, FeatureSection } from "@/pages/public/LandingSections";
 import { Sparkles, Activity, Database, Server, Zap, ArrowRight } from "lucide-react";
 
 import { LogoTicker } from "@/components/ui/logo-ticker";

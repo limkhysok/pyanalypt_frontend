@@ -1,4 +1,4 @@
-import { VisualizationsPage } from "@/pages/TemplatesPage";
+import { VisualizationsPage } from "@/pages/public/TemplatesPage";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
