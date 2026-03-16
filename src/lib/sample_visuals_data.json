@@ -1,0 +1,225 @@
+{
+  "alluvial": {
+    "data": [
+      { "name": "Organic" }, { "name": "Direct" }, { "name": "Social" },
+      { "name": "Desktop" }, { "name": "Mobile" }, { "name": "Tablet" }
+    ],
+    "links": [
+      { "source": "Organic", "target": "Mobile", "value": 120 },
+      { "source": "Organic", "target": "Desktop", "value": 80 },
+      { "source": "Direct", "target": "Desktop", "value": 150 },
+      { "source": "Social", "target": "Mobile", "value": 90 },
+      { "source": "Social", "target": "Tablet", "value": 30 }
+    ]
+  },
+  "arc": {
+    "nodes": [
+      { "id": 0, "name": "Start" }, { "id": 1, "name": "A" }, { "id": 2, "name": "B" },
+      { "id": 3, "name": "C" }, { "id": 4, "name": "D" }, { "id": 5, "name": "E" },
+      { "id": 6, "name": "End" }
+    ],
+    "links": [
+      { "source": 0, "target": 1, "value": 10 },
+      { "source": 0, "target": 2, "value": 2 },
+      { "source": 1, "target": 3, "value": 5 },
+      { "source": 2, "target": 4, "value": 8 },
+      { "source": 3, "target": 6, "value": 12 },
+      { "source": 4, "target": 6, "value": 4 },
+      { "source": 5, "target": 6, "value": 7 }
+    ]
+  },
+  "bar": {
+    "categories": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+    "values": [120, 200, 150, 80, 70, 110, 130]
+  },
+  "multi_bar": {
+    "categories": ["Q1", "Q2", "Q3", "Q4"],
+    "series": [
+      { "name": "Revenue", "data": [320, 332, 301, 334] },
+      { "name": "Profit", "data": [220, 182, 191, 234] }
+    ]
+  },
+  "stacked_bar": {
+    "categories": ["Email", "Ad", "Search", "Social", "Referral", "Other"],
+    "series": [
+      { "name": "Direct", "data": [120, 132, 101, 134, 90, 230] },
+      { "name": "Network", "data": [220, 182, 191, 234, 290, 330] },
+      { "name": "Web", "data": [150, 232, 201, 154, 190, 330] }
+    ]
+  },
+  "beeswarm": {
+    "data": [
+      [10, 5], [12, 8], [15, 12], [8, 4], [20, 15], [22, 18], [25, 20], [30, 25],
+      [11, 6], [13, 9], [16, 13], [9, 5], [21, 16], [23, 19], [26, 21], [31, 26],
+      [10.5, 5.5], [12.5, 8.5], [15.5, 12.5], [8.5, 4.5], [20.5, 15.5], [22.5, 18.5], [25.5, 20.5], [30.5, 25.5],
+      [14, 10], [18, 14], [28, 22], [35, 30], [5, 2], [7, 3], [3, 1], [40, 35]
+    ]
+  },
+  "box": {
+    "data": [
+      [650, 700, 750, 800, 850, 900, 950, 1000],
+      [710, 740, 780, 810, 840, 870, 910, 940]
+    ]
+  },
+  "bubble": {
+    "data": [
+      [10, 20, 30], [20, 40, 60], [30, 60, 90], [40, 80, 120]
+    ]
+  },
+  "bump": {
+    "years": ["2020", "2021", "2022", "2023"],
+    "brands": [
+      { "name": "Apple", "ranks": [1, 1, 2, 1] },
+      { "name": "Samsung", "ranks": [2, 2, 1, 2] },
+      { "name": "Huawei", "ranks": [3, 4, 4, 5] }
+    ]
+  },
+  "calendar": {
+    "data": [
+      ["2023-01-01", 10], ["2023-01-02", 20], ["2023-02-01", 30], ["2023-03-01", 40]
+    ]
+  },
+  "chord": {
+    "matrix": [
+      [11975, 5871, 8916, 2868],
+      [1951, 10048, 2060, 6171],
+      [8010, 16145, 8090, 8045],
+      [1013, 990, 940, 6907]
+    ]
+  },
+  "circle_packing": {
+    "name": "root",
+    "children": [
+      { "name": "A", "value": 100 },
+      { "name": "B", "value": 200 },
+      { "name": "C", "children": [{ "name": "C1", "value": 50 }, { "name": "C2", "value": 50 }] }
+    ]
+  },
+  "circular_dendrogram": {
+    "name": "Life",
+    "children": [
+      { "name": "Animal", "children": [{ "name": "Mammal" }, { "name": "Reptile" }] },
+      { "name": "Plant", "children": [{ "name": "Tree" }, { "name": "Flower" }] }
+    ]
+  },
+  "contour": {
+    "data": [
+      [0, 0, 1], [0, 1, 2], [1, 0, 3], [1, 1, 4], [2, 2, 10],
+      [0, 2, 5], [1, 2, 7], [2, 0, 6], [2, 1, 8], [3, 3, 12]
+    ]
+  },
+  "convex_hull": {
+    "points": [
+      [10, 10], [50, 10], [50, 50], [10, 50], [30, 30],
+      [15, 20], [45, 25], [20, 40], [40, 45], [25, 15]
+    ]
+  },
+  "linear_dendrogram": {
+    "name": "Project",
+    "children": [
+      { "name": "Frontend", "children": [{ "name": "React" }, { "name": "CSS" }] },
+      { "name": "Backend", "children": [{ "name": "Node" }, { "name": "DB" }] }
+    ]
+  },
+  "gantt": {
+    "tasks": [
+      { "name": "Research", "start": "2023-01-01", "end": "2023-01-10" },
+      { "name": "Design", "start": "2023-01-05", "end": "2023-01-20" },
+      { "name": "Development", "start": "2023-01-15", "end": "2023-02-15" },
+      { "name": "Testing", "start": "2023-02-10", "end": "2023-02-25" },
+      { "name": "Deployment", "start": "2023-02-20", "end": "2023-03-05" },
+      { "name": "Maintenance", "start": "2023-03-01", "end": "2023-03-20" }
+    ]
+  },
+  "hexbin": {
+    "data": [
+      [1, 1], [1.1, 1.2], [5, 5], [5.5, 5.5], [10, 10]
+    ]
+  },
+  "horizon": {
+    "data": [0, 10, 20, 15, 30, 45, 20, 10, 5, 0]
+  },
+  "line": {
+    "categories": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+    "values": [820, 932, 901, 934, 1290, 1330]
+  },
+  "matrix": {
+    "data": [
+      [0, 0, 5], [0, 1, 1], [1, 0, 0], [1, 1, 8]
+    ]
+  },
+  "parallel": {
+    "data": [
+      [12.99, 100, 82, "Good"],
+      [9.99, 80, 77, "Average"],
+      [20.00, 120, 90, "Excellent"]
+    ]
+  },
+  "pie": {
+    "data": [
+      { "name": "Chrome", "value": 60 },
+      { "name": "Safari", "value": 20 },
+      { "name": "Firefox", "value": 10 },
+      { "name": "Others", "value": 10 }
+    ]
+  },
+  "radar": {
+    "indicators": ["Speed", "Power", "Flexibility", "Stability", "Aura"],
+    "values": [80, 90, 70, 60, 85]
+  },
+  "sankey": {
+    "data": [
+      { "name": "Input" }, { "name": "Process" }, { "name": "Output" }
+    ],
+    "links": [
+      { "source": "Input", "target": "Process", "value": 100 },
+      { "source": "Process", "target": "Output", "value": 100 }
+    ]
+  },
+  "slope": {
+    "data": [
+      { "name": "A", "start": 10, "end": 20 },
+      { "name": "B", "start": 30, "end": 25 },
+      { "name": "C", "start": 5, "end": 40 }
+    ]
+  },
+  "stream": {
+    "data": [
+      [1, 2, 3, 4, 5, 6],
+      [3, 4, 5, 6, 7, 8],
+      [2, 3, 4, 5, 6, 7]
+    ]
+  },
+  "sunburst": {
+    "name": "Total",
+    "children": [
+      { "name": "Region A", "children": [{ "name": "Store 1", "value": 10 }, { "name": "Store 2", "value": 20 }] },
+      { "name": "Region B", "value": 50 }
+    ]
+  },
+  "treemap": {
+    "data": [
+      { "name": "Tech", "value": 500 },
+      { "name": "Financial", "value": 300 },
+      { "name": "Health", "value": 200 }
+    ]
+  },
+  "violin": {
+    "data": [
+      [1, 2, 2, 3, 3, 3, 4, 4, 5],
+      [2, 3, 3, 4, 4, 4, 5, 5, 6]
+    ]
+  },
+  "voronoi": {
+    "points": [
+      [100, 100], [200, 200], [300, 100], [400, 300]
+    ]
+  },
+  "voronoi_treemap": {
+    "data": [
+        { "name": "A", "weight": 10 },
+        { "name": "B", "weight": 20 },
+        { "name": "C", "weight": 30 }
+    ]
+  }
+}

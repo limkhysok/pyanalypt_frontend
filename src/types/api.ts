@@ -1,15 +1,17 @@
 // API Response Types
 
 export interface User {
-    pk: number;
-    email: string;
+    id: number;
     username: string;
-    first_name?: string;
-    last_name?: string;
-    full_name?: string;
-    profile_picture?: string;
-    bio?: string;
-    email_verified?: boolean;
+    email: string | null;
+    first_name: string | null;
+    last_name: string | null;
+    full_name: string | null;
+    profile_picture: string | null;
+    email_verified: boolean;
+    is_staff?: boolean;
+    is_active?: boolean;
+    date_joined?: string;
 }
 
 export interface AuthResponse {
@@ -19,17 +21,13 @@ export interface AuthResponse {
 }
 
 export interface RegisterRequest {
-    email: string;
     username: string;
-    first_name: string;
-    last_name: string;
-    full_name: string;
     password1: string;
     password2: string;
 }
 
 export interface LoginRequest {
-    email: string;
+    username: string; // Accepts username or email
     password: string;
 }
 
@@ -46,7 +44,8 @@ export interface RefreshTokenResponse {
 }
 
 export interface ApiError {
-    message: string;
+    detail?: string;
+    message?: string;
     errors?: Record<string, string[]>;
     status?: number;
 }

@@ -2,13 +2,15 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Sparkles, Menu, X, Github, Home, BarChart3, FlaskConical, BookOpen } from "lucide-react";
+import { 
+    Sparkles, Menu, X, Home, BarChart3, FlaskConical, BookOpen,
+    LogOut, LayoutDashboard, User as UserIcon, Settings 
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/ModeToggle";
 import {
     NavigationMenu,
-    NavigationMenuContent,
     NavigationMenuItem,
     NavigationMenuLink,
     NavigationMenuList,
@@ -24,7 +26,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/context/auth-context";
-import { LogOut, LayoutDashboard, User as UserIcon, Settings } from "lucide-react";
 
 import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 
@@ -81,7 +82,15 @@ export function Navbar() {
 
                             <NavigationMenuItem>
                                 <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "rounded-full bg-transparent text-[11px] font-bold tracking-wider uppercase text-muted-foreground hover:text-foreground hover:bg-background focus:bg-background focus:text-foreground h-9 px-3")}>
-                                    <Link href="/templates" className="flex items-center gap-1.5">
+                                    <Link href="/tutorials" className="flex items-center gap-1.5">
+                                        <BookOpen size={14} /> TUTORIALS
+                                    </Link>
+                                </NavigationMenuLink>
+                            </NavigationMenuItem>
+
+                            <NavigationMenuItem>
+                                <NavigationMenuLink asChild className={cn(navigationMenuTriggerStyle(), "rounded-full bg-transparent text-[11px] font-bold tracking-wider uppercase text-muted-foreground hover:text-foreground hover:bg-background focus:bg-background focus:text-foreground h-9 px-3")}>
+                                    <Link href="/visuals" className="flex items-center gap-1.5">
                                         <BarChart3 size={14} /> VISUALS
                                     </Link>
                                 </NavigationMenuLink>
@@ -109,22 +118,36 @@ export function Navbar() {
                 {/* Right Actions - Desktop */}
                 <div className="hidden md:flex items-center gap-2 ml-2">
                     <Button variant="ghost" size="icon" asChild className="text-muted-foreground hover:text-foreground rounded-full h-9 w-9">
-                        <Link href="https://github.com/soklimkhy/pyanalypt_frontend" target="_blank">
-                            <Github size={18} />
+                        <Link href="https://github.com/soklimkhy/pyanalypt_frontend" target="_blank" aria-label="GitHub">
+                            <svg 
+                                viewBox="0 0 24 24" 
+                                fill="none" 
+                                stroke="currentColor" 
+                                strokeWidth="2" 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round" 
+                                className="h-[18px] w-[18px]"
+                            >
+                                <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+                                <path d="M9 18c-4.51 2-5-2-7-2" />
+                            </svg>
                         </Link>
                     </Button>
                     <div className="scale-90">
                         <ModeToggle />
                     </div>
 
-                    {isLoading ? (
+                    {/* Auth Status Sections */}
+                    {isLoading && (
                         <div className="h-9 w-20 rounded-full bg-accent/20 animate-pulse border border-border/50 ml-2" />
-                    ) : isAuthenticated ? (
+                    )}
+
+                    {!isLoading && isAuthenticated && (
                         <DropdownMenu modal={false}>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="ghost" className="relative h-9 w-9 rounded-full ml-1">
                                     <Avatar className="h-9 w-9 border border-border transition-all duration-300 hover:border-blue-500/50 hover:ambient-glow-blue">
-                                        <AvatarImage src={user?.profile_picture} alt={user?.username} />
+                                        <AvatarImage src={user?.profile_picture ?? undefined} alt={user?.username} />
                                         <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
                                             {user?.username?.substring(0, 2).toUpperCase()}
                                         </AvatarFallback>
@@ -169,7 +192,9 @@ export function Navbar() {
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
-                    ) : (
+                    )}
+
+                    {!isLoading && !isAuthenticated && (
                         <div className="flex items-center gap-1.5 ml-2">
                             <Button variant="ghost" className="text-muted-foreground hover:text-foreground hover:text-glow-mono transition-all rounded-full h-9 px-4 text-[11px] font-bold tracking-wider uppercase" asChild>
                                 <Link href="/login">
@@ -188,8 +213,19 @@ export function Navbar() {
                 {/* Mobile Menu Toggle */}
                 <div className="md:hidden flex items-center gap-1">
                     <Button variant="ghost" size="icon" asChild className="text-muted-foreground hover:text-foreground h-9 w-9 rounded-full">
-                        <Link href="https://github.com/soklimkhy/pyanalypt_frontend" target="_blank">
-                            <Github size={18} />
+                        <Link href="https://github.com/soklimkhy/pyanalypt_frontend" target="_blank" aria-label="GitHub">
+                            <svg 
+                                viewBox="0 0 24 24" 
+                                fill="none" 
+                                stroke="currentColor" 
+                                strokeWidth="2" 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round" 
+                                className="h-[18px] w-[18px]"
+                            >
+                                <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
+                                <path d="M9 18c-4.51 2-5-2-7-2" />
+                            </svg>
                         </Link>
                     </Button>
                     <div className="scale-90">
@@ -207,8 +243,11 @@ export function Navbar() {
                     <Link href="/" className="p-3 hover:bg-accent rounded-xl text-muted-foreground hover:text-foreground transition-colors flex items-center gap-3">
                         <Home size={18} /> Home
                     </Link>
-                    <Link href="/templates" className="p-3 hover:bg-accent rounded-xl text-muted-foreground hover:text-foreground transition-colors flex items-center gap-3">
-                        <BarChart3 size={18} /> Visualizations
+                    <Link href="/tutorials" className="p-3 hover:bg-accent rounded-xl text-muted-foreground hover:text-foreground transition-colors flex items-center gap-3">
+                        <BookOpen size={18} /> Tutorials
+                    </Link>
+                    <Link href="/visuals" className="p-3 hover:bg-accent rounded-xl text-muted-foreground hover:text-foreground transition-colors flex items-center gap-3">
+                        <BarChart3 size={18} /> Visuals
                     </Link>
                     <Link href="/playground" className="p-3 hover:bg-accent rounded-xl text-muted-foreground hover:text-foreground transition-colors flex items-center gap-3">
                         <FlaskConical size={18} /> Playground
@@ -222,7 +261,7 @@ export function Navbar() {
                         <div className="space-y-2 p-2">
                             <div className="flex items-center gap-3 px-3 py-2 rounded-xl bg-secondary/50 mb-2">
                                 <Avatar className="h-10 w-10 border border-border">
-                                    <AvatarImage src={user?.profile_picture} />
+                                    <AvatarImage src={user?.profile_picture ?? undefined} />
                                     <AvatarFallback>{user?.username?.substring(0, 2).toUpperCase()}</AvatarFallback>
                                 </Avatar>
                                 <div className="flex flex-col overflow-hidden">

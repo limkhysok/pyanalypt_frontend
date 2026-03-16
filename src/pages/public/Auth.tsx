@@ -61,7 +61,7 @@ export function LoginPage() {
     const router = useRouter();
     const { login: setAuthUser } = useAuth();
     const [isLoading, setIsLoading] = React.useState(false);
-    const [email, setEmail] = React.useState("");
+    const [username, setUsername] = React.useState("");
     const [password, setPassword] = React.useState("");
     const [error, setError] = React.useState<string | null>(null);
 
@@ -71,7 +71,7 @@ export function LoginPage() {
         setError(null);
 
         try {
-            const response = await authApi.login({ email, password });
+            const response = await authApi.login({ username, password });
             setAuthUser(response.user);
             router.push("/dashboard");
         } catch (err) {
@@ -110,17 +110,17 @@ export function LoginPage() {
                 )}
 
                 <div className="space-y-2">
-                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" htmlFor="email">
-                        Email
+                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" htmlFor="username">
+                        Username or Email
                     </label>
                     <div className="relative">
                         <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                         <input
-                            id="email"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="name@example.com"
+                            id="username"
+                            type="text"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            placeholder="johndoe or name@example.com"
                             className="flex h-10 w-full rounded-md border border-input bg-background/50 px-3 pl-10 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                             required
                         />
@@ -204,32 +204,29 @@ export function RegisterPage() {
     const router = useRouter();
     const { login: setAuthUser } = useAuth();
     const [isLoading, setIsLoading] = React.useState(false);
-    const [email, setEmail] = React.useState("");
+    const [username, setUsername] = React.useState("");
     const [password, setPassword] = React.useState("");
+    const [confirmPassword, setConfirmPassword] = React.useState("");
     const [error, setError] = React.useState<string | null>(null);
     const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        if (password !== confirmPassword) {
+            setError("Passwords do not match.");
+            return;
+        }
+
         setIsLoading(true);
         setError(null);
         setFieldErrors({});
 
-        // Derive necessary fields from email since Full Name was removed
-        const emailPrefix = email.split("@")[0].replaceAll(/[^a-zA-Z0-9]/g, "");
-        const username = emailPrefix + Math.floor(Math.random() * 1000);
-        const first_name = emailPrefix;
-        const last_name = "";
-
         try {
             const response = await authApi.register({
-                email,
                 username,
-                first_name,
-                last_name,
-                full_name: emailPrefix, // Using prefix as placeholder
                 password1: password,
-                password2: password
+                password2: confirmPassword
             });
             setAuthUser(response.user);
             router.push("/dashboard");
@@ -275,25 +272,25 @@ export function RegisterPage() {
 
 
                 <div className="space-y-2">
-                    <label className="text-sm font-medium leading-none" htmlFor="email">
-                        Email
+                    <label className="text-sm font-medium leading-none" htmlFor="username">
+                        Username
                     </label>
                     <div className="relative">
                         <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                         <input
-                            id="email"
-                            type="email"
-                            value={email}
-                            onChange={(e) => setEmail(e.target.value)}
-                            placeholder="name@example.com"
+                            id="username"
+                            type="text"
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            placeholder="johndoe"
                             className={cn(
                                 "flex h-10 w-full rounded-md border border-input bg-background/50 px-3 pl-10 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
-                                (fieldErrors.email || fieldErrors.username) && "border-destructive ring-destructive"
+                                (fieldErrors.username) && "border-destructive ring-destructive"
                             )}
                             required
                         />
                     </div>
-                    {fieldErrors.email && <p className="text-[10px] text-destructive">{fieldErrors.email}</p>}
+                    {fieldErrors.username && <p className="text-[10px] text-destructive">{fieldErrors.username}</p>}
                 </div>
                 <div className="space-y-2">
                     <label className="text-sm font-medium leading-none" htmlFor="password">
@@ -314,7 +311,27 @@ export function RegisterPage() {
                             required
                         />
                     </div>
-                    {fieldErrors.password1 && <p className="text-[10px] text-destructive">{fieldErrors.password1}</p>}
+                </div>
+                <div className="space-y-2">
+                    <label className="text-sm font-medium leading-none" htmlFor="confirmPassword">
+                        Confirm Password
+                    </label>
+                    <div className="relative">
+                        <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <input
+                            id="confirmPassword"
+                            type="password"
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="••••••••"
+                            className={cn(
+                                "flex h-10 w-full rounded-md border border-input bg-background/50 px-3 pl-10 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50",
+                                fieldErrors.password2 && "border-destructive ring-destructive"
+                            )}
+                            required
+                        />
+                    </div>
+                    {(fieldErrors.password1 || fieldErrors.password2) && <p className="text-[10px] text-destructive">{fieldErrors.password1 || fieldErrors.password2}</p>}
                 </div>
 
                 <Button className="w-full bg-foreground text-background hover:bg-foreground/90 mt-2" disabled={isLoading}>

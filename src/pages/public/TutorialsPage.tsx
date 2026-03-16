@@ -7,16 +7,12 @@ import {
     LineChart,
     BrainCircuit,
     Presentation,
-    ChevronRight,
-    PlayCircle,
     FileSpreadsheet,
     Code2,
     CheckCircle2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 
@@ -98,26 +94,11 @@ const itemVariants: Variants = {
 };
 
 export function TutorialsPage() {
-    const { isAuthenticated, isLoading } = useAuth();
     const router = useRouter();
     const [activeStep, setActiveStep] = useState(tutorialSteps[0].id);
 
-    React.useEffect(() => {
-        if (!isLoading && !isAuthenticated) {
-            router.push("/login");
-        }
-    }, [isLoading, isAuthenticated, router]);
-
-    if (isLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-zinc-50/50 dark:bg-zinc-950/50">
-                <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-            </div>
-        );
-    }
-
     return (
-        <main className="min-h-screen pt-16 pb-12 px-6 md:px-12 bg-zinc-50/50 dark:bg-zinc-950/50 relative z-0">
+        <main className="min-h-screen pt-32 pb-12 px-6 md:px-12 bg-zinc-50/50 dark:bg-zinc-950/50 relative z-0">
             {/* Background Ambience */}
             <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
@@ -131,11 +112,8 @@ export function TutorialsPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="text-center space-y-4 max-w-3xl mx-auto"
+                    className="text-center space-y-8 max-w-3xl mx-auto mb-16"
                 >
-                    <Badge variant="outline" className="px-4 py-1.5 rounded-full border-primary/20 bg-primary/5 text-primary tracking-wide text-xs font-bold uppercase backdrop-blur-md">
-                        Platform Workflow
-                    </Badge>
                     <h1 className="text-4xl md:text-5xl font-black tracking-tight text-foreground">
                         Master the PyAnalypt Pipeline
                     </h1>
@@ -204,16 +182,6 @@ export function TutorialsPage() {
                                                 </p>
                                             </div>
 
-                                            {/* Action Button (Visible on Active/Hover) */}
-                                            <div className={cn(
-                                                "shrink-0 transition-all duration-300",
-                                                isActive ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-4 hidden md:block"
-                                            )}>
-                                                <Button variant={isActive ? "default" : "secondary"} className="rounded-full shadow-lg">
-                                                    <PlayCircle className="w-4 h-4 mr-2" />
-                                                    View Tutorial
-                                                </Button>
-                                            </div>
                                         </div>
                                     </div>
                                 </motion.div>
@@ -257,12 +225,12 @@ export function TutorialsPage() {
                                             <h4 className="text-2xl font-bold mb-4 tracking-tight">Key Capabilities</h4>
 
                                             <div className="space-y-4 flex-1">
-                                                {step.features.map((feature, i) => (
+                                                {step.features.map((feature) => (
                                                     <motion.div
-                                                        key={i}
+                                                        key={feature}
                                                         initial={{ opacity: 0, x: -10 }}
                                                         animate={{ opacity: 1, x: 0 }}
-                                                        transition={{ delay: 0.2 + (i * 0.1) }}
+                                                        transition={{ duration: 0.3 }}
                                                         className="flex items-center gap-4 p-4 rounded-2xl bg-secondary/40 border border-border/30 backdrop-blur-sm"
                                                     >
                                                         <CheckCircle2 className={cn("w-5 h-5 shrink-0", step.iconColor)} />
@@ -271,11 +239,6 @@ export function TutorialsPage() {
                                                 ))}
                                             </div>
 
-                                            <div className="mt-8 pt-6 border-t border-border/40">
-                                                <Button className="w-full rounded-2xl h-14 text-base font-semibold bg-foreground text-background hover:bg-foreground/90 transition-all hover:scale-[1.02]">
-                                                    Start Interactive Demo <ChevronRight className="w-5 h-5 ml-2" />
-                                                </Button>
-                                            </div>
                                         </motion.div>
                                     );
                                 })}
@@ -291,8 +254,8 @@ export function TutorialsPage() {
                     viewport={{ once: true }}
                     className="flex flex-col md:flex-row items-center justify-center gap-4 pt-12 pb-8 border-t border-border/20"
                 >
-                    <Button size="lg" className="rounded-full px-8 bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg hover:shadow-primary/25 transition-all w-full md:w-auto">
-                        Open New Project
+                    <Button size="lg" className="rounded-full px-8 bg-primary hover:bg-primary/90 text-primary-foreground font-bold shadow-lg hover:shadow-primary/25 transition-all w-full md:w-auto" onClick={() => router.push('/datasets')}>
+                        Start Analysis
                     </Button>
                     <Button size="lg" variant="outline" className="rounded-full px-8 font-bold w-full md:w-auto bg-card/50 backdrop-blur-sm">
                         Read Full Documentation

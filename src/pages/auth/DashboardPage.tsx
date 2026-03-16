@@ -3,27 +3,19 @@
 import React from "react";
 import {
     LayoutDashboard,
-    Database,
     Clock,
-    BarChart2,
     ArrowUpRight,
     Plus,
-    FileText,
-    Zap,
     Cpu,
     Activity,
     PieChart as PieChartIcon,
     Brain,
-    TrendingUp,
-    ShieldCheck,
-    Radio,
     HardDrive
 } from "lucide-react";
 import ReactECharts from 'echarts-for-react';
 import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -100,9 +92,9 @@ export function DashboardPage() {
                             History
                         </Button>
                         <Button size="sm" asChild className="rounded-full px-6 h-10 bg-foreground text-background hover:bg-primary transition-all duration-300 font-bold tracking-widest text-[10px] uppercase hover:ambient-glow-mono shadow-sm">
-                            <Link href="/project">
+                            <Link href="/datasets">
                                 <Plus className="mr-2 h-4 w-4" />
-                                New Analysis
+                                Import Dataset
                             </Link>
                         </Button>
                     </motion.div>
@@ -112,7 +104,7 @@ export function DashboardPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                     {stats.map((stat, i) => (
                         <motion.div
-                            key={i}
+                            key={stat.title}
                             initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
                             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
                             transition={{ duration: 0.8, delay: 0.3 + (i * 0.1), ease: "easeOut" }}
@@ -134,8 +126,7 @@ export function DashboardPage() {
                                             <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">{stat.label}</span>
                                         </div>
                                         <p className="text-[9px] font-black text-muted-foreground mt-4 uppercase tracking-[0.15em] flex items-center gap-2">
-                                            <span className="text-emerald-500 bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">{stat.trend}</span>
-                                            momentum
+                                            <span className="text-emerald-500 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">{stat.trend}</span> momentum
                                         </p>
                                     </CardContent>
                                 </div>
@@ -168,7 +159,7 @@ export function DashboardPage() {
                                 <div className="space-y-4">
                                     <h2 className="text-4xl font-black tracking-tight leading-none">High-Fidelity Correlation Detected.</h2>
                                     <p className="text-background/60 text-lg font-medium max-w-xl">
-                                        In your recent <span className="text-primary font-black">Supply Chain Optimization</span> project, the core algorithm detected a <span className="text-white font-black underline decoration-primary underline-offset-4">0.92 coefficient</span> between automated latency and total fuel expenditure.
+                                        In your recent <span className="text-primary font-black">Supply Chain Optimization</span> dataset, the core algorithm detected a <span className="text-white font-black underline decoration-primary underline-offset-4">0.92 coefficient</span> between automated latency and total fuel expenditure.
                                     </p>
                                 </div>
 
@@ -203,7 +194,7 @@ export function DashboardPage() {
                                         <div className="p-2 bg-primary/10 rounded-lg">
                                             <PieChartIcon className="h-4 w-4 text-primary" />
                                         </div>
-                                        <CardTitle className="text-xl font-black">Project Matrix</CardTitle>
+                                        <CardTitle className="text-xl font-black">Dataset Matrix</CardTitle>
                                     </div>
                                     <CardDescription className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Analytical volume by domain.</CardDescription>
                                 </CardHeader>
@@ -251,11 +242,16 @@ export function DashboardPage() {
                                 <CardDescription className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Daily compute hours consumed over the last 30 days.</CardDescription>
                             </CardHeader>
                             <CardContent className="flex-1 p-0 flex items-end justify-between gap-3 h-[300px] relative z-10">
-                                {[40, 60, 45, 90, 65, 48, 75, 55, 95, 60, 40, 80].map((h, i) => (
+                                {[
+                                    { h: 40, id: 'h1' }, { h: 60, id: 'h2' }, { h: 45, id: 'h3' }, 
+                                    { h: 90, id: 'h4' }, { h: 65, id: 'h5' }, { h: 48, id: 'h6' }, 
+                                    { h: 75, id: 'h7' }, { h: 55, id: 'h8' }, { h: 95, id: 'h9' }, 
+                                    { h: 60, id: 'h10' }, { h: 40, id: 'h11' }, { h: 80, id: 'h12' }
+                                ].map((bar, i) => (
                                     <motion.div
-                                        key={i}
+                                        key={bar.id}
                                         initial={{ height: 0 }}
-                                        animate={{ height: `${h}%` }}
+                                        animate={{ height: `${bar.h}%` }}
                                         transition={{ duration: 1, delay: 0.8 + (i * 0.05), ease: "easeOut" }}
                                         className="w-full bg-primary/20 group-hover:bg-primary/40 hover:!bg-primary rounded-t-lg transition-colors border-t border-primary/50 relative overflow-hidden group/bar cursor-pointer"
                                     >
@@ -274,7 +270,7 @@ export function DashboardPage() {
                                 <div>
                                     <div className="flex items-center gap-3 mb-2">
                                         <div className="p-2 bg-primary/10 rounded-lg">
-                                            <Radio className="h-4 w-4 text-primary animate-pulse" />
+                                            <Activity className="h-4 w-4 text-primary animate-pulse" />
                                         </div>
                                         <CardTitle className="text-xl font-black">Pipeline Pulse</CardTitle>
                                     </div>
@@ -287,8 +283,8 @@ export function DashboardPage() {
                                         { name: "Global_Sales_2026", type: "Neural Ingestion", status: "Active", progress: 65, color: "bg-blue-500" },
                                         { name: "Retention_Analysis", type: "Clustering ML", status: "Indexing", progress: 88, color: "bg-purple-500" },
                                         { name: "Risk_Profiling_Vector", type: "Vector Alignment", status: "Queued", progress: 0, color: "bg-zinc-500" }
-                                    ].map((job, i) => (
-                                        <div key={i} className="p-5 rounded-[2rem] bg-background/40 border border-border/20 group/item hover:bg-background/60 transition-all duration-300">
+                                    ].map((job) => (
+                                        <div key={job.name} className="p-5 rounded-[2rem] bg-background/40 border border-border/20 group/item hover:bg-background/60 transition-all duration-300">
                                             <div className="flex items-center justify-between mb-4">
                                                 <div className="flex items-center gap-3">
                                                     <div className={cn("h-2.5 w-2.5 rounded-full animate-pulse shadow-[0_0_10px_rgba(0,0,0,0.1)]", job.color)} />
@@ -313,8 +309,8 @@ export function DashboardPage() {
                                         </div>
                                     ))}
                                 </div>
-                                <Button className="w-full mt-6 rounded-[2rem] h-14 font-black uppercase tracking-widest text-[10px] bg-background/50 hover:bg-primary hover:text-white transition-all duration-300 group/btn border border-border/50 hover:border-primary" variant="outline" onClick={() => router.push('/project')}>
-                                    Open Asset Forge
+                                <Button className="w-full mt-6 rounded-[2rem] h-14 font-black uppercase tracking-widest text-[10px] bg-background/50 hover:bg-primary hover:text-white transition-all duration-300 group/btn border border-border/50 hover:border-primary" variant="outline" onClick={() => router.push('/datasets')}>
+                                    Explore Datasets
                                     <ArrowUpRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1" />
                                 </Button>
                             </CardContent>

@@ -2,17 +2,13 @@
 
 import React from "react";
 import {
-    User,
     Mail,
     CheckCircle2,
-    Shield,
     Fingerprint,
-    ExternalLink,
     Camera,
     Sparkles,
     ShieldCheck,
     ArrowRight,
-    MapPin,
     Calendar
 } from "lucide-react";
 import { useAuth } from "@/context/auth-context";
@@ -20,9 +16,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
 
 export function ProfilePage() {
     const { user, isLoading } = useAuth();
@@ -58,7 +53,7 @@ export function ProfilePage() {
                                 className="relative p-1 rounded-full bg-gradient-to-tr from-primary to-blue-500 shadow-2xl shadow-primary/20"
                             >
                                 <Avatar className="h-40 w-40 border-[6px] border-background  transition-transform duration-500 group-hover:scale-[0.98]">
-                                    <AvatarImage src={user?.profile_picture} alt={user?.username} className="object-cover" />
+                                    <AvatarImage src={user?.profile_picture ?? undefined} alt={user?.username} className="object-cover" />
                                     <AvatarFallback className="text-4xl bg-secondary text-primary font-black">
                                         {user?.username?.substring(0, 2).toUpperCase()}
                                     </AvatarFallback>
@@ -142,20 +137,20 @@ export function ProfilePage() {
 
                                 <div className="p-10 grid grid-cols-1 md:grid-cols-2 gap-12">
                                     <div className="space-y-2 group">
-                                        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] group-hover:text-primary transition-colors">Legal Full Name</label>
+                                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] group-hover:text-primary transition-colors">Legal Full Name</p>
                                         <div className="text-xl font-bold tracking-tight text-foreground/90">{user?.full_name || "Not Specified"}</div>
                                         <div className="h-1 w-8 bg-primary/20 rounded-full" />
                                     </div>
 
                                     <div className="space-y-2 group">
-                                        <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] group-hover:text-primary transition-colors">Digital Identity</label>
+                                        <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] group-hover:text-primary transition-colors">Digital Identity</p>
                                         <div className="text-xl font-extrabold tracking-tight text-foreground/90">@{user?.username}</div>
                                         <div className="h-1 w-8 bg-primary/20 rounded-full" />
                                     </div>
 
                                     <div className="md:col-span-2 space-y-6">
                                         <div className="space-y-2 group">
-                                            <label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] group-hover:text-primary transition-colors">Primary Communication</label>
+                                            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] group-hover:text-primary transition-colors">Primary Communication</p>
                                             <div className="flex flex-wrap items-center gap-x-6 gap-y-4">
                                                 <span className="text-xl font-bold tracking-tight text-foreground/90">{user?.email}</span>
                                                 <div className="flex items-center gap-3">

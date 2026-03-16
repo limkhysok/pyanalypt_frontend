@@ -2,30 +2,25 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import {
     LayoutDashboard,
-    FolderKanban,
-    BarChart3,
-    BookOpenCheck,
+    Database,
+    AlertCircle,
     ChevronRight,
     ChevronLeft,
-    PanelLeft,
     Sparkles,
-    Hash,
     Settings,
     User,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
-import { projectApi } from "@/services/project.service";
-import { Project } from "@/types/project";
 import { VISUALIZATIONS_CATALOG, ChartArchitecture } from "@/lib/visualizations-data";
 
 const NAV_ITEMS = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { label: "Project", href: "/project", icon: FolderKanban },
-    { label: "Tutorials", href: "/tutorials", icon: BookOpenCheck },
+    { label: "Datasets", href: "/datasets", icon: Database },
+    { label: "Issues", href: "/issues", icon: AlertCircle },
 ];
 
 interface AppSidebarProps {
@@ -33,31 +28,13 @@ interface AppSidebarProps {
     onToggle: () => void;
 }
 
-export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
+export function AppSidebar({ collapsed, onToggle }: Readonly<AppSidebarProps>) {
     const pathname = usePathname();
-    const router = useRouter();
     const searchParams = useSearchParams();
-    const [projects, setProjects] = React.useState<Project[]>([]);
-    const [isLoadingProjects, setIsLoadingProjects] = React.useState(false);
 
+    // Placeholder for future dataset fetching logic
     React.useEffect(() => {
-        const fetchProjects = async () => {
-            setIsLoadingProjects(true);
-            try {
-                const data = await projectApi.getAll();
-                setProjects(data);
-            } catch (err) {
-                console.error("Failed to load sidebar projects:", err);
-            } finally {
-                setIsLoadingProjects(false);
-            }
-        };
-
-        fetchProjects();
-
-        // Listen for global project changes
-        window.addEventListener('projects-changed', fetchProjects);
-        return () => window.removeEventListener('projects-changed', fetchProjects);
+        // ...
     }, []);
 
     return (
@@ -102,7 +79,6 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
                 {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
                     const safePathname = pathname || "";
                     const isActive = safePathname === href || (href !== "/dashboard" && safePathname.startsWith(href));
-                    const isProjectFolder = label === "Project";
                     const isVisualsFolder = label === "Visualizations";
 
                     return (
@@ -132,47 +108,10 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
                                         </motion.span>
                                     )}
                                 </AnimatePresence>
-                                {!collapsed && isActive && !isProjectFolder && !isVisualsFolder && (
+                                {!collapsed && isActive && !isVisualsFolder && (
                                     <ChevronRight size={14} className="ml-auto shrink-0 opacity-60" />
                                 )}
                             </Link>
-
-                            {/* Dropdown for Projects */}
-                            {!collapsed && isProjectFolder && (isActive || safePathname.includes("/project/")) && (
-                                <motion.div
-                                    initial={{ opacity: 0, height: 0 }}
-                                    animate={{ opacity: 1, height: "auto" }}
-                                    className="pl-9 pr-2 space-y-1 overflow-hidden"
-                                >
-                                    {projects.length > 0 ? (
-                                        projects.map((p) => {
-                                            const isCurrentProject = safePathname.includes(`/project/${p.id}`);
-                                            return (
-                                                <Link
-                                                    key={p.id}
-                                                    href={`/project/${p.id}`}
-                                                    className={cn(
-                                                        "flex items-center gap-2 py-1.5 px-2 rounded-md text-xs transition-colors",
-                                                        isCurrentProject
-                                                            ? "text-foreground font-bold bg-accent/30"
-                                                            : "text-muted-foreground hover:text-foreground hover:bg-accent/20"
-                                                    )}
-                                                >
-                                                    <Hash size={12} className={cn("shrink-0", isCurrentProject ? "text-primary" : "opacity-40")} />
-                                                    <span className="truncate">{p.name}</span>
-                                                </Link>
-                                            );
-                                        })
-                                    ) : (
-                                        !isLoadingProjects && (
-                                            <p className="text-[10px] text-muted-foreground/60 italic py-1 px-2">No projects found</p>
-                                        )
-                                    )}
-                                    {isLoadingProjects && (
-                                        <div className="h-4 w-4 border-2 border-primary/30 border-t-primary animate-spin rounded-full mx-auto my-2" />
-                                    )}
-                                </motion.div>
-                            )}
 
                             {/* Dropdown for Visualizations Architectures */}
                             {!collapsed && isVisualsFolder && (isActive || safePathname.includes("/templates")) && (
@@ -192,7 +131,7 @@ export function AppSidebar({ collapsed, onToggle }: AppSidebarProps) {
                                                     {VISUALIZATIONS_CATALOG.filter((v: ChartArchitecture) => v.scenarios.includes(scenario)).map((v: ChartArchitecture) => {
                                                         const isSelected = searchParams?.get('chart') === v.id;
                                                         const Icon = v.icon;
-                                                        const projectIdMatch = safePathname.match(/\/project\/([^\/?]+)/);
+                                                        const projectIdMatch = pathname?.match(/\/project\/([^/?]+)/);
                                                         const targetHref = projectIdMatch
                                                             ? `/project/${projectIdMatch[1]}?tab=Analyze&chart=${v.id}`
                                                             : `/templates?chart=${v.id}`;

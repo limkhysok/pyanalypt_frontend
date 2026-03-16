@@ -15,10 +15,10 @@ import {
  */
 export const authApi = {
     /**
-     * Register a new user with email and password
+     * Register a new user with username and passwords
      */
     async register(data: RegisterRequest): Promise<AuthResponse> {
-        console.log("[AuthApi] Registering user:", data.email);
+        console.log("[AuthApi] Registering user:", data.username);
         const response = await apiClient.post<AuthResponse>('/auth/registration/', data);
         console.log("[AuthApi] Registration Response:", response.data);
 
@@ -34,10 +34,10 @@ export const authApi = {
     },
 
     /**
-     * Login with email and password
+     * Login with username/email and password
      */
     async login(data: LoginRequest): Promise<AuthResponse> {
-        console.log("[AuthApi] Logging in user:", data.email);
+        console.log("[AuthApi] Logging in user:", data.username);
         const response = await apiClient.post<AuthResponse>('/auth/login/', data);
         console.log("[AuthApi] Login Response:", response.data);
 
@@ -91,15 +91,25 @@ export const authApi = {
     },
 
     /**
-     * Logout user (client-side only)
-     * Note: Add backend logout endpoint if you implement token blacklisting
+     * Logout user (client and server side)
      */
-    logout(): void {
+    async logout(): Promise<void> {
+        const refreshToken = tokenManager.getRefreshToken();
+        
+        if (refreshToken) {
+            try {
+                await apiClient.post('/auth/logout/', { refresh: refreshToken });
+                console.log("[AuthApi] Backend logout successful.");
+            } catch (error) {
+                console.error("[AuthApi] Backend logout failed:", error);
+            }
+        }
+
         tokenManager.clearTokens();
 
         // Redirect to login page
-        if (typeof window !== 'undefined') {
-            window.location.href = '/login';
+        if (globalThis.window !== undefined) {
+            globalThis.window.location.href = '/login';
         }
     },
 

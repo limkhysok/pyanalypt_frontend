@@ -141,7 +141,7 @@ export function SettingsPage() {
                                             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
                                                 <div className="relative group">
                                                     <Avatar className="h-24 w-24 border-4 border-background ring-2 ring-primary/20 shadow-xl transition-transform group-hover:scale-105">
-                                                        <AvatarImage src={user?.profile_picture} />
+                                                        <AvatarImage src={user?.profile_picture ?? undefined} />
                                                         <AvatarFallback className="text-2xl bg-gradient-to-br from-primary/20 to-primary/5 text-primary">
                                                             {user?.username?.substring(0, 2).toUpperCase()}
                                                         </AvatarFallback>
@@ -167,7 +167,7 @@ export function SettingsPage() {
                                                 </div>
                                                 <div className="space-y-2">
                                                     <Label htmlFor="email">Email Address</Label>
-                                                    <Input id="email" type="email" defaultValue={user?.email} />
+                                                    <Input id="email" type="email" defaultValue={user?.email ?? ""} />
                                                 </div>
                                                 <div className="sm:col-span-2 space-y-2">
                                                     <Label htmlFor="bio">Bio</Label>

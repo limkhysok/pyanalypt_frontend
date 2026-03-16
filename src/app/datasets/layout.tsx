@@ -7,13 +7,12 @@ import { useSidebar } from "@/hooks/use-sidebar";
 import { AppNavbar } from "@/components/layout/AppNavbar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
 import { motion } from "framer-motion";
-import { Toaster } from "sonner";
 
-export default function ProjectLayout({
+export default function IssuesLayout({
     children,
-}: {
+}: Readonly<{
     children: React.ReactNode;
-}) {
+}>) {
     const { isAuthenticated, isLoading } = useAuth();
     const router = useRouter();
     const { collapsed, toggleSidebar } = useSidebar();
@@ -27,7 +26,10 @@ export default function ProjectLayout({
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background">
-                <div className="h-8 w-8 rounded-full border-2 border-foreground border-t-transparent animate-spin" />
+                <div className="flex flex-col items-center gap-3">
+                    <div className="h-8 w-8 rounded-full border-2 border-foreground border-t-transparent animate-spin" />
+                    <p className="text-sm text-muted-foreground">Loading...</p>
+                </div>
             </div>
         );
     }
@@ -48,7 +50,6 @@ export default function ProjectLayout({
             >
                 {children}
             </motion.main>
-            <Toaster position="top-right" richColors />
         </div>
     );
 }
