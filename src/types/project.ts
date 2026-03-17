@@ -32,8 +32,6 @@ export interface Dataset {
     file: string | null;
     name: string;
     file_format: string;
-    row_count?: number;
-    column_count?: number;
     uploaded_at: string;
 }
 

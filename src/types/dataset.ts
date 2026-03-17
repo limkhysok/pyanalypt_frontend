@@ -4,8 +4,6 @@ export interface Dataset {
   file: string;
   file_name: string;
   file_format: string;
-  row_count: number;
-  column_count: number;
   uploaded_date: string;
   updated_date: string;
 }

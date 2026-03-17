@@ -19,6 +19,63 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 
+function safeParseJson(input: unknown): unknown {
+    if (typeof input !== "string") return input;
+    const trimmed = input.trim();
+    if (!trimmed) return input;
+    if (!(trimmed.startsWith("[") || trimmed.startsWith("{"))) return input;
+
+    try {
+        return JSON.parse(trimmed);
+    } catch {
+        return input;
+    }
+}
+
+function rowsFromSplitTable(payload: Record<string, unknown>): Record<string, unknown>[] {
+    const columns = Array.isArray(payload.columns) ? payload.columns : [];
+    const rows = Array.isArray(payload.data) ? payload.data : [];
+
+    if (!columns.length || !rows.length) return [];
+    if (!rows.every((row) => Array.isArray(row))) return [];
+
+    return (rows as unknown[][]).map((rowValues) => {
+        const row: Record<string, unknown> = {};
+        columns.forEach((columnName, index) => {
+            if (typeof columnName === "string") {
+                row[columnName] = rowValues[index];
+            }
+        });
+        return row;
+    });
+}
+
+function extractPreviewRows(payload: unknown): Record<string, unknown>[] {
+    const parsed = safeParseJson(payload);
+
+    if (Array.isArray(parsed)) {
+        return parsed.filter((item) => item && typeof item === "object") as Record<string, unknown>[];
+    }
+
+    if (!parsed || typeof parsed !== "object") {
+        return [];
+    }
+
+    const obj = parsed as Record<string, unknown>;
+    const wrappedKeys = ["data_preview", "preview", "data", "rows", "records", "results", "items"];
+
+    for (const key of wrappedKeys) {
+        const nested = obj[key];
+        const nestedRows = extractPreviewRows(nested);
+        if (nestedRows.length > 0) return nestedRows;
+    }
+
+    const splitRows = rowsFromSplitTable(obj);
+    if (splitRows.length > 0) return splitRows;
+
+    return [];
+}
+
 export default function DatasetPreviewPage() {
     const params = useParams();
     const id = params?.id as string;
@@ -39,34 +96,13 @@ export default function DatasetPreviewPage() {
 
                 console.log("[Preview] Raw detail response:", detail);
 
-                let rawData: any = detail.data_preview;
-
-                // If it's a string, it might be stringified JSON from the backend
-                if (typeof rawData === 'string' && rawData.trim().startsWith('[')) {
-                    try {
-                        rawData = JSON.parse(rawData);
-                        console.log("[Preview] Parsed data_preview string into array");
-                    } catch (e) {
-                        console.error("[Preview] Failed to parse data_preview string", e);
-                    }
-                }
-
-                let data = Array.isArray(rawData) ? rawData : [];
+                let data = extractPreviewRows(detail?.data_preview);
 
                 // If data is still missing, try the dedicated preview endpoint
                 if (data.length === 0) {
                     console.log("[Preview] No data in detail view, attempting fallback to preview endpoint...");
-                    let fallbackData: any = await datasetApi.previewDataset(Number(id));
-
-                    if (typeof fallbackData === 'string' && fallbackData.trim().startsWith('[')) {
-                        try {
-                            fallbackData = JSON.parse(fallbackData);
-                            console.log("[Preview] Parsed fallbackData string into array");
-                        } catch (e) {
-                            console.error("[Preview] Failed to parse fallbackData string", e);
-                        }
-                    }
-                    data = Array.isArray(fallbackData) ? fallbackData : [];
+                    const fallbackData: unknown = await datasetApi.previewDataset(Number(id));
+                    data = extractPreviewRows(fallbackData);
                 }
 
                 console.log("[Preview] Final processed data array (len):", data.length);
@@ -75,11 +111,8 @@ export default function DatasetPreviewPage() {
                 console.error("[Preview] Load failure:", error);
                 // Last resort fallback
                 try {
-                    let fallbackData: any = await datasetApi.previewDataset(Number(id));
-                    if (typeof fallbackData === 'string' && fallbackData.trim().startsWith('[')) {
-                        try { fallbackData = JSON.parse(fallbackData); } catch (e) { }
-                    }
-                    setPreviewData(Array.isArray(fallbackData) ? fallbackData : []);
+                    const fallbackData: unknown = await datasetApi.previewDataset(Number(id));
+                    setPreviewData(extractPreviewRows(fallbackData));
                 } catch (secondaryError) {
                     console.error("[Preview] System-wide preview failure:", secondaryError);
                     setPreviewData([]);
@@ -186,7 +219,7 @@ export default function DatasetPreviewPage() {
                     <div className="flex items-center gap-6 px-4">
                         <div className="flex flex-col items-end">
                             <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Total Rows</span>
-                            <span className="text-sm font-black">{dataset?.row_count.toLocaleString() || previewData.length}</span>
+                            <span className="text-sm font-black">{previewData.length.toLocaleString()}</span>
                         </div>
                         <Separator orientation="vertical" className="h-8" />
                         <div className="flex flex-col items-end">

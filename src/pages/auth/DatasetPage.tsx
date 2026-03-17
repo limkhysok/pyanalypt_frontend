@@ -9,8 +9,6 @@ import {
     FileText,
     Download,
     Eye,
-    LayoutGrid,
-    List,
     BarChart3,
     AlertCircle,
     Sparkles,
@@ -21,8 +19,6 @@ import {
     Calendar,
     ArrowDownAz,
     ArrowUpAz,
-    ArrowDownWideNarrow,
-    ArrowUpNarrowWide,
     Filter,
     Trash2,
     MoreVertical,
@@ -38,13 +34,6 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-    CardFooter,
-} from "@/components/ui/card";
 import {
     Tabs,
     TabsContent,
@@ -80,7 +69,6 @@ export function DatasetPage() {
     const [isImportOpen, setIsImportOpen] = useState(false);
     const [uploadLoading, setUploadLoading] = useState(false);
     const [diagnoseLoading, setDiagnoseLoading] = useState<number | null>(null);
-    const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [sortBy, setSortBy] = useState<string>("newest");
     const [filterType, setFilterType] = useState<string>("all");
     const [isRenameOpen, setIsRenameOpen] = useState(false);
@@ -212,8 +200,6 @@ export function DatasetPage() {
                 case "oldest": return new Date(a.uploaded_date).getTime() - new Date(b.uploaded_date).getTime();
                 case "name_asc": return a.file_name.localeCompare(b.file_name);
                 case "name_desc": return b.file_name.localeCompare(a.file_name);
-                case "rows_desc": return b.row_count - a.row_count;
-                case "rows_asc": return a.row_count - b.row_count;
                 default: return 0;
             }
         });
@@ -227,8 +213,6 @@ export function DatasetPage() {
             case "oldest": return "Oldest";
             case "name_asc": return "Name (A-Z)";
             case "name_desc": return "Name (Z-A)";
-            case "rows_desc": return "Largest";
-            case "rows_asc": return "Smallest";
             default: return "Sort";
         }
     };
@@ -241,137 +225,23 @@ export function DatasetPage() {
         );
     }
 
-    const renderGridView = () => (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            <AnimatePresence mode="popLayout">
-                {filteredDatasets.map((dataset, idx) => (
-                    <motion.div
-                        key={dataset.id}
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9 }}
-                        transition={{ duration: 0.3, delay: idx * 0.03 }}
-                    >
-                        <Card className="group relative overflow-hidden h-full bg-background/40 hover:bg-background/80 backdrop-blur-md border border-border/40 hover:border-primary/40 transition-all duration-300 rounded-3xl shadow-sm hover:shadow-xl hover:shadow-primary/5 flex flex-col">
-                            <CardHeader className="p-6 pb-2">
-                                <div className="flex items-start justify-between mb-3">
-                                    <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
-                                        <FileText className="h-5 w-5 text-primary" />
-                                    </div>
-                                    <div className="flex flex-col items-end gap-1">
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg -mr-2 -mt-1 hover:bg-muted/50 transition-colors">
-                                                    <MoreVertical className="h-3.5 w-3.5 text-muted-foreground" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="w-40 rounded-xl p-1 bg-background/95 backdrop-blur-xl border-border/40 shadow-xl">
-                                                <DropdownMenuRadioItem 
-                                                    value="rename" 
-                                                    className="rounded-lg py-2 font-bold text-[10px] uppercase tracking-wider cursor-pointer focus:bg-primary/10 transition-colors text-muted-foreground hover:text-foreground"
-                                                    onClick={() => {
-                                                        setSelectedDataset(dataset);
-                                                        setNewName(dataset.file_name);
-                                                        setIsRenameOpen(true);
-                                                    }}
-                                                >
-                                                    <Edit2 className="mr-2 h-3.5 w-3.5" /> Rename
-                                                </DropdownMenuRadioItem>
-                                                <DropdownMenuSeparator className="bg-border/20 my-1" />
-                                                <DropdownMenuRadioItem 
-                                                    value="delete" 
-                                                    className="rounded-lg py-2 font-bold text-[10px] uppercase tracking-wider cursor-pointer focus:bg-red-500/10 focus:text-red-500 transition-colors text-red-500/70"
-                                                    onClick={() => handleDelete(dataset.id)}
-                                                >
-                                                    <Trash2 className="mr-2 h-3.5 w-3.5" /> Purge Asset
-                                                </DropdownMenuRadioItem>
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-                                        <div className="flex flex-col items-end gap-1">
-                                            <Badge variant="outline" className="w-fit text-[7px] font-black uppercase tracking-tighter rounded-md h-4 px-1.5 bg-secondary/50 border-border/40">
-                                                {dataset.file_format}
-                                            </Badge>
-                                            <span className="text-[8px] text-muted-foreground font-black uppercase tracking-widest">
-                                                {new Date(dataset.uploaded_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <CardTitle className="text-lg font-black tracking-tight line-clamp-1 group-hover:text-primary transition-colors leading-tight">
-                                    {dataset.file_name}
-                                </CardTitle>
-                            </CardHeader>
-
-                            <CardContent className="px-6 py-4 flex-grow">
-                                <div className="grid grid-cols-2 gap-2.5">
-                                    <div className="bg-muted/30 p-2.5 rounded-xl border border-border/5 space-y-0.5">
-                                        <p className="text-[7px] font-black text-muted-foreground uppercase tracking-widest">Rows</p>
-                                        <p className="text-sm font-black tracking-tight">{dataset.row_count.toLocaleString()}</p>
-                                    </div>
-                                    <div className="bg-muted/30 p-2.5 rounded-xl border border-border/5 space-y-0.5">
-                                        <p className="text-[7px] font-black text-muted-foreground uppercase tracking-widest">Cols</p>
-                                        <p className="text-sm font-black tracking-tight">{dataset.column_count}</p>
-                                    </div>
-                                </div>
-                            </CardContent>
-
-                            <CardFooter className="p-6 pt-2 flex flex-col gap-2">
-                                <div className="grid grid-cols-2 gap-2 w-full">
-                                    <Button
-                                        variant="secondary"
-                                        size="sm"
-                                        className="h-9 rounded-lg bg-secondary/50 hover:bg-primary/10 hover:text-primary border-none font-bold text-[10px] transition-all"
-                                        onClick={() => router.push(`/datasets/${dataset.id}/preview`)}
-                                    >
-                                        <Eye className="mr-1.5 h-3.5 w-3.5" /> Preview
-                                    </Button>
-                                    <Button
-                                        variant="secondary"
-                                        size="sm"
-                                        className="h-9 rounded-lg bg-secondary/50 hover:bg-primary/10 hover:text-primary border-none font-bold text-[10px] transition-all"
-                                        onClick={() => router.push(`/datasets/${dataset.id}/analyze`)}
-                                    >
-                                        <BarChart3 className="mr-1.5 h-3.5 w-3.5" /> Analyze
-                                    </Button>
-                                </div>
-                                <Button
-                                    size="sm"
-                                    disabled={diagnoseLoading === dataset.id}
-                                    className="w-full h-9 rounded-lg bg-red-500 hover:bg-red-600 text-white font-black tracking-widest text-[9px] uppercase transition-all"
-                                    onClick={() => handleDiagnose(dataset.id)}
-                                >
-                                    {diagnoseLoading === dataset.id ? (
-                                        <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
-                                    ) : (
-                                        <AlertCircle className="mr-1.5 h-3.5 w-3.5" />
-                                    )}
-                                    Diagnose Quality
-                                </Button>
-                                <Button
-                                    size="sm"
-                                    className="w-full h-9 rounded-lg bg-foreground text-background hover:ambient-glow-mono font-black tracking-widest text-[9px] uppercase transition-all"
-                                    onClick={() => router.push(`/datasets/${dataset.id}/clean`)}
-                                >
-                                    <Sparkles className="mr-1.5 h-3.5 w-3.5" /> Smart Cleaning
-                                </Button>
-                            </CardFooter>
-                        </Card>
-                    </motion.div>
-                ))}
-            </AnimatePresence>
-        </div>
-    );
-
     const renderListView = () => (
         <div className="rounded-3xl border border-border/40 bg-background/40 backdrop-blur-xl overflow-hidden shadow-sm">
+            <div className="px-6 py-4 border-b border-border/20 bg-muted/20 flex items-center justify-between gap-3">
+                <div className="space-y-0.5">
+                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Registry View</p>
+                    <p className="text-sm font-bold">Operational list of ingested datasets</p>
+                </div>
+                <Badge variant="outline" className="rounded-lg px-2.5 py-1 h-auto text-[10px] font-black uppercase tracking-wider bg-background/70">
+                    {filteredDatasets.length} assets
+                </Badge>
+            </div>
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="bg-muted/50 border-b border-border/20 text-[10px] font-black uppercase tracking-widest text-muted-foreground/70">
                             <th className="px-6 py-4 text-xs">Artifact Name</th>
                             <th className="px-6 py-4 text-xs">Format</th>
-                            <th className="px-6 py-4 text-xs text-right">Rows</th>
-                            <th className="px-6 py-4 text-xs text-right">Cols</th>
                             <th className="px-6 py-4 text-xs">Ingested</th>
                             <th className="px-6 py-4 text-xs text-right">Actions</th>
                         </tr>
@@ -400,8 +270,6 @@ export function DatasetPage() {
                                             {dataset.file_format}
                                         </Badge>
                                     </td>
-                                    <td className="px-6 py-4 text-xs font-bold text-right tabular-nums">{dataset.row_count.toLocaleString()}</td>
-                                    <td className="px-6 py-4 text-xs font-bold text-right tabular-nums">{dataset.column_count}</td>
                                     <td className="px-6 py-4 text-[10px] font-bold text-muted-foreground/60 uppercase">
                                         {new Date(dataset.uploaded_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                                     </td>
@@ -476,10 +344,13 @@ export function DatasetPage() {
     const renderContent = () => {
         if (isLoading) {
             return (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                    {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="h-56 rounded-3xl bg-muted/20 animate-pulse border border-border/40" />
-                    ))}
+                <div className="rounded-3xl border border-border/40 bg-background/40 backdrop-blur-xl overflow-hidden shadow-sm">
+                    <div className="h-14 border-b border-border/20 bg-muted/20 animate-pulse" />
+                    <div className="space-y-2 p-4">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                            <div key={i} className="h-12 rounded-xl bg-muted/20 animate-pulse border border-border/20" />
+                        ))}
+                    </div>
                 </div>
             )
         }
@@ -512,7 +383,7 @@ export function DatasetPage() {
             )
         }
 
-        return viewMode === "grid" ? renderGridView() : renderListView();
+        return renderListView();
     }
 
     return (
@@ -542,10 +413,10 @@ export function DatasetPage() {
                             Intelligence Assets
                         </div>
                         <h1 className="text-3xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-foreground to-foreground/70 leading-tight">
-                            Datasets & Resources
+                            Dataset Registry
                         </h1>
                         <p className="text-muted-foreground mt-2 text-base max-w-lg leading-relaxed font-medium">
-                            Ingest, manage, and explore your raw data artifacts before transforming them into meaningful intelligence.
+                            A structured index of every uploaded artifact, optimized for quick scan, filtering, and action.
                         </p>
                     </motion.div>
 
@@ -555,25 +426,6 @@ export function DatasetPage() {
                         transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
                         className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto"
                     >
-                        <div className="flex bg-muted/30 p-1 rounded-xl border border-border/20 h-10 shadow-sm">
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className={`h-full px-3 rounded-lg transition-all ${viewMode === 'grid' ? 'bg-background shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-                                onClick={() => setViewMode('grid')}
-                            >
-                                <LayoutGrid className="h-4 w-4" />
-                            </Button>
-                            <Button
-                                variant="ghost"
-                                size="sm"
-                                className={`h-full px-3 rounded-lg transition-all ${viewMode === 'list' ? 'bg-background shadow-sm text-primary' : 'text-muted-foreground hover:text-foreground'}`}
-                                onClick={() => setViewMode('list')}
-                            >
-                                <List className="h-4 w-4" />
-                            </Button>
-                        </div>
-
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline" size="sm" className="h-10 px-4 rounded-xl border-border/40 bg-background/50 backdrop-blur-sm font-bold text-xs gap-2 hover:bg-background/80 transition-all">
@@ -597,12 +449,6 @@ export function DatasetPage() {
                                     </DropdownMenuRadioItem>
                                     <DropdownMenuRadioItem value="name_desc" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
                                         <ArrowDownAz className="mr-2 h-3.5 w-3.5 opacity-50" /> Name (Z-A)
-                                    </DropdownMenuRadioItem>
-                                    <DropdownMenuRadioItem value="rows_desc" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
-                                        <ArrowDownWideNarrow className="mr-2 h-3.5 w-3.5 opacity-50" /> Largest (Rows)
-                                    </DropdownMenuRadioItem>
-                                    <DropdownMenuRadioItem value="rows_asc" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
-                                        <ArrowUpNarrowWide className="mr-2 h-3.5 w-3.5 opacity-50" /> Smallest (Rows)
                                     </DropdownMenuRadioItem>
                                 </DropdownMenuRadioGroup>
                             </DropdownMenuContent>
