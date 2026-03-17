@@ -24,7 +24,7 @@ export const projectApi = {
      */
     async getAll(): Promise<Project[]> {
         console.log("[ProjectApi] Fetching all projects...");
-        const response = await apiClient.get<Project[]>('/projects/');
+        const response = await apiClient.get<Project[]>('projects/');
         return response.data;
     },
 
@@ -33,7 +33,7 @@ export const projectApi = {
      */
     async create(data: CreateProjectRequest): Promise<Project> {
         console.log("[ProjectApi] Creating project:", data.name);
-        const response = await apiClient.post<Project>('/projects/', data);
+        const response = await apiClient.post<Project>('projects/', data);
         return response.data;
     },
 
@@ -42,7 +42,7 @@ export const projectApi = {
      */
     async getById(id: string): Promise<Project> {
         console.log("[ProjectApi] Fetching project details:", id);
-        const response = await apiClient.get<Project>(`/projects/${id}/`);
+        const response = await apiClient.get<Project>(`projects/${id}/`);
         return response.data;
     },
 
@@ -51,7 +51,7 @@ export const projectApi = {
      */
     async update(id: string, data: Project): Promise<Project> {
         console.log("[ProjectApi] Updating project (Full):", id);
-        const response = await apiClient.put<Project>(`/projects/${id}/`, data);
+        const response = await apiClient.put<Project>(`projects/${id}/`, data);
         return response.data;
     },
 
@@ -60,7 +60,7 @@ export const projectApi = {
      */
     async patch(id: string, data: UpdateProjectRequest): Promise<Project> {
         console.log("[ProjectApi] Updating project (Partial):", id);
-        const response = await apiClient.patch<Project>(`/projects/${id}/`, data);
+        const response = await apiClient.patch<Project>(`projects/${id}/`, data);
         return response.data;
     },
 
@@ -69,7 +69,7 @@ export const projectApi = {
      */
     async delete(id: string): Promise<void> {
         console.log("[ProjectApi] Deleting project:", id);
-        await apiClient.delete(`/projects/${id}/`);
+        await apiClient.delete(`projects/${id}/`);
     },
 
     /**
@@ -82,7 +82,7 @@ export const projectApi = {
         formData.append('file', data.file);
         if (data.name) formData.append('name', data.name);
 
-        const response = await apiClient.post<Dataset>('/datasets/upload/', formData, {
+        const response = await apiClient.post<Dataset>('datasets/upload/', formData, {
             headers: {
                 'Content-Type': 'multipart/form-data',
             },
@@ -95,7 +95,7 @@ export const projectApi = {
      */
     async pasteDataset(data: PasteDatasetRequest): Promise<Dataset> {
         console.log("[ProjectApi] Pasting dataset for project:", data.project);
-        const response = await apiClient.post<Dataset>('/datasets/paste/', data);
+        const response = await apiClient.post<Dataset>('datasets/paste/', data);
         return response.data;
     },
 
@@ -104,7 +104,7 @@ export const projectApi = {
      */
     async getDatasetPreview(datasetId: number | string, rows: number = 10): Promise<DatasetPreview> {
         console.log("[ProjectApi] Fetching dataset preview:", datasetId, "Rows:", rows);
-        const response = await apiClient.get<DatasetPreview>(`/datasets/items/${datasetId}/preview/`, {
+        const response = await apiClient.get<DatasetPreview>(`datasets/items/${datasetId}/preview/`, {
             params: { rows }
         });
         return response.data;
@@ -115,7 +115,7 @@ export const projectApi = {
      */
     async updateDataset(datasetId: number | string, data: { name: string }): Promise<Dataset> {
         console.log("[ProjectApi] Updating dataset:", datasetId);
-        const response = await apiClient.patch<Dataset>(`/datasets/items/${datasetId}/`, data);
+        const response = await apiClient.patch<Dataset>(`datasets/items/${datasetId}/`, data);
         return response.data;
     },
 
@@ -124,7 +124,7 @@ export const projectApi = {
      */
     async deleteDataset(datasetId: number | string): Promise<void> {
         console.log("[ProjectApi] Deleting dataset:", datasetId);
-        await apiClient.delete(`/datasets/items/${datasetId}/`);
+        await apiClient.delete(`datasets/items/${datasetId}/`);
     },
 
     /**
@@ -132,7 +132,7 @@ export const projectApi = {
      */
     async cleanDataset(datasetId: number | string, data: { pipeline: any[] }): Promise<DatasetPreview> {
         console.log("[ProjectApi] Cleaning dataset:", datasetId);
-        const response = await apiClient.post<DatasetPreview>(`/datasets/items/${datasetId}/clean/`, data);
+        const response = await apiClient.post<DatasetPreview>(`datasets/items/${datasetId}/clean/`, data);
         return response.data;
     },
 
@@ -141,7 +141,7 @@ export const projectApi = {
      */
     async analyzeDataset(datasetId: number | string): Promise<DatasetAnalysis> {
         console.log("[ProjectApi] Analyzing dataset:", datasetId);
-        const response = await apiClient.get<DatasetAnalysis>(`/datasets/items/${datasetId}/analyze/`);
+        const response = await apiClient.get<DatasetAnalysis>(`datasets/items/${datasetId}/analyze/`);
         return response.data;
     },
 
@@ -150,7 +150,7 @@ export const projectApi = {
      */
     async trainModel(datasetId: number | string, data: TrainModelRequest): Promise<TrainModelResponse> {
         console.log("[ProjectApi] Training model for dataset:", datasetId, "Type:", data.model_type, "Payload:", data);
-        const response = await apiClient.post<TrainModelResponse>(`/datasets/items/${datasetId}/train/`, data);
+        const response = await apiClient.post<TrainModelResponse>(`datasets/items/${datasetId}/train/`, data);
         return response.data;
     },
 
@@ -159,7 +159,7 @@ export const projectApi = {
      */
     async visualizeDataset(datasetId: number | string, data: VisualizeRequest): Promise<VisualizeResponse> {
         console.log("[ProjectApi] Fetching visualization data for dataset:", datasetId);
-        const response = await apiClient.post<VisualizeResponse>(`/datasets/items/${datasetId}/visualize/`, data);
+        const response = await apiClient.post<VisualizeResponse>(`datasets/items/${datasetId}/visualize/`, data);
         return response.data;
     },
 
@@ -168,19 +168,19 @@ export const projectApi = {
      */
     async exportDataset(datasetId: number | string, format: string = 'csv'): Promise<void> {
         console.log("[ProjectApi] Exporting dataset:", datasetId, "Format:", format);
-        const response = await apiClient.get(`/datasets/items/${datasetId}/export/`, {
+        const response = await apiClient.get(`datasets/items/${datasetId}/export/`, {
             params: { format },
             responseType: 'blob'
         });
 
         // Create a temporary link to download the file
-        const url = window.URL.createObjectURL(new Blob([response.data]));
-        const link = document.createElement('a');
+        const url = globalThis.window.URL.createObjectURL(new Blob([response.data]));
+        const link = globalThis.document.createElement('a');
         link.href = url;
         link.setAttribute('download', `dataset_${datasetId}.${format}`);
-        document.body.appendChild(link);
+        globalThis.document.body.appendChild(link);
         link.click();
         link.remove();
-        window.URL.revokeObjectURL(url);
+        globalThis.window.URL.revokeObjectURL(url);
     }
 };
