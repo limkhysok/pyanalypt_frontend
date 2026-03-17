@@ -7,9 +7,7 @@ import {
     Loader2,
     Download,
     Search,
-    ChevronLeft,
-    ChevronRight,
-    Sparkles
+    ChevronDown
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -84,6 +82,7 @@ export default function DatasetPreviewPage() {
     const [previewData, setPreviewData] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+    const [rowLimit, setRowLimit] = useState<"10" | "50" | "100" | "max">("50");
 
     useEffect(() => {
         const loadPreview = async () => {
@@ -149,9 +148,15 @@ export default function DatasetPreviewPage() {
         });
     }, [previewData, searchTerm]);
 
+    const visibleRows = useMemo(() => {
+        if (rowLimit === "max") return filteredData;
+        const limit = Number(rowLimit);
+        return filteredData.slice(0, limit);
+    }, [filteredData, rowLimit]);
+
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-zinc-950">
+            <div className="min-h-screen flex items-center justify-center bg-zinc-50/50 dark:bg-zinc-950/50">
                 <div className="space-y-4 text-center">
                     <Loader2 className="h-12 w-12 text-primary animate-spin mx-auto" />
                     <p className="text-muted-foreground font-black uppercase tracking-[0.3em] text-[10px]">Materializing Data...</p>
@@ -196,12 +201,6 @@ export default function DatasetPreviewPage() {
                         <Button variant="secondary" className="h-11 px-6 rounded-xl font-bold bg-secondary/50">
                             <Download className="mr-2 h-4 w-4" /> Export CSV
                         </Button>
-                        <Button
-                            className="h-11 px-6 rounded-xl font-black uppercase tracking-widest text-[10px] bg-foreground text-background hover:ambient-glow-mono shadow-xl shadow-primary/10 transition-all active:scale-95"
-                            onClick={() => router.push(`/datasets/${id}/clean`)}
-                        >
-                            <Sparkles className="mr-2 h-4 w-4" /> Start Cleaning
-                        </Button>
                     </div>
                 </div>
 
@@ -226,6 +225,21 @@ export default function DatasetPreviewPage() {
                             <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Dimensions</span>
                             <span className="text-sm font-black">{columns.length} Cols</span>
                         </div>
+                        <Separator orientation="vertical" className="h-8" />
+                        <div className="relative w-[170px]">
+                            <select
+                                value={rowLimit}
+                                onChange={(e) => setRowLimit(e.target.value as "10" | "50" | "100" | "max")}
+                                className="appearance-none w-full h-10 rounded-xl border border-border/40 bg-background/80 px-3 pr-9 text-xs font-bold focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                aria-label="Row limit"
+                            >
+                                <option value="10">Show 10 rows</option>
+                                <option value="50">Show 50 rows</option>
+                                <option value="100">Show 100 rows</option>
+                                <option value="max">Show max rows</option>
+                            </select>
+                            <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/70" />
+                        </div>
                     </div>
                 </div>
 
@@ -244,7 +258,7 @@ export default function DatasetPreviewPage() {
                             </thead>
                             <tbody>
                                 <AnimatePresence mode="popLayout">
-                                    {filteredData.map((row, rowIdx) => (
+                                    {visibleRows.map((row, rowIdx) => (
                                         <motion.tr
                                             key={`row-stable-${rowIdx}-${id}`}
                                             initial={{ opacity: 0, y: 10 }}
@@ -273,17 +287,10 @@ export default function DatasetPreviewPage() {
                         </div>
                     )}
 
-                    {/* Pagination Placeholder */}
-                    <div className="p-6 bg-muted/20 border-t border-border/10 flex items-center justify-between">
-                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Showing segment 1 of 1</span>
-                        <div className="flex gap-2">
-                            <Button variant="ghost" size="icon" disabled className="h-8 w-8 rounded-lg">
-                                <ChevronLeft className="h-4 w-4" />
-                            </Button>
-                            <Button variant="ghost" size="icon" disabled className="h-8 w-8 rounded-lg">
-                                <ChevronRight className="h-4 w-4" />
-                            </Button>
-                        </div>
+                    <div className="p-6 bg-muted/20 border-t border-border/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">
+                            Showing {visibleRows.length.toLocaleString()} of {filteredData.length.toLocaleString()} filtered rows
+                        </span>
                     </div>
                 </div>
             </div>

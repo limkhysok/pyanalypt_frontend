@@ -154,7 +154,7 @@ export function DatasetPage() {
         try {
             setIssueLoading(id);
             toast.info("Processing issue detection...");
-            await datasetApi.diagnoseDataset(id);
+            await datasetApi.diagnoseDataset(id, "both");
             toast.success("Issue detection complete. Issues logged.");
             router.push("/issues");
         } catch (error) {

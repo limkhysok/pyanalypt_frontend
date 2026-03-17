@@ -6,7 +6,10 @@ import {
   CleanDatasetRequest,
   VisualizeDatasetRequest,
   UpdateCellRequest,
-  Issue
+  Issue,
+  DiagnoseMethod,
+  DiagnoseResponse,
+  UpdateIssueRequest
 } from '@/types/dataset';
 
 export const datasetApi = {
@@ -99,16 +102,18 @@ export const datasetApi = {
   /**
    * Get the first 10-100 rows for the table view.
    */
-  async previewDataset(id: number): Promise<any[]> {
-    const response = await apiClient.get<any[]>(`datasets/${id}/preview/`);
+  async previewDataset(id: number, rows?: number): Promise<any[]> {
+    const response = await apiClient.get<any[]>(`datasets/${id}/preview/`, {
+      params: rows ? { rows } : undefined,
+    });
     return response.data;
   },
 
   /**
    * Run Pandas + Google Gemini AI diagnosis on the dataset.
    */
-  async diagnoseDataset(id: number): Promise<any> {
-    const response = await apiClient.get(`datasets/${id}/diagnose/`);
+  async diagnoseDataset(id: number, method: DiagnoseMethod = 'both'): Promise<DiagnoseResponse> {
+    const response = await apiClient.post<DiagnoseResponse>(`datasets/${id}/diagnose/`, { method });
     return response.data;
   },
 
@@ -123,7 +128,7 @@ export const datasetApi = {
   /**
    * Retrieve all dirty data issues.
    */
-  async listIssues(params?: { dataset?: number; is_resolved?: boolean }): Promise<Issue[]> {
+  async listIssues(params?: { dataset?: number }): Promise<Issue[]> {
     const response = await apiClient.get<Issue[]>('issues/', { params });
     return response.data;
   },
@@ -131,7 +136,7 @@ export const datasetApi = {
   /**
    * Mark issue as resolved or update severity.
    */
-  async updateIssue(id: number, data: Partial<Issue>): Promise<Issue> {
+  async updateIssue(id: number, data: UpdateIssueRequest): Promise<Issue> {
     const response = await apiClient.patch<Issue>(`issues/${id}/`, data);
     return response.data;
   },
