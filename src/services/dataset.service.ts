@@ -1,9 +1,11 @@
 import apiClient from '@/lib/axios';
 import {
   Dataset,
+  DatasetDetail,
   PasteDatasetRequest,
   CleanDatasetRequest,
   VisualizeDatasetRequest,
+  UpdateCellRequest,
   Issue
 } from '@/types/dataset';
 
@@ -13,6 +15,37 @@ export const datasetApi = {
    */
   async listDatasets(): Promise<Dataset[]> {
     const response = await apiClient.get<Dataset[]>('datasets/');
+    return response.data;
+  },
+
+  /**
+   * Retrieves a single dataset with detailed model fields and a data preview.
+   */
+  async getDataset(id: number): Promise<DatasetDetail> {
+    const response = await apiClient.get<DatasetDetail>(`datasets/${id}/`);
+    return response.data;
+  },
+
+  /**
+   * Update dataset metadata (e.g., renamed file_name).
+   */
+  async updateDataset(id: number, data: Partial<Dataset>): Promise<Dataset> {
+    const response = await apiClient.patch<Dataset>(`datasets/${id}/`, data);
+    return response.data;
+  },
+
+  /**
+   * Permanently delete a dataset and its physical file.
+   */
+  async deleteDataset(id: number): Promise<void> {
+    await apiClient.delete(`datasets/${id}/`);
+  },
+
+  /**
+   * Manual edit of a specific cell in the dataset.
+   */
+  async updateCell(id: number, data: UpdateCellRequest): Promise<any> {
+    const response = await apiClient.patch(`datasets/${id}/update_cell/`, data);
     return response.data;
   },
 

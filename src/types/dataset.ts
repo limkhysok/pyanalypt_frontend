@@ -10,6 +10,16 @@ export interface Dataset {
   updated_date: string;
 }
 
+export interface DatasetDetail extends Dataset {
+  data_preview: any[];
+}
+
+export interface UpdateCellRequest {
+  row_index: number;
+  column_name: string;
+  value: any;
+}
+
 export interface PasteDatasetRequest {
   file_name: string;
   raw_data: string;

@@ -24,6 +24,9 @@ import {
     ArrowDownWideNarrow,
     ArrowUpNarrowWide,
     Filter,
+    Trash2,
+    MoreVertical,
+    Edit2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -80,6 +83,9 @@ export function DatasetPage() {
     const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
     const [sortBy, setSortBy] = useState<string>("newest");
     const [filterType, setFilterType] = useState<string>("all");
+    const [isRenameOpen, setIsRenameOpen] = useState(false);
+    const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null);
+    const [newName, setNewName] = useState("");
 
     // Paste data state
     const [pasteData, setPasteData] = useState<PasteDatasetRequest>({
@@ -161,6 +167,35 @@ export function DatasetPage() {
         }
     };
 
+    const handleDelete = async (id: number) => {
+        const confirmed = globalThis.window.confirm("Are you sure you want to permanently purge this artifact?");
+        if (!confirmed) return;
+
+        try {
+            await datasetApi.deleteDataset(id);
+            toast.success("Artifact purged from the vault.");
+            fetchDatasets();
+        } catch (error) {
+            console.error("Delete failed", error);
+            toast.error("Failed to purge artifact.");
+        }
+    };
+
+    const handleRename = async () => {
+        if (!selectedDataset || !newName) return;
+        try {
+            await datasetApi.updateDataset(selectedDataset.id, { file_name: newName });
+            toast.success("Artifact renamed.");
+            setIsRenameOpen(false);
+            setSelectedDataset(null);
+            setNewName("");
+            fetchDatasets();
+        } catch (error) {
+            console.error("Rename failed", error);
+            toast.error("Failed to rename artifact.");
+        }
+    };
+
 
     const filteredDatasets = useMemo(() => {
         let result = datasets.filter((dataset) =>
@@ -224,12 +259,42 @@ export function DatasetPage() {
                                         <FileText className="h-5 w-5 text-primary" />
                                     </div>
                                     <div className="flex flex-col items-end gap-1">
-                                        <Badge variant="outline" className="w-fit text-[7px] font-black uppercase tracking-tighter rounded-md h-4 px-1.5 bg-secondary/50 border-border/40">
-                                            {dataset.file_format}
-                                        </Badge>
-                                        <span className="text-[8px] text-muted-foreground font-black uppercase tracking-widest">
-                                            {new Date(dataset.uploaded_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
-                                        </span>
+                                        <DropdownMenu>
+                                            <DropdownMenuTrigger asChild>
+                                                <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg -mr-2 -mt-1 hover:bg-muted/50 transition-colors">
+                                                    <MoreVertical className="h-3.5 w-3.5 text-muted-foreground" />
+                                                </Button>
+                                            </DropdownMenuTrigger>
+                                            <DropdownMenuContent align="end" className="w-40 rounded-xl p-1 bg-background/95 backdrop-blur-xl border-border/40 shadow-xl">
+                                                <DropdownMenuRadioItem 
+                                                    value="rename" 
+                                                    className="rounded-lg py-2 font-bold text-[10px] uppercase tracking-wider cursor-pointer focus:bg-primary/10 transition-colors text-muted-foreground hover:text-foreground"
+                                                    onClick={() => {
+                                                        setSelectedDataset(dataset);
+                                                        setNewName(dataset.file_name);
+                                                        setIsRenameOpen(true);
+                                                    }}
+                                                >
+                                                    <Edit2 className="mr-2 h-3.5 w-3.5" /> Rename
+                                                </DropdownMenuRadioItem>
+                                                <DropdownMenuSeparator className="bg-border/20 my-1" />
+                                                <DropdownMenuRadioItem 
+                                                    value="delete" 
+                                                    className="rounded-lg py-2 font-bold text-[10px] uppercase tracking-wider cursor-pointer focus:bg-red-500/10 focus:text-red-500 transition-colors text-red-500/70"
+                                                    onClick={() => handleDelete(dataset.id)}
+                                                >
+                                                    <Trash2 className="mr-2 h-3.5 w-3.5" /> Purge Asset
+                                                </DropdownMenuRadioItem>
+                                            </DropdownMenuContent>
+                                        </DropdownMenu>
+                                        <div className="flex flex-col items-end gap-1">
+                                            <Badge variant="outline" className="w-fit text-[7px] font-black uppercase tracking-tighter rounded-md h-4 px-1.5 bg-secondary/50 border-border/40">
+                                                {dataset.file_format}
+                                            </Badge>
+                                            <span className="text-[8px] text-muted-foreground font-black uppercase tracking-widest">
+                                                {new Date(dataset.uploaded_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+                                            </span>
+                                        </div>
                                     </div>
                                 </div>
                                 <CardTitle className="text-lg font-black tracking-tight line-clamp-1 group-hover:text-primary transition-colors leading-tight">
@@ -382,6 +447,15 @@ export function DatasetPage() {
                                                 title="Clean"
                                             >
                                                 <Sparkles className="h-4 w-4" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 rounded-lg hover:bg-red-500/10 hover:text-red-500 transition-colors"
+                                                onClick={() => handleDelete(dataset.id)}
+                                                title="Purge"
+                                            >
+                                                <Trash2 className="h-4 w-4" />
                                             </Button>
                                         </div>
                                     </td>
@@ -688,6 +762,33 @@ export function DatasetPage() {
                     {renderContent()}
                 </div>
             </div>
+            
+            {/* Rename Dialog */}
+            <Dialog open={isRenameOpen} onOpenChange={setIsRenameOpen}>
+                <DialogContent className="sm:max-w-[425px] border-border/40 bg-background/95 backdrop-blur-xl rounded-[2rem]">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-black">Rename Artifact</DialogTitle>
+                        <DialogDescription className="text-muted-foreground text-xs font-bold uppercase tracking-wider">
+                            Modify the metadata tag for this intelligence asset.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                            <Label htmlFor="name" className="text-[9px] font-black uppercase tracking-widest text-muted-foreground px-1">Artifact Name</Label>
+                            <Input
+                                id="name"
+                                value={newName}
+                                onChange={(e) => setNewName(e.target.value)}
+                                className="h-11 rounded-xl bg-muted/20 border-border/40 font-bold"
+                            />
+                        </div>
+                    </div>
+                    <div className="flex justify-end gap-3">
+                        <Button variant="ghost" className="rounded-xl font-bold text-xs" onClick={() => setIsRenameOpen(false)}>Cancel</Button>
+                        <Button className="rounded-xl font-black text-xs uppercase tracking-widest bg-primary px-6 h-11" onClick={handleRename}>Update Tag</Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
         </main>
     );
 }

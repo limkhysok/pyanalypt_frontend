@@ -150,4 +150,13 @@ export const authApi = {
             return null;
         }
     },
+
+    /**
+     * Update current user profile (Partial)
+     */
+    async updateProfile(data: Partial<User>): Promise<User> {
+        console.log("[AuthApi] Updating user profile...");
+        const response = await apiClient.patch<User>('auth/user/', data);
+        return response.data;
+    },
 };
