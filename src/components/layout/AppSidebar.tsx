@@ -12,6 +12,10 @@ import {
     Sparkles,
     Settings,
     User,
+    Trash2,
+    BarChart3,
+    TrendingUp,
+    Lightbulb,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -21,6 +25,10 @@ const NAV_ITEMS = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { label: "Datasets", href: "/datasets", icon: Database },
     { label: "Issues", href: "/issues", icon: AlertCircle },
+    { label: "Clean", href: "/clean", icon: Trash2 },
+    { label: "Analysis", href: "/analysis", icon: BarChart3 },
+    { label: "Visualization", href: "/visualization", icon: TrendingUp },
+    { label: "Insight", href: "/insight", icon: Lightbulb },
 ];
 
 interface AppSidebarProps {

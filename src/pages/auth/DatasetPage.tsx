@@ -10,7 +10,7 @@ import {
     Download,
     Eye,
     BarChart3,
-    AlertCircle,
+    Bug,
     Sparkles,
     ArrowUpRight,
     Copy,
@@ -23,6 +23,8 @@ import {
     Trash2,
     MoreVertical,
     Edit2,
+    TrendingUp,
+    Lightbulb,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -59,6 +61,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 
+function formatFileSize(bytes: number): string {
+    if (bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
+}
+
 export function DatasetPage() {
     const { isAuthenticated, isLoading: authLoading } = useAuth();
     const router = useRouter();
@@ -68,7 +78,7 @@ export function DatasetPage() {
     const [searchQuery, setSearchQuery] = useState("");
     const [isImportOpen, setIsImportOpen] = useState(false);
     const [uploadLoading, setUploadLoading] = useState(false);
-    const [diagnoseLoading, setDiagnoseLoading] = useState<number | null>(null);
+    const [issueLoading, setIssueLoading] = useState<number | null>(null);
     const [sortBy, setSortBy] = useState<string>("newest");
     const [filterType, setFilterType] = useState<string>("all");
     const [isRenameOpen, setIsRenameOpen] = useState(false);
@@ -142,16 +152,16 @@ export function DatasetPage() {
     };
     const handleDiagnose = async (id: number) => {
         try {
-            setDiagnoseLoading(id);
-            toast.info("Pandas + Gemini AI initializing diagnosis...");
+            setIssueLoading(id);
+            toast.info("Processing issue detection...");
             await datasetApi.diagnoseDataset(id);
-            toast.success("Diagnosis absolute. Issues logged in the Incident Ledger.");
+            toast.success("Issue detection complete. Issues logged.");
             router.push("/issues");
         } catch (error) {
-            console.error("Diagnosis error:", error);
-            toast.error("Diagnosis engine encountered a failure.");
+            console.error("Issue detection error:", error);
+            toast.error("Issue detection failed.");
         } finally {
-            setDiagnoseLoading(null);
+            setIssueLoading(null);
         }
     };
 
@@ -228,21 +238,19 @@ export function DatasetPage() {
     const renderListView = () => (
         <div className="rounded-3xl border border-border/40 bg-background/40 backdrop-blur-xl overflow-hidden shadow-sm">
             <div className="px-6 py-4 border-b border-border/20 bg-muted/20 flex items-center justify-between gap-3">
-                <div className="space-y-0.5">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">Registry View</p>
-                    <p className="text-sm font-bold">Operational list of ingested datasets</p>
-                </div>
                 <Badge variant="outline" className="rounded-lg px-2.5 py-1 h-auto text-[10px] font-black uppercase tracking-wider bg-background/70">
-                    {filteredDatasets.length} assets
+                    {filteredDatasets.length} files
                 </Badge>
             </div>
             <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="bg-muted/50 border-b border-border/20 text-[10px] font-black uppercase tracking-widest text-muted-foreground/70">
-                            <th className="px-6 py-4 text-xs">Artifact Name</th>
+                            <th className="px-4 py-4 text-xs w-12 text-center">#</th>
+                            <th className="px-6 py-4 text-xs">File Name</th>
                             <th className="px-6 py-4 text-xs">Format</th>
-                            <th className="px-6 py-4 text-xs">Ingested</th>
+                            <th className="px-6 py-4 text-xs text-right">Size</th>
+                            <th className="px-6 py-4 text-xs">Upload Date</th>
                             <th className="px-6 py-4 text-xs text-right">Actions</th>
                         </tr>
                     </thead>
@@ -257,6 +265,9 @@ export function DatasetPage() {
                                     transition={{ duration: 0.2, delay: idx * 0.02 }}
                                     className="border-b border-border/10 hover:bg-primary/5 transition-colors group"
                                 >
+                                    <td className="px-4 py-4 text-center text-xs font-bold text-muted-foreground/60">
+                                        {idx + 1}
+                                    </td>
                                     <td className="px-6 py-4">
                                         <div className="flex items-center gap-3">
                                             <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
@@ -270,25 +281,14 @@ export function DatasetPage() {
                                             {dataset.file_format}
                                         </Badge>
                                     </td>
+                                    <td className="px-6 py-4 text-xs font-bold text-right tabular-nums text-muted-foreground/70">
+                                        {formatFileSize(dataset.file_size)}
+                                    </td>
                                     <td className="px-6 py-4 text-[10px] font-bold text-muted-foreground/60 uppercase">
                                         {new Date(dataset.uploaded_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                                     </td>
                                     <td className="px-6 py-4">
-                                        <div className="flex items-center justify-end gap-2">
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                disabled={diagnoseLoading === dataset.id}
-                                                className="h-8 w-8 rounded-lg hover:bg-red-500/10 hover:text-red-500 transition-colors"
-                                                onClick={() => handleDiagnose(dataset.id)}
-                                                title="Diagnose"
-                                            >
-                                                {diagnoseLoading === dataset.id ? (
-                                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                                ) : (
-                                                    <AlertCircle className="h-4 w-4" />
-                                                )}
-                                            </Button>
+                                        <div className="flex items-center justify-end gap-1">
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
@@ -301,11 +301,16 @@ export function DatasetPage() {
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
-                                                onClick={() => router.push(`/datasets/${dataset.id}/analyze`)}
-                                                title="Analyze"
+                                                disabled={issueLoading === dataset.id}
+                                                className="h-8 w-8 rounded-lg hover:bg-red-500/10 hover:text-red-500 transition-colors"
+                                                onClick={() => handleDiagnose(dataset.id)}
+                                                title="Issue"
                                             >
-                                                <BarChart3 className="h-4 w-4" />
+                                                {issueLoading === dataset.id ? (
+                                                    <Loader2 className="h-4 w-4 animate-spin" />
+                                                ) : (
+                                                    <Bug className="h-4 w-4" />
+                                                )}
                                             </Button>
                                             <Button
                                                 variant="ghost"
@@ -319,12 +324,63 @@ export function DatasetPage() {
                                             <Button
                                                 variant="ghost"
                                                 size="icon"
-                                                className="h-8 w-8 rounded-lg hover:bg-red-500/10 hover:text-red-500 transition-colors"
-                                                onClick={() => handleDelete(dataset.id)}
-                                                title="Purge"
+                                                className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+                                                onClick={() => router.push(`/datasets/${dataset.id}/analyze`)}
+                                                title="Analysis"
                                             >
-                                                <Trash2 className="h-4 w-4" />
+                                                <BarChart3 className="h-4 w-4" />
                                             </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+                                                onClick={() => router.push(`/datasets/${dataset.id}/visualize`)}
+                                                title="Visualization"
+                                            >
+                                                <TrendingUp className="h-4 w-4" />
+                                            </Button>
+                                            <Button
+                                                variant="ghost"
+                                                size="icon"
+                                                className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+                                                onClick={() => router.push(`/datasets/${dataset.id}/insight`)}
+                                                title="Insight"
+                                            >
+                                                <Lightbulb className="h-4 w-4" />
+                                            </Button>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="h-8 w-8 rounded-lg hover:bg-muted/50 transition-colors"
+                                                        title="More"
+                                                    >
+                                                        <MoreVertical className="h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end" className="w-32 rounded-xl p-1 bg-background/95 backdrop-blur-xl border-border/40 shadow-xl">
+                                                    <DropdownMenuRadioItem
+                                                        value="rename"
+                                                        className="rounded-lg py-2 font-bold text-[10px] uppercase tracking-wider cursor-pointer focus:bg-primary/10 transition-colors text-muted-foreground hover:text-foreground"
+                                                        onClick={() => {
+                                                            setSelectedDataset(dataset);
+                                                            setNewName(dataset.file_name);
+                                                            setIsRenameOpen(true);
+                                                        }}
+                                                    >
+                                                        <Edit2 className="mr-2 h-3.5 w-3.5" /> Rename
+                                                    </DropdownMenuRadioItem>
+                                                    <DropdownMenuSeparator className="bg-border/20 my-1" />
+                                                    <DropdownMenuRadioItem
+                                                        value="delete"
+                                                        className="rounded-lg py-2 font-bold text-[10px] uppercase tracking-wider cursor-pointer focus:bg-red-500/10 focus:text-red-500 transition-colors text-red-500/70"
+                                                        onClick={() => handleDelete(dataset.id)}
+                                                    >
+                                                        <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
+                                                    </DropdownMenuRadioItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
                                         </div>
                                     </td>
                                 </motion.tr>
@@ -366,9 +422,9 @@ export function DatasetPage() {
                         <Database className="h-12 w-12" />
                     </div>
                     <div className="max-w-md space-y-2">
-                        <h3 className="text-2xl font-black tracking-tight">Vault Dormant</h3>
+                        <h3 className="text-2xl font-black tracking-tight">No Datasets Yet</h3>
                         <p className="text-muted-foreground font-bold text-base italic">
-                            Your analytical vault is currently empty.
+                            Upload your first file to get started.
                         </p>
                     </div>
                     <Button
@@ -377,7 +433,7 @@ export function DatasetPage() {
                         onClick={() => setIsImportOpen(true)}
                     >
                         <Plus className="mr-2 h-4 w-4" />{" "}
-                        Initialize Pipeline
+                        Upload File
                     </Button>
                 </motion.div>
             )
@@ -410,13 +466,13 @@ export function DatasetPage() {
                             <span className="p-1 rounded-sm bg-primary/10">
                                 <Database size={10} className="text-primary" />
                             </span>{" "}
-                            Intelligence Assets
+                            Import Your Dataset
                         </div>
                         <h1 className="text-3xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-foreground to-foreground/70 leading-tight">
-                            Dataset Registry
+                            Datasets
                         </h1>
                         <p className="text-muted-foreground mt-2 text-base max-w-lg leading-relaxed font-medium">
-                            A structured index of every uploaded artifact, optimized for quick scan, filtering, and action.
+                            Upload and manage your data files for analysis.
                         </p>
                     </motion.div>
 
@@ -435,7 +491,7 @@ export function DatasetPage() {
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 bg-background/95 backdrop-blur-xl border-border/40 shadow-2xl">
-                                <DropdownMenuLabel className="text-[9px] uppercase font-black tracking-[0.2em] text-muted-foreground/50 px-3 py-2">Sort Intelligence</DropdownMenuLabel>
+                                <DropdownMenuLabel className="text-[9px] uppercase font-black tracking-[0.2em] text-muted-foreground/50 px-3 py-2">Sort By</DropdownMenuLabel>
                                 <DropdownMenuSeparator className="bg-border/40 my-1" />
                                 <DropdownMenuRadioGroup value={sortBy} onValueChange={setSortBy}>
                                     <DropdownMenuRadioItem value="newest" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
@@ -458,25 +514,25 @@ export function DatasetPage() {
                             <DropdownMenuTrigger asChild>
                                 <Button variant="outline" size="sm" className="h-10 px-4 rounded-xl border-border/40 bg-background/50 backdrop-blur-sm font-bold text-xs gap-2 hover:bg-background/80 transition-all">
                                     <Filter className="h-3.5 w-3.5 text-primary/70" />
-                                    <span className="hidden lg:inline">{filterType === 'all' ? 'All Assets' : filterType}</span>
+                                    <span className="hidden lg:inline">{filterType === 'all' ? 'All Files' : filterType}</span>
                                     <ChevronDown className="h-3 w-3 opacity-30" />
                                 </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end" className="w-48 rounded-2xl p-2 bg-background/95 backdrop-blur-xl border-border/40 shadow-2xl">
-                                <DropdownMenuLabel className="text-[9px] uppercase font-black tracking-[0.2em] text-muted-foreground/50 px-3 py-2">Source Filter</DropdownMenuLabel>
+                                <DropdownMenuLabel className="text-[9px] uppercase font-black tracking-[0.2em] text-muted-foreground/50 px-3 py-2">Filter By Format</DropdownMenuLabel>
                                 <DropdownMenuSeparator className="bg-border/40 my-1" />
                                 <DropdownMenuRadioGroup value={filterType} onValueChange={setFilterType}>
                                     <DropdownMenuRadioItem value="all" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
                                         All Formats
                                     </DropdownMenuRadioItem>
                                     <DropdownMenuRadioItem value="CSV" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
-                                        CSV Artifacts
+                                        CSV
                                     </DropdownMenuRadioItem>
                                     <DropdownMenuRadioItem value="JSON" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
-                                        JSON Artifacts
+                                        JSON
                                     </DropdownMenuRadioItem>
                                     <DropdownMenuRadioItem value="XLSX" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
-                                        Excel Sheets
+                                        Excel
                                     </DropdownMenuRadioItem>
                                 </DropdownMenuRadioGroup>
                             </DropdownMenuContent>
@@ -485,7 +541,7 @@ export function DatasetPage() {
                         <div className="relative group/search flex-1 sm:min-w-[280px]">
                             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/60 group-focus-within/search:text-primary transition-colors" />
                             <Input
-                                placeholder="Locate data assets..."
+                                placeholder="Search files..."
                                 className="pl-10 h-10 bg-background/50 border-border/40 focus:border-primary/40 focus:ring-4 focus:ring-primary/5 rounded-xl text-xs font-bold transition-all placeholder:text-muted-foreground/40 shadow-sm"
                                 value={searchQuery}
                                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -499,7 +555,7 @@ export function DatasetPage() {
                                     className="h-10 px-6 rounded-xl font-black tracking-widest text-[10px] uppercase bg-foreground text-background hover:bg-primary transition-all duration-300 hover:ambient-glow-mono shadow-lg shadow-foreground/5 group"
                                 >
                                     <Plus className="mr-2 h-4 w-4 group-hover:rotate-90 transition-transform duration-300" />
-                                    Import Dataset
+                                    Import
                                 </Button>
                             </DialogTrigger>
                             <DialogContent className="sm:max-w-[500px] border-border/40 bg-background/95 backdrop-blur-xl rounded-[2rem] p-0 overflow-hidden">
@@ -509,9 +565,9 @@ export function DatasetPage() {
                                             <ArrowUpRight className="h-5 w-5 text-primary" />
                                         </div>
                                         <div>
-                                            <DialogTitle className="text-2xl font-black tracking-tight">Ingest Intelligence</DialogTitle>
+                                            <DialogTitle className="text-2xl font-black tracking-tight">Import Dataset</DialogTitle>
                                             <DialogDescription className="text-muted-foreground text-sm mt-1 font-bold">
-                                                Initialize your analysis pipeline.
+                                                Upload or paste your data.
                                             </DialogDescription>
                                         </div>
                                     </DialogHeader>
@@ -539,8 +595,8 @@ export function DatasetPage() {
                                                     {uploadLoading ? <Loader2 className="h-8 w-8 animate-spin" /> : <Plus className="h-8 w-8" />}
                                                 </div>
                                                 <div className="space-y-1">
-                                                    <p className="text-base font-black tracking-tight">Drop your artifact here</p>
-                                                    <p className="text-muted-foreground text-[11px] font-bold">CSV, XLSX, or JSON formats</p>
+                                                    <p className="text-base font-black tracking-tight">Drop your file here</p>
+                                                    <p className="text-muted-foreground text-[11px] font-bold">CSV, JSON, or Excel files</p>
                                                 </div>
                                             </div>
                                         </TabsContent>
@@ -548,7 +604,7 @@ export function DatasetPage() {
                                         <TabsContent value="paste" className="mt-5 space-y-5 pb-4">
                                             <div className="space-y-4">
                                                 <div className="grid gap-1.5">
-                                                    <Label htmlFor="filename" className="text-[9px] font-black uppercase tracking-widest text-muted-foreground px-1">Artifact Name</Label>
+                                                    <Label htmlFor="filename" className="text-[9px] font-black uppercase tracking-widest text-muted-foreground px-1">File Name</Label>
                                                     <Input
                                                         id="filename"
                                                         placeholder="e.g. market_trends.csv"
@@ -559,7 +615,7 @@ export function DatasetPage() {
                                                 </div>
                                                 <div className="grid gap-1.5">
                                                     <div className="flex justify-between items-end px-1">
-                                                        <Label htmlFor="rawdata" className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Raw Fragment</Label>
+                                                        <Label htmlFor="rawdata" className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Paste Data</Label>
                                                         <div className="flex gap-1.5">
                                                             <Button
                                                                 variant="ghost"
@@ -578,7 +634,7 @@ export function DatasetPage() {
                                                     <textarea
                                                         id="rawdata"
                                                         rows={6}
-                                                        placeholder="Paste raw data fragments..."
+                                                        placeholder="Paste your data here..."
                                                         className="w-full p-3 rounded-xl bg-muted/20 border border-border/40 font-mono text-[10px] focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all resize-none"
                                                         value={pasteData.raw_data}
                                                         onChange={(e) => setPasteData({ ...pasteData, raw_data: e.target.value })}
@@ -590,7 +646,7 @@ export function DatasetPage() {
                                                     disabled={uploadLoading}
                                                 >
                                                     {uploadLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-                                                    Initialize Pipeline
+                                                    Upload
                                                 </Button>
                                             </div>
                                         </TabsContent>
@@ -613,14 +669,14 @@ export function DatasetPage() {
             <Dialog open={isRenameOpen} onOpenChange={setIsRenameOpen}>
                 <DialogContent className="sm:max-w-[425px] border-border/40 bg-background/95 backdrop-blur-xl rounded-[2rem]">
                     <DialogHeader>
-                        <DialogTitle className="text-xl font-black">Rename Artifact</DialogTitle>
+                        <DialogTitle className="text-xl font-black">Rename File</DialogTitle>
                         <DialogDescription className="text-muted-foreground text-xs font-bold uppercase tracking-wider">
-                            Modify the metadata tag for this intelligence asset.
+                            Update the filename.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="grid gap-2">
-                            <Label htmlFor="name" className="text-[9px] font-black uppercase tracking-widest text-muted-foreground px-1">Artifact Name</Label>
+                            <Label htmlFor="name" className="text-[9px] font-black uppercase tracking-widest text-muted-foreground px-1">File Name</Label>
                             <Input
                                 id="name"
                                 value={newName}
@@ -631,7 +687,7 @@ export function DatasetPage() {
                     </div>
                     <div className="flex justify-end gap-3">
                         <Button variant="ghost" className="rounded-xl font-bold text-xs" onClick={() => setIsRenameOpen(false)}>Cancel</Button>
-                        <Button className="rounded-xl font-black text-xs uppercase tracking-widest bg-primary px-6 h-11" onClick={handleRename}>Update Tag</Button>
+                        <Button className="rounded-xl font-black text-xs uppercase tracking-widest bg-primary px-6 h-11" onClick={handleRename}>Update</Button>
                     </div>
                 </DialogContent>
             </Dialog>

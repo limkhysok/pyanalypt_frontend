@@ -4,6 +4,7 @@ export interface Dataset {
   file: string;
   file_name: string;
   file_format: string;
+  file_size: number;
   uploaded_date: string;
   updated_date: string;
 }

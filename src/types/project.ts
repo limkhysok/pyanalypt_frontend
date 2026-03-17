@@ -32,6 +32,7 @@ export interface Dataset {
     file: string | null;
     name: string;
     file_format: string;
+    file_size?: number;
     uploaded_at: string;
 }
 
