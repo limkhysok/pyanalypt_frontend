@@ -9,6 +9,7 @@ export { default as apiClient } from '@/lib/axios';
 // Services
 export { authApi } from './auth.service';
 export { projectApi } from './project.service';
+export { datasetApi } from './dataset.service';
 
 // Utilities
 export { tokenManager } from '@/lib/token';
@@ -31,3 +32,12 @@ export type {
     CreateProjectRequest,
     UpdateProjectRequest,
 } from '@/types/project';
+
+export type {
+    Dataset,
+    RenameDatasetRequest,
+    UpdateCellResponse,
+    DatasetExportFormat,
+    CleanDatasetRequest,
+    VisualizeDatasetRequest,
+} from '@/types/dataset';

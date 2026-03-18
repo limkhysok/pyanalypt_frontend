@@ -96,7 +96,7 @@ export function parseApiError(error: unknown): ApiError {
  */
 export function getErrorMessage(error: unknown): string {
     const apiError = parseApiError(error);
-    return apiError.message;
+    return apiError.message ?? 'An unexpected error occurred';
 }
 
 /**

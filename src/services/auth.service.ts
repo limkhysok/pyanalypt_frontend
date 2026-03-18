@@ -15,11 +15,11 @@ import {
  */
 export const authApi = {
     /**
-     * Register a new user with email and password
+     * Register a new user with username and passwords
      */
     async register(data: RegisterRequest): Promise<AuthResponse> {
-        console.log("[AuthApi] Registering user:", data.email);
-        const response = await apiClient.post<AuthResponse>('/auth/registration/', data);
+        console.log("[AuthApi] Registering user:", data.username);
+        const response = await apiClient.post<AuthResponse>('auth/registration/', data);
         console.log("[AuthApi] Registration Response:", response.data);
 
         // Store tokens after successful registration
@@ -34,11 +34,11 @@ export const authApi = {
     },
 
     /**
-     * Login with email and password
+     * Login with username/email and password
      */
     async login(data: LoginRequest): Promise<AuthResponse> {
-        console.log("[AuthApi] Logging in user:", data.email);
-        const response = await apiClient.post<AuthResponse>('/auth/login/', data);
+        console.log("[AuthApi] Logging in user:", data.username);
+        const response = await apiClient.post<AuthResponse>('auth/login/', data);
         console.log("[AuthApi] Login Response:", response.data);
 
         // Store tokens after successful login
@@ -58,7 +58,7 @@ export const authApi = {
      */
     async googleAuth(accessToken: string): Promise<AuthResponse> {
         console.log("[AuthApi] Authenticating with Google...");
-        const response = await apiClient.post<AuthResponse>('/auth/google/', {
+        const response = await apiClient.post<AuthResponse>('auth/google/', {
             access_token: accessToken,
         } as GoogleAuthRequest);
         console.log("[AuthApi] Google Auth Response:", response.data);
@@ -78,7 +78,7 @@ export const authApi = {
      * Refresh access token using refresh token
      */
     async refreshToken(refreshToken: string): Promise<RefreshTokenResponse> {
-        const response = await apiClient.post<RefreshTokenResponse>('/auth/token/refresh/', {
+        const response = await apiClient.post<RefreshTokenResponse>('auth/token/refresh/', {
             refresh: refreshToken,
         });
 
@@ -91,15 +91,25 @@ export const authApi = {
     },
 
     /**
-     * Logout user (client-side only)
-     * Note: Add backend logout endpoint if you implement token blacklisting
+     * Logout user (client and server side)
      */
-    logout(): void {
+    async logout(): Promise<void> {
+        const refreshToken = tokenManager.getRefreshToken();
+        
+        if (refreshToken) {
+            try {
+                await apiClient.post('auth/logout/', { refresh: refreshToken });
+                console.log("[AuthApi] Backend logout successful.");
+            } catch (error) {
+                console.error("[AuthApi] Backend logout failed:", error);
+            }
+        }
+
         tokenManager.clearTokens();
 
         // Redirect to login page
-        if (typeof window !== 'undefined') {
-            window.location.href = '/login';
+        if (globalThis.window !== undefined) {
+            globalThis.window.location.href = '/login';
         }
     },
 
@@ -121,20 +131,32 @@ export const authApi = {
      * Get current user profile from backend
      */
     async getCurrentUser(): Promise<User | null> {
-        console.log("[AuthApi] Calling /auth/user/...");
+        console.log("[AuthApi] Calling auth/user/...");
         try {
-            const response = await apiClient.get<User>('/auth/user/');
-            console.log("[AuthApi] /auth/user/ Response:", response.data);
+            const response = await apiClient.get<User>('auth/user/');
+            console.log("[AuthApi] auth/user/ Response:", response.data);
             return response.data;
         } catch (error: any) {
-            console.error("[AuthApi] /auth/user/ Error:", {
+            const errorReport = {
                 status: error.response?.status,
                 data: error.response?.data,
-                message: error.message
-            });
+                message: error.message || "Unknown transport error",
+                endpoint: error.config?.url
+            };
+            console.error("[AuthApi] auth/user/ Error detail:", errorReport);
+            console.error("[AuthApi] Raw Axios Error:", error);
             // If it's a 401, let the axios interceptor handle it or rethrow
             // For other errors, return null so we can handle it gracefully
             return null;
         }
+    },
+
+    /**
+     * Update current user profile (Partial)
+     */
+    async updateProfile(data: Partial<User>): Promise<User> {
+        console.log("[AuthApi] Updating user profile...");
+        const response = await apiClient.patch<User>('auth/user/', data);
+        return response.data;
     },
 };

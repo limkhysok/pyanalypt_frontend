@@ -30,6 +30,7 @@ import { CursorFollower } from "@/components/ui/cursor-follower";
 import { Providers } from "@/context/providers";
 import { PublicShell } from "@/components/layout/PublicShell";
 import { SmoothScroll } from "@/components/ui/smooth-scroll";
+import { Toaster } from "sonner";
 
 export default function RootLayout({
   children,
@@ -45,6 +46,7 @@ export default function RootLayout({
           <Providers>
             <CursorFollower />
             <PublicShell>{children}</PublicShell>
+            <Toaster position="bottom-right" richColors closeButton />
           </Providers>
         </SmoothScroll>
       </body>
