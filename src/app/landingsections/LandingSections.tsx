@@ -15,12 +15,10 @@ import Link from "next/link";
 export function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
     return (
         <section className="min-h-[90vh] flex flex-col items-center justify-center text-center space-y-8 relative overflow-hidden bg-zinc-50/50 dark:bg-zinc-950/50 pt-24 pb-16">
-
             {/* Hero Background Elements - Grid & Glows */}
             <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
                 {/* Modern subtle grid pattern */}
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
-
                 {/* Floating Animated Charts */}
                 <motion.div
                     animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
@@ -29,7 +27,6 @@ export function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
                 >
                     <BarChart2 size={32} className="text-blue-500" />
                 </motion.div>
-
                 <motion.div
                     animate={{ y: [0, 30, 0], x: [0, 10, 0], rotate: [0, -10, 0] }}
                     transition={{ repeat: Infinity, duration: 8, ease: "easeInOut", delay: 1 }}
@@ -37,7 +34,6 @@ export function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
                 >
                     <PieChart size={40} className="text-purple-500" />
                 </motion.div>
-
                 <motion.div
                     animate={{ y: [0, -25, 0], x: [0, -15, 0], rotate: [0, 8, 0] }}
                     transition={{ repeat: Infinity, duration: 7, ease: "easeInOut", delay: 2.5 }}
@@ -45,7 +41,6 @@ export function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
                 >
                     <TrendingUp size={28} className="text-emerald-500" />
                 </motion.div>
-
                 <motion.div
                     animate={{ y: [0, 20, 0], rotate: [0, -5, 0] }}
                     transition={{ repeat: Infinity, duration: 5.5, ease: "easeInOut", delay: 0.5 }}
@@ -53,7 +48,6 @@ export function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
                 >
                     <LineChart size={36} className="text-foreground" />
                 </motion.div>
-
                 {/* Top blue glow anchoring the navbar */}
                 <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[600px] h-[500px] bg-blue-500/10 blur-[120px] rounded-full" />
                 {/* Secondary ambient glow */}
@@ -61,7 +55,6 @@ export function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
                 {/* Bottom fading gradient to smooth into the next section */}
                 <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
             </div>
-
             <div className="space-y-6 max-w-4xl relative z-10 px-4 flex flex-col items-center">
                 <motion.div
                     initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
@@ -73,7 +66,6 @@ export function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
                         <span className="flex h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" /> AI-Powered Analytics v2.0
                     </span>
                 </motion.div>
-
                 <motion.h1
                     initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
                     animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
@@ -85,7 +77,6 @@ export function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
                         <TypewriterEffect />
                     </span>
                 </motion.h1>
-
                 <motion.p
                     initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
                     animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
@@ -95,7 +86,6 @@ export function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
                     PyAnalypt seamlessly simplifies complex data visualization. Upload your raw datasets and let our AI engine generate stunning, interactive charts in seconds.
                 </motion.p>
             </div>
-
             <motion.div
                 initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
                 animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
@@ -116,7 +106,6 @@ export function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
                     <GithubIcon size={18} /> View GitHub
                 </Link>
             </motion.div>
-
             <motion.div
                 initial={{ opacity: 0, filter: "blur(10px)" }}
                 animate={{ opacity: 1, filter: "blur(0px)" }}
