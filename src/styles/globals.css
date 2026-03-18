@@ -75,8 +75,12 @@
     @apply border-border;
   }
 
+  main {
+    @apply relative;
+  }
+
   body {
-    @apply bg-background text-foreground antialiased selection:bg-white/20 selection:text-white;
+    @apply bg-background text-foreground antialiased selection:bg-white/20 selection:text-white relative;
   }
 }
 
