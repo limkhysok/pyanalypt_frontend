@@ -1,4 +1,4 @@
-import { DatasetPage } from "@/pages/auth/DatasetPage";
+import DatasetPage from "./DatasetPage";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

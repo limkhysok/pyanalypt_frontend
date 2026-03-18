@@ -89,7 +89,7 @@ export function IssuesPage() {
     const [isPreviewLoading, setIsPreviewLoading] = React.useState(false);
     const [overview, setOverview] = React.useState<DiagnoseOverview | null>(null);
     const [summary, setSummary] = React.useState<IssueSummaryResponse | null>(null);
-    const [sidePanel, setSidePanel] = React.useState<"overview" | "preview">("overview");
+    const [sidePanel, setSidePanel] = React.useState<"overview" | "preview" | "issues">("overview");
 
     const fetchDatasets = React.useCallback(async () => {
         const datasetsData = await datasetApi.listDatasets();
@@ -602,7 +602,7 @@ export function IssuesPage() {
                     </div>
                 </div>
 
-                {/* ===== Two-panel layout ===== */}
+                {/* ===== New 2-panel layout: 70% preview, 30% sidebar ===== */}
                 {isLoading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                         {[1, 2, 3, 4, 5, 6].map((i) => (
@@ -622,107 +622,14 @@ export function IssuesPage() {
                         </div>
                     </div>
                 ) : (
-                    <div className="grid grid-cols-1 xl:grid-cols-[1fr_340px] gap-6 items-start">
-                        {/* ===== LEFT: Issues (primary) ===== */}
-                        <div className="space-y-4 min-w-0 order-2 xl:order-1">
-                            {/* By-type badges */}
-                            {Object.keys(stats.byType).length > 0 && (
-                                <div className="flex flex-wrap gap-1.5">
-                                    {Object.entries(stats.byType).map(([type, count]) => (
-                                        <Badge key={type} variant="outline" className="text-[9px] font-black tracking-wider uppercase rounded-md gap-1">
-                                            {type}: {count}
-                                        </Badge>
-                                    ))}
-                                </div>
-                            )}
-
-                            {filteredIssues.length > 0 ? (
-                                Object.keys(issuesByColumn).length > 0 ? (
-                                    Object.keys(issuesByColumn).map((colName) => {
-                                        const colIssues = issuesByColumn[colName].filter((issue) => {
-                                            const q = searchQuery.toLowerCase();
-                                            return (
-                                                issue.description.toLowerCase().includes(q) ||
-                                                issue.column_name?.toLowerCase().includes(q) ||
-                                                issue.issue_type.toLowerCase().includes(q)
-                                            );
-                                        });
-                                        if (colIssues.length === 0) return null;
-
-                                        return (
-                                            <div key={colName} className="rounded-2xl border border-border/30 bg-background/50 backdrop-blur-sm overflow-hidden">
-                                                <div className="px-4 py-3 border-b border-border/20 flex items-center justify-between bg-muted/10">
-                                                    <h3 className="text-xs md:text-sm font-black tracking-wide flex items-center gap-2">
-                                                        <Columns className="h-3.5 w-3.5 text-primary/60" />
-                                                        {colName === "__dataset__" ? "Dataset-Level" : colName}
-                                                    </h3>
-                                                    <Badge variant="outline" className="text-[9px] font-black tracking-wider uppercase rounded-md">
-                                                        {colIssues.length}
-                                                    </Badge>
-                                                </div>
-                                                <div className="overflow-x-auto">
-                                                    <table className="w-full text-left border-collapse">
-                                                        <thead>
-                                                            <tr className="bg-muted/30 border-b border-border/20">
-                                                                <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-wider text-muted-foreground">Type</th>
-                                                                <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-wider text-muted-foreground">Description</th>
-                                                                <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-wider text-muted-foreground text-center">Rows</th>
-                                                                <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-wider text-muted-foreground">Fix</th>
-                                                                <th className="px-4 py-2.5 w-10"></th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            {renderIssueRows(colIssues)}
-                                                        </tbody>
-                                                    </table>
-                                                </div>
-                                            </div>
-                                        );
-                                    })
-                                ) : (
-                                    /* Flat fallback */
-                                    <div className="rounded-2xl border border-border/30 bg-background/50 backdrop-blur-sm overflow-hidden">
-                                        <div className="px-4 py-3 border-b border-border/20 flex items-center justify-between">
-                                            <h3 className="text-xs md:text-sm font-black tracking-wide">All Issues</h3>
-                                            <Badge variant="outline" className="text-[9px] font-black tracking-wider uppercase rounded-md">
-                                                {filteredIssues.length}
-                                            </Badge>
-                                        </div>
-                                        <div className="overflow-x-auto">
-                                            <table className="w-full text-left border-collapse">
-                                                <thead>
-                                                    <tr className="bg-muted/30 border-b border-border/20">
-                                                        <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-wider text-muted-foreground">Type</th>
-                                                        <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-wider text-muted-foreground">Description</th>
-                                                        <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-wider text-muted-foreground text-center">Rows</th>
-                                                        <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-wider text-muted-foreground">Fix</th>
-                                                        <th className="px-4 py-2.5 w-10"></th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    {renderIssueRows(filteredIssues)}
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                )
-                            ) : (
-                                <div className="flex flex-col items-center justify-center py-20 text-center space-y-6 bg-muted/5 rounded-[2.5rem] border border-dashed border-border/60">
-                                    <div className="p-8 rounded-[2rem] bg-emerald-500/10 text-emerald-500/30 shadow-inner">
-                                        <ShieldAlert className="h-14 w-14" />
-                                    </div>
-                                    <div className="max-w-sm space-y-2">
-                                        <h3 className="text-2xl font-black tracking-tight text-emerald-500">No Issues Found</h3>
-                                        <p className="text-muted-foreground text-sm italic font-bold">
-                                            Run a scan to detect dirty data grouped by column.
-                                        </p>
-                                    </div>
-                                </div>
-                            )}
+                    <div className="grid grid-cols-1 xl:grid-cols-[7fr_3fr] gap-6 items-start">
+                        {/* ===== LEFT: Dataframe Preview (primary) ===== */}
+                        <div className="order-1 xl:order-1 min-w-0">
+                            {renderPreviewPanel()}
                         </div>
 
-                        {/* ===== RIGHT: Overview / Preview sidebar ===== */}
-                        <div className="order-1 xl:order-2 xl:sticky xl:top-20 space-y-0 rounded-2xl border border-border/40 bg-background/50 backdrop-blur-xl overflow-hidden">
+                        {/* ===== RIGHT: Sidebar (Overview or Issues) ===== */}
+                        <div className="order-2 xl:order-2 xl:sticky xl:top-20 space-y-0 rounded-2xl border border-border/40 bg-background/50 backdrop-blur-xl overflow-hidden">
                             {/* Tab toggle */}
                             <div className="flex border-b border-border/20">
                                 <button
@@ -737,21 +644,121 @@ export function IssuesPage() {
                                     <TableProperties className="h-3.5 w-3.5" /> Overview
                                 </button>
                                 <button
-                                    onClick={() => setSidePanel("preview")}
+                                    onClick={() => setSidePanel("issues")}
                                     className={cn(
                                         "flex-1 px-4 py-3 text-[10px] font-black uppercase tracking-widest transition-colors flex items-center justify-center gap-1.5",
-                                        sidePanel === "preview"
+                                        sidePanel === "issues"
                                             ? "text-primary border-b-2 border-primary bg-primary/5"
                                             : "text-muted-foreground hover:text-foreground hover:bg-muted/20"
                                     )}
                                 >
-                                    <Eye className="h-3.5 w-3.5" /> Preview
+                                    <AlertCircle className="h-3.5 w-3.5" /> Issues
                                 </button>
                             </div>
 
                             {/* Panel body */}
                             <div className="overflow-hidden">
-                                {sidePanel === "overview" ? renderOverviewPanel() : renderPreviewPanel()}
+                                {sidePanel === "overview" ? (
+                                    renderOverviewPanel()
+                                ) : (
+                                    // Issues tab content (grouped/flat, with delete)
+                                    <div className="p-3 space-y-3 max-h-[calc(100vh-14rem)] overflow-y-auto">
+                                        {/* By-type badges */}
+                                        {Object.keys(stats.byType).length > 0 && (
+                                            <div className="flex flex-wrap gap-1.5 mb-2">
+                                                {Object.entries(stats.byType).map(([type, count]) => (
+                                                    <Badge key={type} variant="outline" className="text-[9px] font-black tracking-wider uppercase rounded-md gap-1">
+                                                        {type}: {count}
+                                                    </Badge>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        {filteredIssues.length > 0 ? (
+                                            Object.keys(issuesByColumn).length > 0 ? (
+                                                Object.keys(issuesByColumn).map((colName) => {
+                                                    const colIssues = issuesByColumn[colName].filter((issue) => {
+                                                        const q = searchQuery.toLowerCase();
+                                                        return (
+                                                            issue.description.toLowerCase().includes(q) ||
+                                                            issue.column_name?.toLowerCase().includes(q) ||
+                                                            issue.issue_type.toLowerCase().includes(q)
+                                                        );
+                                                    });
+                                                    if (colIssues.length === 0) return null;
+
+                                                    return (
+                                                        <div key={colName} className="rounded-2xl border border-border/30 bg-background/50 backdrop-blur-sm overflow-hidden mb-3">
+                                                            <div className="px-4 py-3 border-b border-border/20 flex items-center justify-between bg-muted/10">
+                                                                <h3 className="text-xs md:text-sm font-black tracking-wide flex items-center gap-2">
+                                                                    <Columns className="h-3.5 w-3.5 text-primary/60" />
+                                                                    {colName === "__dataset__" ? "Dataset-Level" : colName}
+                                                                </h3>
+                                                                <Badge variant="outline" className="text-[9px] font-black tracking-wider uppercase rounded-md">
+                                                                    {colIssues.length}
+                                                                </Badge>
+                                                            </div>
+                                                            <div className="overflow-x-auto">
+                                                                <table className="w-full text-left border-collapse">
+                                                                    <thead>
+                                                                        <tr className="bg-muted/30 border-b border-border/20">
+                                                                            <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-wider text-muted-foreground">Type</th>
+                                                                            <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-wider text-muted-foreground">Description</th>
+                                                                            <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-wider text-muted-foreground text-center">Rows</th>
+                                                                            <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-wider text-muted-foreground">Fix</th>
+                                                                            <th className="px-4 py-2.5 w-10"></th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        {renderIssueRows(colIssues)}
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    );
+                                                })
+                                            ) : (
+                                                /* Flat fallback */
+                                                <div className="rounded-2xl border border-border/30 bg-background/50 backdrop-blur-sm overflow-hidden">
+                                                    <div className="px-4 py-3 border-b border-border/20 flex items-center justify-between">
+                                                        <h3 className="text-xs md:text-sm font-black tracking-wide">All Issues</h3>
+                                                        <Badge variant="outline" className="text-[9px] font-black tracking-wider uppercase rounded-md">
+                                                            {filteredIssues.length}
+                                                        </Badge>
+                                                    </div>
+                                                    <div className="overflow-x-auto">
+                                                        <table className="w-full text-left border-collapse">
+                                                            <thead>
+                                                                <tr className="bg-muted/30 border-b border-border/20">
+                                                                    <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-wider text-muted-foreground">Type</th>
+                                                                    <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-wider text-muted-foreground">Description</th>
+                                                                    <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-wider text-muted-foreground text-center">Rows</th>
+                                                                    <th className="px-4 py-2.5 text-[9px] font-black uppercase tracking-wider text-muted-foreground">Fix</th>
+                                                                    <th className="px-4 py-2.5 w-10"></th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                {renderIssueRows(filteredIssues)}
+                                                            </tbody>
+                                                        </table>
+                                                    </div>
+                                                </div>
+                                            )
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center py-20 text-center space-y-6 bg-muted/5 rounded-[2.5rem] border border-dashed border-border/60">
+                                                <div className="p-8 rounded-[2rem] bg-emerald-500/10 text-emerald-500/30 shadow-inner">
+                                                    <ShieldAlert className="h-14 w-14" />
+                                                </div>
+                                                <div className="max-w-sm space-y-2">
+                                                    <h3 className="text-2xl font-black tracking-tight text-emerald-500">No Issues Found</h3>
+                                                    <p className="text-muted-foreground text-sm italic font-bold">
+                                                        Run a scan to detect dirty data grouped by column.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

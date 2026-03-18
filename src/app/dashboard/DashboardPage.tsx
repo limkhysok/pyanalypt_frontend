@@ -36,7 +36,7 @@ const recentActivity = [
     { name: "Sales_Forecast_2026.xlsx", type: "Predictive Analytics", date: "Yesterday", status: "Processing" },
 ];
 
-export function DashboardPage() {
+function DashboardPage() {
     const { user, isAuthenticated, isLoading } = useAuth();
     const router = useRouter();
 
@@ -302,7 +302,7 @@ export function DashboardPage() {
                                                         initial={{ width: 0 }}
                                                         animate={{ width: `${job.progress}%` }}
                                                         transition={{ duration: 1.5 }}
-                                                        className={cn("h-full rounded-full shadow-[0_0_10px]", job.progress > 0 ? job.color : "bg-transparent")}
+                                                        className={cn("h-full rounded-full shadow-[0_0_10px", job.progress > 0 ? job.color : "bg-transparent")}
                                                     />
                                                 </div>
                                             </div>
@@ -321,3 +321,5 @@ export function DashboardPage() {
         </main>
     );
 }
+
+export default DashboardPage;
