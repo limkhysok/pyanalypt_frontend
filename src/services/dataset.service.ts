@@ -10,7 +10,6 @@ import {
   UpdateCellResponse,
   DatasetExportFormat,
   Issue,
-  DiagnoseMethod,
   DiagnoseResponse,
   UpdateIssueRequest
 } from '@/types/dataset';
@@ -137,10 +136,10 @@ export const datasetApi = {
   },
 
   /**
-   * Run Pandas + Google Gemini AI diagnosis on the dataset.
+   * Run diagnosis scan for a dataset and create issue records.
    */
-  async diagnoseDataset(id: number, method: DiagnoseMethod = 'both'): Promise<DiagnoseResponse> {
-    const response = await apiClient.post<DiagnoseResponse>(`datasets/${id}/diagnose/`, { method });
+  async diagnoseDataset(id: number): Promise<DiagnoseResponse> {
+    const response = await apiClient.post<DiagnoseResponse>(`issues/diagnose/${id}/`);
     return response.data;
   },
 

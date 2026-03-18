@@ -6,13 +6,9 @@ import {
     Search,
     Loader2,
     ShieldAlert,
-    CheckCircle2,
-    Clock,
     Filter,
     Database,
     ChevronDown,
-    RotateCcw,
-    Activity,
     Sparkles,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -33,7 +29,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import { datasetApi } from "@/services/api";
-import { Issue, Dataset, DiagnoseMethod } from "@/types/dataset";
+import { Issue, Dataset } from "@/types/dataset";
 import { toast } from "sonner";
 
 type PreviewRow = Record<string, unknown>;
@@ -81,10 +77,7 @@ export function IssuesPage() {
     const [isLoading, setIsLoading] = React.useState(true);
     const [isScanning, setIsScanning] = React.useState(false);
     const [searchQuery, setSearchQuery] = React.useState("");
-    const [severityFilter, setSeverityFilter] = React.useState<string>("all");
-    const [statusFilter, setStatusFilter] = React.useState<string>("unresolved");
     const [selectedDataset, setSelectedDataset] = React.useState<string>("all");
-    const [scanMethod, setScanMethod] = React.useState<DiagnoseMethod>("both");
     const [previewRows, setPreviewRows] = React.useState<PreviewRow[]>([]);
     const [isPreviewLoading, setIsPreviewLoading] = React.useState(false);
 
@@ -184,7 +177,7 @@ export function IssuesPage() {
 
         try {
             setIsScanning(true);
-            const result = await datasetApi.diagnoseDataset(Number(selectedDataset), scanMethod);
+            const result = await datasetApi.diagnoseDataset(Number(selectedDataset));
 
             // Render issues immediately from scan response so users see results without backend lag.
             const issuesFromScan = Object.values(result.issues_by_column || {}).flat();
@@ -194,21 +187,14 @@ export function IssuesPage() {
             await fetchIssuesForDataset(selectedDataset);
             toast.success(`Scan complete: ${result.total_issues} issue(s) detected.`);
         } catch (error) {
-            console.error("Diagnosis scan failed:", error);
-            toast.error("Issue detection failed.");
+            if (error instanceof Error && error.message.includes("Diagnose endpoint not found")) {
+                toast.warning("Issue scan endpoint is unavailable in current backend API version.");
+            } else {
+                console.error("Diagnosis scan failed:", error);
+                toast.error("Issue detection failed.");
+            }
         } finally {
             setIsScanning(false);
-        }
-    };
-
-    const handleResolve = async (id: number) => {
-        try {
-            const updated = await datasetApi.updateIssue(id, { is_resolved: true });
-            setIssues((prev) => prev.map((issue) => (issue.id === id ? updated : issue)));
-            toast.success("Issue marked as resolved.");
-        } catch (error) {
-            console.error("handleResolve error:", error);
-            toast.error("Command execution failed.");
         }
     };
 
@@ -220,16 +206,9 @@ export function IssuesPage() {
                 issue.column_name?.toLowerCase().includes(q) ||
                 issue.issue_type.toLowerCase().includes(q);
 
-            const matchesSeverity = severityFilter === "all" || issue.severity === severityFilter;
-
-            let matchesStatus = true;
-            if (statusFilter !== "all") {
-                matchesStatus = statusFilter === "resolved" ? issue.is_resolved : !issue.is_resolved;
-            }
-
-            return matchesSearch && matchesSeverity && matchesStatus;
+            return matchesSearch;
         });
-    }, [issues, searchQuery, severityFilter, statusFilter]);
+    }, [issues, searchQuery]);
 
     const previewColumns = React.useMemo(() => {
         if (previewRows.length === 0) return [];
@@ -238,10 +217,9 @@ export function IssuesPage() {
 
     const stats = React.useMemo(() => {
         const total = issues.length;
-        const critical = issues.filter((i) => i.severity === "HIGH").length;
-        const resolved = issues.filter((i) => i.is_resolved).length;
-        const pending = total - resolved;
-        return { total, critical, resolved, pending };
+        const uniqueColumns = new Set(issues.map((i) => i.column_name || "__dataset__")).size;
+        const datasetLevel = issues.filter((i) => !i.column_name || i.column_name === "__dataset__").length;
+        return { total, uniqueColumns, datasetLevel };
     }, [issues]);
 
     const renderDataframePreview = () => {
@@ -373,27 +351,6 @@ export function IssuesPage() {
         );
     };
 
-    const getIssueStyles = (issue: Issue) => {
-        if (issue.is_resolved) return "border-emerald-500/20";
-        if (issue.severity === "HIGH") return "border-red-500/20";
-        if (issue.severity === "MEDIUM") return "border-amber-500/20";
-        return "border-border/40";
-    };
-
-    const getIconStyles = (issue: Issue) => {
-        if (issue.is_resolved) return "bg-emerald-500/10 text-emerald-500";
-        if (issue.severity === "HIGH") return "bg-red-500/10 text-red-500";
-        if (issue.severity === "MEDIUM") return "bg-orange-500/10 text-orange-500";
-        return "bg-amber-500/10 text-amber-500";
-    };
-
-    const getBadgeStyles = (issue: Issue) => {
-        if (issue.is_resolved) return "bg-emerald-500/10 text-emerald-500 border-emerald-500/20";
-        if (issue.severity === "HIGH") return "bg-red-500/10 text-red-500 border-red-500/20";
-        if (issue.severity === "MEDIUM") return "bg-orange-500/10 text-orange-500 border-orange-500/20";
-        return "bg-amber-500/10 text-amber-500 border-amber-500/20";
-    };
-
     if (authLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center">
@@ -431,24 +388,24 @@ export function IssuesPage() {
 
                     <div className="flex flex-wrap gap-3">
                         <Card className="flex-1 min-w-[140px] bg-background/40 backdrop-blur-md border border-border/40 p-3 rounded-2xl shadow-sm">
-                            <p className="text-[9px] uppercase font-black text-muted-foreground tracking-widest mb-1">High Severity</p>
+                            <p className="text-[9px] uppercase font-black text-muted-foreground tracking-widest mb-1">Total Issues</p>
                             <div className="flex items-center gap-2">
                                 <ShieldAlert size={14} className="text-red-500" />
-                                <span className="text-xl font-black">{stats.critical}</span>
+                                <span className="text-xl font-black">{stats.total}</span>
                             </div>
                         </Card>
                         <Card className="flex-1 min-w-[140px] bg-background/40 backdrop-blur-md border border-border/40 p-3 rounded-2xl shadow-sm">
-                            <p className="text-[9px] uppercase font-black text-muted-foreground tracking-widest mb-1">Resolved</p>
+                            <p className="text-[9px] uppercase font-black text-muted-foreground tracking-widest mb-1">Columns Affected</p>
                             <div className="flex items-center gap-2">
-                                <CheckCircle2 size={14} className="text-emerald-500" />
-                                <span className="text-xl font-black">{stats.resolved}</span>
+                                <Filter size={14} className="text-emerald-500" />
+                                <span className="text-xl font-black">{stats.uniqueColumns}</span>
                             </div>
                         </Card>
                         <Card className="flex-1 min-w-[140px] bg-background/40 backdrop-blur-md border border-border/40 p-3 rounded-2xl shadow-sm">
-                            <p className="text-[9px] uppercase font-black text-muted-foreground tracking-widest mb-1">Pending</p>
+                            <p className="text-[9px] uppercase font-black text-muted-foreground tracking-widest mb-1">Dataset-Level</p>
                             <div className="flex items-center gap-2">
-                                <Clock size={14} className="text-amber-500" />
-                                <span className="text-xl font-black">{stats.pending}</span>
+                                <Database size={14} className="text-amber-500" />
+                                <span className="text-xl font-black">{stats.datasetLevel}</span>
                             </div>
                         </Card>
                     </div>
@@ -512,78 +469,6 @@ export function IssuesPage() {
                                 </DropdownMenuRadioGroup>
                             </DropdownMenuContent>
                         </DropdownMenu>
-
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    variant="outline"
-                                    className="h-12 px-5 rounded-2xl border-border/40 bg-background/50 backdrop-blur-sm font-bold text-xs gap-3 hover:bg-background/80 transition-all min-w-[140px] justify-between"
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <Activity className="h-3.5 w-3.5 text-primary/70" />
-                                        <span>{scanMethod.toUpperCase()}</span>
-                                    </div>
-                                    <ChevronDown className="h-3 w-3 opacity-30" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent
-                                align="end"
-                                className="w-48 rounded-2xl p-2 bg-background/95 backdrop-blur-xl border-border/40 shadow-2xl"
-                            >
-                                <DropdownMenuLabel className="text-[9px] uppercase font-black tracking-widest text-muted-foreground/50 px-3 py-2">
-                                    Scan Method
-                                </DropdownMenuLabel>
-                                <DropdownMenuSeparator className="bg-border/40 my-1" />
-                                <DropdownMenuRadioGroup value={scanMethod} onValueChange={(v) => setScanMethod(v as DiagnoseMethod)}>
-                                    <DropdownMenuRadioItem value="both" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-primary/10 transition-colors">Both</DropdownMenuRadioItem>
-                                    <DropdownMenuRadioItem value="pandas" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-primary/10 transition-colors">Pandas</DropdownMenuRadioItem>
-                                    <DropdownMenuRadioItem value="gemini" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-primary/10 transition-colors">Gemini</DropdownMenuRadioItem>
-                                </DropdownMenuRadioGroup>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                                <Button
-                                    variant="outline"
-                                    className="h-12 px-5 rounded-2xl border-border/40 bg-background/50 backdrop-blur-sm font-bold text-xs gap-3 hover:bg-background/80 transition-all min-w-[140px] justify-between"
-                                >
-                                    <div className="flex items-center gap-2">
-                                        <Filter className="h-3.5 w-3.5 text-primary/70" />
-                                        <span>{severityFilter === "all" ? "All Severity" : severityFilter}</span>
-                                    </div>
-                                    <ChevronDown className="h-3 w-3 opacity-30" />
-                                </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent
-                                align="end"
-                                className="w-48 rounded-2xl p-2 bg-background/95 backdrop-blur-xl border-border/40 shadow-2xl"
-                            >
-                                <DropdownMenuLabel className="text-[9px] uppercase font-black tracking-widest text-muted-foreground/50 px-3 py-2">
-                                    Filter Severity
-                                </DropdownMenuLabel>
-                                <DropdownMenuSeparator className="bg-border/40 my-1" />
-                                <DropdownMenuRadioGroup value={severityFilter} onValueChange={setSeverityFilter}>
-                                    <DropdownMenuRadioItem value="all" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-primary/10 transition-colors">All</DropdownMenuRadioItem>
-                                    <DropdownMenuRadioItem value="HIGH" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-red-500/10 focus:text-red-500">HIGH</DropdownMenuRadioItem>
-                                    <DropdownMenuRadioItem value="MEDIUM" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-orange-500/10 focus:text-orange-500">MEDIUM</DropdownMenuRadioItem>
-                                    <DropdownMenuRadioItem value="LOW" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-emerald-500/10 focus:text-emerald-500">LOW</DropdownMenuRadioItem>
-                                </DropdownMenuRadioGroup>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
-
-                        <Button
-                            variant={statusFilter === "unresolved" ? "default" : "outline"}
-                            className="h-12 px-6 rounded-2xl font-black text-[10px] uppercase tracking-widest"
-                            onClick={() => setStatusFilter(statusFilter === "unresolved" ? "all" : "unresolved")}
-                        >
-                            {statusFilter === "unresolved" ? (
-                                <AlertCircle className="mr-2 h-4 w-4" />
-                            ) : (
-                                <RotateCcw className="mr-2 h-4 w-4" />
-                            )}
-                            {statusFilter === "unresolved" ? "Active Only" : "Show All"}
-                        </Button>
 
                         <Button
                             className="h-12 px-6 rounded-2xl font-black text-[10px] uppercase tracking-widest"

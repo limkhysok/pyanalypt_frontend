@@ -53,16 +53,24 @@ export interface VisualizeDatasetRequest {
 export interface Issue {
   id: number;
   dataset: number;
-  issue_type: 'MISSING_VALUE' | 'DUPLICATE' | 'OUTLIER' | 'TYPE_MISMATCH' | 'SEMANTIC_ERROR' | string;
+  issue_type:
+    | 'MISSING_VALUE'
+    | 'DUPLICATE'
+    | 'OUTLIER'
+    | 'SEMANTIC_ERROR'
+    | 'DATA_TYPE'
+    | 'INCONSISTENT_FORMATTING'
+    | 'INVALID_VALUE'
+    | 'WHITESPACE_ISSUE'
+    | 'SPECIAL_CHAR_ENCODING'
+    | 'INCONSISTENT_NAMING'
+    | 'LOGICAL_INCONSISTENCY'
+    | string;
   column_name: string;
   row_index: number | null;
   affected_rows: number | null;
   description: string;
-  severity: 'LOW' | 'MEDIUM' | 'HIGH';
   suggested_fix: string;
-  detected_by: 'PANDAS' | 'GEMINI' | 'MANUAL' | string;
-  is_user_modified: boolean;
-  is_resolved: boolean;
   detected_at: string;
 }
 
@@ -70,7 +78,6 @@ export type DiagnoseMethod = 'pandas' | 'gemini' | 'both';
 
 export interface DiagnoseResponse {
   dataset_id: number;
-  method: DiagnoseMethod;
   total_issues: number;
   issues_by_column: Record<string, Issue[]>;
 }
@@ -81,8 +88,5 @@ export interface UpdateIssueRequest {
   row_index?: number | null;
   affected_rows?: number | null;
   description?: string;
-  severity?: 'LOW' | 'MEDIUM' | 'HIGH';
   suggested_fix?: string;
-  detected_by?: string;
-  is_resolved?: boolean;
 }

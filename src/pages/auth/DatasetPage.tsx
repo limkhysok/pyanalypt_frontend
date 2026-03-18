@@ -76,6 +76,8 @@ export function DatasetPage() {
     const [issueLoading, setIssueLoading] = useState<number | null>(null);
     const [sortBy, setSortBy] = useState<string>("newest");
     const [filterType, setFilterType] = useState<string>("all");
+    const [isImportOpen, setIsImportOpen] = useState(false);
+    const [selectedImportFormat, setSelectedImportFormat] = useState<DatasetExportFormat | null>(null);
     const [isRenameOpen, setIsRenameOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null);
@@ -120,23 +122,56 @@ export function DatasetPage() {
         } finally {
             setUploadLoading(false);
             e.target.value = "";
+            setSelectedImportFormat(null);
         }
     };
 
-    const openFilePicker = () => {
+    const openFilePicker = (format?: DatasetExportFormat) => {
         if (uploadLoading) return;
+        if (format) {
+            setSelectedImportFormat(format);
+        }
         fileInputRef.current?.click();
     };
+
+    const openImportDialog = () => {
+        if (uploadLoading) return;
+        setIsImportOpen(true);
+    };
+
+    const handleImportFormatSelect = (format: DatasetExportFormat) => {
+        setSelectedImportFormat(format);
+        setIsImportOpen(false);
+
+        // Wait for dialog close animation to avoid click interruption.
+        globalThis.window.setTimeout(() => {
+            openFilePicker(format);
+        }, 30);
+    };
+
+    const importAccept = useMemo(() => {
+        if (selectedImportFormat === "csv") return ".csv";
+        if (selectedImportFormat === "xlsx") return ".xlsx,.xls";
+        if (selectedImportFormat === "json") return ".json";
+        if (selectedImportFormat === "parquet") return ".parquet,.pq";
+        return ".csv,.xlsx,.xls,.json,.parquet,.pq";
+    }, [selectedImportFormat]);
+
     const handleDiagnose = async (id: number) => {
         try {
             setIssueLoading(id);
             toast.info("Processing issue detection...");
-            await datasetApi.diagnoseDataset(id, "both");
+            await datasetApi.diagnoseDataset(id);
             toast.success("Issue detection complete. Issues logged.");
             router.push("/issues");
         } catch (error) {
-            console.error("Issue detection error:", error);
-            toast.error("Issue detection failed.");
+            if (error instanceof Error && error.message.includes("Diagnose endpoint not found")) {
+                toast.warning("Issue scan endpoint is unavailable. Opening Issues page.");
+                router.push("/issues");
+            } else {
+                console.error("Issue detection error:", error);
+                toast.error("Issue detection failed.");
+            }
         } finally {
             setIssueLoading(null);
         }
@@ -538,7 +573,7 @@ export function DatasetPage() {
                     <Button
                         size="lg"
                         className="rounded-xl h-12 px-8 font-black tracking-widest uppercase text-[10px] shadow-lg shadow-primary/10"
-                        onClick={openFilePicker}
+                        onClick={openImportDialog}
                         disabled={uploadLoading}
                     >
                         <Plus className="mr-2 h-4 w-4" />{" "}
@@ -663,7 +698,7 @@ export function DatasetPage() {
                         <Button
                             size="sm"
                             className="h-10 px-6 rounded-xl font-black tracking-widest text-[10px] uppercase bg-foreground text-background hover:bg-primary transition-all duration-300 hover:ambient-glow-mono shadow-lg shadow-foreground/5 group"
-                            onClick={openFilePicker}
+                            onClick={openImportDialog}
                             disabled={uploadLoading}
                         >
                             {uploadLoading ? (
@@ -678,7 +713,7 @@ export function DatasetPage() {
                             type="file"
                             className="hidden"
                             onChange={handleFileUpload}
-                            accept=".csv,.xlsx,.xls,.json,.parquet,.pq"
+                            accept={importAccept}
                             disabled={uploadLoading}
                         />
                     </motion.div>
@@ -691,6 +726,52 @@ export function DatasetPage() {
                     {renderContent()}
                 </div>
             </div>
+
+            {/* Import Dialog */}
+            <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
+                <DialogContent className="sm:max-w-[460px] border-border/40 bg-background/95 backdrop-blur-xl rounded-[2rem]">
+                    <DialogHeader className="space-y-1">
+                        <DialogTitle className="text-xl font-black tracking-tight text-foreground">Choose Import Format</DialogTitle>
+                        <DialogDescription className="text-sm font-semibold text-muted-foreground">
+                            Select the file type to import: CSV, XLSX, JSON, or Parquet.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid grid-cols-2 gap-3 py-2">
+                        <Button
+                            variant="outline"
+                            className="h-12 rounded-xl font-black text-[10px] uppercase tracking-widest"
+                            onClick={() => handleImportFormatSelect("csv")}
+                            disabled={uploadLoading}
+                        >
+                            CSV
+                        </Button>
+                        <Button
+                            variant="outline"
+                            className="h-12 rounded-xl font-black text-[10px] uppercase tracking-widest"
+                            onClick={() => handleImportFormatSelect("xlsx")}
+                            disabled={uploadLoading}
+                        >
+                            XLSX
+                        </Button>
+                        <Button
+                            variant="outline"
+                            className="h-12 rounded-xl font-black text-[10px] uppercase tracking-widest"
+                            onClick={() => handleImportFormatSelect("json")}
+                            disabled={uploadLoading}
+                        >
+                            JSON
+                        </Button>
+                        <Button
+                            variant="outline"
+                            className="h-12 rounded-xl font-black text-[10px] uppercase tracking-widest"
+                            onClick={() => handleImportFormatSelect("parquet")}
+                            disabled={uploadLoading}
+                        >
+                            PARQUET
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
             
             {/* Rename Dialog */}
             <Dialog open={isRenameOpen} onOpenChange={setIsRenameOpen}>
