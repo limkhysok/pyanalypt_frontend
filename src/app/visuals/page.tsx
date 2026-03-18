@@ -538,7 +538,10 @@ const itemVariants: Variants = {
     }
 };
 
-export default function VisualsPage() {
+
+import { Suspense } from "react";
+
+function VisualsPageContent() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const initialChart = searchParams?.get('chart') || VISUALIZATIONS_CATALOG[0].id;
@@ -723,5 +726,13 @@ export default function VisualsPage() {
                 </div>
             </div>
         </main>
+    );
+}
+
+export default function VisualsPage() {
+    return (
+        <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-xl">Loading...</div>}>
+            <VisualsPageContent />
+        </Suspense>
     );
 }
