@@ -74,10 +74,23 @@ export interface Issue {
   detected_at: string;
 }
 
-export type DiagnoseMethod = 'pandas' | 'gemini' | 'both';
+export interface DiagnoseColumnInfo {
+  dtype: string;
+  non_null_count: number;
+  null_count: number;
+}
+
+export interface DiagnoseOverview {
+  shape: { rows: number; columns: number };
+  duplicate_rows: number;
+  total_missing: number;
+  columns: Record<string, DiagnoseColumnInfo>;
+  numeric_summary: Record<string, Record<string, number>>;
+}
 
 export interface DiagnoseResponse {
   dataset_id: number;
+  overview: DiagnoseOverview;
   total_issues: number;
   issues_by_column: Record<string, Issue[]>;
 }
@@ -89,4 +102,12 @@ export interface UpdateIssueRequest {
   affected_rows?: number | null;
   description?: string;
   suggested_fix?: string;
+}
+
+export interface IssueSummaryResponse {
+  dataset_id: number;
+  total_issues: number;
+  by_type: Record<string, number>;
+  by_column: Record<string, number>;
+  dataset_level_issues: number;
 }

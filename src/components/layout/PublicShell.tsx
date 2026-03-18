@@ -6,7 +6,7 @@ import { Footer } from "@/components/layout/Footer";
 
 // Routes that use the authenticated app layout (AppNavbar + AppSidebar)
 // The public Navbar and Footer must NOT render on these routes
-const APP_ROUTES = ["/dashboard", "/profile", "/project", "/settings", "/datasets", "/issues"];
+const APP_ROUTES = ["/dashboard", "/profile", "/project", "/settings", "/datasets", "/issues", "/clean", "/analysis", "/visualization", "/insight"];
 
 export function PublicShell({ children }: Readonly<{ children: React.ReactNode }>) {
     const pathname = usePathname();

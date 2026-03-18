@@ -11,7 +11,8 @@ import {
   DatasetExportFormat,
   Issue,
   DiagnoseResponse,
-  UpdateIssueRequest
+  UpdateIssueRequest,
+  IssueSummaryResponse
 } from '@/types/dataset';
 
 export const datasetApi = {
@@ -160,10 +161,33 @@ export const datasetApi = {
   },
 
   /**
-   * Mark issue as resolved or update severity.
+   * Get a single issue by ID.
+   */
+  async getIssue(id: number): Promise<Issue> {
+    const response = await apiClient.get<Issue>(`issues/${id}/`);
+    return response.data;
+  },
+
+  /**
+   * Update writable fields on an issue.
    */
   async updateIssue(id: number, data: UpdateIssueRequest): Promise<Issue> {
     const response = await apiClient.patch<Issue>(`issues/${id}/`, data);
+    return response.data;
+  },
+
+  /**
+   * Delete an issue.
+   */
+  async deleteIssue(id: number): Promise<void> {
+    await apiClient.delete(`issues/${id}/`);
+  },
+
+  /**
+   * Get aggregated issue summary/stats for a dataset.
+   */
+  async getIssueSummary(datasetId: number): Promise<IssueSummaryResponse> {
+    const response = await apiClient.get<IssueSummaryResponse>(`issues/summary/${datasetId}/`);
     return response.data;
   },
 };
