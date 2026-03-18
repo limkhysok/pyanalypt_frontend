@@ -35,7 +35,9 @@ export type {
 
 export type {
     Dataset,
-    PasteDatasetRequest,
+    RenameDatasetRequest,
+    UpdateCellResponse,
+    DatasetExportFormat,
     CleanDatasetRequest,
     VisualizeDatasetRequest,
 } from '@/types/dataset';

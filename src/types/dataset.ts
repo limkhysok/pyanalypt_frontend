@@ -19,11 +19,18 @@ export interface UpdateCellRequest {
   value: any;
 }
 
-export interface PasteDatasetRequest {
-  file_name: string;
-  raw_data: string;
-  format: 'csv' | 'json';
+export interface UpdateCellResponse {
+  detail: string;
+  row_index: number;
+  column_name: string;
+  new_value: any;
 }
+
+export interface RenameDatasetRequest {
+  file_name: string;
+}
+
+export type DatasetExportFormat = 'csv' | 'json' | 'xlsx' | 'parquet';
 
 export interface CleaningPipelineOperation {
   operation: string;

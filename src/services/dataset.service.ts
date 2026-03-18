@@ -1,11 +1,14 @@
 import apiClient from '@/lib/axios';
+import axios from 'axios';
 import {
   Dataset,
   DatasetDetail,
-  PasteDatasetRequest,
+  RenameDatasetRequest,
   CleanDatasetRequest,
   VisualizeDatasetRequest,
   UpdateCellRequest,
+  UpdateCellResponse,
+  DatasetExportFormat,
   Issue,
   DiagnoseMethod,
   DiagnoseResponse,
@@ -30,10 +33,10 @@ export const datasetApi = {
   },
 
   /**
-   * Update dataset metadata (e.g., renamed file_name).
+   * Rename dataset display file name.
    */
-  async updateDataset(id: number, data: Partial<Dataset>): Promise<Dataset> {
-    const response = await apiClient.patch<Dataset>(`datasets/${id}/`, data);
+  async renameDataset(id: number, data: RenameDatasetRequest): Promise<Dataset> {
+    const response = await apiClient.patch<Dataset>(`datasets/${id}/rename/`, data);
     return response.data;
   },
 
@@ -47,8 +50,8 @@ export const datasetApi = {
   /**
    * Manual edit of a specific cell in the dataset.
    */
-  async updateCell(id: number, data: UpdateCellRequest): Promise<any> {
-    const response = await apiClient.patch(`datasets/${id}/update_cell/`, data);
+  async updateCell(id: number, data: UpdateCellRequest): Promise<UpdateCellResponse> {
+    const response = await apiClient.post<UpdateCellResponse>(`datasets/${id}/update_cell/`, data);
     return response.data;
   },
 
@@ -63,14 +66,6 @@ export const datasetApi = {
         'Content-Type': 'multipart/form-data',
       },
     });
-    return response.data;
-  },
-
-  /**
-   * Create a dataset by pasting raw CSV/JSON text directly from your clipboard.
-   */
-  async pasteDataset(data: PasteDatasetRequest): Promise<Dataset> {
-    const response = await apiClient.post<Dataset>('datasets/paste/', data);
     return response.data;
   },
 
@@ -100,13 +95,45 @@ export const datasetApi = {
   },
 
   /**
-   * Get the first 10-100 rows for the table view.
+   * Get the first N rows for the table view.
+   * API contract: default=10, max=1000.
    */
   async previewDataset(id: number, rows?: number): Promise<any[]> {
+    const normalizedRows = rows === undefined ? undefined : Math.min(1000, Math.max(1, rows));
     const response = await apiClient.get<any[]>(`datasets/${id}/preview/`, {
-      params: rows ? { rows } : undefined,
+      params: normalizedRows ? { rows: normalizedRows } : undefined,
     });
     return response.data;
+  },
+
+  /**
+   * Download dataset file in a requested export format.
+   */
+  async exportDataset(id: number, format?: DatasetExportFormat): Promise<{ blob: Blob; filename: string | null; contentType: string | null }> {
+    const requestedFormat = format?.toLowerCase();
+
+    try {
+      const response = await apiClient.get<Blob>(`datasets/${id}/export/`, {
+        params: requestedFormat ? { format: requestedFormat } : undefined,
+        responseType: 'blob',
+      });
+
+      const disposition = response.headers['content-disposition'] as string | undefined;
+      const filenameMatch = disposition?.match(/filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/i);
+      const filename = filenameMatch?.[1] || filenameMatch?.[2] || null;
+      const contentType = (response.headers['content-type'] as string | undefined) ?? null;
+
+      return {
+        blob: response.data,
+        filename,
+        contentType,
+      };
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response?.status === 404) {
+        throw new Error(`Export endpoint not found for format: ${requestedFormat ?? 'default'}`);
+      }
+      throw error;
+    }
   },
 
   /**

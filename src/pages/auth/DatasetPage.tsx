@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState, useCallback, useMemo } from "react";
+import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import {
     Database,
     Search,
@@ -12,8 +12,6 @@ import {
     BarChart3,
     Bug,
     Sparkles,
-    ArrowUpRight,
-    Copy,
     ArrowUpDown,
     ChevronDown,
     Calendar,
@@ -34,14 +32,7 @@ import {
     DialogDescription,
     DialogHeader,
     DialogTitle,
-    DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-    Tabs,
-    TabsContent,
-    TabsList,
-    TabsTrigger,
-} from "@/components/ui/tabs";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -49,12 +40,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import { datasetApi } from "@/services/api";
-import { Dataset, PasteDatasetRequest } from "@/types/dataset";
+import { Dataset, DatasetExportFormat } from "@/types/dataset";
+import { tokenManager } from "@/lib/token";
 import {
     DropdownMenu,
     DropdownMenuContent,
+    DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
+    DropdownMenuSub,
+    DropdownMenuSubContent,
+    DropdownMenuSubTrigger,
     DropdownMenuTrigger,
     DropdownMenuRadioGroup,
     DropdownMenuRadioItem,
@@ -76,21 +72,18 @@ export function DatasetPage() {
     const [datasets, setDatasets] = useState<Dataset[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState("");
-    const [isImportOpen, setIsImportOpen] = useState(false);
     const [uploadLoading, setUploadLoading] = useState(false);
     const [issueLoading, setIssueLoading] = useState<number | null>(null);
     const [sortBy, setSortBy] = useState<string>("newest");
     const [filterType, setFilterType] = useState<string>("all");
     const [isRenameOpen, setIsRenameOpen] = useState(false);
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null);
+    const [deleteTarget, setDeleteTarget] = useState<Dataset | null>(null);
     const [newName, setNewName] = useState("");
-
-    // Paste data state
-    const [pasteData, setPasteData] = useState<PasteDatasetRequest>({
-        file_name: "",
-        raw_data: "",
-        format: "csv"
-    });
+    const [exportingDatasetId, setExportingDatasetId] = useState<number | null>(null);
+    const [deleteLoading, setDeleteLoading] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
 
     const fetchDatasets = useCallback(async () => {
         setIsLoading(true);
@@ -120,35 +113,19 @@ export function DatasetPage() {
         try {
             await datasetApi.uploadDataset(file);
             toast.success("Dataset uploaded successfully");
-            setIsImportOpen(false);
             fetchDatasets();
         } catch (error) {
             console.error("Upload failed", error);
             toast.error("File upload failed");
         } finally {
             setUploadLoading(false);
+            e.target.value = "";
         }
     };
 
-    const handlePasteSubmit = async () => {
-        if (!pasteData.file_name || !pasteData.raw_data) {
-            toast.error("Please fill in both name and data");
-            return;
-        }
-
-        setUploadLoading(true);
-        try {
-            await datasetApi.pasteDataset(pasteData);
-            toast.success("Data ingested successfully");
-            setIsImportOpen(false);
-            setPasteData({ file_name: "", raw_data: "", format: "csv" });
-            fetchDatasets();
-        } catch (error) {
-            console.error("Paste failed", error);
-            toast.error("Data ingestion failed");
-        } finally {
-            setUploadLoading(false);
-        }
+    const openFilePicker = () => {
+        if (uploadLoading) return;
+        fileInputRef.current?.click();
     };
     const handleDiagnose = async (id: number) => {
         try {
@@ -166,23 +143,25 @@ export function DatasetPage() {
     };
 
     const handleDelete = async (id: number) => {
-        const confirmed = globalThis.window.confirm("Are you sure you want to permanently purge this artifact?");
-        if (!confirmed) return;
-
+        setDeleteLoading(true);
         try {
             await datasetApi.deleteDataset(id);
-            toast.success("Artifact purged from the vault.");
+            toast.success("Dataset deleted.");
+            setIsDeleteOpen(false);
+            setDeleteTarget(null);
             fetchDatasets();
         } catch (error) {
             console.error("Delete failed", error);
-            toast.error("Failed to purge artifact.");
+            toast.error("Failed to delete dataset.");
+        } finally {
+            setDeleteLoading(false);
         }
     };
 
     const handleRename = async () => {
         if (!selectedDataset || !newName) return;
         try {
-            await datasetApi.updateDataset(selectedDataset.id, { file_name: newName });
+            await datasetApi.renameDataset(selectedDataset.id, { file_name: newName });
             toast.success("Artifact renamed.");
             setIsRenameOpen(false);
             setSelectedDataset(null);
@@ -191,6 +170,86 @@ export function DatasetPage() {
         } catch (error) {
             console.error("Rename failed", error);
             toast.error("Failed to rename artifact.");
+        }
+    };
+
+    const normalizeExportFormat = (fileFormat: string): DatasetExportFormat | undefined => {
+        const normalized = fileFormat.trim().toLowerCase();
+        if (normalized === "csv") return "csv";
+        if (normalized === "json") return "json";
+        if (normalized === "xlsx" || normalized === "xls") return "xlsx";
+        if (normalized === "parquet" || normalized === "pq") return "parquet";
+        return undefined;
+    };
+
+    const handleExport = async (dataset: Dataset, explicitFormat?: DatasetExportFormat) => {
+        if (exportingDatasetId === dataset.id) return;
+
+        setExportingDatasetId(dataset.id);
+        try {
+            const format = explicitFormat ?? normalizeExportFormat(dataset.file_format);
+            const { blob, filename } = await datasetApi.exportDataset(dataset.id, format);
+            const fallbackExt = format ?? "csv";
+            const fallbackName = `${dataset.file_name.replace(/\.[^.]+$/, "")}.${fallbackExt}`;
+            const downloadName = filename ? decodeURIComponent(filename) : fallbackName;
+
+            const url = window.URL.createObjectURL(blob);
+            const anchor = document.createElement("a");
+            anchor.href = url;
+            anchor.download = downloadName;
+            document.body.appendChild(anchor);
+            anchor.click();
+            anchor.remove();
+            window.URL.revokeObjectURL(url);
+
+            toast.success("Export ready.");
+        } catch (error) {
+            const sourceFormat = normalizeExportFormat(dataset.file_format);
+            const status = (error as { response?: { status?: number } })?.response?.status;
+            const isNotFoundError = status === 404 || (error instanceof Error && error.message.includes("Export endpoint not found"));
+            const shouldTryDirectFallback = !explicitFormat || explicitFormat === sourceFormat || isNotFoundError;
+
+            if (!shouldTryDirectFallback) {
+                console.error("Export failed", error);
+                toast.error(`Failed to export ${explicitFormat.toUpperCase()}.`);
+                return;
+            }
+
+            try {
+                const token = tokenManager.getAccessToken();
+                const directResponse = await fetch(dataset.file, {
+                    headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+                });
+
+                if (!directResponse.ok) {
+                    throw new Error(`Direct download failed: ${directResponse.status}`);
+                }
+
+                const blob = await directResponse.blob();
+                const fallbackExt = normalizeExportFormat(dataset.file_format) ?? "csv";
+                const fallbackName = dataset.file_name || `dataset-${dataset.id}.${fallbackExt}`;
+
+                const url = window.URL.createObjectURL(blob);
+                const anchor = document.createElement("a");
+                anchor.href = url;
+                anchor.download = fallbackName;
+                document.body.appendChild(anchor);
+                anchor.click();
+                anchor.remove();
+                window.URL.revokeObjectURL(url);
+
+                if (explicitFormat && explicitFormat !== sourceFormat) {
+                    toast.warning(`Converted export unavailable. Downloaded original ${dataset.file_format.toUpperCase()} file instead.`);
+                } else {
+                    toast.success("Export ready.");
+                }
+            } catch (fallbackError) {
+                console.error("Export failed", error);
+                console.error("Direct file fallback failed", fallbackError);
+                toast.error("Failed to export dataset.");
+            }
+        } finally {
+            setExportingDatasetId(null);
         }
     };
 
@@ -359,10 +418,13 @@ export function DatasetPage() {
                                                         <MoreVertical className="h-4 w-4" />
                                                     </Button>
                                                 </DropdownMenuTrigger>
-                                                <DropdownMenuContent align="end" className="w-32 rounded-xl p-1 bg-background/95 backdrop-blur-xl border-border/40 shadow-xl">
-                                                    <DropdownMenuRadioItem
-                                                        value="rename"
-                                                        className="rounded-lg py-2 font-bold text-[10px] uppercase tracking-wider cursor-pointer focus:bg-primary/10 transition-colors text-muted-foreground hover:text-foreground"
+                                                <DropdownMenuContent align="end" sideOffset={6} className="w-36 overflow-visible rounded-2xl p-1.5 bg-background/95 backdrop-blur-xl border-border/40 shadow-2xl">
+                                                    <DropdownMenuLabel className="px-2 py-1 text-[9px] uppercase tracking-[0.18em] font-black text-muted-foreground/60">
+                                                        Quick Actions
+                                                    </DropdownMenuLabel>
+                                                    <DropdownMenuSeparator className="bg-border/30 my-1" />
+                                                    <DropdownMenuItem
+                                                        className="h-8 rounded-lg px-1.5 font-black text-[10px] uppercase tracking-wider cursor-pointer focus:bg-primary/10 focus:text-foreground text-muted-foreground transition-colors"
                                                         onClick={() => {
                                                             setSelectedDataset(dataset);
                                                             setNewName(dataset.file_name);
@@ -370,15 +432,61 @@ export function DatasetPage() {
                                                         }}
                                                     >
                                                         <Edit2 className="mr-2 h-3.5 w-3.5" /> Rename
-                                                    </DropdownMenuRadioItem>
+                                                    </DropdownMenuItem>
                                                     <DropdownMenuSeparator className="bg-border/20 my-1" />
-                                                    <DropdownMenuRadioItem
-                                                        value="delete"
-                                                        className="rounded-lg py-2 font-bold text-[10px] uppercase tracking-wider cursor-pointer focus:bg-red-500/10 focus:text-red-500 transition-colors text-red-500/70"
-                                                        onClick={() => handleDelete(dataset.id)}
+                                                    <DropdownMenuSub>
+                                                        <DropdownMenuSubTrigger
+                                                            className="h-8 rounded-lg px-2 font-black text-[10px] uppercase tracking-wider focus:bg-primary/10 focus:text-foreground text-muted-foreground"
+                                                            disabled={exportingDatasetId === dataset.id}
+                                                        >
+                                                            {exportingDatasetId === dataset.id ? (
+                                                                <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                                                            ) : (
+                                                                <Download className="mr-2 h-3.5 w-3.5" />
+                                                            )}
+                                                            Export
+                                                        </DropdownMenuSubTrigger>
+                                                        <DropdownMenuSubContent className="w-36 rounded-xl p-1.5 border-border/40 bg-background/95 backdrop-blur-xl shadow-2xl">
+                                                            <DropdownMenuItem
+                                                                className="h-8 rounded-lg px-2 font-black text-[10px] uppercase tracking-wider"
+                                                                onClick={() => handleExport(dataset, "csv")}
+                                                                disabled={exportingDatasetId === dataset.id}
+                                                            >
+                                                                CSV
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem
+                                                                className="h-8 rounded-lg px-2 font-black text-[10px] uppercase tracking-wider"
+                                                                onClick={() => handleExport(dataset, "xlsx")}
+                                                                disabled={exportingDatasetId === dataset.id}
+                                                            >
+                                                                XLSX
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem
+                                                                className="h-8 rounded-lg px-2 font-black text-[10px] uppercase tracking-wider"
+                                                                onClick={() => handleExport(dataset, "json")}
+                                                                disabled={exportingDatasetId === dataset.id}
+                                                            >
+                                                                JSON
+                                                            </DropdownMenuItem>
+                                                            <DropdownMenuItem
+                                                                className="h-8 rounded-lg px-2 font-black text-[10px] uppercase tracking-wider"
+                                                                onClick={() => handleExport(dataset, "parquet")}
+                                                                disabled={exportingDatasetId === dataset.id}
+                                                            >
+                                                                PARQUET
+                                                            </DropdownMenuItem>
+                                                        </DropdownMenuSubContent>
+                                                    </DropdownMenuSub>
+                                                    <DropdownMenuSeparator className="bg-border/20 my-1" />
+                                                    <DropdownMenuItem
+                                                        className="h-8 rounded-lg px-2 font-black text-[10px] uppercase tracking-wider cursor-pointer text-red-500/80 focus:bg-red-500/10 focus:text-red-500 transition-colors"
+                                                        onClick={() => {
+                                                            setDeleteTarget(dataset);
+                                                            setIsDeleteOpen(true);
+                                                        }}
                                                     >
                                                         <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
-                                                    </DropdownMenuRadioItem>
+                                                    </DropdownMenuItem>
                                                 </DropdownMenuContent>
                                             </DropdownMenu>
                                         </div>
@@ -430,7 +538,8 @@ export function DatasetPage() {
                     <Button
                         size="lg"
                         className="rounded-xl h-12 px-8 font-black tracking-widest uppercase text-[10px] shadow-lg shadow-primary/10"
-                        onClick={() => setIsImportOpen(true)}
+                        onClick={openFilePicker}
+                        disabled={uploadLoading}
                     >
                         <Plus className="mr-2 h-4 w-4" />{" "}
                         Upload File
@@ -534,6 +643,9 @@ export function DatasetPage() {
                                     <DropdownMenuRadioItem value="XLSX" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
                                         Excel
                                     </DropdownMenuRadioItem>
+                                    <DropdownMenuRadioItem value="PARQUET" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
+                                        Parquet
+                                    </DropdownMenuRadioItem>
                                 </DropdownMenuRadioGroup>
                             </DropdownMenuContent>
                         </DropdownMenu>
@@ -548,112 +660,27 @@ export function DatasetPage() {
                             />
                         </div>
 
-                        <Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
-                            <DialogTrigger asChild>
-                                <Button
-                                    size="sm"
-                                    className="h-10 px-6 rounded-xl font-black tracking-widest text-[10px] uppercase bg-foreground text-background hover:bg-primary transition-all duration-300 hover:ambient-glow-mono shadow-lg shadow-foreground/5 group"
-                                >
-                                    <Plus className="mr-2 h-4 w-4 group-hover:rotate-90 transition-transform duration-300" />
-                                    Import
-                                </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-[500px] border-border/40 bg-background/95 backdrop-blur-xl rounded-[2rem] p-0 overflow-hidden">
-                                <div className="p-8 pb-4">
-                                    <DialogHeader className="space-y-3">
-                                        <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                                            <ArrowUpRight className="h-5 w-5 text-primary" />
-                                        </div>
-                                        <div>
-                                            <DialogTitle className="text-2xl font-black tracking-tight">Import Dataset</DialogTitle>
-                                            <DialogDescription className="text-muted-foreground text-sm mt-1 font-bold">
-                                                Upload or paste your data.
-                                            </DialogDescription>
-                                        </div>
-                                    </DialogHeader>
-
-                                    <Tabs defaultValue="upload" className="mt-6">
-                                        <TabsList className="grid w-full grid-cols-2 h-11 bg-muted/30 p-1 rounded-xl border border-border/20">
-                                            <TabsTrigger value="upload" className="rounded-lg font-bold text-[10px] uppercase tracking-wider data-[state=active]:bg-background">
-                                                <Download className="mr-1.5 h-3.5 w-3.5" /> Upload File
-                                            </TabsTrigger>
-                                            <TabsTrigger value="paste" className="rounded-lg font-bold text-[10px] uppercase tracking-wider data-[state=active]:bg-background">
-                                                <Copy className="mr-1.5 h-3.5 w-3.5" /> Paste Data
-                                            </TabsTrigger>
-                                        </TabsList>
-
-                                        <TabsContent value="upload" className="mt-5 pb-4">
-                                            <div className="border-2 border-dashed border-border/30 rounded-2xl p-10 text-center space-y-3 group hover:border-primary/40 hover:bg-primary/5 transition-all cursor-pointer relative">
-                                                <input
-                                                    type="file"
-                                                    className="absolute inset-0 opacity-0 cursor-pointer"
-                                                    onChange={handleFileUpload}
-                                                    accept=".csv,.xlsx,.xls,.json"
-                                                    disabled={uploadLoading}
-                                                />
-                                                <div className="h-16 w-16 rounded-2xl bg-secondary/30 text-muted-foreground/30 flex items-center justify-center mx-auto group-hover:bg-primary/20 group-hover:text-primary/40 transition-all">
-                                                    {uploadLoading ? <Loader2 className="h-8 w-8 animate-spin" /> : <Plus className="h-8 w-8" />}
-                                                </div>
-                                                <div className="space-y-1">
-                                                    <p className="text-base font-black tracking-tight">Drop your file here</p>
-                                                    <p className="text-muted-foreground text-[11px] font-bold">CSV, JSON, or Excel files</p>
-                                                </div>
-                                            </div>
-                                        </TabsContent>
-
-                                        <TabsContent value="paste" className="mt-5 space-y-5 pb-4">
-                                            <div className="space-y-4">
-                                                <div className="grid gap-1.5">
-                                                    <Label htmlFor="filename" className="text-[9px] font-black uppercase tracking-widest text-muted-foreground px-1">File Name</Label>
-                                                    <Input
-                                                        id="filename"
-                                                        placeholder="e.g. market_trends.csv"
-                                                        className="h-10 rounded-xl bg-muted/20 border-border/40 font-bold text-xs"
-                                                        value={pasteData.file_name}
-                                                        onChange={(e) => setPasteData({ ...pasteData, file_name: e.target.value })}
-                                                    />
-                                                </div>
-                                                <div className="grid gap-1.5">
-                                                    <div className="flex justify-between items-end px-1">
-                                                        <Label htmlFor="rawdata" className="text-[9px] font-black uppercase tracking-widest text-muted-foreground">Paste Data</Label>
-                                                        <div className="flex gap-1.5">
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                className={`h-6 px-3 rounded-md font-black text-[8px] ${pasteData.format === 'csv' ? 'bg-primary/20 text-primary' : ''}`}
-                                                                onClick={() => setPasteData({ ...pasteData, format: 'csv' })}
-                                                            >CSV</Button>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                className={`h-6 px-3 rounded-md font-black text-[8px] ${pasteData.format === 'json' ? 'bg-primary/20 text-primary' : ''}`}
-                                                                onClick={() => setPasteData({ ...pasteData, format: 'json' })}
-                                                            >JSON</Button>
-                                                        </div>
-                                                    </div>
-                                                    <textarea
-                                                        id="rawdata"
-                                                        rows={6}
-                                                        placeholder="Paste your data here..."
-                                                        className="w-full p-3 rounded-xl bg-muted/20 border border-border/40 font-mono text-[10px] focus:outline-none focus:ring-4 focus:ring-primary/10 transition-all resize-none"
-                                                        value={pasteData.raw_data}
-                                                        onChange={(e) => setPasteData({ ...pasteData, raw_data: e.target.value })}
-                                                    />
-                                                </div>
-                                                <Button
-                                                    onClick={handlePasteSubmit}
-                                                    className="w-full h-11 rounded-xl font-black tracking-widest uppercase text-[10px] shadow-lg shadow-primary/10"
-                                                    disabled={uploadLoading}
-                                                >
-                                                    {uploadLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-                                                    Upload
-                                                </Button>
-                                            </div>
-                                        </TabsContent>
-                                    </Tabs>
-                                </div>
-                            </DialogContent>
-                        </Dialog>
+                        <Button
+                            size="sm"
+                            className="h-10 px-6 rounded-xl font-black tracking-widest text-[10px] uppercase bg-foreground text-background hover:bg-primary transition-all duration-300 hover:ambient-glow-mono shadow-lg shadow-foreground/5 group"
+                            onClick={openFilePicker}
+                            disabled={uploadLoading}
+                        >
+                            {uploadLoading ? (
+                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            ) : (
+                                <Plus className="mr-2 h-4 w-4 group-hover:rotate-90 transition-transform duration-300" />
+                            )}
+                            Import
+                        </Button>
+                        <input
+                            ref={fileInputRef}
+                            type="file"
+                            className="hidden"
+                            onChange={handleFileUpload}
+                            accept=".csv,.xlsx,.xls,.json,.parquet,.pq"
+                            disabled={uploadLoading}
+                        />
                     </motion.div>
                 </div>
 
@@ -668,10 +695,12 @@ export function DatasetPage() {
             {/* Rename Dialog */}
             <Dialog open={isRenameOpen} onOpenChange={setIsRenameOpen}>
                 <DialogContent className="sm:max-w-[425px] border-border/40 bg-background/95 backdrop-blur-xl rounded-[2rem]">
-                    <DialogHeader>
-                        <DialogTitle className="text-xl font-black">Rename File</DialogTitle>
-                        <DialogDescription className="text-muted-foreground text-xs font-bold uppercase tracking-wider">
-                            Update the filename.
+                    <DialogHeader className="space-y-1">
+                        <DialogTitle className="text-xl font-black tracking-tight text-foreground">
+                            Rename File
+                        </DialogTitle>
+                        <DialogDescription className="text-sm font-semibold text-muted-foreground">
+                            Update the display filename.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
@@ -688,6 +717,40 @@ export function DatasetPage() {
                     <div className="flex justify-end gap-3">
                         <Button variant="ghost" className="rounded-xl font-bold text-xs" onClick={() => setIsRenameOpen(false)}>Cancel</Button>
                         <Button className="rounded-xl font-black text-xs uppercase tracking-widest bg-primary px-6 h-11" onClick={handleRename}>Update</Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* Delete Dialog */}
+            <Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+                <DialogContent className="sm:max-w-[425px] border-border/40 bg-background/95 backdrop-blur-xl rounded-[2rem]">
+                    <DialogHeader>
+                        <DialogTitle className="text-xl font-black">Are you sure to delete?</DialogTitle>
+                        <DialogDescription className="text-muted-foreground text-xs font-bold tracking-wide">
+                            This action will permanently delete {deleteTarget?.file_name ? `\"${deleteTarget.file_name}\"` : "this dataset"} and cannot be undone.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex justify-end gap-3 pt-2">
+                        <Button
+                            variant="ghost"
+                            className="rounded-xl font-bold text-xs"
+                            onClick={() => {
+                                if (deleteLoading) return;
+                                setIsDeleteOpen(false);
+                                setDeleteTarget(null);
+                            }}
+                            disabled={deleteLoading}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            className="rounded-xl font-black text-xs uppercase tracking-widest bg-red-600 hover:bg-red-700 px-6 h-11"
+                            onClick={() => deleteTarget && handleDelete(deleteTarget.id)}
+                            disabled={!deleteTarget || deleteLoading}
+                        >
+                            {deleteLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                            Delete
+                        </Button>
                     </div>
                 </DialogContent>
             </Dialog>

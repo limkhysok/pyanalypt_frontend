@@ -5,7 +5,6 @@ import { useParams, useRouter } from "next/navigation";
 import {
     ArrowLeft,
     Loader2,
-    Download,
     Search,
     ChevronDown
 } from "lucide-react";
@@ -16,6 +15,10 @@ import { DatasetDetail } from "@/types/dataset";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
+
+type PreviewRow = Record<string, unknown>;
+type IndexedRow = { row: PreviewRow; sourceIndex: number };
 
 function safeParseJson(input: unknown): unknown {
     if (typeof input !== "string") return input;
@@ -79,10 +82,13 @@ export default function DatasetPreviewPage() {
     const id = params?.id as string;
     const router = useRouter();
     const [dataset, setDataset] = useState<DatasetDetail | null>(null);
-    const [previewData, setPreviewData] = useState<any[]>([]);
+    const [previewData, setPreviewData] = useState<PreviewRow[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
     const [rowLimit, setRowLimit] = useState<"10" | "50" | "100" | "max">("50");
+    const [editingCell, setEditingCell] = useState<{ sourceIndex: number; column: string } | null>(null);
+    const [editingValue, setEditingValue] = useState("");
+    const [savingCellKey, setSavingCellKey] = useState<string | null>(null);
 
     useEffect(() => {
         const loadPreview = async () => {
@@ -123,6 +129,10 @@ export default function DatasetPreviewPage() {
         loadPreview();
     }, [id]);
 
+    const indexedPreviewData = useMemo<IndexedRow[]>(() => {
+        return previewData.map((row, sourceIndex) => ({ row, sourceIndex }));
+    }, [previewData]);
+
     const columns = useMemo(() => {
         if (!Array.isArray(previewData) || previewData.length === 0 || !previewData[0]) return [];
         // Extract headers from the first record
@@ -130,29 +140,98 @@ export default function DatasetPreviewPage() {
     }, [previewData]);
 
     const filteredData = useMemo(() => {
-        if (!Array.isArray(previewData)) return [];
+        if (!Array.isArray(indexedPreviewData)) return [];
 
         const query = searchTerm.trim().toLowerCase();
-        if (!query) return previewData; // Bypass filtering if search is empty
+        if (!query) return indexedPreviewData; // Bypass filtering if search is empty
 
-        return previewData.filter(row => {
-            if (!row || typeof row !== 'object') return false;
-            return Object.values(row).some(val => {
+        return indexedPreviewData.filter(({ row }) => {
+            if (!row || typeof row !== "object") return false;
+            return Object.values(row).some((val) => {
                 if (val === null || val === undefined) return false;
                 let searchStr = "";
-                if (typeof val === 'string') searchStr = val;
-                else if (typeof val === 'number' || typeof val === 'boolean') searchStr = String(val);
+                if (typeof val === "string") searchStr = val;
+                else if (typeof val === "number" || typeof val === "boolean") searchStr = String(val);
                 else searchStr = JSON.stringify(val);
                 return searchStr.toLowerCase().includes(query);
             });
         });
-    }, [previewData, searchTerm]);
+    }, [indexedPreviewData, searchTerm]);
 
     const visibleRows = useMemo(() => {
         if (rowLimit === "max") return filteredData;
         const limit = Number(rowLimit);
         return filteredData.slice(0, limit);
     }, [filteredData, rowLimit]);
+
+    const startEditCell = (sourceIndex: number, column: string, value: unknown) => {
+        setEditingCell({ sourceIndex, column });
+        setEditingValue(value === null || value === undefined ? "" : String(value));
+    };
+
+    const cancelEditCell = () => {
+        setEditingCell(null);
+        setEditingValue("");
+    };
+
+    const normalizeCellValue = (raw: string, original: unknown): unknown => {
+        if (raw === "") return "";
+        if (typeof original === "number") {
+            const parsed = Number(raw);
+            return Number.isNaN(parsed) ? raw : parsed;
+        }
+        if (typeof original === "boolean") {
+            if (raw.toLowerCase() === "true") return true;
+            if (raw.toLowerCase() === "false") return false;
+        }
+        return raw;
+    };
+
+    const commitEditCell = async () => {
+        if (!editingCell || !id) return;
+
+        const { sourceIndex, column } = editingCell;
+        const currentRow = previewData[sourceIndex];
+        if (!currentRow) {
+            cancelEditCell();
+            return;
+        }
+
+        const originalValue = currentRow[column];
+        const normalizedValue = normalizeCellValue(editingValue, originalValue);
+        const cellKey = `${sourceIndex}-${column}`;
+
+        if (String(originalValue ?? "") === String(normalizedValue ?? "")) {
+            cancelEditCell();
+            return;
+        }
+
+        setSavingCellKey(cellKey);
+        try {
+            await datasetApi.updateCell(Number(id), {
+                row_index: sourceIndex,
+                column_name: column,
+                value: normalizedValue,
+            });
+
+            setPreviewData((prev) => {
+                const next = [...prev];
+                if (!next[sourceIndex]) return prev;
+                next[sourceIndex] = {
+                    ...next[sourceIndex],
+                    [column]: normalizedValue,
+                };
+                return next;
+            });
+            toast.success("Cell updated.");
+            cancelEditCell();
+        } catch (error) {
+            console.error("Cell update failed:", error);
+            toast.error("Failed to update cell.");
+        } finally {
+            setSavingCellKey(null);
+        }
+    };
 
     if (isLoading) {
         return (
@@ -194,13 +273,10 @@ export default function DatasetPreviewPage() {
                             <p className="text-muted-foreground text-sm font-medium">
                                 Visualizing the first {previewData.length} entries of your intelligence artifact.
                             </p>
+                            <p className="text-[11px] font-semibold text-muted-foreground/80">
+                                Double-click any cell to edit and press Enter to save.
+                            </p>
                         </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                        <Button variant="secondary" className="h-11 px-6 rounded-xl font-bold bg-secondary/50">
-                            <Download className="mr-2 h-4 w-4" /> Export CSV
-                        </Button>
                     </div>
                 </div>
 
@@ -258,17 +334,45 @@ export default function DatasetPreviewPage() {
                             </thead>
                             <tbody>
                                 <AnimatePresence mode="popLayout">
-                                    {visibleRows.map((row, rowIdx) => (
+                                    {visibleRows.map(({ row, sourceIndex }, rowIdx) => (
                                         <motion.tr
-                                            key={`row-stable-${rowIdx}-${id}`}
+                                            key={`row-stable-${sourceIndex}-${id}`}
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
                                             transition={{ delay: rowIdx * 0.01 }}
                                             className="border-b border-border/10 hover:bg-primary/5 transition-colors group"
                                         >
                                             {columns.map((col: string) => (
-                                                <td key={`${rowIdx}-${col}`} className="px-6 py-4 text-xs font-bold font-mono text-foreground/80 group-hover:text-primary transition-colors">
-                                                    {String(row[col])}
+                                                <td
+                                                    key={`${sourceIndex}-${col}`}
+                                                    className="px-6 py-4 text-xs font-bold font-mono text-foreground/80 group-hover:text-primary transition-colors"
+                                                    onDoubleClick={() => startEditCell(sourceIndex, col, row[col])}
+                                                >
+                                                    {editingCell?.sourceIndex === sourceIndex && editingCell.column === col ? (
+                                                        <Input
+                                                            autoFocus
+                                                            value={editingValue}
+                                                            onChange={(e) => setEditingValue(e.target.value)}
+                                                            onKeyDown={(e) => {
+                                                                if (e.key === "Enter") {
+                                                                    e.preventDefault();
+                                                                    commitEditCell();
+                                                                }
+                                                                if (e.key === "Escape") {
+                                                                    e.preventDefault();
+                                                                    cancelEditCell();
+                                                                }
+                                                            }}
+                                                            onBlur={commitEditCell}
+                                                            disabled={savingCellKey === `${sourceIndex}-${col}`}
+                                                            className="h-8 text-xs font-mono"
+                                                        />
+                                                    ) : (
+                                                        <span className="inline-flex items-center gap-2">
+                                                            {String(row[col])}
+                                                            {savingCellKey === `${sourceIndex}-${col}` && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+                                                        </span>
+                                                    )}
                                                 </td>
                                             ))}
                                         </motion.tr>
