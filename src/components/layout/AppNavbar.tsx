@@ -5,7 +5,7 @@ import Link from "next/link";
 import { LogOut, User as UserIcon, Settings, LayoutDashboard } from "lucide-react";
 import { GithubIcon } from "@/components/ui/Icons";
 import { Button } from "@/components/ui/button";
-import { ModeToggle } from "@/components/ModeToggle";
+import { ModeToggle } from "@/components/ui/ModeToggle";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
     DropdownMenu,

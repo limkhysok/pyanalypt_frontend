@@ -6,7 +6,7 @@ import { Sparkles, Menu, X, Home, BarChart3, FlaskConical, BookOpen, LogOut, Lay
 import { GithubIcon } from "@/components/ui/Icons";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { ModeToggle } from "@/components/ModeToggle";
+import { ModeToggle } from "@/components/ui/ModeToggle";
 import {
     NavigationMenu,
     NavigationMenuItem,
