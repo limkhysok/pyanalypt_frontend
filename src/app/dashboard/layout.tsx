@@ -39,7 +39,7 @@ export default function DashboardLayout({
     if (!isAuthenticated) return null;
 
     return (
-        <div className="min-h-screen bg-background text-foreground">
+        <div className="min-h-screen bg-background text-foreground relative">
             {/* Top Navbar */}
             <AppNavbar collapsed={collapsed} />
 

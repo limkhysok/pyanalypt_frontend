@@ -34,7 +34,7 @@ export default function ProfileLayout({
     if (!isAuthenticated) return null;
 
     return (
-        <div className="min-h-screen bg-background text-foreground">
+        <div className="min-h-screen bg-background text-foreground relative">
             <AppNavbar collapsed={collapsed} />
             <AppSidebar
                 collapsed={collapsed}

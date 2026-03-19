@@ -128,7 +128,7 @@
     @apply border-border;
   }
 
-  main {
+  main, .container {
     @apply relative;
   }
 
