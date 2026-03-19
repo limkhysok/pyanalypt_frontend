@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useRef } from "react";
 import { motion } from "framer-motion";
-import { Zap, Upload, FileJson, BarChart3, PieChart, LineChart, Play, Database, FileText, ArrowRight, Download } from "lucide-react";
+import { Zap, BarChart3, PieChart, LineChart, FileText, Download } from "lucide-react";
 import ReactECharts from "echarts-for-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -38,8 +38,8 @@ export default function Playground() {
 
             for (let i = 1; i < headers.length; i++) {
                 const values = body.map(row => {
-                    const val = parseFloat(row[i]);
-                    return isNaN(val) ? 0 : val;
+                    const val = Number.parseFloat(row[i]);
+                    return Number.isNaN(val) ? 0 : val;
                 });
                 series.push({
                     name: headers[i],
@@ -49,7 +49,8 @@ export default function Playground() {
 
             setError(null);
             return { categories, series };
-        } catch (e) {
+        } catch (err) {
+            console.error("CSV Parse error:", err);
             setError("Invalid CSV format. Ensure comma-separated values (Category, Value1, Value2...)");
             return null;
         }
@@ -90,17 +91,22 @@ export default function Playground() {
                 splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } },
                 axisLabel: { color: '#71717a' }
             },
-            series: series.map((s, i) => ({
-                name: s.name,
-                type: chartType,
-                data: s.data,
-                smooth: true,
-                itemStyle: {
-                    color: i === 0 ? '#20beff' : i === 1 ? '#818cf8' : '#10b981',
-                    borderRadius: chartType === 'bar' ? [4, 4, 0, 0] : 0
-                },
-                ...(chartType === 'line' ? { areaStyle: { opacity: 0.1 } } : {})
-            }))
+            series: series.map((s, i) => {
+                const colors = ['#20beff', '#818cf8', '#10b981'];
+                const itemColor = colors[i % colors.length];
+
+                return {
+                    name: s.name,
+                    type: chartType,
+                    data: s.data,
+                    smooth: true,
+                    itemStyle: {
+                        color: itemColor,
+                        borderRadius: chartType === 'bar' ? [4, 4, 0, 0] : 0
+                    },
+                    ...(chartType === 'line' ? { areaStyle: { opacity: 0.1 } } : {})
+                };
+            })
         };
     }, [parsedData, chartType]);
 

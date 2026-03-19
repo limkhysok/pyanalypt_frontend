@@ -20,7 +20,7 @@ export function PublicShell({ children }: Readonly<{ children: React.ReactNode }
     return (
         <>
             <Navbar />
-            <main className="min-h-screen">{children}</main>
+            <main className="min-h-screen relative">{children}</main>
             <Footer />
         </>
     );

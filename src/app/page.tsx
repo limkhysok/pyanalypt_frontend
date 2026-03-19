@@ -1,5 +1,5 @@
 "use client";
-import { Database, ArrowRight, Search, History, TrendingUp, Compass, Zap, BarChart2, LineChart, PieChart, GithubIcon, Activity } from "lucide-react";
+import { Database, ArrowRight, Search, History, TrendingUp, Compass, Zap, BarChart2, LineChart, PieChart, Github, Activity } from "lucide-react";
 import { LogoTicker } from "@/components/ui/logo-ticker";
 import { CTASection } from "@/components/layout/CTASection";
 import ReactECharts from "echarts-for-react";
@@ -109,7 +109,7 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
           target="_blank"
           className="px-8 py-4 rounded-full bg-background border border-border/50 text-foreground hover:bg-secondary/50 transition-all duration-300 font-bold whitespace-nowrap flex items-center justify-center gap-2"
         >
-          <GithubIcon size={18} /> View GitHub
+          <Github size={18} /> View GitHub
         </Link>
       </motion.div>
       <motion.div
@@ -318,7 +318,7 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-foreground/10">
+    <main className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-foreground/10 relative">
 
       {/* Background Ambience */}
       <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0">

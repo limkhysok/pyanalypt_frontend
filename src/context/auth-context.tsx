@@ -95,7 +95,7 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
             console.error("[AuthContext] Sync failed (Network/Backend Error):", error);
         } finally {
             setIsLoading(false);
-            console.log("[AuthContext] Loading finished. Authenticated: Yes");
+            console.log("[AuthContext] User data sync ended.");
         }
     }, []); // Removed user dependency to prevent infinite loop
 

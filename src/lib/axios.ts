@@ -70,8 +70,13 @@ async function handleTokenRefresh(error: AxiosError, originalRequest: InternalAx
             { refresh: refreshToken }
         );
 
-        const { access } = response.data;
-        tokenManager.setAccessToken(access);
+        const { access, refresh } = response.data;
+        
+        if (refresh) {
+            tokenManager.setTokens(access, refresh);
+        } else {
+            tokenManager.setAccessToken(access);
+        }
 
         if (originalRequest.headers) {
             originalRequest.headers.Authorization = `Bearer ${access}`;

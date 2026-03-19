@@ -1,24 +1,16 @@
 import type { Metadata } from "next";
-// import { Geist, Geist_Mono } from "next/font/google"; // Disabled for local fonts
 import localFont from "next/font/local";
 import "@/styles/globals.css";
-// Configuration for Local Fonts
-// INSTRUCTIONS: Drop your font files in `src/fonts/` and update the paths below.
+
 const customFont = localFont({
   src: [
     {
-      path: "../fonts/Jost-Regular.ttf", // REPLACE with your font filename (e.g., "../fonts/MyFont-Regular.ttf")
+      path: "../fonts/Jost-Regular.ttf",
       weight: "400",
       style: "normal",
     },
-    // Add more weights/styles here if needed
-    // {
-    //   path: "../fonts/MyFont-Bold.ttf",
-    //   weight: "700",
-    //   style: "normal",
-    // }
   ],
-  variable: "--font-custom", // This variable will be used in Tailwind/CSS
+  variable: "--font-custom",
 });
 
 export const metadata: Metadata = {
@@ -40,7 +32,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${customFont.variable} antialiased VscScroolbar font-sans bg-background text-foreground`}
+        className={`${customFont.variable} antialiased VscScroolbar font-sans bg-background text-foreground relative`}
       >
         <SmoothScroll>
           <Providers>

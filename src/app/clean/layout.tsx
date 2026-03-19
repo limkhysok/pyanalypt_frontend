@@ -10,9 +10,9 @@ import { motion } from "framer-motion";
 
 export default function CleanLayout({
     children,
-}: {
+}: Readonly<{
     children: React.ReactNode;
-}) {
+}>) {
     const { isAuthenticated, isLoading } = useAuth();
     const router = useRouter();
     const { collapsed, toggleSidebar } = useSidebar();
@@ -43,7 +43,7 @@ export default function CleanLayout({
             <motion.main
                 animate={{ marginLeft: collapsed ? 72 : 230 }}
                 transition={{ duration: 0.25, ease: "easeInOut" }}
-                className="pt-14 min-h-screen"
+                className="pt-14 min-h-screen relative"
             >
                 {children}
             </motion.main>

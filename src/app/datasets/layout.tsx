@@ -46,7 +46,7 @@ export default function IssuesLayout({
             <motion.main
                 animate={{ marginLeft: collapsed ? 72 : 230 }}
                 transition={{ duration: 0.25, ease: "easeInOut" }}
-                className="pt-14 min-h-screen"
+                className="pt-14 min-h-screen relative"
             >
                 {children}
             </motion.main>

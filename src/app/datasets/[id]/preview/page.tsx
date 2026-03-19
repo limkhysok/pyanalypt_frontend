@@ -77,6 +77,13 @@ function extractPreviewRows(payload: unknown): Record<string, unknown>[] {
     return [];
 }
 
+function safeStringify(val: unknown): string {
+    if (val === null || val === undefined) return "";
+    if (typeof val === "string") return val;
+    if (typeof val === "number" || typeof val === "boolean") return String(val);
+    return JSON.stringify(val);
+}
+
 export default function DatasetPreviewPage() {
     const params = useParams();
     const id = params?.id as string;
@@ -166,7 +173,7 @@ export default function DatasetPreviewPage() {
 
     const startEditCell = (sourceIndex: number, column: string, value: unknown) => {
         setEditingCell({ sourceIndex, column });
-        setEditingValue(value === null || value === undefined ? "" : String(value));
+        setEditingValue(safeStringify(value));
     };
 
     const cancelEditCell = () => {
@@ -201,7 +208,10 @@ export default function DatasetPreviewPage() {
         const normalizedValue = normalizeCellValue(editingValue, originalValue);
         const cellKey = `${sourceIndex}-${column}`;
 
-        if (String(originalValue ?? "") === String(normalizedValue ?? "")) {
+        const currentStr = safeStringify(originalValue);
+        const nextStr = safeStringify(normalizedValue);
+
+        if (currentStr === nextStr) {
             cancelEditCell();
             return;
         }
