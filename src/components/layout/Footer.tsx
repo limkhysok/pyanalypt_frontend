@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Sparkles, Github, Home, BarChart3, FlaskConical, BookOpen, Twitter, Linkedin, Send, Mail } from "lucide-react";
+import { Sparkles, Home, BarChart3, FlaskConical, BookOpen, Send, Mail } from "lucide-react";
+import { GithubIcon, TwitterIcon, LinkedinIcon } from "@/components/ui/Icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -30,13 +31,13 @@ export function Footer() {
                         {/* Social Links */}
                         <div className="flex items-center gap-3 pt-2">
                             <Link href="https://github.com/soklimkhy/pyanalypt_frontend" target="_blank" className="p-2.5 rounded-full bg-secondary/50 border border-border/50 text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary hover:scale-110 hover:-translate-y-1 transition-all duration-300 shadow-sm">
-                                <Github size={18} />
+                                <GithubIcon size={18} />
                             </Link>
                             <Link href="#" className="p-2.5 rounded-full bg-secondary/50 border border-border/50 text-muted-foreground hover:bg-blue-500 hover:text-white hover:border-blue-500 hover:scale-110 hover:-translate-y-1 transition-all duration-300 shadow-sm">
-                                <Twitter size={18} className="fill-current" />
+                                <TwitterIcon size={18} className="fill-current" />
                             </Link>
                             <Link href="#" className="p-2.5 rounded-full bg-secondary/50 border border-border/50 text-muted-foreground hover:bg-blue-700 hover:text-white hover:border-blue-700 hover:scale-110 hover:-translate-y-1 transition-all duration-300 shadow-sm">
-                                <Linkedin size={18} className="fill-current" />
+                                <LinkedinIcon size={18} className="fill-current" />
                             </Link>
                         </div>
                     </div>

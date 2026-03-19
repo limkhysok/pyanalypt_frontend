@@ -6,7 +6,7 @@ import { useAuth } from "@/context/auth-context";
 import { useSidebar } from "@/hooks/use-sidebar";
 import { AppNavbar } from "@/components/layout/AppNavbar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 export default function ProfileLayout({
     children,

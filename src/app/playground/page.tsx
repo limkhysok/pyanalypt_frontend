@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useMemo, useRef } from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import { Zap, BarChart3, PieChart, LineChart, FileText, Download } from "lucide-react";
-import ReactECharts from "echarts-for-react";
+import EChart from "@/components/ui/EChart";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
@@ -255,7 +255,7 @@ export default function Playground() {
                                 </CardHeader>
                                 <CardContent className="flex-1 p-8 flex items-center justify-center relative z-10 min-h-[400px]">
                                     <div className="w-full h-full max-h-[500px] transition-transform duration-700 ease-out group-hover:scale-[1.02]">
-                                        <ReactECharts
+                                        <EChart
                                             ref={echartsRef}
                                             option={option}
                                             style={{ height: '100%', width: '100%' }}

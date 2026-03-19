@@ -12,14 +12,14 @@ import {
     Brain,
     HardDrive
 } from "lucide-react";
-import ReactECharts from 'echarts-for-react';
+import EChart from "@/components/ui/EChart";
 import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -195,7 +195,7 @@ export default function DashboardPage() {
                                     <CardDescription className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Analytical volume by domain.</CardDescription>
                                 </CardHeader>
                                 <CardContent className="flex-1 p-0 flex items-center justify-center relative z-10">
-                                    <ReactECharts
+                                    <EChart
                                         style={{ height: '300px', width: '100%' }}
                                         option={{
                                             tooltip: { trigger: 'item' },

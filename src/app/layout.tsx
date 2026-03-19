@@ -1,16 +1,12 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { Jost } from "next/font/google";
 import "@/styles/globals.css";
 
-const customFont = localFont({
-  src: [
-    {
-      path: "../fonts/Jost-Regular.ttf",
-      weight: "400",
-      style: "normal",
-    },
-  ],
+const jost = Jost({
+  subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700", "800", "900"],
   variable: "--font-custom",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -32,7 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${customFont.variable} antialiased VscScroolbar font-sans bg-background text-foreground relative`}
+        className={`${jost.variable} antialiased VscScroolbar font-sans bg-background text-foreground relative`}
       >
         <SmoothScroll>
           <Providers>

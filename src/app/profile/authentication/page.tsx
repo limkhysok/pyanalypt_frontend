@@ -20,7 +20,7 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 export default function ProfileAuthPage() {
     const [showPassword, setShowPassword] = React.useState(false);

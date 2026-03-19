@@ -12,7 +12,7 @@ import {
     CheckCircle2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { motion, AnimatePresence, Variants } from "framer-motion";
+import { motion, AnimatePresence, Variants } from "motion/react";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 

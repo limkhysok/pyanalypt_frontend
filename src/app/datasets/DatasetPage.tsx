@@ -37,7 +37,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import { datasetApi } from "@/services/api";

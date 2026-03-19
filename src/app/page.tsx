@@ -1,15 +1,16 @@
 "use client";
-import { Database, ArrowRight, Search, History, TrendingUp, Compass, Zap, BarChart2, LineChart, PieChart, Github, Activity } from "lucide-react";
+import { Database, ArrowRight, Search, History, TrendingUp, Compass, Zap, BarChart2, PieChart, Activity } from "lucide-react";
+import { GithubIcon } from "@/components/ui/Icons";
 import { LogoTicker } from "@/components/ui/logo-ticker";
 import { CTASection } from "@/components/layout/CTASection";
-import ReactECharts from "echarts-for-react";
+import EChart from "@/components/ui/EChart";
 import * as echarts from "echarts";
 import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import React from "react";
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 interface HeroSectionProps {
   onStart: () => void;
@@ -23,101 +24,93 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
     <section className="min-h-[90vh] flex flex-col items-center justify-center text-center space-y-8 relative overflow-hidden bg-zinc-50/50 dark:bg-zinc-950/50 pt-24 pb-16">
       {/* Hero Background Elements - Grid & Glows */}
       <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
-        {/* Modern subtle grid pattern */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
+        {/* Modern subtle grid pattern with higher contrast */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808018_1px,transparent_1px),linear-gradient(to_bottom,#80808018_1px,transparent_1px)] bg-[size:32px_32px]" />
+        
+        {/* Primary Ambient Glows */}
+        <div className="absolute top-[-10%] left-[-10%] w-[800px] h-[800px] bg-blue-500/15 blur-[120px] rounded-full animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[1000px] h-[800px] bg-purple-500/10 blur-[150px] rounded-full" />
+        <div className="absolute top-[20%] right-[10%] w-[600px] h-[600px] bg-emerald-500/5 blur-[120px] rounded-full" />
+
         {/* Floating Animated Charts */}
         <motion.div
-          animate={{ y: [0, -20, 0], rotate: [0, 5, 0] }}
-          transition={{ repeat: Infinity, duration: 6, ease: "easeInOut" }}
-          className="absolute top-[20%] left-[10%] md:left-[15%] p-4 rounded-2xl bg-background/40 backdrop-blur-xl border border-white/10 ambient-glow-blue opacity-50 md:opacity-80"
+          animate={{ y: [0, -30, 0], rotate: [0, 10, 0] }}
+          transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
+          className="absolute top-[25%] left-[12%] p-5 rounded-3xl bg-background/50 backdrop-blur-3xl border border-white/10 ambient-glow-blue opacity-70 hidden lg:block"
         >
-          <BarChart2 size={32} className="text-blue-500" />
+          <BarChart2 size={36} className="text-blue-500" />
         </motion.div>
+        
         <motion.div
-          animate={{ y: [0, 30, 0], x: [0, 10, 0], rotate: [0, -10, 0] }}
-          transition={{ repeat: Infinity, duration: 8, ease: "easeInOut", delay: 1 }}
-          className="absolute top-[30%] right-[5%] md:right-[12%] p-5 rounded-2xl bg-background/40 backdrop-blur-xl border border-white/10 ambient-glow-purple opacity-40 md:opacity-70"
+          animate={{ y: [0, 40, 0], x: [0, 20, 0], rotate: [0, -15, 0] }}
+          transition={{ repeat: Infinity, duration: 10, ease: "easeInOut", delay: 1 }}
+          className="absolute top-[35%] right-[10%] p-6 rounded-3xl bg-background/50 backdrop-blur-3xl border border-white/10 ambient-glow-purple opacity-60 hidden lg:block"
         >
-          <PieChart size={40} className="text-purple-500" />
+          <PieChart size={44} className="text-purple-500" />
         </motion.div>
-        <motion.div
-          animate={{ y: [0, -25, 0], x: [0, -15, 0], rotate: [0, 8, 0] }}
-          transition={{ repeat: Infinity, duration: 7, ease: "easeInOut", delay: 2.5 }}
-          className="absolute bottom-[25%] left-[5%] md:left-[18%] p-3 rounded-2xl bg-background/40 backdrop-blur-xl border border-white/10 ambient-glow-emerald opacity-50 md:opacity-80 hidden sm:block"
-        >
-          <TrendingUp size={28} className="text-emerald-500" />
-        </motion.div>
-        <motion.div
-          animate={{ y: [0, 20, 0], rotate: [0, -5, 0] }}
-          transition={{ repeat: Infinity, duration: 5.5, ease: "easeInOut", delay: 0.5 }}
-          className="absolute bottom-[35%] right-[15%] md:right-[22%] p-4 rounded-2xl bg-background/40 backdrop-blur-xl border border-white/10 ambient-glow-mono opacity-50 md:opacity-70 hidden md:block"
-        >
-          <LineChart size={36} className="text-foreground" />
-        </motion.div>
-        {/* Top blue glow anchoring the navbar */}
-        <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[600px] h-[500px] bg-blue-500/10 blur-[120px] rounded-full" />
-        {/* Secondary ambient glow */}
-        <div className="absolute bottom-0 right-[-10%] w-[800px] h-[600px] bg-primary/5 blur-[150px] rounded-full" />
+
         {/* Bottom fading gradient to smooth into the next section */}
-        <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-background to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-background via-background/80 to-transparent" />
       </div>
-      <div className="space-y-6 max-w-4xl relative z-10 px-4 flex flex-col items-center">
+      <div className="space-y-8 max-w-5xl relative z-10 px-4 flex flex-col items-center">
         <motion.div
-          initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{ duration: 0.8, ease: "easeOut" }}
-          className="mx-auto w-fit p-1 rounded-full border border-border/50 bg-background/50 backdrop-blur-md mb-4 shadow-sm"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="mx-auto w-fit p-1.5 rounded-full border border-blue-500/20 bg-blue-500/5 backdrop-blur-md mb-2 shadow-sm"
         >
-          <span className="text-[11px] font-bold px-3 py-1.5 flex items-center gap-2 text-muted-foreground uppercase tracking-widest">
-            <span className="flex h-1.5 w-1.5 rounded-full bg-blue-500 animate-pulse" /> AI-Powered Analytics v2.0
+          <span className="text-[10px] sm:text-[11px] font-black px-4 py-1.5 flex items-center gap-2 text-blue-600 dark:text-blue-400 uppercase tracking-[0.2em]">
+            <span className="flex h-2 w-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_10px_rgba(59,130,246,0.5)]" />AI-Powered Analytics Platform
           </span>
         </motion.div>
+        
         <motion.h1
-          initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{ duration: 0.8, delay: 0.15, ease: "easeOut" }}
-          className="text-5xl md:text-[5rem] font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-foreground to-foreground/70 drop-shadow-sm leading-[1.1] md:leading-[1.1] pb-2"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+          className="text-5xl md:text-7xl lg:text-[6rem] font-black tracking-tighter leading-[0.95] text-center"
         >
-          Transform Data into <br />
-          <span className="text-foreground">
+          <span className="text-foreground drop-shadow-2xl">Transform Data into</span> <br />
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-500 to-emerald-500 drop-shadow-sm pb-4 inline-block">
             <TypewriterEffect />
           </span>
         </motion.h1>
+        
         <motion.p
-          initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-          className="text-lg md:text-xl text-muted-foreground/80 max-w-2xl mx-auto leading-relaxed font-medium mt-2"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1, delay: 0.4 }}
+          className="text-lg md:text-2xl text-muted-foreground/90 max-w-3xl mx-auto leading-relaxed font-medium text-center balance"
         >
-          PyAnalypt seamlessly simplifies complex data visualization. Upload your raw datasets and let our AI engine generate stunning, interactive charts in seconds.
+          PyAnalypt seamlessly simplifies complex data visualization. Upload raw datasets and let our AI engine generate stunning, interactive insights in seconds.
         </motion.p>
       </div>
-      <motion.div
-        initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-        transition={{ duration: 0.8, delay: 0.45, ease: "easeOut" }}
-        className="flex flex-col sm:flex-row gap-4 relative z-10 pt-6"
-      >
-        <Link
-          href="/playground"
-          className="px-8 py-4 rounded-full bg-foreground text-background hover:bg-blue-600 hover:text-white transition-all duration-300 font-bold whitespace-nowrap ambient-glow-mono hover:ambient-glow-blue flex items-center justify-center gap-2"
+        <motion.div
+          initial={{ opacity: 0, y: 20, filter: "blur(4px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ duration: 0.8, delay: 0.45, ease: "easeOut" }}
+          className="flex flex-col sm:flex-row gap-4 relative z-10 pt-6"
         >
-          <Zap size={18} className="fill-current" /> Live Sandbox
-        </Link>
-        <Link
-          href="https://github.com/soklimkhy/pyanalypt"
-          target="_blank"
-          className="px-8 py-4 rounded-full bg-background border border-border/50 text-foreground hover:bg-secondary/50 transition-all duration-300 font-bold whitespace-nowrap flex items-center justify-center gap-2"
+          <Link
+            href="/playground"
+            className="px-8 py-4 rounded-full bg-foreground text-background hover:bg-blue-600 hover:text-white transition-all duration-300 font-bold whitespace-nowrap ambient-glow-mono hover:ambient-glow-blue flex items-center justify-center gap-2"
+          >
+            <Zap size={18} className="fill-current" /> Live Sandbox
+          </Link>
+          <Link
+            href="https://github.com/soklimkhy/pyanalypt"
+            target="_blank"
+            className="px-8 py-4 rounded-full bg-background border border-border/50 text-foreground hover:bg-secondary/50 transition-all duration-300 font-bold whitespace-nowrap flex items-center justify-center gap-2"
+          >
+            <GithubIcon size={18} /> View GitHub
+          </Link>
+        </motion.div>
+        <motion.div
+          initial={{ opacity: 0, filter: "blur(4px)" }}
+          animate={{ opacity: 1, filter: "blur(0px)" }}
+          transition={{ duration: 1, delay: 0.8, ease: "easeOut" }}
+          className="pt-12 relative z-10"
         >
-          <Github size={18} /> View GitHub
-        </Link>
-      </motion.div>
-      <motion.div
-        initial={{ opacity: 0, filter: "blur(10px)" }}
-        animate={{ opacity: 1, filter: "blur(0px)" }}
-        transition={{ duration: 1, delay: 0.8, ease: "easeOut" }}
-        className="pt-12 relative z-10"
-      >
         <div className="flex flex-col items-center gap-4">
           <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
             <Activity size={14} className="text-emerald-500 animate-pulse" />
@@ -283,7 +276,7 @@ function VisualizationPanel() {
             </CardHeader>
             <CardContent className="flex-1 space-y-4 px-6 pb-6 pt-2">
               <div className="relative rounded-2xl overflow-hidden bg-secondary/10 border border-border/30">
-                <ReactECharts option={chart.option} style={{ height: '220px', width: '100%' }} />
+                <EChart option={chart.option} style={{ height: '220px', width: '100%' }} />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent pointer-events-none" />
               </div>
               <div className="pt-4 border-t border-border/40 space-y-2 pb-2">
@@ -335,7 +328,7 @@ export default function Home() {
         <LogoTicker />
 
         {/* 3. Sample Visualizations (Scroll Reveal) */}
-        <div id="visuals-section" className="max-w-[1400px] mx-auto px-6 py-16 space-y-8">
+        <div id="visuals-section" className="max-w-[1400px] mx-auto px-6 py-16 space-y-8 relative">
           <div className="text-center mb-8 space-y-3">
             <h2 className="text-3xl md:text-5xl font-bold tracking-tight">Stunning Visualizations</h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -351,7 +344,7 @@ export default function Home() {
         </div>
 
         {/* 4. Features Section - Global Analytics Types */}
-        <div className="max-w-[1400px] mx-auto px-6">
+        <div className="max-w-[1400px] mx-auto px-6 relative">
           <ScrollReveal>
             <AnalysisFeatures />
           </ScrollReveal>

@@ -1,13 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import {
     Info, Search,
     ChevronRight
 } from "lucide-react";
-import { motion, AnimatePresence, Variants } from "framer-motion";
+import { motion, AnimatePresence, Variants } from "motion/react";
 import { useSearchParams, useRouter } from "next/navigation";
-import ReactECharts from "echarts-for-react";
+import EChart from "@/components/ui/EChart";
 import { VISUALIZATIONS_CATALOG } from "@/lib/visualizations-data";
 import sampleData from "@/lib/sample_visuals_data.json";
 import { Card } from "@/components/ui/card";
@@ -318,7 +318,7 @@ const getExampleChartOption = (type: string) => {
                                     return [center[0] + Math.cos(rad) * 20, center[1] + Math.sin(rad) * 20];
                                 })
                             },
-                            style: api.style()
+                            style: { fill: api.visual('color') }
                         };
                     },
                     data: data.data.map((d: any) => ({ value: d, itemStyle: { color: colors[0], opacity: 0.6 } }))
@@ -342,7 +342,7 @@ const getExampleChartOption = (type: string) => {
                         return {
                             type: 'polygon',
                             shape: { points: [...points, ...pointsRev] },
-                            style: api.style()
+                            style: { fill: api.visual('color') }
                         };
                     },
                     data: [[i, 5]],
@@ -366,7 +366,7 @@ const getExampleChartOption = (type: string) => {
                                     return [center[0] + Math.cos(r) * 45, center[1] + Math.sin(r) * 45];
                                 })
                             },
-                            style: api.style()
+                            style: { fill: api.visual('color') }
                         };
                     },
                     data: data.points.map((p: any) => ({ value: p, itemStyle: { color: colors[Math.floor(Math.random() * colors.length)], opacity: 0.5 } }))
@@ -454,7 +454,7 @@ const getExampleChartOption = (type: string) => {
                                 height: height,
                                 r: 5
                             },
-                            style: api.style()
+                            style: { fill: api.visual('color') }
                         };
                     },
                     encode: { x: [1, 2], y: 0 },
@@ -539,7 +539,6 @@ const itemVariants: Variants = {
 };
 
 
-import { Suspense } from "react";
 
 function VisualsPageContent() {
     const searchParams = useSearchParams();
@@ -682,7 +681,7 @@ function VisualsPageContent() {
                                             </div>
                                             <div className="rounded-[2.5rem] bg-zinc-900/40 border border-white/5 p-8 h-[400px] flex items-center justify-center relative overflow-hidden group/canvas shadow-inner">
                                                 <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-primary/10 to-transparent opacity-50" />
-                                                <ReactECharts
+                                                <EChart
                                                     option={getExampleChartOption(activeChart.id)}
                                                     style={{ height: '100%', width: '100%' }}
                                                     theme="dark"

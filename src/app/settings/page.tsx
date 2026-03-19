@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useAuth } from "@/context/auth-context";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { User, Shield, Monitor, Bell, CreditCard, Lock, ShieldCheck, LogOut, Eye } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";

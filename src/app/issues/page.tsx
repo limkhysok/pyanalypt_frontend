@@ -32,7 +32,7 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
 import { datasetApi } from "@/services/api";
