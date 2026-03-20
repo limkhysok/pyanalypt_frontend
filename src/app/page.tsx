@@ -68,10 +68,10 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-          className="text-5xl md:text-7xl lg:text-[6rem] font-black tracking-tighter leading-[0.95] text-center"
+          className="text-4xl sm:text-6xl md:text-7xl lg:text-[6rem] font-black tracking-tighter leading-[1.05] sm:leading-[0.95] text-center px-2"
         >
-          <span className="text-foreground drop-shadow-2xl">Transform Data into</span> <br />
-          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-500 to-emerald-500 drop-shadow-sm pb-4 inline-block">
+          <span className="text-foreground drop-shadow-2xl whitespace-normal">Transform Data into</span> <br className="hidden sm:block" />
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-600 via-indigo-500 to-emerald-500 drop-shadow-sm pb-2 sm:pb-4 inline-block">
             <TypewriterEffect />
           </span>
         </motion.h1>
@@ -80,7 +80,7 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.4 }}
-          className="text-lg md:text-2xl text-muted-foreground/90 max-w-3xl mx-auto leading-relaxed font-medium text-center balance"
+          className="text-base sm:text-lg md:text-2xl text-muted-foreground/90 max-w-3xl mx-auto leading-relaxed font-medium text-center balance px-4"
         >
           PyAnalypt seamlessly simplifies complex data visualization. Upload raw datasets and let our AI engine generate stunning, interactive insights in seconds.
         </motion.p>
@@ -116,18 +116,18 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
             <Activity size={14} className="text-emerald-500 animate-pulse" />
             Live Platform Activity
           </p>
-          <div className="flex gap-8 md:gap-16 opacity-70 grayscale">
+          <div className="flex flex-col md:flex-row gap-8 md:gap-16 opacity-70 grayscale">
             <div className="flex flex-col items-center">
-              <span className="text-2xl font-black text-foreground">1.4M+</span>
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Rows Analyzed</span>
+              <span className="text-xl sm:text-2xl font-black text-foreground">1.4M+</span>
+              <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-muted-foreground font-bold text-center">Rows Analyzed</span>
             </div>
             <div className="flex flex-col items-center">
-              <span className="text-2xl font-black text-foreground">15k+</span>
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Charts Generated</span>
+              <span className="text-xl sm:text-2xl font-black text-foreground">15k+</span>
+              <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-muted-foreground font-bold text-center">Charts Generated</span>
             </div>
             <div className="flex flex-col items-center">
-              <span className="text-2xl font-black text-foreground">99.9%</span>
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-bold">Model Accuracy</span>
+              <span className="text-xl sm:text-2xl font-black text-foreground">99.9%</span>
+              <span className="text-[9px] sm:text-[10px] uppercase tracking-wider text-muted-foreground font-bold text-center">Model Accuracy</span>
             </div>
           </div>
         </div>
@@ -191,8 +191,8 @@ function AnalysisFeatures() {
   return (
     <div className="py-12 space-y-10">
       <div className="text-center space-y-3">
-        <h2 className="text-3xl md:text-5xl font-bold tracking-tight px-4">Core Analysis Capabilities</h2>
-        <p className="text-muted-foreground max-w-2xl mx-auto text-lg px-4">
+        <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold tracking-tight px-4">Core Analysis Capabilities</h2>
+        <p className="text-muted-foreground max-w-2xl mx-auto text-base sm:text-lg px-6">
           Discover how PyAnalypt handles every stage of the data lifecycle, from understanding the past to optimizing the future.
         </p>
       </div>
@@ -330,8 +330,8 @@ export default function Home() {
         {/* 3. Sample Visualizations (Scroll Reveal) */}
         <div id="visuals-section" className="max-w-[1400px] mx-auto px-6 py-16 space-y-8 relative">
           <div className="text-center mb-8 space-y-3">
-            <h2 className="text-3xl md:text-5xl font-bold tracking-tight">Stunning Visualizations</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
+            <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold tracking-tight px-4">Stunning Visualizations</h2>
+            <p className="text-muted-foreground max-w-2xl mx-auto text-base sm:text-lg px-6">
               PyAnalypt uses Apache ECharts to render high-performance, interactive charts that help you make sense of your data instantly.
             </p>
           </div>
