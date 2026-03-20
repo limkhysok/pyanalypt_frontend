@@ -111,160 +111,161 @@ export default function Playground() {
     }, [parsedData, chartType]);
 
     return (
-        <main className="min-h-screen bg-zinc-50/50 dark:bg-zinc-950/50 text-foreground pt-24 pb-12 px-6 md:px-12 selection:bg-primary/20 overflow-x-hidden relative z-0">
-            {/* Background Ambience */}
-            <div className="absolute inset-0 pointer-events-none -z-10">
-                {/* Modern subtle grid pattern */}
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
-                <div className="absolute top-[0%] left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-emerald-500/5 blur-[150px] rounded-full" />
-                <div className="absolute bottom-[0%] right-[-10%] w-[600px] h-[600px] bg-blue-500/5 blur-[120px] rounded-full" />
+        <main className="min-h-screen bg-background text-foreground pt-28 pb-16 px-6 selection:bg-primary/20 overflow-x-hidden relative z-0">
+
+            {/* Background */}
+            <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+                <div className="absolute inset-0 bg-background" />
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[32px_32px]" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-200 h-150 bg-emerald-500/5 blur-[150px] rounded-full" />
+                <div className="absolute bottom-0 right-[-10%] w-150 h-150 bg-blue-500/5 blur-[120px] rounded-full" />
             </div>
 
-            <div className="max-w-[1500px] mx-auto space-y-8">
+            <div className="max-w-325 mx-auto space-y-10">
 
-                {/* Header */}
-                <div className="flex flex-col gap-3">
-                    <motion.div
-                        initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                        transition={{ duration: 0.8, ease: "easeOut" }}
-                        className="w-fit p-1 rounded-full border border-border/50 bg-background/50 backdrop-blur-md shadow-sm"
-                    >
-                        <span className="flex items-center gap-2 text-[11px] font-bold tracking-[0.2em] px-3 py-1 uppercase text-muted-foreground">
-                            <Zap size={14} className="fill-primary text-primary animate-pulse" /> Data Sandbox
-                        </span>
-                    </motion.div>
-
-                    <motion.h1
-                        initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                        transition={{ duration: 0.8, delay: 0.15, ease: "easeOut" }}
-                        className="text-3xl md:text-5xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-foreground to-foreground/70 leading-[1.1]"
-                    >
-                        Interactive Playground
-                    </motion.h1>
-
-                    <motion.p
-                        initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                        transition={{ duration: 0.8, delay: 0.3, ease: "easeOut" }}
-                        className="text-muted-foreground/80 text-base font-medium max-w-2xl leading-relaxed"
-                    >
-                        Open-access visualization tool. Paste your raw datasets to generate high-performance ECharts within client-side safety limits. No data leaves your browser.
-                    </motion.p>
-                </div>
-
+                {/* ── Header ── */}
                 <motion.div
-                    initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                    transition={{ duration: 0.8, delay: 0.45, ease: "easeOut" }}
-                    className="grid grid-cols-1 xl:grid-cols-12 gap-8"
+                    initial={{ opacity: 0, y: 24 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                    className="text-center space-y-6 max-w-2xl mx-auto"
                 >
-
-
-                    {/* Input Panel */}
-                    <div className="xl:col-span-4 space-y-6">
-                        <Card className="bg-background/40 backdrop-blur-2xl border border-border/30 rounded-[3rem] p-3 overflow-hidden transition-all duration-700 hover:border-primary/50 hover:ambient-glow-mono group">
-                            <div className="bg-secondary/10 rounded-[2.5rem] border border-white/5 h-full p-6 transition-all duration-700 group-hover:bg-secondary/20">
-                                <CardHeader className="p-0 pb-6 border-b border-border/40 mb-6">
-                                    <CardTitle className="text-sm font-bold flex items-center justify-between font-mono">
-                                        <div className="flex items-center gap-2">
-                                            <FileText size={16} className="text-primary" /> CSV Raw Data
-                                        </div>
-                                        <span className={`text-[10px] px-2 py-1 rounded bg-background/50 border border-border/40 ${csvData.length > (MAX_CHARS * 0.8) ? 'text-red-500' : 'text-muted-foreground'}`}>
-                                            {csvData.length} / {MAX_CHARS}
-                                        </span>
-                                    </CardTitle>
-                                </CardHeader>
-                                <CardContent className="p-0 space-y-6">
-                                    <textarea
-                                        className="w-full h-44 bg-background/60 rounded-[1.5rem] p-5 text-xs font-mono outline-none border border-border/50 focus:border-primary/70 focus:ring-4 ring-primary/10 transition-all resize-none shadow-inner"
-                                        value={csvData}
-                                        onChange={(e) => setCsvData(e.target.value)}
-                                        placeholder="Paste CSV here... (e.g. Month, Value1, Value2)"
-                                    />
-                                    {error && (
-                                        <div className="p-4 rounded-[1.5rem] bg-red-500/10 border border-red-500/20">
-                                            <p className="text-red-500 text-[10px] font-bold uppercase tracking-widest leading-relaxed">{error}</p>
-                                        </div>
-                                    )}
-
-                                    <div className="space-y-3">
-                                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest pl-2">Architectural View</p>
-                                        <div className="grid grid-cols-3 gap-3">
-                                            {[
-                                                { id: 'bar', icon: BarChart3 },
-                                                { id: 'line', icon: LineChart },
-                                                { id: 'pie', icon: PieChart }
-                                            ].map((t) => (
-                                                <button
-                                                    key={t.id}
-                                                    onClick={() => setChartType(t.id as any)}
-                                                    className={`p-4 rounded-[1.5rem] border flex items-center justify-center transition-all duration-500 ${chartType === t.id
-                                                        ? 'bg-primary border-primary text-primary-foreground shadow-[0_4px_20px_-5px_rgba(32,190,255,0.4)]'
-                                                        : 'bg-background/50 border-border/40 hover:border-primary/50 text-muted-foreground hover:bg-secondary/40'
-                                                        }`}
-                                                >
-                                                    <t.icon size={20} />
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    <div className="p-4 rounded-[1.5rem] bg-secondary/20 border border-border/40 mt-4">
-                                        <p className="text-[10px] text-muted-foreground leading-relaxed italic">
-                                            * No files allowed. Raw text processing only to maintain zero server-side overhead and maximum privacy.
-                                        </p>
-                                    </div>
-                                </CardContent>
-                            </div>
-                        </Card>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 shadow-sm">
+                        <Zap size={13} className="text-emerald-500" aria-hidden="true" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                            Data Sandbox
+                        </span>
                     </div>
+
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.05]">
+                        Try It Live.<br />
+                        <span className="text-emerald-600 dark:text-emerald-400 italic">No signup required.</span>
+                    </h1>
+
+                    <p className="text-lg text-muted-foreground font-medium leading-relaxed">
+                        Paste any CSV data, pick a chart type, and see it rendered instantly — all inside your browser. Zero data leaves your device.
+                    </p>
+                </motion.div>
+
+                {/* ── Panels ── */}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.2 }}
+                    className="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-6"
+                >
+                    {/* Input Panel */}
+                    <Card className="bg-background/60 backdrop-blur-2xl border border-border/20 rounded-[2.5rem] overflow-hidden shadow-xl">
+                        <div className="p-6 space-y-6">
+                            <CardHeader className="p-0 pb-5 border-b border-border/10">
+                                <CardTitle className="text-sm font-black flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <FileText size={15} className="text-emerald-500" aria-hidden="true" />
+                                        <span>CSV Input</span>
+                                    </div>
+                                    <span className={`text-[10px] px-2.5 py-1 rounded-full border font-black ${
+                                        csvData.length > MAX_CHARS * 0.8
+                                            ? 'text-red-500 border-red-500/30 bg-red-500/10'
+                                            : 'text-muted-foreground border-border/20 bg-secondary/50'
+                                    }`}>
+                                        {csvData.length} / {MAX_CHARS}
+                                    </span>
+                                </CardTitle>
+                            </CardHeader>
+
+                            <CardContent className="p-0 space-y-5">
+                                <textarea
+                                    aria-label="CSV data input"
+                                    className="w-full h-48 bg-secondary/20 rounded-2xl p-4 text-xs font-mono outline-none border border-border/20 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/10 transition-all resize-none"
+                                    value={csvData}
+                                    onChange={(e) => setCsvData(e.target.value)}
+                                    placeholder="Paste CSV here…&#10;e.g. Month,Revenue,Users&#10;Jan,1200,450"
+                                />
+
+                                {error && (
+                                    <div className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20">
+                                        <p className="text-red-500 text-[10px] font-bold uppercase tracking-widest leading-relaxed">{error}</p>
+                                    </div>
+                                )}
+
+                                <div className="space-y-3">
+                                    <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Chart Type</p>
+                                    <fieldset className="grid grid-cols-3 gap-3">
+                                        <legend className="sr-only">Select chart type</legend>
+                                        {[
+                                            { id: 'bar',  icon: BarChart3,  label: 'Bar'  },
+                                            { id: 'line', icon: LineChart,  label: 'Line' },
+                                            { id: 'pie',  icon: PieChart,   label: 'Pie'  },
+                                        ].map((t) => (
+                                            <button
+                                                key={t.id}
+                                                onClick={() => setChartType(t.id as "bar" | "line" | "pie")}
+                                                aria-pressed={chartType === t.id}
+                                                className={`p-4 rounded-2xl border flex flex-col items-center gap-1.5 transition-all duration-300 ${
+                                                    chartType === t.id
+                                                        ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-500 shadow-sm'
+                                                        : 'bg-background/50 border-border/20 hover:border-emerald-500/30 text-muted-foreground hover:bg-secondary/40'
+                                                }`}
+                                            >
+                                                <t.icon size={20} aria-hidden="true" />
+                                                <span className="text-[9px] font-black uppercase tracking-widest">{t.label}</span>
+                                            </button>
+                                        ))}
+                                    </fieldset>
+                                </div>
+
+                                <div className="p-4 rounded-2xl bg-secondary/20 border border-border/10">
+                                    <p className="text-[10px] text-muted-foreground leading-relaxed">
+                                        <span className="font-black text-foreground/60">Privacy note:</span> Raw text only — no file uploads. All processing happens in your browser.
+                                    </p>
+                                </div>
+                            </CardContent>
+                        </div>
+                    </Card>
 
                     {/* Preview Panel */}
-                    <div className="xl:col-span-8 space-y-6">
-                        <Card className="h-full min-h-[500px] bg-background/40 backdrop-blur-2xl border border-border/30 rounded-[3rem] p-3 overflow-hidden flex flex-col transition-all duration-700 hover:border-primary/50 hover:ambient-glow-blue group">
-                            <div className="flex-1 bg-secondary/10 rounded-[2.5rem] border border-white/5 flex flex-col transition-all duration-700 group-hover:bg-secondary/20 relative overflow-hidden">
-
-                                {/* Inner glow overlay */}
-                                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-
-                                <CardHeader className="border-b border-border/40 flex flex-col sm:flex-row sm:items-center justify-between p-8 relative z-10 gap-4">
-                                    <div className="space-y-1">
-                                        <CardTitle className="text-xl font-black tracking-tight flex items-center gap-3">
-                                            Active Rendering <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                                        </CardTitle>
-                                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">ECharts Canvas v6.0 • Client-Side Only</p>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            className="rounded-full text-[10px] font-bold border-border/40 hover:bg-secondary/50 transition-all h-10 px-6 uppercase tracking-widest bg-background/50"
-                                            onClick={() => handleExport('svg')}
-                                        >
-                                            <Download size={14} className="mr-2" /> SVG
-                                        </Button>
-                                        <Button
-                                            className="rounded-full text-[10px] font-bold bg-foreground text-background hover:bg-primary transition-all duration-300 h-10 px-6 uppercase tracking-widest hover:ambient-glow-mono shadow-sm"
-                                            onClick={() => handleExport('png')}
-                                        >
-                                            <Download size={14} className="mr-2" /> PNG
-                                        </Button>
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="flex-1 p-8 flex items-center justify-center relative z-10 min-h-[400px]">
-                                    <div className="w-full h-full max-h-[500px] transition-transform duration-700 ease-out group-hover:scale-[1.02]">
-                                        <EChart
-                                            ref={echartsRef}
-                                            option={option}
-                                            style={{ height: '100%', width: '100%' }}
-                                        />
-                                    </div>
-                                </CardContent>
+                    <Card className="bg-background/60 backdrop-blur-2xl border border-border/20 rounded-[2.5rem] overflow-hidden shadow-xl flex flex-col min-h-140">
+                        <CardHeader className="border-b border-border/10 flex flex-col sm:flex-row sm:items-center justify-between px-8 py-6 gap-4 shrink-0">
+                            <div className="space-y-1">
+                                <CardTitle className="text-lg font-black tracking-tight flex items-center gap-2.5">
+                                    {"Live Render"}
+                                    <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
+                                </CardTitle>
+                                <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                                    ECharts · Client-Side Only
+                                </p>
                             </div>
-                        </Card>
-                    </div>
+                            <div className="flex items-center gap-2">
+                                <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="rounded-xl text-[10px] font-black border-border/30 hover:bg-secondary/50 transition-all h-9 px-5 uppercase tracking-widest"
+                                    onClick={() => handleExport('svg')}
+                                    aria-label="Export chart as SVG"
+                                >
+                                    <Download size={13} className="mr-1.5" aria-hidden="true" /> SVG
+                                </Button>
+                                <Button
+                                    size="sm"
+                                    className="rounded-xl text-[10px] font-black bg-emerald-600 hover:bg-emerald-700 text-white transition-all h-9 px-5 uppercase tracking-widest shadow-sm shadow-emerald-500/20"
+                                    onClick={() => handleExport('png')}
+                                    aria-label="Export chart as PNG"
+                                >
+                                    <Download size={13} className="mr-1.5" aria-hidden="true" /> PNG
+                                </Button>
+                            </div>
+                        </CardHeader>
+
+                        <CardContent className="flex-1 p-6 flex items-center justify-center">
+                            <div className="w-full" style={{ height: '440px' }}>
+                                <EChart
+                                    ref={echartsRef}
+                                    option={option}
+                                    style={{ height: '100%', width: '100%' }}
+                                />
+                            </div>
+                        </CardContent>
+                    </Card>
                 </motion.div>
             </div>
         </main>

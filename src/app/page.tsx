@@ -3,19 +3,19 @@
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import {
   BarChart2, Search,
   TrendingUp, Database, ArrowRight, Sparkles,
   Target, Wand2, Brain,
-  MessageSquareText, RefreshCcw
+  MessageSquareText, RefreshCcw,
+  CheckCircle2, Quote,
 } from "lucide-react";
 import * as echarts from "echarts";
 import { useTheme } from "next-themes";
 
 // UI Components
 import { Button } from "@/components/ui/button";
-import { CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { TiltCard } from "@/components/ui/tilt-card";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { LogoTicker } from "@/components/ui/logo-ticker";
@@ -34,17 +34,17 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
     setMounted(true);
   }, []);
 
-  if (!mounted) return <div className="min-h-[70vh]" />;
+  if (!mounted) return <div className="min-h-[85vh]" />;
 
   return (
     <section className="relative min-h-[85vh] flex flex-col items-center justify-center pt-24 pb-4 overflow-hidden border-b border-border/10">
       {/* 1. Subtle Background Elements */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500/5 blur-[120px] rounded-full opacity-50" />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:32px_32px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-200 bg-blue-500/5 blur-[120px] rounded-full opacity-50" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[32px_32px]" />
       </div>
 
-      <div className="container relative z-10 mx-auto px-6 max-w-[1300px]">
+      <div className="container relative z-10 mx-auto px-6 max-w-325">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
           {/* Text Content - Left Side */}
@@ -106,8 +106,8 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
             transition={{ duration: 1, delay: 0.2 }}
             className="relative group w-full max-w-2xl mx-auto"
           >
-            <div className="relative z-10 p-1 rounded-[3rem] bg-gradient-to-br from-blue-500/30 via-border/50 to-emerald-500/20 shadow-2xl">
-              <div className="rounded-[2.8rem] bg-background border border-border/10 overflow-hidden flex flex-col h-[450px] shadow-inner relative">
+            <div className="relative z-10 p-1 rounded-[3rem] bg-linear-to-br from-blue-500/30 via-border/50 to-emerald-500/20 shadow-2xl">
+              <div className="rounded-[2.8rem] bg-background border border-border/10 overflow-hidden flex flex-col h-112.5 shadow-inner relative">
                 {/* Dashboard Header */}
                 <div className="flex items-center justify-between px-8 py-6 border-b border-border/10 bg-secondary/10">
                   <div className="flex items-center gap-4">
@@ -126,13 +126,13 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
                 </div>
 
                 {/* Workspace Area */}
-                <div className="flex-1 p-8 space-y-6 overflow-hidden bg-gradient-to-b from-transparent to-secondary/5">
+                <div className="flex-1 p-8 space-y-6 overflow-hidden bg-linear-to-b from-transparent to-secondary/5">
                   {/* AI Message Preview */}
                   <motion.div
                     initial={{ x: -20, opacity: 0 }}
                     animate={{ x: 0, opacity: 1 }}
                     transition={{ delay: 0.8, duration: 0.6 }}
-                    className="bg-blue-600 text-white p-5 rounded-[1.5rem] rounded-tl-none max-w-[80%] shadow-xl shadow-blue-500/10 text-sm font-medium leading-relaxed"
+                    className="bg-blue-600 text-white p-5 rounded-3xl rounded-tl-none max-w-[80%] shadow-xl shadow-blue-500/10 text-sm font-medium leading-relaxed"
                   >
                     "I've analyzed your 2024 revenue. There's a 12.5% outlier growth in North America. Want me to visualize it?"
                   </motion.div>
@@ -143,7 +143,7 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
                       initial={{ y: 20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay: 1.2, duration: 0.6 }}
-                      className="bg-background border border-border/10 p-6 rounded-[2rem] shadow-lg space-y-3"
+                      className="bg-background border border-border/10 p-6 rounded-4xl shadow-lg space-y-3"
                     >
                       <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
                         <TrendingUp size={18} />
@@ -157,7 +157,7 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
                       initial={{ y: 20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ delay: 1.4, duration: 0.6 }}
-                      className="bg-background border border-border/10 p-6 rounded-[2rem] shadow-lg space-y-3"
+                      className="bg-background border border-border/10 p-6 rounded-4xl shadow-lg space-y-3"
                     >
                       <div className="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
                         <Database size={18} />
@@ -201,100 +201,134 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
   );
 }
 function ProductStory() {
-  return (
-    <div className="py-16 container mx-auto px-6 max-w-[1300px]">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
-        <ScrollReveal>
-          <div className="space-y-8 max-w-xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 shadow-sm">
-              <Sparkles size={14} className="text-emerald-500" aria-hidden="true" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
-                Zero Code Needed
-              </span>
-            </div>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.05]">
-              Data Science, <br /> <span className="text-emerald-600 dark:text-emerald-400">Minus the Code.</span>
-            </h2>
-            <div className="space-y-5 text-lg text-muted-foreground leading-relaxed font-medium">
-              <p>
-                We believe deep insights shouldn't be locked behind complex Python scripts or steep learning curves. You don't need a data science degree to understand your own business.
-              </p>
-              <p>
-                PyAnalypt is built for business owners, marketers, and operators. Learn a few basic navigation steps, upload your raw data, and our smart engine handles the heavy lifting instantly.
-              </p>
-            </div>
-            
-            <div className="flex flex-col sm:flex-row gap-4 pt-4">
-              <div className="flex-1 p-5 rounded-[2rem] bg-secondary/30 border border-border/10 backdrop-blur-xl">
-                <Wand2 size={24} className="text-blue-500 mb-3" aria-hidden="true" />
-                <h4 className="font-black text-sm uppercase tracking-widest mb-1">No Scripts</h4>
-                <p className="text-xs font-medium opacity-70">Forget SQL and Python. Just point and click.</p>
-              </div>
-              <div className="flex-1 p-5 rounded-[2rem] bg-secondary/30 border border-border/10 backdrop-blur-xl">
-                <Brain size={24} className="text-emerald-500 mb-3" aria-hidden="true" />
-                <h4 className="font-black text-sm uppercase tracking-widest mb-1">AI Assisted</h4>
-                <p className="text-xs font-medium opacity-70">Let the engine find the patterns for you.</p>
-              </div>
-            </div>
-          </div>
-        </ScrollReveal>
+  const checkmarks = [
+    "No Python, No SQL, No terminal — ever",
+    "Works with Excel, CSV & Google Sheets",
+    "Instant results — no setup, no wait",
+    "Boardroom-ready charts, always",
+  ];
 
-        <ScrollReveal>
-          <div className="relative w-full max-w-md mx-auto lg:ml-auto">
-            {/* Background Glow */}
-            <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/10 via-blue-500/5 to-transparent blur-3xl rounded-full" />
-            
-            <div className="relative space-y-4">
-              {[
-                { 
-                  icon: Database, 
-                  title: "1. Upload Your Data", 
-                  desc: "Drop in your raw CSV, Excel, or connect an API.", 
-                  color: "text-blue-500", 
-                  bg: "bg-blue-500/10" 
-                },
-                { 
-                  icon: MessageSquareText, 
-                  title: "2. Ask Questions", 
-                  desc: "Interact with your data in plain English.", 
-                  color: "text-indigo-500", 
-                  bg: "bg-indigo-500/10" 
-                },
-                { 
-                  icon: BarChart2, 
-                  title: "3. Get Visual Answers", 
-                  desc: "Receive boardroom-ready charts instantly.", 
-                  color: "text-emerald-500", 
-                  bg: "bg-emerald-500/10" 
-                }
-              ].map((step, i) => (
-                <motion.div 
-                  key={step.title}
-                  initial={{ opacity: 0, x: 20 }}
-                  whileInView={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, delay: i * 0.2 }}
-                  viewport={{ once: true }}
-                  className="p-5 sm:p-6 rounded-[2.5rem] bg-background/60 backdrop-blur-xl border border-border/10 shadow-xl flex items-center gap-5 sm:gap-6 hover:scale-[1.02] transition-transform"
-                >
-                  <div className={`shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center ${step.bg} ${step.color}`}>
-                    <step.icon size={24} aria-hidden="true" />
+  return (
+    <section className="py-20 relative overflow-hidden">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-border/30 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-border/30 to-transparent" />
+      </div>
+
+      <div className="container mx-auto px-6 max-w-325 space-y-28">
+
+        {/* ── Part 1: The Problem + Solution narrative ── */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+          <ScrollReveal>
+            <div className="space-y-8 max-w-xl">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 shadow-sm">
+                <Sparkles size={14} className="text-emerald-500" aria-hidden="true" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                  Built for Real People
+                </span>
+              </div>
+
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.05]">
+                Your data has answers. <br />
+                <span className="text-emerald-600 dark:text-emerald-400">You just need the right translator.</span>
+              </h2>
+
+              <div className="space-y-5 text-lg text-muted-foreground leading-relaxed font-medium">
+                <p>
+                  Most business owners have data. Sales reports. Customer records. Inventory logs. But it&apos;s all{" "}
+                  <span className="text-foreground font-bold">trapped in spreadsheets</span>, disconnected tools, and dashboards that take a PhD to understand.
+                </p>
+                <p>
+                  We built PyAnalypt so every business owner gets the same analytical power that Fortune 500 companies
+                  pay data teams{" "}
+                  <span className="text-foreground font-bold">hundreds of thousands of dollars</span> for — without
+                  writing a single line of code.
+                </p>
+                <p>
+                  Import your file. Ask a question. Get the answer.{" "}
+                  <span className="text-foreground font-bold">No technical knowledge required — ever.</span>
+                </p>
+              </div>
+
+              {/* Checkmarks */}
+              <ul className="space-y-3 pt-2" aria-label="Key benefits">
+                {checkmarks.map((item) => (
+                  <li key={item} className="flex items-center gap-3 text-sm font-bold text-foreground/80">
+                    <div className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                      <CheckCircle2 size={12} className="text-emerald-500" aria-hidden="true" />
+                    </div>
+                    {item}
+                  </li>
+                ))}
+              </ul>
+
+              {/* Mini stats */}
+              <div className="flex gap-8 pt-6 border-t border-border/10">
+                {[
+                  { value: "10K+", label: "Businesses" },
+                  { value: "< 5 min", label: "First Insight" },
+                  { value: "0", label: "Lines of Code" },
+                ].map((stat) => (
+                  <div key={stat.label} className="space-y-1">
+                    <p className="text-2xl font-black text-foreground">{stat.value}</p>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">{stat.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </ScrollReveal>
+
+          {/* Right: Testimonial + stat chips */}
+          <ScrollReveal>
+            <div className="relative w-full max-w-md mx-auto lg:ml-auto space-y-4">
+              <div className="absolute inset-0 bg-linear-to-tr from-emerald-500/10 via-blue-500/5 to-transparent blur-3xl rounded-full pointer-events-none" />
+
+              {/* Testimonial card */}
+              <div className="relative p-8 rounded-[2.5rem] bg-background/60 backdrop-blur-xl border border-border/10 shadow-2xl">
+                <Quote size={32} className="text-emerald-500/30 mb-4" aria-hidden="true" />
+                <p className="text-lg font-bold leading-relaxed text-foreground/80 italic">
+                  &ldquo;I spent 3 days every month building reports in Excel. With PyAnalypt I get the same output in
+                  4 minutes — and the charts actually look good.&rdquo;
+                </p>
+                <div className="flex items-center gap-3 mt-6 pt-6 border-t border-border/10">
+                  <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-emerald-500 flex items-center justify-center text-white text-xs font-black" aria-hidden="true">
+                    SL
                   </div>
                   <div>
-                    <h3 className="text-base sm:text-lg font-black tracking-tight">{step.title}</h3>
-                    <p className="text-xs sm:text-sm font-medium text-muted-foreground mt-1 leading-relaxed">
-                      {step.desc}
-                    </p>
+                    <p className="text-sm font-black tracking-tight">Sarah L.</p>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">E-Commerce Owner</p>
                   </div>
-                </motion.div>
-              ))}
+                </div>
+              </div>
 
-              {/* Connecting line */}
-              <div className="absolute top-10 bottom-10 left-[2.3rem] sm:left-[2.8rem] w-0.5 bg-gradient-to-b from-blue-500/20 via-indigo-500/20 to-emerald-500/20 -z-10 hidden sm:block" />
+              {/* Stat chips */}
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-5 rounded-4xl bg-background/60 backdrop-blur-xl border border-border/10 shadow-lg space-y-2">
+                  <p className="text-3xl font-black text-blue-500">97%</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Less setup time</p>
+                </div>
+                <div className="p-5 rounded-4xl bg-background/60 backdrop-blur-xl border border-border/10 shadow-lg space-y-2">
+                  <p className="text-3xl font-black text-emerald-500">50+</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Chart types ready</p>
+                </div>
+              </div>
             </div>
+          </ScrollReveal>
+        </div>
+
+        {/* ── CTA to Tutorials ── */}
+        <ScrollReveal>
+          <div className="flex justify-center pt-4">
+            <Link href="/tutorials" aria-label="See the full step-by-step tutorial guide">
+              <Button variant="ghost" className="gap-2 rounded-2xl px-10 h-14 text-base font-black hover:bg-blue-500/10 text-blue-500 transition-all border border-blue-500/20">
+                See the Full Step-by-Step Guide <ArrowRight size={18} aria-hidden="true" />
+              </Button>
+            </Link>
           </div>
         </ScrollReveal>
+
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -303,14 +337,14 @@ function ProductStory() {
 
 function AnalysisFeatures() {
   const workflow = [
-    { title: "Define Objective", desc: "Identify the problem and business goals for targeted analysis.", icon: Target, isOptional: false },
-    { title: "Data Collection", desc: "Gather raw data from APIs, databases, and local files.", icon: Database, isOptional: false },
-    { title: "Cleaning & Prep", desc: "Process and normalize data to ensure high-quality inputs.", icon: Wand2, isOptional: false },
-    { title: "EDA", desc: "Uncover initial patterns and anomalies via statistical summaries.", icon: Search, isOptional: false },
-    { title: "Modeling", desc: "Apply ML models or statistical methods for deeper insights.", icon: Brain, isOptional: "Optional" },
-    { title: "Visualization", desc: "Communicate results via high-performance interactives.", icon: BarChart2, isOptional: false },
-    { title: "Interpretation", desc: "Translate patterns into actionable business recommendations.", icon: MessageSquareText, isOptional: false },
-    { title: "Feedback", desc: "Refine objectives based on results for continuous growth.", icon: RefreshCcw, isOptional: "Critical" }
+    { title: "Define Objective", desc: "Identify the problem and business goals for targeted analysis.", icon: Target, badge: null },
+    { title: "Data Collection", desc: "Gather raw data from APIs, databases, and local files.", icon: Database, badge: null },
+    { title: "Cleaning & Prep", desc: "Process and normalize data to ensure high-quality inputs.", icon: Wand2, badge: null },
+    { title: "EDA", desc: "Uncover initial patterns and anomalies via statistical summaries.", icon: Search, badge: null },
+    { title: "Modeling", desc: "Apply ML models or statistical methods for deeper insights.", icon: Brain, badge: "Optional" },
+    { title: "Visualization", desc: "Communicate results via high-performance interactives.", icon: BarChart2, badge: null },
+    { title: "Interpretation", desc: "Translate patterns into actionable business recommendations.", icon: MessageSquareText, badge: null },
+    { title: "Feedback", desc: "Refine objectives based on results for continuous growth.", icon: RefreshCcw, badge: "Critical" }
   ];
 
   return (
@@ -330,13 +364,13 @@ function AnalysisFeatures() {
 
       <div className="relative">
         {/* Connection Line Visual */}
-        <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent hidden lg:block z-0" />
+        <div className="absolute top-1/2 left-0 right-0 h-px bg-linear-to-r from-transparent via-blue-500/20 to-transparent hidden lg:block z-0" />
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10 px-4">
           {workflow.map((step, idx) => (
             <TiltCard key={step.title} className="border-0 h-full group" classNameContent="p-6 h-full flex flex-col items-center text-center gap-6 bg-background/40 backdrop-blur-3xl rounded-[2.5rem] border border-border/10 hover:border-blue-500/20 transition-all shadow-lg hover:shadow-2xl">
               <div className="relative">
-                <div className="p-5 rounded-[2rem] bg-blue-500/10 text-blue-500 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-inner">
+                <div className="p-5 rounded-4xl bg-blue-500/10 text-blue-500 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-inner">
                   <step.icon size={32} aria-hidden="true" />
                 </div>
                 <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-background border border-border/10 flex items-center justify-center text-[10px] font-black text-blue-500">
@@ -347,14 +381,14 @@ function AnalysisFeatures() {
               <div className="space-y-3">
                 <div className="flex items-center justify-center gap-2">
                   <h3 className="text-lg font-black tracking-tight leading-tight">{step.title}</h3>
-                  {step.isOptional && (
+                  {step.badge && (
                     <span className={cn(
                       "text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-tighter",
-                      step.isOptional === "Critical" 
+                      step.badge === "Critical" 
                         ? "bg-red-500/10 border-red-500/20 text-red-500"
                         : "bg-blue-500/10 border-blue-500/20 text-blue-500"
                     )}>
-                      {step.isOptional}
+                      {step.badge}
                     </span>
                   )}
                 </div>
@@ -374,6 +408,7 @@ function AnalysisFeatures() {
 function VisualizationPanel() {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
+  const [activeTab, setActiveTab] = useState(0);
 
   const textColor = isDark ? '#a1a1aa' : '#52525b';
   const gridColor = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)';
@@ -388,8 +423,8 @@ function VisualizationPanel() {
     grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
     xAxis: [{ type: 'category', boundaryGap: false, data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'], axisLine: { lineStyle: { color: axisLineColor } }, axisLabel: { color: textColor, fontSize: 10 } }],
     yAxis: [{ type: 'value', splitLine: { lineStyle: { color: gridColor } }, axisLabel: { color: textColor, fontSize: 10 } }],
-    series: [{ name: 'Growth', type: 'line', smooth: true, lineStyle: { width: 3, color: '#3b82f6' }, showSymbol: false, areaStyle: { opacity: 0.1, color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#3b82f6' }, { offset: 1, color: 'transparent' }]) }, data: [420, 932, 901, 1234, 1290, 1530, 2120] }]
-  }), [isDark, tooltipBg, tooltipBorder, tooltipText, axisLineColor, textColor, gridColor]);
+    series: [{ name: 'Revenue', type: 'line', smooth: true, lineStyle: { width: 3, color: '#3b82f6' }, showSymbol: false, areaStyle: { opacity: 0.1, color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#3b82f6' }, { offset: 1, color: 'transparent' }]) }, data: [420, 932, 901, 1234, 1290, 1530, 2120] }]
+  }), [tooltipBg, tooltipBorder, tooltipText, axisLineColor, textColor, gridColor]);
 
   const scatterData = useMemo(() => Array.from({ length: 40 }, () => [Math.random() * 100, Math.random() * 100]), []);
   const scatterOption = useMemo(() => ({
@@ -397,8 +432,8 @@ function VisualizationPanel() {
     tooltip: { trigger: 'item', backgroundColor: tooltipBg, borderColor: tooltipBorder, textStyle: { color: tooltipText } },
     xAxis: { splitLine: { lineStyle: { color: gridColor } }, axisLine: { lineStyle: { color: axisLineColor } }, axisLabel: { color: textColor, fontSize: 10 } },
     yAxis: { splitLine: { lineStyle: { color: gridColor } }, axisLine: { lineStyle: { color: axisLineColor } }, axisLabel: { color: textColor, fontSize: 10 } },
-    series: [{ symbolSize: 12, data: scatterData, type: 'scatter', itemStyle: { color: '#3b82f6', opacity: 0.7 } }]
-  }), [isDark, tooltipBg, tooltipBorder, tooltipText, axisLineColor, textColor, gridColor, scatterData]);
+    series: [{ symbolSize: 12, data: scatterData, type: 'scatter', itemStyle: { color: '#6366f1', opacity: 0.7 } }]
+  }), [tooltipBg, tooltipBorder, tooltipText, axisLineColor, textColor, gridColor, scatterData]);
 
   const bubbleData = [[10, 8.04, 20, 'A'], [8.07, 6.95, 40, 'B'], [13, 7.58, 60, 'C'], [9.05, 8.81, 30, 'D'], [11, 8.33, 50, 'E'], [14, 7.66, 80, 'F'], [12.5, 6.82, 70, 'G']];
   const bubbleOption = useMemo(() => ({
@@ -406,80 +441,172 @@ function VisualizationPanel() {
     xAxis: { axisLine: { lineStyle: { color: axisLineColor } }, axisLabel: { color: textColor, fontSize: 10 }, splitLine: { lineStyle: { color: gridColor } } },
     yAxis: { axisLine: { lineStyle: { color: axisLineColor } }, axisLabel: { color: textColor, fontSize: 10 }, splitLine: { lineStyle: { color: gridColor } } },
     series: [{
-      data: bubbleData, type: 'scatter', symbolSize: (data: any) => data[2] * 0.8,
-      itemStyle: { shadowBlur: 10, shadowColor: 'rgba(59, 130, 246, 0.4)', color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [{ offset: 0, color: '#60a5fa' }, { offset: 1, color: 'transparent' }]) }
+      data: bubbleData, type: 'scatter', symbolSize: (data: number[]) => data[2] * 0.8,
+      itemStyle: { shadowBlur: 10, shadowColor: 'rgba(16, 185, 129, 0.4)', color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [{ offset: 0, color: '#34d399' }, { offset: 1, color: 'transparent' }]) }
     }]
-  }), [isDark, axisLineColor, textColor, gridColor]);
+  }), [axisLineColor, textColor, gridColor]);
 
   const charts = [
-    { title: "Retention Flow", type: "Linear Trend", option: lineOption, icon: TrendingUp, insight: "High recurring traffic in Q2." },
-    { title: "Cluster Density", type: "Scatter Map", option: scatterOption, icon: Search, insight: "Positive correlation detected." },
-    { title: "Revenue Nodes", type: "Bubble Cluster", option: bubbleOption, icon: Database, insight: "Segment G node dominant." },
+    {
+      id: 0,
+      title: "Revenue Trend",
+      subtitle: "Monthly Growth · Jan – Jul",
+      type: "Area Chart",
+      option: lineOption,
+      icon: TrendingUp,
+      color: "text-blue-500",
+      bg: "bg-blue-500/10",
+      border: "border-blue-500/20",
+      insight: "12.5% outlier growth detected in Q2. North America segment is the primary driver.",
+      stats: [
+        { label: "Peak Month", value: "Jul" },
+        { label: "Total Growth", value: "+405%" },
+        { label: "Trend", value: "↑ Strong" },
+      ],
+    },
+    {
+      id: 1,
+      title: "Customer Clusters",
+      subtitle: "Behavioural Segmentation",
+      type: "Scatter Plot",
+      option: scatterOption,
+      icon: Search,
+      color: "text-indigo-500",
+      bg: "bg-indigo-500/10",
+      border: "border-indigo-500/20",
+      insight: "Positive correlation detected. High-value segment concentrated in the upper-right quadrant.",
+      stats: [
+        { label: "Data Points", value: "40" },
+        { label: "Correlation", value: "0.82" },
+        { label: "Segments", value: "3" },
+      ],
+    },
+    {
+      id: 2,
+      title: "Market Nodes",
+      subtitle: "Segment Size Analysis",
+      type: "Bubble Chart",
+      option: bubbleOption,
+      icon: Database,
+      color: "text-emerald-500",
+      bg: "bg-emerald-500/10",
+      border: "border-emerald-500/20",
+      insight: "Segment G is the dominant revenue node. High volume, high efficiency — prioritise for Q4 investment.",
+      stats: [
+        { label: "Segments", value: "7" },
+        { label: "Top Node", value: "G" },
+        { label: "Dominance", value: "38%" },
+      ],
+    },
   ];
 
+  const active = charts[activeTab];
+
   return (
-    <div id="visuals-section" className="max-w-[1300px] mx-auto px-6 py-8 space-y-12 relative">
+    <div id="visuals-section" className="max-w-325 mx-auto px-6 py-16 space-y-12 relative">
+
+      {/* Header */}
       <div className="text-center space-y-4">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 shadow-sm mx-auto">
           <BarChart2 size={12} className="text-blue-500" aria-hidden="true" />
           <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
-            Real-time Insights
+            Interactive Canvas
           </span>
         </div>
-        <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-[1.1]">Interactive Canvas</h2>
+        <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-[1.1]">
+          Charts that <span className="text-blue-600 dark:text-blue-400">think with you.</span>
+        </h2>
         <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-6">
-          Pro-grade visualizations, natively handled.
+          Explore 50+ chart types — each one rendered in real-time from your data, no design tools required.
         </p>
       </div>
 
       <ScrollReveal>
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 px-4 auto-rows-min">
-          {/* Main Large Chart */}
-          <div className="lg:col-span-8">
-            <TiltCard className="border-0 h-full" classNameContent="p-0 bg-background/50 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border border-border/10 transition-all flex flex-col shadow-2xl h-full">
-              <CardHeader className="p-8 pb-4 flex flex-row items-center justify-between">
-                <div className="space-y-1">
-                  <CardTitle className="text-2xl font-black tracking-tight">{charts[0].title}</CardTitle>
-                  <span className="px-2 py-0.5 rounded-full bg-blue-500/10 text-[9px] font-black uppercase tracking-[0.2em] text-blue-500 border border-blue-500/10">{charts[0].type}</span>
-                </div>
-                <BarChart2 className="w-6 h-6 text-blue-500" />
-              </CardHeader>
-              <CardContent className="flex-1 p-8 pt-0 flex flex-col gap-6">
-                <div className="relative flex-1 rounded-3xl overflow-hidden bg-secondary/20 dark:bg-black/40 border border-border/10 p-2 min-h-[300px]">
-                  <EChart option={charts[0].option} theme={resolvedTheme} style={{ height: '100%', width: '100%' }} />
-                </div>
-                <div className="bg-blue-600/5 p-4 rounded-2xl border border-blue-500/10 flex items-center justify-between">
-                  <p className="text-sm font-medium opacity-80">{charts[0].insight}</p>
-                  <ArrowRight size={16} className="text-blue-500" />
-                </div>
-              </CardContent>
-            </TiltCard>
-          </div>
-
-          {/* Side Stacked Cards */}
-          <div className="lg:col-span-4 flex flex-col gap-6">
-            {charts.slice(1).map((chart) => (
-              <TiltCard key={chart.title} className="border-0" classNameContent="p-0 bg-background/50 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border border-border/10 transition-all flex flex-col shadow-xl">
-                <CardContent className="p-6 space-y-4">
-                  <div className="flex items-center justify-between">
-                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
-                      <chart.icon size={20} aria-hidden="true" />
-                    </div>
-                    <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40">{chart.type}</span>
-                  </div>
-                  <h4 className="text-lg font-black tracking-tight">{chart.title}</h4>
-                  <div className="h-[120px] rounded-2xl bg-secondary/30 border border-border/5 p-2 overflow-hidden">
-                    <EChart option={chart.option} theme={resolvedTheme} style={{ height: '100%', width: '100%' }} />
-                  </div>
-                </CardContent>
-              </TiltCard>
+        {/* Tab switcher */}
+        <div className="flex justify-center mb-8">
+          <div className="inline-flex gap-2 p-1.5 rounded-2xl bg-secondary/50 border border-border/10 backdrop-blur-xl" role="tablist" aria-label="Chart types">
+            {charts.map((chart, i) => (
+              <button
+                key={chart.id}
+                role="tab"
+                aria-selected={activeTab === i}
+                aria-controls={`chart-panel-${i}`}
+                onClick={() => setActiveTab(i)}
+                className={cn(
+                  "flex items-center gap-2 px-5 py-2.5 rounded-xl text-[11px] font-black tracking-widest uppercase transition-all",
+                  activeTab === i
+                    ? `bg-background shadow-lg ${chart.color} border border-border/10`
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <chart.icon size={14} aria-hidden="true" />
+                {chart.title}
+              </button>
             ))}
           </div>
         </div>
-        <div className="flex justify-center mt-20">
+
+        {/* Chart showcase */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            id={`chart-panel-${activeTab}`}
+            role="tabpanel"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.25 }}
+          >
+            <TiltCard className="border-0" classNameContent="p-0 bg-background/50 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border border-border/10 shadow-2xl">
+
+              {/* Chart header row */}
+              <div className="flex items-start justify-between p-8 pb-0">
+                <div className="flex items-center gap-4">
+                  <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${active.bg} ${active.color}`}>
+                    <active.icon size={22} aria-hidden="true" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-black tracking-tight">{active.title}</h3>
+                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-60 mt-0.5">{active.subtitle}</p>
+                  </div>
+                </div>
+                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border ${active.border} ${active.bg} ${active.color}`}>
+                  {active.type}
+                </span>
+              </div>
+
+              {/* Chart canvas */}
+              <div className="px-8 pt-6">
+                <div className="rounded-3xl overflow-hidden bg-secondary/20 dark:bg-black/40 border border-border/10 p-4" style={{ height: '360px' }}>
+                  <EChart option={active.option} theme={resolvedTheme} style={{ height: '100%', width: '100%' }} />
+                </div>
+              </div>
+
+              {/* Insight + stats */}
+              <div className="p-8 pt-6 space-y-4">
+                <div className={`p-4 rounded-2xl border ${active.border} ${active.bg} flex items-start gap-3`}>
+                  <Sparkles size={16} className={`${active.color} shrink-0 mt-0.5`} aria-hidden="true" />
+                  <p className="text-sm font-bold opacity-80">{active.insight}</p>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  {active.stats.map((stat) => (
+                    <div key={stat.label} className="p-4 rounded-2xl bg-secondary/30 border border-border/10 text-center">
+                      <p className="text-xl font-black">{stat.value}</p>
+                      <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-50 mt-1">{stat.label}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </TiltCard>
+          </motion.div>
+        </AnimatePresence>
+
+        {/* CTA */}
+        <div className="flex justify-center mt-12">
           <Button variant="ghost" aria-label="Explore our wide library of data visualizations" className="gap-2 rounded-2xl px-12 h-16 text-lg font-black hover:bg-blue-500/10 text-blue-500 transition-all border border-blue-500/10" asChild>
             <Link href="/visuals">
-              EXPLORE DATA LIBRARY <ArrowRight size={22} aria-hidden="true" />
+              EXPLORE 50+ CHART TYPES <ArrowRight size={22} aria-hidden="true" />
             </Link>
           </Button>
         </div>
@@ -499,10 +626,10 @@ export default function Home() {
     <main className="min-h-screen bg-background relative selection:bg-blue-500/30 overflow-x-hidden">
 
       {/* GLOBAL BACKGROUND SYSTEM */}
-      <div className="fixed inset-0 z-[-10] pointer-events-none overflow-hidden">
+      <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
         <div className="absolute inset-0 bg-background" />
-        <div className="absolute -top-[10%] left-[20%] w-[150%] sm:w-[800px] h-[150%] sm:h-[800px] bg-blue-500/5 dark:bg-blue-600/10 blur-[120px] rounded-full" />
-        <div className="absolute -bottom-[20%] -right-[10%] w-[120%] sm:w-[600px] h-[120%] sm:h-[600px] bg-emerald-500/[0.03] dark:bg-emerald-600/10 blur-[100px] rounded-full" />
+        <div className="absolute -top-[10%] left-[20%] w-[150%] sm:w-200 h-[150%] sm:h-200 bg-blue-500/5 dark:bg-blue-600/10 blur-[120px] rounded-full" />
+        <div className="absolute -bottom-[20%] -right-[10%] w-[120%] sm:w-150 h-[120%] sm:h-150 bg-emerald-500/3 dark:bg-emerald-600/10 blur-[100px] rounded-full" />
       </div>
 
       <div className="relative z-0">
@@ -516,7 +643,7 @@ export default function Home() {
 
         <VisualizationPanel />
 
-        <div className="max-w-[1300px] mx-auto px-6 relative">
+        <div className="max-w-325 mx-auto px-6 relative">
           <ScrollReveal>
             <AnalysisFeatures />
           </ScrollReveal>

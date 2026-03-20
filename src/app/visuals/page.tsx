@@ -2,8 +2,7 @@
 
 import React, { useState, Suspense } from "react";
 import {
-    Info, Search,
-    ChevronRight
+    Info, Search, ChevronRight, BarChart2,
 } from "lucide-react";
 import { motion, AnimatePresence, Variants } from "motion/react";
 import { useSearchParams, useRouter } from "next/navigation";
@@ -551,54 +550,80 @@ function VisualsPageContent() {
         c.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
         c.desc.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
     return (
-        <main className="min-h-screen pt-32 pb-12 px-6 md:px-12 bg-zinc-50/50 dark:bg-zinc-950/50 relative z-0">
-            {/* Background Ambience */}
-            <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
-                <div className="absolute top-[-10%] left-1/4 w-[600px] h-[600px] bg-blue-500/10 blur-[120px] rounded-full" />
-                <div className="absolute bottom-[-10%] right-1/4 w-[600px] h-[600px] bg-indigo-500/10 blur-[120px] rounded-full" />
+        <main className="min-h-screen pt-28 pb-16 px-6 relative z-0">
+
+            {/* Background */}
+            <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+                <div className="absolute inset-0 bg-background" />
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[32px_32px]" />
+                <div className="absolute top-[-10%] left-1/4 w-150 h-150 bg-blue-500/8 blur-[120px] rounded-full" />
+                <div className="absolute bottom-[-10%] right-1/4 w-150 h-150 bg-indigo-500/8 blur-[120px] rounded-full" />
             </div>
-            <div className="max-w-7xl mx-auto space-y-12">
-                {/* Header Section */}
+
+            <div className="max-w-7xl mx-auto space-y-10">
+
+                {/* Header */}
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
-                    className="flex flex-col items-center justify-center gap-10 text-center border-b border-border/20 pb-20"
+                    className="text-center space-y-6 max-w-3xl mx-auto pb-10 border-b border-border/10"
                 >
-                    <div className="space-y-8 max-w-3xl">
-                        <div className="flex flex-col items-center gap-4">
-                            <Badge variant="outline" className="px-5 py-2 rounded-full border-primary/20 bg-primary/5 text-primary tracking-[0.4em] text-[10px] font-black uppercase backdrop-blur-md">
-                                Interactive Studio
-                            </Badge>
-                            <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase leading-none text-glow-mono">
-                                Visual <span className="text-primary ambient-glow-blue cursor-default">Forge</span>
-                            </h1>
-                        </div>
-                        <p className="text-muted-foreground font-medium text-lg md:text-xl leading-relaxed max-w-2xl mx-auto">
-                            Explore our modular library of interactive data architectures. High-throughput intelligence for visual synthesis.
-                        </p>
-                        <div className="relative group w-full max-w-xl mx-auto pt-4">
-                            <Search className="absolute left-6 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/30 group-focus-within:text-primary transition-colors z-10" />
-                            <Input
-                                placeholder="Search visual variants..."
-                                className="pl-14 h-16 bg-background/40 border-border/30 rounded-[2rem] text-[12px] font-black uppercase tracking-widest shadow-2xl focus:ring-primary/20 transition-all backdrop-blur-2xl text-center pr-14"
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                            />
-                        </div>
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 shadow-sm">
+                        <BarChart2 size={13} className="text-blue-500" aria-hidden="true" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
+                            Chart Library
+                        </span>
+                    </div>
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.05]">
+                        50+ Chart Types,<br />
+                        <span className="text-blue-600 dark:text-blue-400">All Powered by Your Data.</span>
+                    </h1>
+                    <p className="text-lg text-muted-foreground font-medium leading-relaxed">
+                        Browse our full visualization library. Every chart renders live from your data — no design tools, no code required.
+                    </p>
+
+                    {/* Search */}
+                    <div className="relative group w-full max-w-lg mx-auto pt-2">
+                        <Search className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/50 group-focus-within:text-blue-500 transition-colors" aria-hidden="true" />
+                        <Input
+                            placeholder="Search charts..."
+                            className="pl-12 h-12 bg-background/60 border-border/20 rounded-2xl text-sm font-bold shadow-sm focus:border-blue-500/50 transition-all backdrop-blur-xl"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            aria-label="Search chart types"
+                        />
+                        {searchTerm && (
+                            <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[10px] font-black text-muted-foreground opacity-50" aria-live="polite">
+                                {filteredCatalog.length} found
+                            </span>
+                        )}
                     </div>
                 </motion.div>
-                <div className="grid grid-cols-1 lg:grid-cols-[450px_1fr] gap-12 items-start">
+
+                {/* Two-column layout */}
+                <div className="grid grid-cols-1 lg:grid-cols-[400px_1fr] gap-10 items-start">
+
+                    {/* Chart list */}
                     <motion.div
                         variants={containerVariants}
                         initial="hidden"
                         animate="show"
-                        className="space-y-4 relative order-2 lg:order-1"
+                        className="space-y-3 relative order-2 lg:order-1 max-h-[75vh] overflow-y-auto pr-1"
+                        role="listbox"
+                        aria-label="Chart types"
                     >
-                        <div className="absolute left-[2.25rem] top-8 bottom-8 w-px bg-border/40 -z-10 hidden md:block" />
-                        {filteredCatalog.map((chart, index) => {
+                        <div className="absolute left-9 top-8 bottom-8 w-px bg-linear-to-b from-blue-500/20 via-border/20 to-indigo-500/20 -z-10 hidden md:block" aria-hidden="true" />
+
+                        {filteredCatalog.length === 0 && (
+                            <output className="block py-12 text-center text-muted-foreground text-sm font-bold">
+                                No charts matching &ldquo;{searchTerm}&rdquo;
+                            </output>
+                        )}
+
+                        {filteredCatalog.map((chart) => {
                             const isActive = activeChartId === chart.id;
                             const ChartIcon = chart.icon;
                             return (
@@ -608,118 +633,106 @@ function VisualsPageContent() {
                                     onMouseEnter={() => setActiveChartId(chart.id)}
                                     onClick={() => router.push(`/visuals?chart=${chart.id}`, { scroll: false })}
                                     className="relative group cursor-pointer"
+                                    role="option"
+                                    aria-selected={isActive}
+                                    tabIndex={0}
+                                    onKeyDown={(e) => e.key === "Enter" && router.push(`/visuals?chart=${chart.id}`, { scroll: false })}
                                 >
                                     <div className={cn(
-                                        "relative p-5 md:p-6 overflow-hidden rounded-[2rem] border backdrop-blur-xl transition-all duration-500 ease-out",
+                                        "relative p-5 overflow-hidden rounded-4xl border backdrop-blur-xl transition-all duration-300",
                                         isActive
-                                            ? "bg-card/80 border-primary/30 shadow-[0_8px_32px_-12px_rgba(0,0,0,0.1)] scale-[1.02]"
-                                            : "bg-muted/10 border-border/10 hover:bg-muted/20 hover:border-border/30"
+                                            ? "bg-background/80 border-blue-500/30 shadow-lg scale-[1.01]"
+                                            : "bg-background/30 border-border/20 hover:bg-background/50 hover:border-border/40"
                                     )}>
-                                        <div className="relative z-10 flex gap-5 items-center">
+                                        <div className="relative z-10 flex gap-4 items-center">
                                             <div className={cn(
-                                                "shrink-0 w-12 h-12 rounded-xl flex items-center justify-center transition-all duration-500 shadow-sm",
-                                                isActive ? "bg-primary text-white scale-110 shadow-lg shadow-primary/20" : "bg-secondary text-muted-foreground/60"
+                                                "shrink-0 w-11 h-11 rounded-xl flex items-center justify-center transition-all duration-300",
+                                                isActive ? "bg-blue-500/15 text-blue-500 border border-blue-500/30" : "bg-secondary/60 text-muted-foreground"
                                             )}>
-                                                <ChartIcon className="w-6 h-6" />
+                                                <ChartIcon className="w-5 h-5" aria-hidden="true" />
                                             </div>
                                             <div className="flex-1 min-w-0">
                                                 <h3 className={cn(
-                                                    "text-lg font-black tracking-tight uppercase truncate transition-colors duration-300",
-                                                    isActive ? "text-foreground" : "text-foreground/60"
+                                                    "text-base font-black tracking-tight truncate transition-colors",
+                                                    isActive ? "text-foreground" : "text-foreground/70"
                                                 )}>
                                                     {chart.label}
                                                 </h3>
-                                                <p className="text-[10px] font-bold text-muted-foreground/50 uppercase tracking-widest truncate">
-                                                    Scenario: {chart.scenarios[0]}
+                                                <p className="text-[10px] font-bold text-muted-foreground opacity-50 uppercase tracking-widest truncate">
+                                                    {chart.scenarios[0]}
                                                 </p>
                                             </div>
                                             <ChevronRight className={cn(
-                                                "w-4 h-4 text-primary/40 transition-all duration-500",
-                                                isActive ? "opacity-100 translate-x-0" : "opacity-0 -translate-x-2"
-                                            )} />
+                                                "w-4 h-4 text-blue-500 transition-all duration-300 shrink-0",
+                                                isActive ? "opacity-100" : "opacity-0 -translate-x-1 group-hover:opacity-30"
+                                            )} aria-hidden="true" />
                                         </div>
                                     </div>
                                 </motion.div>
                             );
                         })}
                     </motion.div>
+
+                    {/* Preview panel */}
                     <div className="lg:sticky lg:top-24 order-1 lg:order-2">
                         <motion.div
-                            initial={{ opacity: 0, scale: 0.98 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="space-y-8"
+                            initial={{ opacity: 0, y: 16 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.5, delay: 0.2 }}
                         >
-                            <Card className="border-border/40 shadow-3xl rounded-[2rem] md:rounded-[3.5rem] overflow-hidden bg-card/60 backdrop-blur-3xl p-6 md:p-10 relative group">
-                                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent opacity-50 pointer-events-none" />
+                            <Card className="border-border/20 rounded-[2.5rem] overflow-hidden bg-background/60 backdrop-blur-2xl shadow-2xl">
                                 <AnimatePresence mode="wait">
                                     <motion.div
                                         key={activeChart.id}
-                                        initial={{ opacity: 0, x: 20 }}
+                                        initial={{ opacity: 0, x: 16 }}
                                         animate={{ opacity: 1, x: 0 }}
-                                        exit={{ opacity: 0, x: -20 }}
-                                        transition={{ duration: 0.4, ease: "circOut" }}
-                                        className="space-y-10 relative z-10"
+                                        exit={{ opacity: 0, x: -16 }}
+                                        transition={{ duration: 0.3, ease: "easeOut" }}
+                                        className="p-8 space-y-6"
                                     >
-                                        <div className="flex flex-col gap-6">
-                                            <div className="flex items-center justify-between">
-                                                <div className="flex items-center gap-4">
-                                                    <div className="p-4 bg-primary/10 rounded-2xl flex items-center justify-center">
-                                                        <activeChart.icon className="h-6 w-6 text-primary" />
-                                                    </div>
-                                                    <div>
-                                                        <h2 className="text-4xl font-black tracking-tighter uppercase leading-none">{activeChart.label}</h2>
-                                                        <p className="text-[10px] font-black text-primary uppercase tracking-[0.2em] mt-2">Active Architecture Sample</p>
-                                                    </div>
+                                        {/* Chart header */}
+                                        <div className="flex items-start justify-between gap-4 flex-wrap">
+                                            <div className="flex items-center gap-4">
+                                                <div className="p-3 bg-blue-500/10 rounded-2xl border border-blue-500/20">
+                                                    <activeChart.icon className="h-6 w-6 text-blue-500" aria-hidden="true" />
                                                 </div>
-                                                <div className="flex gap-2">
-                                                    {activeChart.scenarios.slice(0, 2).map(sc => (
-                                                        <Badge key={sc} variant="secondary" className="bg-secondary/50 text-[8px] font-black uppercase px-3 py-1 rounded-full border border-border/20">
-                                                            {sc}
-                                                        </Badge>
-                                                    ))}
+                                                <div>
+                                                    <h2 className="text-2xl font-black tracking-tight">{activeChart.label}</h2>
+                                                    <p className="text-[10px] font-black text-blue-500 uppercase tracking-widest mt-0.5">
+                                                        Live Preview
+                                                    </p>
                                                 </div>
                                             </div>
-                                            <div className="rounded-[2.5rem] bg-zinc-900/40 border border-white/5 p-8 h-[400px] flex items-center justify-center relative overflow-hidden group/canvas shadow-inner">
-                                                <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-primary/10 to-transparent opacity-50" />
-                                                <EChart
-                                                    option={getExampleChartOption(activeChart.id)}
-                                                    style={{ height: '100%', width: '100%' }}
-                                                    theme="dark"
-                                                    key={activeChart.id}
-                                                />
+                                            <div className="flex flex-wrap gap-2">
+                                                {activeChart.scenarios.slice(0, 2).map(sc => (
+                                                    <Badge key={sc} variant="secondary" className="text-[8px] font-black uppercase px-3 py-1 rounded-full border border-border/20 bg-secondary/50">
+                                                        {sc}
+                                                    </Badge>
+                                                ))}
                                             </div>
                                         </div>
-                                        <div className="grid grid-cols-2 gap-8 pt-6 border-t border-border/20">
-                                            <div className="space-y-4">
-                                                <div className="flex items-center gap-2 text-primary">
-                                                    <Info className="h-3 w-3" />
-                                                    <span className="text-[9px] font-black uppercase tracking-widest">Architectural Purpose</span>
-                                                </div>
-                                                <p className="text-sm font-medium text-muted-foreground leading-relaxed">
-                                                    {activeChart.desc}
-                                                </p>
-                                            </div>
+
+                                        {/* Chart canvas */}
+                                        <div className="rounded-4xl bg-zinc-900/50 border border-white/5 px-4 py-4 relative overflow-hidden" style={{ height: '360px' }}>
+                                            <div className="absolute inset-x-0 top-0 h-20 bg-linear-to-b from-blue-500/8 to-transparent pointer-events-none" />
+                                            <EChart
+                                                option={getExampleChartOption(activeChart.id)}
+                                                style={{ height: '100%', width: '100%' }}
+                                                theme="dark"
+                                                key={activeChart.id}
+                                            />
+                                        </div>
+
+                                        {/* Description */}
+                                        <div className="flex items-start gap-3 p-4 rounded-2xl bg-secondary/30 border border-border/10">
+                                            <Info className="h-4 w-4 text-blue-500 shrink-0 mt-0.5" aria-hidden="true" />
+                                            <p className="text-sm font-medium text-muted-foreground leading-relaxed">
+                                                {activeChart.desc}
+                                            </p>
                                         </div>
                                     </motion.div>
                                 </AnimatePresence>
                             </Card>
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                transition={{ delay: 0.5 }}
-                                className="grid grid-cols-3 gap-4"
-                            >
-                                {[
-                                    { label: "Complexity", value: "High", color: "text-blue-500" },
-                                    { label: "Data Type", value: "Temporal", color: "text-purple-500" },
-                                    { label: "Performance", value: "Ultra", color: "text-emerald-500" }
-                                ].map((stat) => (
-                                    <div key={stat.label} className="p-4 rounded-2xl bg-card border border-border/20 flex flex-col gap-1 backdrop-blur-md">
-                                        <span className="text-[8px] font-black uppercase text-muted-foreground/50 tracking-widest">{stat.label}</span>
-                                        <span className={cn("text-xs font-black uppercase", stat.color)}>{stat.value}</span>
-                                    </div>
-                                ))}
-                            </motion.div>
                         </motion.div>
                     </div>
                 </div>
@@ -730,7 +743,14 @@ function VisualsPageContent() {
 
 export default function VisualsPage() {
     return (
-        <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-xl">Loading...</div>}>
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="w-8 h-8 rounded-full border-2 border-blue-500/30 border-t-blue-500 animate-spin" />
+                    <p className="text-sm font-bold text-muted-foreground">Loading charts…</p>
+                </div>
+            </div>
+        }>
             <VisualsPageContent />
         </Suspense>
     );
