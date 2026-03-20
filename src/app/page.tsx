@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect, useMemo } from "react";
 import Link from "next/link";
+import { cn } from "@/lib/utils";
 import { motion } from "motion/react";
 import {
   BarChart2, Search,
@@ -54,7 +55,7 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
               transition={{ duration: 0.6 }}
               className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 shadow-sm"
             >
-              <Sparkles size={14} className="text-blue-500" />
+              <Sparkles size={14} className="text-blue-500" aria-hidden="true" />
               <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
                 Next-Gen Data Engine
               </span>
@@ -84,9 +85,10 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
             >
               <Button
                 onClick={onStart}
+                aria-label="Get Started for Free"
                 className="h-14 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-all hover:scale-105 active:scale-95 shadow-lg shadow-blue-500/20 flex items-center gap-2 w-full sm:w-auto"
               >
-                Get Started Free <ArrowRight size={18} />
+                Get Started Free <ArrowRight size={18} aria-hidden="true" />
               </Button>
 
               <Link href="https://github.com/soklimkhy/pyanalypt" target="_blank" className="w-full sm:w-auto">
@@ -200,61 +202,94 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
 }
 function ProductStory() {
   return (
-    <div className="py-8 container mx-auto px-6 max-w-[1300px]">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
+    <div className="py-16 container mx-auto px-6 max-w-[1300px]">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
         <ScrollReveal>
-          <div className="space-y-8">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 shadow-sm">
-              <Sparkles size={14} className="text-blue-500" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
-                The Mission
+          <div className="space-y-8 max-w-xl">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 shadow-sm">
+              <Sparkles size={14} className="text-emerald-500" aria-hidden="true" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                Zero Code Needed
               </span>
             </div>
-            <h2 className="text-4xl md:text-6xl font-black tracking-tight leading-[1.05]">
-              Why we built <br /> <span className="text-blue-600 dark:text-blue-400">PyAnalypt?</span>
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.05]">
+              Data Science, <br /> <span className="text-emerald-600 dark:text-emerald-400">Minus the Code.</span>
             </h2>
-            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-              Most data tools are either too complex for business users or too limited for power analysts. We built PyAnalypt to close that gap. By combining the power of a Python-driven backend with a sleek, real-time UI, we allow teams to move from <strong>raw data ingestion</strong> to <strong>boardroom-ready visuals</strong> in minutes.
-            </p>
-            <div className="grid grid-cols-2 gap-4">
-              <div className="p-6 rounded-[2.5rem] bg-secondary/20 border border-border/10 backdrop-blur-xl">
-                <p className="text-4xl font-black text-blue-600 mb-1">01.</p>
-                <p className="font-bold text-[10px] uppercase tracking-widest opacity-60">Frictionless Setup</p>
+            <div className="space-y-5 text-lg text-muted-foreground leading-relaxed font-medium">
+              <p>
+                We believe deep insights shouldn't be locked behind complex Python scripts or steep learning curves. You don't need a data science degree to understand your own business.
+              </p>
+              <p>
+                PyAnalypt is built for business owners, marketers, and operators. Learn a few basic navigation steps, upload your raw data, and our smart engine handles the heavy lifting instantly.
+              </p>
+            </div>
+            
+            <div className="flex flex-col sm:flex-row gap-4 pt-4">
+              <div className="flex-1 p-5 rounded-[2rem] bg-secondary/30 border border-border/10 backdrop-blur-xl">
+                <Wand2 size={24} className="text-blue-500 mb-3" aria-hidden="true" />
+                <h4 className="font-black text-sm uppercase tracking-widest mb-1">No Scripts</h4>
+                <p className="text-xs font-medium opacity-70">Forget SQL and Python. Just point and click.</p>
               </div>
-              <div className="p-6 rounded-[2.5rem] bg-secondary/20 border border-border/10 backdrop-blur-xl">
-                <p className="text-4xl font-black text-emerald-600 mb-1">02.</p>
-                <p className="font-bold text-[10px] uppercase tracking-widest opacity-60">AI-Native Engine</p>
+              <div className="flex-1 p-5 rounded-[2rem] bg-secondary/30 border border-border/10 backdrop-blur-xl">
+                <Brain size={24} className="text-emerald-500 mb-3" aria-hidden="true" />
+                <h4 className="font-black text-sm uppercase tracking-widest mb-1">AI Assisted</h4>
+                <p className="text-xs font-medium opacity-70">Let the engine find the patterns for you.</p>
               </div>
             </div>
           </div>
         </ScrollReveal>
 
         <ScrollReveal>
-          <div className="relative">
-            <div className="aspect-square rounded-[3rem] bg-blue-600/5 border border-blue-500/10 flex items-center justify-center p-8">
-              <Brain size={120} className="text-blue-500/20 absolute bottom-10 right-10" />
-              <div className="space-y-8 relative z-10 w-full">
-                {[
-                  { l: "Raw CSV/API", p: 30, c: "blue" },
-                  { l: "Pattern Analysis", p: 65, c: "indigo" },
-                  { l: "Final Visualization", p: 100, c: "emerald" }
-                ].map(bar => (
-                  <div key={bar.l} className="space-y-2">
-                    <div className="flex justify-between text-xs font-black uppercase tracking-widest">
-                      <span>{bar.l}</span>
-                      <span>{bar.p}%</span>
-                    </div>
-                    <div className="h-4 bg-background/50 rounded-full overflow-hidden border border-border/10">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        whileInView={{ width: `${bar.p}%` }}
-                        transition={{ duration: 1.5, ease: "easeOut" }}
-                        className={`h-full bg-${bar.c}-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]`}
-                      />
-                    </div>
+          <div className="relative w-full max-w-md mx-auto lg:ml-auto">
+            {/* Background Glow */}
+            <div className="absolute inset-0 bg-gradient-to-tr from-emerald-500/10 via-blue-500/5 to-transparent blur-3xl rounded-full" />
+            
+            <div className="relative space-y-4">
+              {[
+                { 
+                  icon: Database, 
+                  title: "1. Upload Your Data", 
+                  desc: "Drop in your raw CSV, Excel, or connect an API.", 
+                  color: "text-blue-500", 
+                  bg: "bg-blue-500/10" 
+                },
+                { 
+                  icon: MessageSquareText, 
+                  title: "2. Ask Questions", 
+                  desc: "Interact with your data in plain English.", 
+                  color: "text-indigo-500", 
+                  bg: "bg-indigo-500/10" 
+                },
+                { 
+                  icon: BarChart2, 
+                  title: "3. Get Visual Answers", 
+                  desc: "Receive boardroom-ready charts instantly.", 
+                  color: "text-emerald-500", 
+                  bg: "bg-emerald-500/10" 
+                }
+              ].map((step, i) => (
+                <motion.div 
+                  key={step.title}
+                  initial={{ opacity: 0, x: 20 }}
+                  whileInView={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.5, delay: i * 0.2 }}
+                  viewport={{ once: true }}
+                  className="p-5 sm:p-6 rounded-[2.5rem] bg-background/60 backdrop-blur-xl border border-border/10 shadow-xl flex items-center gap-5 sm:gap-6 hover:scale-[1.02] transition-transform"
+                >
+                  <div className={`shrink-0 w-12 h-12 sm:w-14 sm:h-14 rounded-2xl flex items-center justify-center ${step.bg} ${step.color}`}>
+                    <step.icon size={24} aria-hidden="true" />
                   </div>
-                ))}
-              </div>
+                  <div>
+                    <h3 className="text-base sm:text-lg font-black tracking-tight">{step.title}</h3>
+                    <p className="text-xs sm:text-sm font-medium text-muted-foreground mt-1 leading-relaxed">
+                      {step.desc}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+
+              {/* Connecting line */}
+              <div className="absolute top-10 bottom-10 left-[2.3rem] sm:left-[2.8rem] w-0.5 bg-gradient-to-b from-blue-500/20 via-indigo-500/20 to-emerald-500/20 -z-10 hidden sm:block" />
             </div>
           </div>
         </ScrollReveal>
@@ -282,7 +317,7 @@ function AnalysisFeatures() {
     <div className="py-8 space-y-16">
       <div className="text-center space-y-4">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 shadow-sm mx-auto">
-          <RefreshCcw size={12} className="text-blue-500" />
+          <RefreshCcw size={12} className="text-blue-500" aria-hidden="true" />
           <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
             Lifecycle Workflow
           </span>
@@ -302,15 +337,27 @@ function AnalysisFeatures() {
             <TiltCard key={step.title} className="border-0 h-full group" classNameContent="p-6 h-full flex flex-col items-center text-center gap-6 bg-background/40 backdrop-blur-3xl rounded-[2.5rem] border border-border/10 hover:border-blue-500/20 transition-all shadow-lg hover:shadow-2xl">
               <div className="relative">
                 <div className="p-5 rounded-[2rem] bg-blue-500/10 text-blue-500 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-inner">
-                  <step.icon size={32} />
+                  <step.icon size={32} aria-hidden="true" />
                 </div>
                 <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-background border border-border/10 flex items-center justify-center text-[10px] font-black text-blue-500">
                   {idx + 1}
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <h3 className="text-lg font-black tracking-tight leading-tight">{step.title}</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-center gap-2">
+                  <h3 className="text-lg font-black tracking-tight leading-tight">{step.title}</h3>
+                  {step.isOptional && (
+                    <span className={cn(
+                      "text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-tighter",
+                      step.isOptional === "Critical" 
+                        ? "bg-red-500/10 border-red-500/20 text-red-500"
+                        : "bg-blue-500/10 border-blue-500/20 text-blue-500"
+                    )}>
+                      {step.isOptional}
+                    </span>
+                  )}
+                </div>
                 <p className="text-sm font-medium text-muted-foreground leading-relaxed opacity-70">
                   {step.desc}
                 </p>
@@ -374,7 +421,7 @@ function VisualizationPanel() {
     <div id="visuals-section" className="max-w-[1300px] mx-auto px-6 py-8 space-y-12 relative">
       <div className="text-center space-y-4">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 shadow-sm mx-auto">
-          <BarChart2 size={12} className="text-blue-500" />
+          <BarChart2 size={12} className="text-blue-500" aria-hidden="true" />
           <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
             Real-time Insights
           </span>
@@ -416,7 +463,7 @@ function VisualizationPanel() {
                 <CardContent className="p-6 space-y-4">
                   <div className="flex items-center justify-between">
                     <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
-                      <chart.icon size={20} />
+                      <chart.icon size={20} aria-hidden="true" />
                     </div>
                     <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40">{chart.type}</span>
                   </div>
@@ -430,9 +477,9 @@ function VisualizationPanel() {
           </div>
         </div>
         <div className="flex justify-center mt-20">
-          <Button variant="ghost" className="gap-2 rounded-2xl px-12 h-16 text-lg font-black hover:bg-blue-500/10 text-blue-500 transition-all border border-blue-500/10" asChild>
+          <Button variant="ghost" aria-label="Explore our wide library of data visualizations" className="gap-2 rounded-2xl px-12 h-16 text-lg font-black hover:bg-blue-500/10 text-blue-500 transition-all border border-blue-500/10" asChild>
             <Link href="/visuals">
-              EXPLORE DATA LIBRARY <ArrowRight size={22} />
+              EXPLORE DATA LIBRARY <ArrowRight size={22} aria-hidden="true" />
             </Link>
           </Button>
         </div>
