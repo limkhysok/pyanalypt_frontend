@@ -1,9 +1,9 @@
 import Link from "next/link";
 import {
-  Sparkles, Home, BarChart3, FlaskConical, BookOpen, Send, Mail,
-  GraduationCap, Info, Phone, LifeBuoy
+    Sparkles, Home, BarChart3, FlaskConical, BookOpen, Send, Mail,
+    GraduationCap, Info, Phone, LifeBuoy
 } from "lucide-react";
-import { GithubIcon, TiktokIcon, GlobeIcon } from "@/components/ui/Icons";
+import { GithubIcon, TiktokIcon } from "@/components/ui/Icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
@@ -32,12 +32,11 @@ export function Footer() {
                             {[
                                 { name: "GitHub", icon: GithubIcon, href: "https://github.com/soklimkhy/pyanalypt", color: "hover:bg-zinc-800" },
                                 { name: "TikTok", icon: TiktokIcon, href: "#", color: "hover:bg-pink-600" },
-                                { name: "Website", icon: GlobeIcon, href: "#", color: "hover:bg-blue-600" }
                             ].map((social) => (
-                                <Link 
+                                <Link
                                     key={social.name}
-                                    href={social.href} 
-                                    target="_blank" 
+                                    href={social.href}
+                                    target="_blank"
                                     className={`p-3 rounded-2xl bg-secondary/50 border border-border/10 text-muted-foreground transition-all duration-300 hover:text-white hover:scale-110 ${social.color}`}
                                 >
                                     <social.icon size={18} className={social.name === "GitHub" ? "" : "fill-current"} />
@@ -94,14 +93,13 @@ export function Footer() {
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="pt-8 border-t border-border/10 flex flex-col md:flex-row justify-between items-center gap-6">
+                <div className="pt-8 border-t border-border/10 flex flex-col sm:flex-row justify-between items-center gap-4">
                     <p className="text-sm text-muted-foreground font-black uppercase tracking-widest opacity-40">
                         © {new Date().getFullYear()} PyAnalypt Inc.
                     </p>
-
-                    <div className="flex flex-wrap items-center justify-center gap-8 text-xs font-black uppercase tracking-widest text-muted-foreground/60">
-                        {/* Legal links removed as requested */}
-                    </div>
+                    <p className="text-xs text-muted-foreground font-bold tracking-widest uppercase opacity-30">
+                        Built for Business Analysts &amp; Owners
+                    </p>
                 </div>
             </div>
 
