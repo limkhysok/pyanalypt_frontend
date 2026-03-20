@@ -41,9 +41,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={jost.variable}>
       <body
-        className={`${jost.variable} antialiased VscScroolbar font-sans bg-background text-foreground relative`}
+        className={`${jost.className} antialiased VscScrollbar bg-background text-foreground relative`}
       >
         <SmoothScroll>
           <Providers>
