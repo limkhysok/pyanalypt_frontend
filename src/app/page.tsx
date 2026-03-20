@@ -1,39 +1,40 @@
 "use client";
-import { Database, ArrowRight, Search, History, TrendingUp, Compass, Zap, BarChart2, PieChart, Activity } from "lucide-react";
-import { GithubIcon } from "@/components/ui/Icons";
+
+import React from "react";
+import Link from "next/link";
+import { motion } from "motion/react";
+import { 
+  Zap, BarChart2, PieChart, Activity, Search, History, 
+  TrendingUp, Compass, Database, ArrowRight 
+} from "lucide-react";
+import * as echarts from "echarts";
+import { useTheme } from "next-themes";
+
+// UI Components
+import { Button } from "@/components/ui/button";
+import { CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { TiltCard } from "@/components/ui/tilt-card";
+import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { LogoTicker } from "@/components/ui/logo-ticker";
 import { CTASection } from "@/components/layout/CTASection";
+import { GithubIcon } from "@/components/ui/Icons";
+import { TypewriterEffect } from "@/components/ui/text-animation";
 import EChart from "@/components/ui/EChart";
-import * as echarts from "echarts";
-import { CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 
-import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import React from "react";
-import { motion } from "motion/react";
-
+// --- Hero Section Component ---
 interface HeroSectionProps {
   onStart: () => void;
 }
 
-import { TypewriterEffect } from "@/components/ui/text-animation";
-import Link from "next/link";
-import { useTheme } from "next-themes";
-
 function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
   return (
     <section className="min-h-[90vh] flex flex-col items-center justify-center text-center space-y-8 relative overflow-hidden bg-background dark:bg-zinc-950/50 pt-24 pb-16">
-      {/* Hero Background Elements - Grid & Glows */}
       <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
-        {/* Modern subtle grid pattern - even lighter in light mode */}
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#80808018_1px,transparent_1px),linear-gradient(to_bottom,#80808018_1px,transparent_1px)] bg-[size:32px_32px]" />
-
-        {/* Primary Ambient Glows - Toned down for light mode and responsively sized */}
         <div className="absolute top-[-10%] left-[-10%] w-[150%] sm:w-[800px] h-[150%] sm:h-[800px] bg-blue-500/5 dark:bg-blue-500/15 blur-[60px] sm:blur-[120px] rounded-full animate-pulse" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[150%] sm:w-[1000px] h-[150%] sm:h-[800px] bg-purple-500/5 dark:bg-purple-500/10 blur-[80px] sm:blur-[150px] rounded-full" />
         <div className="absolute top-[20%] right-[10%] w-[120%] sm:w-[600px] h-[120%] sm:h-[600px] bg-emerald-500/[0.02] dark:bg-emerald-500/5 blur-[60px] sm:blur-[120px] rounded-full" />
 
-        {/* Floating Animated Charts */}
         <motion.div
           animate={{ y: [0, -30, 0], rotate: [0, 10, 0] }}
           transition={{ repeat: Infinity, duration: 8, ease: "easeInOut" }}
@@ -41,7 +42,7 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
         >
           <BarChart2 size={36} className="text-blue-500" />
         </motion.div>
-
+        
         <motion.div
           animate={{ y: [0, 40, 0], x: [0, 20, 0], rotate: [0, -15, 0] }}
           transition={{ repeat: Infinity, duration: 10, ease: "easeInOut", delay: 1 }}
@@ -50,9 +51,9 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
           <PieChart size={44} className="text-purple-500" />
         </motion.div>
 
-        {/* Bottom fading gradient to smooth into the next section */}
         <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-background via-background/80 to-transparent" />
       </div>
+
       <div className="space-y-8 max-w-5xl relative z-10 px-4 flex flex-col items-center">
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
@@ -64,7 +65,7 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
             <span className="flex h-2 w-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_10px_rgba(59,130,246,0.5)]" />AI-Powered Analytics Platform
           </span>
         </motion.div>
-
+        
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -76,7 +77,7 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
             <TypewriterEffect />
           </span>
         </motion.h1>
-
+        
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -86,6 +87,7 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
           PyAnalypt seamlessly simplifies complex data visualization. Upload raw datasets and let our AI engine generate stunning, interactive insights in seconds.
         </motion.p>
       </div>
+
       <motion.div
         initial={{ opacity: 0, y: 20, filter: "blur(4px)" }}
         animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
@@ -106,6 +108,7 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
           <GithubIcon size={18} /> View GitHub
         </Link>
       </motion.div>
+
       <motion.div
         initial={{ opacity: 0, filter: "blur(4px)" }}
         animate={{ opacity: 1, filter: "blur(0px)" }}
@@ -137,9 +140,8 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
   );
 }
 
-import { TiltCard } from "@/components/ui/tilt-card";
-
-function FeatureSection() {
+// --- Features Section Components ---
+function PlatformFeatures() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-10">
       {[
@@ -153,9 +155,8 @@ function FeatureSection() {
         </TiltCard>
       ))}
     </div>
-  )
+  );
 }
-
 
 function AnalysisFeatures() {
   const analysisTypes = [
@@ -220,11 +221,11 @@ function AnalysisFeatures() {
   );
 }
 
+// --- Visualization Panel Component ---
 function VisualizationPanel() {
   const { resolvedTheme } = useTheme();
   const isDark = resolvedTheme === 'dark';
 
-  // Dynamic colors based on theme
   const textColor = isDark ? '#71717a' : '#52525b';
   const gridColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
   const axisLineColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
@@ -232,7 +233,6 @@ function VisualizationPanel() {
   const tooltipBorder = isDark ? '#3f3f46' : '#e4e4e7';
   const tooltipText = isDark ? '#f4f4f5' : '#18181b';
 
-  // 1. Line Chart: Growth
   const lineOption = {
     backgroundColor: 'transparent',
     tooltip: { trigger: 'axis', backgroundColor: tooltipBg, borderColor: tooltipBorder, textStyle: { color: tooltipText } },
@@ -242,7 +242,6 @@ function VisualizationPanel() {
     series: [{ name: 'Growth', type: 'line', smooth: true, lineStyle: { width: 3, color: '#20BEFF' }, showSymbol: false, areaStyle: { opacity: 0.15, color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#20BEFF' }, { offset: 1, color: 'transparent' }]) }, data: [420, 932, 901, 1234, 1290, 1530, 2120] }]
   };
 
-  // 2. Scatter Plot: Correlation
   const scatterData = Array.from({ length: 40 }, () => [Math.random() * 100, Math.random() * 100]);
   const scatterOption = {
     backgroundColor: 'transparent',
@@ -252,7 +251,6 @@ function VisualizationPanel() {
     series: [{ symbolSize: 10, data: scatterData, type: 'scatter', itemStyle: { color: '#20BEFF', opacity: 0.8 } }]
   };
 
-  // 3. Bubble Chart: Multivariate
   const bubbleData = [
     [10, 8.04, 10, 'A'], [8.07, 6.95, 20, 'B'], [13, 7.58, 30, 'C'], [9.05, 8.81, 15, 'D'], [11, 8.33, 25, 'E'], [14, 7.66, 40, 'F'], [12.5, 6.82, 35, 'G']
   ];
@@ -262,7 +260,7 @@ function VisualizationPanel() {
     yAxis: { axisLine: { lineStyle: { color: axisLineColor } }, axisLabel: { color: textColor, fontSize: 10 }, splitLine: { lineStyle: { color: gridColor } } },
     series: [{
       data: bubbleData, type: 'scatter', symbolSize: (data: any) => data[2],
-      itemStyle: { shadowBlur: 10, shadowColor: 'rgba(32, 190, 255, 0.3)', color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [{ offset: 0, color: '#81E3FF' }, { offset: 1, color: '#20BEFF' }]) }
+      itemStyle: { shadowBlur: 10, shadowColor: 'rgba(32, 190, 255, 0.3)', color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [{ offset: 0, color: '#81E3FF' }, { offset: 1, color: 'transparent' }]) }
     }]
   };
 
@@ -273,49 +271,61 @@ function VisualizationPanel() {
   ];
 
   return (
-    <div className="space-y-6 px-4">
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-        {charts.map((chart) => (
-          <TiltCard key={chart.title} className="border-0 group" classNameContent="p-0 bg-background/40 backdrop-blur-sm rounded-3xl overflow-hidden border border-border/40 hover:ambient-glow-blue transition-all flex flex-col">
-            <CardHeader className="pb-2 flex flex-row items-center justify-between">
-              <div className="space-y-1">
-                <CardTitle className="text-sm font-bold text-foreground tracking-tight">{chart.title}</CardTitle>
-                <div className="flex items-center gap-2">
-                  <span className="px-1.5 py-0.5 rounded bg-blue-500/10 text-[9px] font-bold uppercase tracking-widest text-blue-400 border border-blue-500/20">{chart.type}</span>
-                </div>
-              </div>
-              <chart.icon className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors mt-2 mr-2" />
-            </CardHeader>
-            <CardContent className="flex-1 space-y-4 px-6 pb-6 pt-2">
-              <div className="relative rounded-2xl overflow-hidden bg-secondary/10 dark:bg-secondary/20 border border-border/10 dark:border-border/30">
-                <EChart option={chart.option} theme={resolvedTheme} style={{ height: '220px', width: '100%' }} />
-                <div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent pointer-events-none" />
-              </div>
-              <div className="pt-4 border-t border-border/40 space-y-2 pb-2">
-                <p className="text-xs text-muted-foreground leading-relaxed italic">
-                  "{chart.desc}"
-                </p>
-                <div className="bg-secondary/20 p-3 rounded-2xl border border-border/40 group-hover:border-primary/30 transition-all">
-                  <p className="text-[10px] font-bold text-primary uppercase tracking-wider mb-1">Key Insight</p>
-                  <p className="text-[11px] text-foreground/80 leading-snug">{chart.insight}</p>
-                </div>
-              </div>
-            </CardContent>
-          </TiltCard>
-        ))}
-      </div>
+    <div id="visuals-section" className="max-w-[1400px] mx-auto px-6 py-16 space-y-8 relative">
+        <div className="text-center mb-8 space-y-3">
+        <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold tracking-tight px-4">Stunning Visualizations</h2>
+        <p className="text-muted-foreground max-w-2xl mx-auto text-base sm:text-lg px-6">
+            PyAnalypt uses Apache ECharts to render high-performance, interactive charts that help you make sense of your data instantly.
+        </p>
+        </div>
 
-      <div className="flex justify-center mt-8">
-        <Button variant="outline" className="gap-2 rounded-full px-8 hover:bg-secondary/80 transition-colors" asChild>
-          <a href="/templates">
-            Explore Visualization Library <ArrowRight size={16} />
-          </a>
-        </Button>
-      </div>
+        <ScrollReveal>
+            <div className="space-y-6 px-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {charts.map((chart) => (
+                    <TiltCard key={chart.title} className="border-0 group" classNameContent="p-0 bg-background/40 backdrop-blur-sm rounded-3xl overflow-hidden border border-border/40 hover:ambient-glow-blue transition-all flex flex-col">
+                        <CardHeader className="pb-2 flex flex-row items-center justify-between">
+                        <div className="space-y-1">
+                            <CardTitle className="text-sm font-bold text-foreground tracking-tight">{chart.title}</CardTitle>
+                            <div className="flex items-center gap-2">
+                            <span className="px-1.5 py-0.5 rounded bg-blue-500/10 text-[9px] font-bold uppercase tracking-widest text-blue-400 border border-blue-500/20">{chart.type}</span>
+                            </div>
+                        </div>
+                        <chart.icon className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors mt-2 mr-2" />
+                        </CardHeader>
+                        <CardContent className="flex-1 space-y-4 px-6 pb-6 pt-2">
+                        <div className="relative rounded-2xl overflow-hidden bg-secondary/10 dark:bg-secondary/20 border border-border/10 dark:border-border/30">
+                            <EChart option={chart.option} theme={resolvedTheme} style={{ height: '220px', width: '100%' }} />
+                            <div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent pointer-events-none" />
+                        </div>
+                        <div className="pt-4 border-t border-border/40 space-y-2 pb-2">
+                            <p className="text-xs text-muted-foreground leading-relaxed italic">
+                            "{chart.desc}"
+                            </p>
+                            <div className="bg-secondary/20 p-3 rounded-2xl border border-border/40 group-hover:border-primary/30 transition-all">
+                            <p className="text-[10px] font-bold text-primary uppercase tracking-wider mb-1">Key Insight</p>
+                            <p className="text-[11px] text-foreground/80 leading-snug">{chart.insight}</p>
+                            </div>
+                        </div>
+                        </CardContent>
+                    </TiltCard>
+                    ))}
+                </div>
+
+                <div className="flex justify-center mt-8">
+                    <Button variant="outline" className="gap-2 rounded-full px-8 hover:bg-secondary/80 transition-colors" asChild>
+                    <a href="/templates">
+                        Explore Visualization Library <ArrowRight size={16} />
+                    </a>
+                    </Button>
+                </div>
+            </div>
+        </ScrollReveal>
     </div>
   );
 }
 
+// --- Main Home Page ---
 export default function Home() {
   const scrollToVisuals = () => {
     const element = document.getElementById('visuals-section');
@@ -332,44 +342,18 @@ export default function Home() {
       </div>
 
       <div className="relative z-10">
-
-        {/* 1. Hero Section */}
         <HeroSection onStart={scrollToVisuals} />
-
-        {/* 2. Technologies Ticker */}
         <LogoTicker />
-
-        {/* 3. Sample Visualizations (Scroll Reveal) */}
-        <div id="visuals-section" className="max-w-[1400px] mx-auto px-6 py-16 space-y-8 relative">
-          <div className="text-center mb-8 space-y-3">
-            <h2 className="text-2xl sm:text-3xl md:text-5xl font-bold tracking-tight px-4">Stunning Visualizations</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-base sm:text-lg px-6">
-              PyAnalypt uses Apache ECharts to render high-performance, interactive charts that help you make sense of your data instantly.
-            </p>
-          </div>
-
-          <ScrollReveal>
-            <div className="space-y-6">
-              <VisualizationPanel />
-            </div>
-          </ScrollReveal>
-        </div>
-
-        {/* 4. Features Section - Global Analytics Types */}
+        <VisualizationPanel />
         <div className="max-w-[1400px] mx-auto px-6 relative">
-          <ScrollReveal>
-            <AnalysisFeatures />
-          </ScrollReveal>
+            <ScrollReveal>
+                <AnalysisFeatures />
+            </ScrollReveal>
+            <div className="pb-16">
+                 <PlatformFeatures />
+            </div>
         </div>
-
-        {/* 5. Features Grid - Platform Capabilities */}
-        <div className="max-w-[1400px] mx-auto px-6 pb-16">
-          <FeatureSection />
-        </div>
-
-        {/* 5. Final CTA */}
         <CTASection onAction={scrollToVisuals} />
-
       </div>
     </main>
   );
