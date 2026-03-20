@@ -5,11 +5,6 @@ import "@/styles/globals.css";
 const jost = localFont({
   src: [
     {
-      path: "../fonts/Jost-Light.ttf",
-      weight: "300",
-      style: "normal",
-    },
-    {
       path: "../fonts/Jost-Regular.ttf",
       weight: "400",
       style: "normal",

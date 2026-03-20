@@ -47,12 +47,12 @@ export function Navbar() {
                     "relative pointer-events-auto flex items-center justify-between px-3 md:px-6 h-16 transition-all duration-500 rounded-full border mx-auto w-full max-w-3xl",
                     scrolled
                         ? "bg-background/85 backdrop-blur-xl border-border/50 shadow-2xl shadow-black/10 dark:shadow-white/5"
-                        : "bg-background/40 backdrop-blur-md border-border/20 shadow-transparent"
+                        : "bg-background/20 sm:bg-background/40 backdrop-blur-sm sm:backdrop-blur-md border-border/10 sm:border-border/20 shadow-transparent"
                 )}
             >
                 {/* Logo */}
                 <Link href="/" className="flex items-center gap-2 group mr-2">
-                    <div className="p-1.5 rounded-full bg-foreground text-background transition-all duration-300 group-hover:scale-110 group-hover:bg-blue-600 group-hover:ambient-glow-blue relative overflow-hidden">
+                <div className="p-1.5 rounded-full bg-blue-600 text-white dark:bg-foreground dark:text-background transition-all duration-300 group-hover:scale-110 group-hover:bg-blue-500 dark:group-hover:bg-foreground/90 group-hover:ambient-glow-blue relative overflow-hidden">
                         <motion.div
                             whileHover={{ rotate: 180 }}
                             transition={{ duration: 0.5 }}
@@ -188,7 +188,7 @@ export function Navbar() {
                                     LOG IN
                                 </Link>
                             </Button>
-                            <Button className="bg-foreground text-background hover:bg-blue-600 hover:text-white transition-all duration-300 hover:ambient-glow-blue rounded-full h-9 px-4 text-[11px] font-bold tracking-wider uppercase" asChild>
+                            <Button className="bg-blue-600 text-white dark:bg-foreground dark:text-background hover:bg-blue-700 dark:hover:bg-foreground/90 transition-all duration-300 hover:ambient-glow-blue rounded-full h-9 px-4 text-[11px] font-bold tracking-wider uppercase" asChild>
                                 <Link href="/register">
                                     REGISTER
                                 </Link>
@@ -260,7 +260,7 @@ export function Navbar() {
                             <Button variant="ghost" className="flex-1 text-muted-foreground hover:text-foreground hover:text-glow-mono rounded-xl transition-all text-xs font-bold tracking-wider uppercase" asChild>
                                 <Link href="/login">LOG IN</Link>
                             </Button>
-                            <Button className="flex-1 bg-foreground text-background hover:bg-blue-600 hover:text-white rounded-xl transition-all duration-300 hover:ambient-glow-blue text-xs font-bold tracking-wider uppercase" asChild>
+                            <Button className="flex-1 bg-blue-600 text-white dark:bg-foreground dark:text-background hover:bg-blue-700 dark:hover:bg-foreground/90 transition-all duration-300 hover:ambient-glow-blue rounded-xl text-xs font-bold tracking-wider uppercase" asChild>
                                 <Link href="/register">REGISTER</Link>
                             </Button>
                         </div>

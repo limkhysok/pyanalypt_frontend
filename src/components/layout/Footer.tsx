@@ -119,7 +119,7 @@ export function Footer() {
                                     className="pl-9 bg-background/50 border-border/50 focus:border-primary/50 transition-colors shadow-sm"
                                 />
                             </div>
-                            <Button className="w-full gap-2 group/btn shadow-sm">
+                            <Button className="w-full gap-2 group/btn shadow-xl shadow-blue-500/10 bg-blue-600 text-white dark:bg-foreground dark:text-background hover:bg-blue-700 dark:hover:bg-foreground/90 transition-all duration-300">
                                 Subscribe
                                 <Send size={14} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
                             </Button>

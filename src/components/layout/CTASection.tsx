@@ -8,7 +8,7 @@ interface CTASectionProps {
     onAction: () => void;
 }
 
-export function CTASection({ onAction }: CTASectionProps) {
+export function CTASection({ onAction }: Readonly<CTASectionProps>) {
     return (
         <section className="relative py-32 overflow-hidden border-t border-border/40">
             {/* Background Glow */}
@@ -44,7 +44,7 @@ export function CTASection({ onAction }: CTASectionProps) {
                 >
                     <button
                         onClick={onAction}
-                        className="group relative inline-flex items-center gap-2 px-8 py-4 bg-foreground text-background rounded-full font-semibold text-lg overflow-hidden transition-all hover:scale-105"
+                        className="group relative inline-flex items-center gap-2 px-10 py-5 bg-blue-600 text-white dark:bg-foreground dark:text-background rounded-full font-bold text-lg overflow-hidden transition-all hover:scale-105 hover:ambient-glow-blue dark:hover:ambient-glow-mono shadow-2xl shadow-blue-500/30 dark:shadow-none"
                     >
                         <span>Start Analyzing Now</span>
                         <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />

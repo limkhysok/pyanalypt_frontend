@@ -18,19 +18,20 @@ interface HeroSectionProps {
 
 import { TypewriterEffect } from "@/components/ui/text-animation";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 
 function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
   return (
-    <section className="min-h-[90vh] flex flex-col items-center justify-center text-center space-y-8 relative overflow-hidden bg-zinc-50/50 dark:bg-zinc-950/50 pt-24 pb-16">
+    <section className="min-h-[90vh] flex flex-col items-center justify-center text-center space-y-8 relative overflow-hidden bg-background dark:bg-zinc-950/50 pt-24 pb-16">
       {/* Hero Background Elements - Grid & Glows */}
       <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
-        {/* Modern subtle grid pattern with higher contrast */}
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808018_1px,transparent_1px),linear-gradient(to_bottom,#80808018_1px,transparent_1px)] bg-[size:32px_32px]" />
-        
-        {/* Primary Ambient Glows */}
-        <div className="absolute top-[-10%] left-[-10%] w-[800px] h-[800px] bg-blue-500/15 blur-[120px] rounded-full animate-pulse" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[1000px] h-[800px] bg-purple-500/10 blur-[150px] rounded-full" />
-        <div className="absolute top-[20%] right-[10%] w-[600px] h-[600px] bg-emerald-500/5 blur-[120px] rounded-full" />
+        {/* Modern subtle grid pattern - even lighter in light mode */}
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] dark:bg-[linear-gradient(to_right,#80808018_1px,transparent_1px),linear-gradient(to_bottom,#80808018_1px,transparent_1px)] bg-[size:32px_32px]" />
+
+        {/* Primary Ambient Glows - Toned down for light mode and responsively sized */}
+        <div className="absolute top-[-10%] left-[-10%] w-[150%] sm:w-[800px] h-[150%] sm:h-[800px] bg-blue-500/5 dark:bg-blue-500/15 blur-[60px] sm:blur-[120px] rounded-full animate-pulse" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[150%] sm:w-[1000px] h-[150%] sm:h-[800px] bg-purple-500/5 dark:bg-purple-500/10 blur-[80px] sm:blur-[150px] rounded-full" />
+        <div className="absolute top-[20%] right-[10%] w-[120%] sm:w-[600px] h-[120%] sm:h-[600px] bg-emerald-500/[0.02] dark:bg-emerald-500/5 blur-[60px] sm:blur-[120px] rounded-full" />
 
         {/* Floating Animated Charts */}
         <motion.div
@@ -40,7 +41,7 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
         >
           <BarChart2 size={36} className="text-blue-500" />
         </motion.div>
-        
+
         <motion.div
           animate={{ y: [0, 40, 0], x: [0, 20, 0], rotate: [0, -15, 0] }}
           transition={{ repeat: Infinity, duration: 10, ease: "easeInOut", delay: 1 }}
@@ -63,7 +64,7 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
             <span className="flex h-2 w-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_10px_rgba(59,130,246,0.5)]" />AI-Powered Analytics Platform
           </span>
         </motion.div>
-        
+
         <motion.h1
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -75,42 +76,42 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
             <TypewriterEffect />
           </span>
         </motion.h1>
-        
+
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 1, delay: 0.4 }}
-          className="text-base sm:text-lg md:text-2xl text-muted-foreground/90 max-w-3xl mx-auto leading-relaxed font-medium text-center balance px-4"
+          className="text-base sm:text-lg md:text-2xl text-muted-foreground dark:text-muted-foreground/90 max-w-3xl mx-auto leading-relaxed font-medium text-center balance px-4"
         >
           PyAnalypt seamlessly simplifies complex data visualization. Upload raw datasets and let our AI engine generate stunning, interactive insights in seconds.
         </motion.p>
       </div>
-        <motion.div
-          initial={{ opacity: 0, y: 20, filter: "blur(4px)" }}
-          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-          transition={{ duration: 0.8, delay: 0.45, ease: "easeOut" }}
-          className="flex flex-col sm:flex-row gap-4 relative z-10 pt-6"
+      <motion.div
+        initial={{ opacity: 0, y: 20, filter: "blur(4px)" }}
+        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+        transition={{ duration: 0.8, delay: 0.45, ease: "easeOut" }}
+        className="flex flex-col sm:flex-row gap-4 relative z-10 pt-6 px-6 sm:px-0 w-full sm:w-auto"
+      >
+        <Link
+          href="/playground"
+          className="px-8 py-4 rounded-full bg-blue-600 text-white dark:bg-foreground dark:text-background hover:bg-blue-700 dark:hover:bg-foreground/90 transition-all duration-300 font-bold whitespace-nowrap shadow-xl shadow-blue-500/20 dark:shadow-none hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
         >
-          <Link
-            href="/playground"
-            className="px-8 py-4 rounded-full bg-foreground text-background hover:bg-blue-600 hover:text-white transition-all duration-300 font-bold whitespace-nowrap ambient-glow-mono hover:ambient-glow-blue flex items-center justify-center gap-2"
-          >
-            <Zap size={18} className="fill-current" /> Live Sandbox
-          </Link>
-          <Link
-            href="https://github.com/soklimkhy/pyanalypt"
-            target="_blank"
-            className="px-8 py-4 rounded-full bg-background border border-border/50 text-foreground hover:bg-secondary/50 transition-all duration-300 font-bold whitespace-nowrap flex items-center justify-center gap-2"
-          >
-            <GithubIcon size={18} /> View GitHub
-          </Link>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, filter: "blur(4px)" }}
-          animate={{ opacity: 1, filter: "blur(0px)" }}
-          transition={{ duration: 1, delay: 0.8, ease: "easeOut" }}
-          className="pt-12 relative z-10"
+          <Zap size={18} className="fill-current" /> Live Sandbox
+        </Link>
+        <Link
+          href="https://github.com/soklimkhy/pyanalypt"
+          target="_blank"
+          className="px-8 py-4 rounded-full bg-background/50 backdrop-blur-sm border border-border/50 text-foreground hover:bg-secondary/50 transition-all duration-300 font-bold whitespace-nowrap hover:scale-105 active:scale-95 flex items-center justify-center gap-2"
         >
+          <GithubIcon size={18} /> View GitHub
+        </Link>
+      </motion.div>
+      <motion.div
+        initial={{ opacity: 0, filter: "blur(4px)" }}
+        animate={{ opacity: 1, filter: "blur(0px)" }}
+        transition={{ duration: 1, delay: 0.8, ease: "easeOut" }}
+        className="pt-12 relative z-10"
+      >
         <div className="flex flex-col items-center gap-4">
           <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
             <Activity size={14} className="text-emerald-500 animate-pulse" />
@@ -146,9 +147,9 @@ function FeatureSection() {
         { title: "AI-Driven Insights", desc: "Our engine automatically detects patterns and anomalies." },
         { title: "Export & Share", desc: "Download high-res reports or share interactive links." }
       ].map((feature) => (
-        <TiltCard key={feature.title} className="group border-0" classNameContent="p-8 rounded-3xl border border-border/40 bg-background/50 backdrop-blur-sm hover:ambient-glow-mono transition-all h-full flex flex-col justify-center">
-          <h3 className="text-xl font-bold mb-3 group-hover:text-primary transition-colors">{feature.title}</h3>
-          <p className="text-muted-foreground">{feature.desc}</p>
+        <TiltCard key={feature.title} className="group border-0" classNameContent="p-8 rounded-3xl border border-border/10 dark:border-border/40 bg-background/50 backdrop-blur-sm hover:ambient-glow-blue dark:hover:ambient-glow-mono transition-all h-full flex flex-col justify-center">
+          <h3 className="text-xl font-bold mb-3 group-hover:text-blue-600 dark:group-hover:text-primary transition-colors">{feature.title}</h3>
+          <p className="text-muted-foreground text-sm leading-relaxed">{feature.desc}</p>
         </TiltCard>
       ))}
     </div>
@@ -199,14 +200,14 @@ function AnalysisFeatures() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 px-4">
         {analysisTypes.map((type) => (
-          <TiltCard key={type.title} className="border-0 group" classNameContent="p-8 h-full flex flex-col items-start gap-6 bg-background/40 backdrop-blur-sm rounded-3xl border border-border/40 hover:ambient-glow-mono transition-all">
-            <div className={`p-4 rounded-2xl bg-gradient-to-br ${type.color} group-hover:scale-110 transition-transform duration-500 shadow-lg ring-1 ring-border/50`}>
+          <TiltCard key={type.title} className="border-0 group" classNameContent="p-8 h-full flex flex-col items-start gap-6 bg-background/40 backdrop-blur-sm rounded-3xl border border-border/10 dark:border-border/40 hover:ambient-glow-blue dark:hover:ambient-glow-mono transition-all">
+            <div className={`p-4 rounded-2xl bg-gradient-to-br ${type.color} group-hover:scale-110 transition-transform duration-500 shadow-md dark:shadow-lg dark:ring-1 dark:ring-border/50`}>
               <type.icon className="w-8 h-8 text-foreground" />
             </div>
-            <div className="space-y-3">
+            <div className="space-y-3 flex-1">
               <div className="space-y-1">
-                <h3 className="text-2xl font-bold tracking-tight group-hover:text-primary transition-colors">{type.title}</h3>
-                <p className="text-primary font-bold text-xs tracking-[0.2em] uppercase">{type.question}</p>
+                <h3 className="text-2xl font-bold tracking-tight group-hover:text-blue-600 dark:group-hover:text-primary transition-colors">{type.title}</h3>
+                <p className="text-blue-600 dark:text-primary font-bold text-[10px] tracking-[0.2em] uppercase">{type.question}</p>
               </div>
               <p className="text-muted-foreground leading-relaxed text-sm">
                 {type.desc}
@@ -220,24 +221,35 @@ function AnalysisFeatures() {
 }
 
 function VisualizationPanel() {
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
+
+  // Dynamic colors based on theme
+  const textColor = isDark ? '#71717a' : '#52525b';
+  const gridColor = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)';
+  const axisLineColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
+  const tooltipBg = isDark ? '#18181b' : '#ffffff';
+  const tooltipBorder = isDark ? '#3f3f46' : '#e4e4e7';
+  const tooltipText = isDark ? '#f4f4f5' : '#18181b';
+
   // 1. Line Chart: Growth
   const lineOption = {
     backgroundColor: 'transparent',
-    tooltip: { trigger: 'axis', backgroundColor: '#18181b', borderColor: '#3f3f46', textStyle: { color: '#f4f4f5' } },
+    tooltip: { trigger: 'axis', backgroundColor: tooltipBg, borderColor: tooltipBorder, textStyle: { color: tooltipText } },
     grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-    xAxis: [{ type: 'category', boundaryGap: false, data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'], axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } }, axisLabel: { color: '#71717a', fontSize: 10 } }],
-    yAxis: [{ type: 'value', splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } }, axisLabel: { color: '#71717a', fontSize: 10 } }],
-    series: [{ name: 'Growth', type: 'line', smooth: true, lineStyle: { width: 2, color: '#20BEFF' }, showSymbol: false, areaStyle: { opacity: 0.1, color: '#20BEFF' }, data: [420, 932, 901, 1234, 1290, 1530, 2120] }]
+    xAxis: [{ type: 'category', boundaryGap: false, data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'], axisLine: { lineStyle: { color: axisLineColor } }, axisLabel: { color: textColor, fontSize: 10 } }],
+    yAxis: [{ type: 'value', splitLine: { lineStyle: { color: gridColor } }, axisLabel: { color: textColor, fontSize: 10 } }],
+    series: [{ name: 'Growth', type: 'line', smooth: true, lineStyle: { width: 3, color: '#20BEFF' }, showSymbol: false, areaStyle: { opacity: 0.15, color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#20BEFF' }, { offset: 1, color: 'transparent' }]) }, data: [420, 932, 901, 1234, 1290, 1530, 2120] }]
   };
 
   // 2. Scatter Plot: Correlation
   const scatterData = Array.from({ length: 40 }, () => [Math.random() * 100, Math.random() * 100]);
   const scatterOption = {
     backgroundColor: 'transparent',
-    tooltip: { trigger: 'item', backgroundColor: '#18181b', borderColor: '#3f3f46', textStyle: { color: '#f4f4f5' } },
-    xAxis: { splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } }, axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } }, axisLabel: { color: '#71717a', fontSize: 10 } },
-    yAxis: { splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } }, axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } }, axisLabel: { color: '#71717a', fontSize: 10 } },
-    series: [{ symbolSize: 10, data: scatterData, type: 'scatter', itemStyle: { color: '#20BEFF', opacity: 0.6 } }]
+    tooltip: { trigger: 'item', backgroundColor: tooltipBg, borderColor: tooltipBorder, textStyle: { color: tooltipText } },
+    xAxis: { splitLine: { lineStyle: { color: gridColor } }, axisLine: { lineStyle: { color: axisLineColor } }, axisLabel: { color: textColor, fontSize: 10 } },
+    yAxis: { splitLine: { lineStyle: { color: gridColor } }, axisLine: { lineStyle: { color: axisLineColor } }, axisLabel: { color: textColor, fontSize: 10 } },
+    series: [{ symbolSize: 10, data: scatterData, type: 'scatter', itemStyle: { color: '#20BEFF', opacity: 0.8 } }]
   };
 
   // 3. Bubble Chart: Multivariate
@@ -246,11 +258,11 @@ function VisualizationPanel() {
   ];
   const bubbleOption = {
     backgroundColor: 'transparent',
-    xAxis: { axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } }, axisLabel: { color: '#71717a', fontSize: 10 }, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } } },
-    yAxis: { axisLine: { lineStyle: { color: 'rgba(255,255,255,0.1)' } }, axisLabel: { color: '#71717a', fontSize: 10 }, splitLine: { lineStyle: { color: 'rgba(255,255,255,0.05)' } } },
+    xAxis: { axisLine: { lineStyle: { color: axisLineColor } }, axisLabel: { color: textColor, fontSize: 10 }, splitLine: { lineStyle: { color: gridColor } } },
+    yAxis: { axisLine: { lineStyle: { color: axisLineColor } }, axisLabel: { color: textColor, fontSize: 10 }, splitLine: { lineStyle: { color: gridColor } } },
     series: [{
       data: bubbleData, type: 'scatter', symbolSize: (data: any) => data[2],
-      itemStyle: { shadowBlur: 10, shadowColor: 'rgba(32, 190, 255, 0.3)', color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [{ offset: 0, color: 'rgb(129, 227, 255)' }, { offset: 1, color: 'rgb(32, 190, 255)' }]) }
+      itemStyle: { shadowBlur: 10, shadowColor: 'rgba(32, 190, 255, 0.3)', color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [{ offset: 0, color: '#81E3FF' }, { offset: 1, color: '#20BEFF' }]) }
     }]
   };
 
@@ -275,8 +287,8 @@ function VisualizationPanel() {
               <chart.icon className="w-4 h-4 text-muted-foreground group-hover:text-primary transition-colors mt-2 mr-2" />
             </CardHeader>
             <CardContent className="flex-1 space-y-4 px-6 pb-6 pt-2">
-              <div className="relative rounded-2xl overflow-hidden bg-secondary/10 border border-border/30">
-                <EChart option={chart.option} style={{ height: '220px', width: '100%' }} />
+              <div className="relative rounded-2xl overflow-hidden bg-secondary/10 dark:bg-secondary/20 border border-border/10 dark:border-border/30">
+                <EChart option={chart.option} theme={resolvedTheme} style={{ height: '220px', width: '100%' }} />
                 <div className="absolute inset-0 bg-gradient-to-t from-background/20 to-transparent pointer-events-none" />
               </div>
               <div className="pt-4 border-t border-border/40 space-y-2 pb-2">
@@ -313,10 +325,10 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-background text-foreground overflow-x-hidden selection:bg-foreground/10 relative">
 
-      {/* Background Ambience */}
+      {/* Background Ambience - Toned down for light mode */}
       <div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0">
-        <div className="absolute top-[20%] left-[20%] w-[800px] h-[800px] bg-foreground/5 rounded-full blur-[150px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[600px] h-[600px] bg-secondary/40 rounded-full blur-[120px]" />
+        <div className="absolute top-[20%] left-[20%] w-[150%] sm:w-[800px] h-[150%] sm:h-[800px] dark:bg-foreground/5 bg-foreground/[0.015] rounded-full blur-[80px] sm:blur-[150px]" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[120%] sm:w-[600px] h-[120%] sm:h-[600px] dark:bg-secondary/40 bg-secondary/5 rounded-full blur-[60px] sm:blur-[120px]" />
       </div>
 
       <div className="relative z-10">
