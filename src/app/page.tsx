@@ -6,7 +6,7 @@ import { motion } from "motion/react";
 import {
   BarChart2, Search,
   TrendingUp, Database, ArrowRight, Sparkles,
-  Globe, Target, Wand2, Brain,
+  Target, Wand2, Brain,
   MessageSquareText, RefreshCcw
 } from "lucide-react";
 import * as echarts from "echarts";
@@ -18,7 +18,6 @@ import { CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { TiltCard } from "@/components/ui/tilt-card";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { LogoTicker } from "@/components/ui/logo-ticker";
-import { CTASection } from "@/components/layout/CTASection";
 import { GithubIcon } from "@/components/ui/Icons";
 import EChart from "@/components/ui/EChart";
 
@@ -44,173 +43,219 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:32px_32px]" />
       </div>
 
-      <div className="container relative z-10 mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-        
-        {/* Text Content - Left Side */}
-        <div className="lg:col-span-6 space-y-8 text-center lg:text-left">
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6 }}
-            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 shadow-sm"
-          >
-            <Sparkles size={14} className="text-blue-500" />
-            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
-              Next-Gen Data Engine
-            </span>
-          </motion.div>
+      <div className="container relative z-10 mx-auto px-6 max-w-[1300px]">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.1 }}
-            className="space-y-4"
-          >
-            <h1 className="text-4xl md:text-6xl xl:text-7xl font-black tracking-tight leading-[1.05] text-foreground">
-              Turn Raw Data <br />
-              Into <span className="text-blue-600 dark:text-blue-400 italic">Actionable</span> <br />
-              Intelligence.
-            </h1>
-            <p className="text-lg md:text-xl text-muted-foreground font-medium max-w-xl mx-auto lg:mx-0 leading-relaxed pt-2">
-              PyAnalypt is the bridge between complex data science and intuitive business decisions. No configuration, just insights.
-            </p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.3 }}
-            className="flex flex-col sm:flex-row items-center gap-4 pt-4"
-          >
-            <Button
-              onClick={onStart}
-              className="h-14 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-all hover:scale-105 active:scale-95 shadow-lg shadow-blue-500/20 flex items-center gap-2 w-full sm:w-auto"
+          {/* Text Content - Left Side */}
+          <div className="space-y-8 text-center lg:text-left flex flex-col items-center lg:items-start max-w-2xl mx-auto lg:mx-0">
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6 }}
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 shadow-sm"
             >
-              Get Started Free <ArrowRight size={18} />
-            </Button>
+              <Sparkles size={14} className="text-blue-500" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
+                Next-Gen Data Engine
+              </span>
+            </motion.div>
 
-            <Link href="https://github.com/soklimkhy/pyanalypt" target="_blank" className="w-full sm:w-auto">
-              <Button variant="ghost" className="h-14 px-8 rounded-xl border border-border/60 hover:bg-muted font-bold text-base transition-all flex items-center gap-2 w-full sm:w-auto">
-                <GithubIcon size={18} /> Repository
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.1 }}
+              className="space-y-4"
+            >
+              <h1 className="text-4xl md:text-6xl xl:text-7xl font-black tracking-tight leading-[1.05] text-foreground">
+                Turn Raw Data <br />
+                Into <span className="text-blue-600 dark:text-blue-400 italic">Actionable</span> <br />
+                Intelligence.
+              </h1>
+              <p className="text-lg md:text-xl text-muted-foreground font-medium max-w-xl mx-auto lg:mx-0 leading-relaxed pt-2">
+                PyAnalypt is the bridge between complex data science and intuitive business decisions. No configuration, just insights.
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, delay: 0.3 }}
+              className="flex flex-col sm:flex-row items-center gap-4 pt-4"
+            >
+              <Button
+                onClick={onStart}
+                className="h-14 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-all hover:scale-105 active:scale-95 shadow-lg shadow-blue-500/20 flex items-center gap-2 w-full sm:w-auto"
+              >
+                Get Started Free <ArrowRight size={18} />
               </Button>
-            </Link>
+
+              <Link href="https://github.com/soklimkhy/pyanalypt" target="_blank" className="w-full sm:w-auto">
+                <Button variant="ghost" className="h-14 px-8 rounded-xl border border-border/60 hover:bg-muted font-bold text-base transition-all flex items-center gap-2 w-full sm:w-auto">
+                  <GithubIcon size={18} /> Repository
+                </Button>
+              </Link>
+            </motion.div>
+          </div>
+
+          {/* Visual Content - Right Side */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9, rotate: 2 }}
+            animate={{ opacity: 1, scale: 1, rotate: 0 }}
+            transition={{ duration: 1, delay: 0.2 }}
+            className="relative group w-full max-w-2xl mx-auto"
+          >
+            <div className="relative z-10 p-1 rounded-[3rem] bg-gradient-to-br from-blue-500/30 via-border/50 to-emerald-500/20 shadow-2xl">
+              <div className="rounded-[2.8rem] bg-background border border-border/10 overflow-hidden flex flex-col h-[450px] shadow-inner relative">
+                {/* Dashboard Header */}
+                <div className="flex items-center justify-between px-8 py-6 border-b border-border/10 bg-secondary/10">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                      <Sparkles size={20} className="text-white" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-black tracking-tight leading-none">PyAnalypt Analyst</span>
+                      <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mt-1">Status: Ready</span>
+                    </div>
+                  </div>
+                  <div className="hidden sm:flex gap-2">
+                    <div className="h-2 w-8 bg-border/40 rounded-full" />
+                    <div className="h-2 w-12 bg-border/40 rounded-full" />
+                  </div>
+                </div>
+
+                {/* Workspace Area */}
+                <div className="flex-1 p-8 space-y-6 overflow-hidden bg-gradient-to-b from-transparent to-secondary/5">
+                  {/* AI Message Preview */}
+                  <motion.div
+                    initial={{ x: -20, opacity: 0 }}
+                    animate={{ x: 0, opacity: 1 }}
+                    transition={{ delay: 0.8, duration: 0.6 }}
+                    className="bg-blue-600 text-white p-5 rounded-[1.5rem] rounded-tl-none max-w-[80%] shadow-xl shadow-blue-500/10 text-sm font-medium leading-relaxed"
+                  >
+                    "I've analyzed your 2024 revenue. There's a 12.5% outlier growth in North America. Want me to visualize it?"
+                  </motion.div>
+
+                  {/* Visual Dashboard Cards */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <motion.div
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 1.2, duration: 0.6 }}
+                      className="bg-background border border-border/10 p-6 rounded-[2rem] shadow-lg space-y-3"
+                    >
+                      <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
+                        <TrendingUp size={18} />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Revenue Growth</p>
+                        <p className="text-2xl font-black">+12.5%</p>
+                      </div>
+                    </motion.div>
+                    <motion.div
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ delay: 1.4, duration: 0.6 }}
+                      className="bg-background border border-border/10 p-6 rounded-[2rem] shadow-lg space-y-3"
+                    >
+                      <div className="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+                        <Database size={18} />
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Data Points</p>
+                        <p className="text-2xl font-black">2.4M</p>
+                      </div>
+                    </motion.div>
+                  </div>
+
+                  {/* Mock Action Bar */}
+                  <div className="absolute bottom-6 left-8 right-8 h-14 bg-secondary/50 backdrop-blur-3xl border border-border/10 rounded-[1.2rem] flex items-center px-6 justify-between animate-pulse">
+                    <p className="text-zinc-500 text-xs font-bold">Waiting for your command...</p>
+                    <div className="w-8 h-8 rounded-lg bg-blue-600/10 flex items-center justify-center text-blue-600">
+                      <Search size={16} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {/* Decorative Floaters */}
+            <motion.div
+              animate={{ y: [0, -15, 0] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -top-10 -right-6 p-4 rounded-3xl bg-background border border-border/40 shadow-xl z-20 hidden md:block"
+            >
+              <TrendingUp size={24} className="text-blue-500" />
+            </motion.div>
+            <motion.div
+              animate={{ y: [0, 15, 0] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              className="absolute -bottom-6 -left-6 p-4 rounded-3xl bg-background border border-border/40 shadow-xl z-20 hidden md:block"
+            >
+              <Database size={24} className="text-emerald-500" />
+            </motion.div>
           </motion.div>
         </div>
-
-        {/* Visual Content - Right Side */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9, rotate: 2 }}
-          animate={{ opacity: 1, scale: 1, rotate: 0 }}
-          transition={{ duration: 1, delay: 0.2 }}
-          className="lg:col-span-6 relative group"
-        >
-          <div className="relative z-10 p-4 rounded-[2rem] border border-border/40 bg-background/50 backdrop-blur-3xl shadow-2xl overflow-hidden hover:ambient-glow-blue transition-all duration-700">
-             <div className="aspect-[4/3] rounded-[1.5rem] bg-zinc-900/5 dark:bg-zinc-900/40 border border-border/10 flex flex-col p-4 space-y-4">
-                {/* Mock Header */}
-                <div className="flex items-center justify-between border-b border-border/10 pb-4">
-                   <div className="flex gap-1.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-red-400/30" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-amber-400/30" />
-                      <div className="w-2.5 h-2.5 rounded-full bg-emerald-400/30" />
-                   </div>
-                   <div className="px-3 py-1 rounded-md bg-blue-500/10 border border-blue-500/20 text-[8px] font-bold text-blue-500 uppercase tracking-widest leading-none">
-                      Dashboard Active
-                   </div>
-                </div>
-                {/* Mock Content */}
-                <div className="flex-1 grid grid-cols-2 gap-3">
-                   <div className="bg-blue-500/10 rounded-xl border border-blue-500/5 p-3 flex flex-col justify-end gap-2 group/card">
-                      <div className="h-1.5 w-12 bg-blue-500/30 rounded-full" />
-                      <div className="h-3 w-20 bg-blue-500/60 rounded-full" />
-                   </div>
-                   <div className="bg-emerald-500/10 rounded-xl border border-emerald-500/5 p-3 flex flex-col justify-end gap-2">
-                      <div className="h-1.5 w-12 bg-emerald-500/30 rounded-full" />
-                      <div className="h-3 w-20 bg-emerald-500/60 rounded-full" />
-                   </div>
-                   <div className="col-span-2 bg-zinc-500/5 rounded-xl border border-border/10 p-3 flex items-center justify-between">
-                      <div className="flex gap-2 items-center">
-                         <div className="w-6 h-6 rounded-lg bg-blue-500/20" />
-                         <div className="h-2 w-24 bg-foreground/20 rounded-full" />
-                      </div>
-                      <div className="h-1.5 w-8 bg-foreground/10 rounded-full" />
-                   </div>
-                </div>
-             </div>
-          </div>
-          {/* Decorative Floaters */}
-          <motion.div
-            animate={{ y: [0, -15, 0] }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            className="absolute -top-10 -right-6 p-4 rounded-3xl bg-background border border-border/40 shadow-xl z-20 hidden md:block"
-          >
-            <TrendingUp size={24} className="text-blue-500" />
-          </motion.div>
-          <motion.div
-            animate={{ y: [0, 15, 0] }}
-            transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="absolute -bottom-6 -left-6 p-4 rounded-3xl bg-background border border-border/40 shadow-xl z-20 hidden md:block"
-          >
-            <Database size={24} className="text-emerald-500" />
-          </motion.div>
-        </motion.div>
-
       </div>
     </section>
   );
 }
 function ProductStory() {
   return (
-    <div className="py-24 container mx-auto px-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
+    <div className="py-20 container mx-auto px-6 max-w-[1300px]">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
         <ScrollReveal>
-          <div className="space-y-6">
-             <div className="w-12 h-1 bg-blue-600 rounded-full" />
-             <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-[1.1]">
-                Why we built <br/> <span className="text-blue-600">PyAnalypt?</span>
-             </h2>
-             <p className="text-lg text-muted-foreground leading-relaxed">
-                Most data tools are either too complex for business users or too limited for power analysts. We built PyAnalypt to close that gap. By combining the power of a Python-driven backend with a sleek, real-time UI, we allow teams to move from <strong>raw data ingestion</strong> to <strong>boardroom-ready visuals</strong> in minutes.
-             </p>
-             <div className="pt-4 grid grid-cols-2 gap-6">
-                <div className="p-6 rounded-[2rem] bg-secondary/30 border border-border/10">
-                   <p className="text-4xl font-black text-blue-600 mb-1">01.</p>
-                   <p className="font-bold text-sm uppercase tracking-widest opacity-70">No Setup</p>
-                </div>
-                <div className="p-6 rounded-[2rem] bg-secondary/30 border border-border/10">
-                   <p className="text-4xl font-black text-emerald-600 mb-1">02.</p>
-                   <p className="font-bold text-sm uppercase tracking-widest opacity-70">AI Native</p>
-                </div>
-             </div>
+          <div className="space-y-8">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 shadow-sm">
+              <Sparkles size={14} className="text-blue-500" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
+                The Mission
+              </span>
+            </div>
+            <h2 className="text-4xl md:text-6xl font-black tracking-tight leading-[1.05]">
+              Why we built <br /> <span className="text-blue-600 dark:text-blue-400">PyAnalypt?</span>
+            </h2>
+            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
+              Most data tools are either too complex for business users or too limited for power analysts. We built PyAnalypt to close that gap. By combining the power of a Python-driven backend with a sleek, real-time UI, we allow teams to move from <strong>raw data ingestion</strong> to <strong>boardroom-ready visuals</strong> in minutes.
+            </p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-6 rounded-[2.5rem] bg-secondary/20 border border-border/10 backdrop-blur-xl">
+                <p className="text-4xl font-black text-blue-600 mb-1">01.</p>
+                <p className="font-bold text-[10px] uppercase tracking-widest opacity-60">Frictionless Setup</p>
+              </div>
+              <div className="p-6 rounded-[2.5rem] bg-secondary/20 border border-border/10 backdrop-blur-xl">
+                <p className="text-4xl font-black text-emerald-600 mb-1">02.</p>
+                <p className="font-bold text-[10px] uppercase tracking-widest opacity-60">AI-Native Engine</p>
+              </div>
+            </div>
           </div>
         </ScrollReveal>
-        
+
         <ScrollReveal>
           <div className="relative">
-             <div className="aspect-square rounded-[3rem] bg-blue-600/5 border border-blue-500/10 flex items-center justify-center p-8">
-                <Brain size={120} className="text-blue-500/20 absolute bottom-10 right-10" />
-                <div className="space-y-8 relative z-10 w-full">
-                   {[
-                      { l: "Raw CSV/API", p: 30, c: "blue" },
-                      { l: "Pattern Analysis", p: 65, c: "indigo" },
-                      { l: "Final Visualization", p: 100, c: "emerald" }
-                   ].map(bar => (
-                      <div key={bar.l} className="space-y-2">
-                         <div className="flex justify-between text-xs font-black uppercase tracking-widest">
-                            <span>{bar.l}</span>
-                            <span>{bar.p}%</span>
-                         </div>
-                         <div className="h-4 bg-background/50 rounded-full overflow-hidden border border-border/10">
-                            <motion.div 
-                               initial={{ width: 0 }}
-                               whileInView={{ width: `${bar.p}%` }}
-                               transition={{ duration: 1.5, ease: "easeOut" }}
-                               className={`h-full bg-${bar.c}-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]`}
-                            />
-                         </div>
-                      </div>
-                   ))}
-                </div>
-             </div>
+            <div className="aspect-square rounded-[3rem] bg-blue-600/5 border border-blue-500/10 flex items-center justify-center p-8">
+              <Brain size={120} className="text-blue-500/20 absolute bottom-10 right-10" />
+              <div className="space-y-8 relative z-10 w-full">
+                {[
+                  { l: "Raw CSV/API", p: 30, c: "blue" },
+                  { l: "Pattern Analysis", p: 65, c: "indigo" },
+                  { l: "Final Visualization", p: 100, c: "emerald" }
+                ].map(bar => (
+                  <div key={bar.l} className="space-y-2">
+                    <div className="flex justify-between text-xs font-black uppercase tracking-widest">
+                      <span>{bar.l}</span>
+                      <span>{bar.p}%</span>
+                    </div>
+                    <div className="h-4 bg-background/50 rounded-full overflow-hidden border border-border/10">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        whileInView={{ width: `${bar.p}%` }}
+                        transition={{ duration: 1.5, ease: "easeOut" }}
+                        className={`h-full bg-${bar.c}-500 shadow-[0_0_10px_rgba(59,130,246,0.5)]`}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </ScrollReveal>
       </div>
@@ -219,81 +264,60 @@ function ProductStory() {
 }
 
 // --- Features Section Components ---
-function PlatformFeatures() {
-  const features = [
-    { title: "Instant Visualization", desc: "Drag & drop CSVs to see immediate charts and graphs with zero latency.", icon: BarChart2 },
-    { title: "AI-Driven Insights", desc: "Our engine automatically detects patterns, outliers, and anomalies in seconds.", icon: Sparkles },
-    { title: "Export & Share", desc: "Download high-res reports or share dynamic interactive links with your team.", icon: Globe }
-  ];
 
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 py-10 px-4">
-      {features.map((feature) => (
-        <TiltCard key={feature.title} className="group border-0" classNameContent="p-10 rounded-3xl border border-border/10 dark:border-zinc-800 bg-background/50 backdrop-blur-xl hover:ambient-glow-blue transition-all h-full flex flex-col items-center text-center">
-          <div className="p-4 rounded-2xl bg-secondary/30 mb-6 group-hover:scale-110 transition-transform duration-300">
-            <feature.icon className="w-8 h-8 text-blue-500" />
-          </div>
-          <h3 className="text-2xl font-black mb-4 tracking-tight">{feature.title}</h3>
-          <p className="text-muted-foreground text-sm leading-relaxed">{feature.desc}</p>
-        </TiltCard>
-      ))}
-    </div>
-  );
-}
 
 function AnalysisFeatures() {
   const workflow = [
-    { title: "Define Objective", question: "Step 1", desc: "Identify the problem and business goals for targeted analysis.", icon: Target, isOptional: false },
-    { title: "Data Collection", question: "Step 2", desc: "Gather raw data from APIs, databases, and local files.", icon: Database, isOptional: false },
-    { title: "Cleaning & Prep", question: "Step 3", desc: "Process and normalize data to ensure high-quality inputs.", icon: Wand2, isOptional: false },
-    { title: "EDA", question: "Step 4", desc: "Uncover initial patterns and anomalies via statistical summaries.", icon: Search, isOptional: false },
-    { title: "Modeling", question: "Step 5", desc: "Apply ML models or statistical methods for deeper insights.", icon: Brain, isOptional: "Optional" },
-    { title: "Visualization", question: "Step 6", desc: "Communicate results via high-performance interactives.", icon: BarChart2, isOptional: false },
-    { title: "Interpretation", question: "Step 7", desc: "Translate patterns into actionable business recommendations.", icon: MessageSquareText, isOptional: false },
-    { title: "Feedback", question: "Step 8", desc: "Refine objectives based on results for continuous growth.", icon: RefreshCcw, isOptional: "Critical" }
+    { title: "Define Objective", desc: "Identify the problem and business goals for targeted analysis.", icon: Target, isOptional: false },
+    { title: "Data Collection", desc: "Gather raw data from APIs, databases, and local files.", icon: Database, isOptional: false },
+    { title: "Cleaning & Prep", desc: "Process and normalize data to ensure high-quality inputs.", icon: Wand2, isOptional: false },
+    { title: "EDA", desc: "Uncover initial patterns and anomalies via statistical summaries.", icon: Search, isOptional: false },
+    { title: "Modeling", desc: "Apply ML models or statistical methods for deeper insights.", icon: Brain, isOptional: "Optional" },
+    { title: "Visualization", desc: "Communicate results via high-performance interactives.", icon: BarChart2, isOptional: false },
+    { title: "Interpretation", desc: "Translate patterns into actionable business recommendations.", icon: MessageSquareText, isOptional: false },
+    { title: "Feedback", desc: "Refine objectives based on results for continuous growth.", icon: RefreshCcw, isOptional: "Critical" }
   ];
 
   return (
-    <div className="py-24 space-y-16">
+    <div className="py-20 space-y-16">
       <div className="text-center space-y-4">
-        <h2 className="text-4xl md:text-6xl font-black tracking-tighter px-4">Core Capabilities</h2>
-        <p className="text-muted-foreground max-w-2xl mx-auto text-xl px-6">
-          The complete Data Analyst Lifecycle, engineered for speed.
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 shadow-sm mx-auto">
+          <RefreshCcw size={12} className="text-blue-500" />
+          <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
+            Lifecycle Workflow
+          </span>
+        </div>
+        <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-[1.1]">The Analyst Path</h2>
+        <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-6">
+          A seamless transition from raw data to business decisions.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 px-4">
-        {workflow.map((step, idx) => (
-          <div key={step.title} className="relative group">
-            {/* Connection Arrow (XL screens) */}
-            {idx % 4 !== 3 && idx < 7 && (
-              <div className="hidden xl:flex absolute top-1/2 -right-6 -translate-y-1/2 z-20 items-center justify-center">
-                 <ArrowRight className="text-blue-500/30 group-hover:text-blue-500/60 transition-colors w-5 h-5 translate-x-1" />
-              </div>
-            )}
-            
-            <TiltCard className="border-0 h-full" classNameContent="p-8 h-full flex flex-col items-start gap-6 bg-background/50 backdrop-blur-xl rounded-3xl border border-border/10 group-hover:ambient-glow-mono transition-all">
-              <div className="flex justify-between items-start w-full">
-                <div className="p-3 rounded-2xl bg-blue-500/10 text-blue-500 group-hover:scale-110 transition-transform duration-500">
-                  <step.icon size={28} />
+      <div className="relative">
+        {/* Connection Line Visual */}
+        <div className="absolute top-1/2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent hidden lg:block z-0" />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10 px-4">
+          {workflow.map((step, idx) => (
+            <TiltCard key={step.title} className="border-0 h-full group" classNameContent="p-6 h-full flex flex-col items-center text-center gap-6 bg-background/40 backdrop-blur-3xl rounded-[2.5rem] border border-border/10 hover:border-blue-500/20 transition-all shadow-lg hover:shadow-2xl">
+              <div className="relative">
+                <div className="p-5 rounded-[2rem] bg-blue-500/10 text-blue-500 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-inner">
+                  <step.icon size={32} />
                 </div>
-                {step.isOptional && (
-                  <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-md ${step.isOptional === 'Critical' ? 'bg-red-500/10 text-red-500 border border-red-500/20' : 'bg-blue-500/10 text-blue-500 border border-blue-500/20'}`}>
-                    {step.isOptional}
-                  </span>
-                )}
+                <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-background border border-border/10 flex items-center justify-center text-[10px] font-black text-blue-500">
+                  {idx + 1}
+                </div>
               </div>
 
               <div className="space-y-2">
-                <p className="text-blue-500 font-black text-[10px] tracking-[0.2em] uppercase opacity-70">{step.question}</p>
-                <h3 className="text-2xl font-black tracking-tight group-hover:text-blue-600 transition-colors leading-none">{step.title}</h3>
-                <p className="text-muted-foreground leading-relaxed text-sm pt-2">
+                <h3 className="text-lg font-black tracking-tight leading-tight">{step.title}</h3>
+                <p className="text-sm font-medium text-muted-foreground leading-relaxed opacity-70">
                   {step.desc}
                 </p>
               </div>
             </TiltCard>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
     </div>
   );
@@ -347,41 +371,68 @@ function VisualizationPanel() {
   ];
 
   return (
-    <div id="visuals-section" className="max-w-[1500px] mx-auto px-6 py-24 space-y-16 relative">
+    <div id="visuals-section" className="max-w-[1300px] mx-auto px-6 py-20 space-y-12 relative">
       <div className="text-center space-y-4">
-        <h2 className="text-4xl md:text-6xl font-black tracking-tighter px-4">Interactive Canvas</h2>
-        <p className="text-muted-foreground max-w-2xl mx-auto text-lg px-6">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 shadow-sm mx-auto">
+          <BarChart2 size={12} className="text-blue-500" />
+          <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
+            Real-time Insights
+          </span>
+        </div>
+        <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-[1.1]">Interactive Canvas</h2>
+        <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-6">
           Pro-grade visualizations, natively handled.
         </p>
       </div>
 
       <ScrollReveal>
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-10 px-4">
-          {charts.map((chart) => (
-            <TiltCard key={chart.title} className="border-0 group" classNameContent="p-0 bg-background/50 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border border-border/10 hover:ambient-glow-blue transition-all flex flex-col shadow-2xl">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 px-4 auto-rows-min">
+          {/* Main Large Chart */}
+          <div className="lg:col-span-8">
+            <TiltCard className="border-0 h-full" classNameContent="p-0 bg-background/50 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border border-border/10 transition-all flex flex-col shadow-2xl h-full">
               <CardHeader className="p-8 pb-4 flex flex-row items-center justify-between">
                 <div className="space-y-1">
-                  <CardTitle className="text-xl font-black text-foreground tracking-tight">{chart.title}</CardTitle>
-                  <span className="px-2 py-0.5 rounded-full bg-blue-500/10 text-[9px] font-black uppercase tracking-[0.2em] text-blue-500 border border-blue-500/10">{chart.type}</span>
+                  <CardTitle className="text-2xl font-black tracking-tight">{charts[0].title}</CardTitle>
+                  <span className="px-2 py-0.5 rounded-full bg-blue-500/10 text-[9px] font-black uppercase tracking-[0.2em] text-blue-500 border border-blue-500/10">{charts[0].type}</span>
                 </div>
-                <chart.icon className="w-6 h-6 text-blue-500/50 group-hover:text-blue-500 transition-colors" />
+                <BarChart2 className="w-6 h-6 text-blue-500" />
               </CardHeader>
-              <CardContent className="flex-1 space-y-6 px-8 pb-8 pt-0">
-                <div className="relative rounded-3xl overflow-hidden bg-secondary/20 dark:bg-black/40 border border-border/10 p-2">
-                  <EChart option={chart.option} theme={resolvedTheme} style={{ height: '240px', width: '100%' }} />
+              <CardContent className="flex-1 p-8 pt-0 flex flex-col gap-6">
+                <div className="relative flex-1 rounded-3xl overflow-hidden bg-secondary/20 dark:bg-black/40 border border-border/10 p-2 min-h-[300px]">
+                  <EChart option={charts[0].option} theme={resolvedTheme} style={{ height: '100%', width: '100%' }} />
                 </div>
-                <div className="bg-secondary/40 p-5 rounded-2xl border border-border/20 group-hover:border-blue-500/30 transition-all">
-                  <p className="text-[10px] font-black text-blue-500 uppercase tracking-[0.25em] mb-2">Platform Insight</p>
-                  <p className="text-sm font-medium text-foreground/80 leading-snug">{chart.insight}</p>
+                <div className="bg-blue-600/5 p-4 rounded-2xl border border-blue-500/10 flex items-center justify-between">
+                  <p className="text-sm font-medium opacity-80">{charts[0].insight}</p>
+                  <ArrowRight size={16} className="text-blue-500" />
                 </div>
               </CardContent>
             </TiltCard>
-          ))}
+          </div>
+
+          {/* Side Stacked Cards */}
+          <div className="lg:col-span-4 flex flex-col gap-6">
+            {charts.slice(1).map((chart) => (
+              <TiltCard key={chart.title} className="border-0" classNameContent="p-0 bg-background/50 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border border-border/10 transition-all flex flex-col shadow-xl">
+                <CardContent className="p-6 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
+                      <chart.icon size={20} />
+                    </div>
+                    <span className="text-[9px] font-black uppercase tracking-[0.2em] opacity-40">{chart.type}</span>
+                  </div>
+                  <h4 className="text-lg font-black tracking-tight">{chart.title}</h4>
+                  <div className="h-[120px] rounded-2xl bg-secondary/30 border border-border/5 p-2 overflow-hidden">
+                    <EChart option={chart.option} theme={resolvedTheme} style={{ height: '100%', width: '100%' }} />
+                  </div>
+                </CardContent>
+              </TiltCard>
+            ))}
+          </div>
         </div>
-        <div className="flex justify-center mt-16">
-          <Button variant="ghost" className="gap-2 rounded-full px-10 h-14 text-lg font-black hover:bg-blue-500/10 text-blue-500 transition-all" asChild>
+        <div className="flex justify-center mt-20">
+          <Button variant="ghost" className="gap-2 rounded-2xl px-12 h-16 text-lg font-black hover:bg-blue-500/10 text-blue-500 transition-all border border-blue-500/10" asChild>
             <Link href="/visuals">
-              EXPLORE DATA LIBRARY <ArrowRight size={20} />
+              EXPLORE DATA LIBRARY <ArrowRight size={22} />
             </Link>
           </Button>
         </div>
@@ -418,16 +469,12 @@ export default function Home() {
 
         <VisualizationPanel />
 
-        <div className="max-w-[1400px] mx-auto px-6 relative">
+        <div className="max-w-[1300px] mx-auto px-6 relative">
           <ScrollReveal>
             <AnalysisFeatures />
           </ScrollReveal>
-          <div className="pb-32">
-            <PlatformFeatures />
-          </div>
-        </div>
 
-        <CTASection onAction={scrollToVisuals} />
+        </div>
       </div>
     </main>
   );
