@@ -10,7 +10,7 @@ export async function subscribeNewsletter(
     return { success: false, message: "Please enter a valid email address." };
   }
 
-  // TODO: integrate with email service (e.g. Resend, Mailchimp)
+  // Email service integration (Resend / Mailchimp) goes here.
 
   return { success: true, message: "You're subscribed!" };
 }

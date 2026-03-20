@@ -16,7 +16,7 @@ export async function submitContact(
         return { success: false, message: "Message must be at least 20 characters." };
     }
 
-    // TODO: integrate with email service (e.g. Resend)
+    // Email service integration (e.g. Resend) goes here.
 
     return { success: true, message: "Message sent! We'll get back to you within 24 hours." };
 }

@@ -1,13 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useActionState } from "react";
 import Link from "next/link";
-import { useActionState } from "react";
 import { motion } from "motion/react";
 import {
     Mail, MessageSquare, ArrowRight, Clock,
-    Send, Sparkles, CheckCircle2, HelpCircle, Github,
+    Send, Sparkles, CheckCircle2, HelpCircle,
 } from "lucide-react";
+import { GithubIcon } from "@/components/ui/Icons";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { submitContact } from "@/lib/actions/contact";
@@ -33,7 +33,7 @@ const contactInfo = [
         href: undefined,
     },
     {
-        icon: Github,
+        icon: GithubIcon,
         color: "text-foreground",
         bg: "bg-secondary/60",
         border: "border-border/20",
@@ -90,7 +90,8 @@ function ContactForm() {
 
             <div className="space-y-2">
                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Topic</p>
-                <div className="flex flex-wrap gap-2" role="group" aria-label="Message topic">
+                <fieldset className="flex flex-wrap gap-2">
+                    <legend className="sr-only">Message topic</legend>
                     {topicOptions.map((opt) => (
                         <label key={opt.value} className="cursor-pointer">
                             <input
@@ -105,7 +106,7 @@ function ContactForm() {
                             </span>
                         </label>
                     ))}
-                </div>
+                </fieldset>
             </div>
 
             <div className="space-y-2">
@@ -216,7 +217,7 @@ export default function ContactPage() {
                         {contactInfo.map((info) => {
                             const inner = (
                                 <div className={cn(
-                                    "p-6 rounded-[2rem] bg-background/60 backdrop-blur-xl border shadow-lg space-y-3 transition-all hover:shadow-xl",
+                                    "p-6 rounded-4xl bg-background/60 backdrop-blur-xl border shadow-lg space-y-3 transition-all hover:shadow-xl",
                                     info.border
                                 )}>
                                     <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", info.bg)}>
@@ -250,7 +251,7 @@ export default function ContactPage() {
                         })}
 
                         {/* Expectations card */}
-                        <div className="p-6 rounded-[2rem] bg-linear-to-br from-blue-500/10 via-background/60 to-emerald-500/5 border border-blue-500/20 space-y-3">
+                        <div className="p-6 rounded-4xl bg-linear-to-br from-blue-500/10 via-background/60 to-emerald-500/5 border border-blue-500/20 space-y-3">
                             <div className="flex items-center gap-2">
                                 <Sparkles size={14} className="text-blue-500" aria-hidden="true" />
                                 <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">

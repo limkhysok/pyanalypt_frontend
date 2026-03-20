@@ -117,7 +117,7 @@ export default function Playground() {
             <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
                 <div className="absolute inset-0 bg-background" />
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[32px_32px]" />
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-200 h-150 bg-emerald-500/5 blur-[150px] rounded-full" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-200 h-150 bg-blue-500/5 blur-[150px] rounded-full" />
                 <div className="absolute bottom-0 right-[-10%] w-150 h-150 bg-blue-500/5 blur-[120px] rounded-full" />
             </div>
 
@@ -130,16 +130,16 @@ export default function Playground() {
                     transition={{ duration: 0.6 }}
                     className="text-center space-y-6 max-w-2xl mx-auto"
                 >
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 shadow-sm">
-                        <Zap size={13} className="text-emerald-500" aria-hidden="true" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 shadow-sm">
+                        <Zap size={13} className="text-blue-500" aria-hidden="true" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
                             Data Sandbox
                         </span>
                     </div>
 
                     <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.05]">
                         Try It Live.<br />
-                        <span className="text-emerald-600 dark:text-emerald-400 italic">No signup required.</span>
+                        <span className="text-blue-600 dark:text-blue-400 italic">No signup required.</span>
                     </h1>
 
                     <p className="text-lg text-muted-foreground font-medium leading-relaxed">
@@ -160,7 +160,7 @@ export default function Playground() {
                             <CardHeader className="p-0 pb-5 border-b border-border/10">
                                 <CardTitle className="text-sm font-black flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                        <FileText size={15} className="text-emerald-500" aria-hidden="true" />
+                                        <FileText size={15} className="text-blue-500" aria-hidden="true" />
                                         <span>CSV Input</span>
                                     </div>
                                     <span className={`text-[10px] px-2.5 py-1 rounded-full border font-black ${
@@ -176,7 +176,7 @@ export default function Playground() {
                             <CardContent className="p-0 space-y-5">
                                 <textarea
                                     aria-label="CSV data input"
-                                    className="w-full h-48 bg-secondary/20 rounded-2xl p-4 text-xs font-mono outline-none border border-border/20 focus:border-emerald-500/50 focus:ring-2 focus:ring-emerald-500/10 transition-all resize-none"
+                                    className="w-full h-48 bg-secondary/20 rounded-2xl p-4 text-xs font-mono outline-none border border-border/20 focus:border-blue-500/50 focus:ring-2 focus:ring-blue-500/10 transition-all resize-none"
                                     value={csvData}
                                     onChange={(e) => setCsvData(e.target.value)}
                                     placeholder="Paste CSV here…&#10;e.g. Month,Revenue,Users&#10;Jan,1200,450"
@@ -203,8 +203,8 @@ export default function Playground() {
                                                 aria-pressed={chartType === t.id}
                                                 className={`p-4 rounded-2xl border flex flex-col items-center gap-1.5 transition-all duration-300 ${
                                                     chartType === t.id
-                                                        ? 'bg-emerald-500/15 border-emerald-500/40 text-emerald-500 shadow-sm'
-                                                        : 'bg-background/50 border-border/20 hover:border-emerald-500/30 text-muted-foreground hover:bg-secondary/40'
+                                                        ? 'bg-blue-500/15 border-blue-500/40 text-blue-500 shadow-sm'
+                                                        : 'bg-background/50 border-border/20 hover:border-blue-500/30 text-muted-foreground hover:bg-secondary/40'
                                                 }`}
                                             >
                                                 <t.icon size={20} aria-hidden="true" />
@@ -229,7 +229,7 @@ export default function Playground() {
                             <div className="space-y-1">
                                 <CardTitle className="text-lg font-black tracking-tight flex items-center gap-2.5">
                                     {"Live Render"}
-                                    <span className="flex h-2 w-2 rounded-full bg-emerald-500 animate-pulse" aria-hidden="true" />
+                                    <span className="flex h-2 w-2 rounded-full bg-blue-500 animate-pulse" aria-hidden="true" />
                                 </CardTitle>
                                 <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
                                     ECharts · Client-Side Only
@@ -247,7 +247,7 @@ export default function Playground() {
                                 </Button>
                                 <Button
                                     size="sm"
-                                    className="rounded-xl text-[10px] font-black bg-emerald-600 hover:bg-emerald-700 text-white transition-all h-9 px-5 uppercase tracking-widest shadow-sm shadow-emerald-500/20"
+                                    className="rounded-xl text-[10px] font-black bg-blue-600 hover:bg-blue-700 text-white transition-all h-9 px-5 uppercase tracking-widest shadow-sm shadow-blue-500/20"
                                     onClick={() => handleExport('png')}
                                     aria-label="Export chart as PNG"
                                 >

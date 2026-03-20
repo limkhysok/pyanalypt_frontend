@@ -40,7 +40,16 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
     <section className="relative min-h-[85vh] flex flex-col items-center justify-center pt-24 pb-4 overflow-hidden border-b border-border/10">
       {/* 1. Subtle Background Elements */}
       <div className="absolute inset-0 z-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-200 bg-blue-500/5 blur-[120px] rounded-full opacity-50" />
+        <motion.div
+          animate={{ opacity: [0.4, 0.8, 0.4], scale: [1, 1.15, 1] }}
+          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-200 bg-blue-500/5 blur-[120px] rounded-full"
+        />
+        <motion.div
+          animate={{ opacity: [0.2, 0.5, 0.2], scale: [1, 1.2, 1] }}
+          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+          className="absolute top-1/4 right-1/4 w-80 h-80 bg-blue-600/8 blur-[80px] rounded-full"
+        />
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[32px_32px]" />
       </div>
 
@@ -101,98 +110,165 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
 
           {/* Visual Content - Right Side */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, rotate: 2 }}
-            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            transition={{ duration: 1, delay: 0.2 }}
-            className="relative group w-full max-w-2xl mx-auto"
+            initial={{ opacity: 0, x: 40 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.9, delay: 0.2 }}
+            className="relative w-full max-w-2xl mx-auto"
           >
-            <div className="relative z-10 p-1 rounded-[3rem] bg-linear-to-br from-blue-500/30 via-border/50 to-emerald-500/20 shadow-2xl">
-              <div className="rounded-[2.8rem] bg-background border border-border/10 overflow-hidden flex flex-col h-112.5 shadow-inner relative">
-                {/* Dashboard Header */}
-                <div className="flex items-center justify-between px-8 py-6 border-b border-border/10 bg-secondary/10">
-                  <div className="flex items-center gap-4">
-                    <div className="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                      <Sparkles size={20} className="text-white" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-black tracking-tight leading-none">PyAnalypt Analyst</span>
-                      <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-widest mt-1">Status: Ready</span>
-                    </div>
+            {/* Main card */}
+            <motion.div
+              animate={{ boxShadow: [
+                "0 25px 50px rgba(0,0,0,0.15), 0 0 0px rgba(59,130,246,0)",
+                "0 25px 50px rgba(0,0,0,0.15), 0 0 60px rgba(59,130,246,0.12)",
+                "0 25px 50px rgba(0,0,0,0.15), 0 0 0px rgba(59,130,246,0)",
+              ]}}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+              className="relative rounded-[2.5rem] bg-background/70 backdrop-blur-xl border border-border/10 shadow-2xl p-6 space-y-5"
+            >
+
+              {/* Card header */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
+                    <Sparkles size={16} className="text-white" aria-hidden="true" />
                   </div>
-                  <div className="hidden sm:flex gap-2">
-                    <div className="h-2 w-8 bg-border/40 rounded-full" />
-                    <div className="h-2 w-12 bg-border/40 rounded-full" />
+                  <div>
+                    <p className="text-sm font-black tracking-tight leading-none">PyAnalypt</p>
+                    <p className="text-[10px] font-bold text-blue-500 uppercase tracking-widest mt-0.5">AI Analyst · Active</p>
+                  </div>
+                </div>
+                <div className="flex gap-1.5 items-center">
+                  <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" aria-hidden="true" />
+                  <span className="w-2 h-2 rounded-full bg-border/40" aria-hidden="true" />
+                  <span className="w-2 h-2 rounded-full bg-border/40" aria-hidden="true" />
+                </div>
+              </div>
+
+              {/* Raw → Chart transform */}
+              <div className="grid grid-cols-[1fr_36px_1fr] gap-3 items-center">
+
+                {/* Raw CSV */}
+                <div className="rounded-2xl bg-secondary/30 border border-border/10 p-4 space-y-2 relative overflow-hidden">
+                  {/* Scanning highlight */}
+                  <motion.div
+                    className="absolute left-0 right-0 h-5 bg-blue-500/10 pointer-events-none"
+                    animate={{ y: [10, 28, 46, 64, 82] }}
+                    transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 2, ease: "linear" }}
+                  />
+                  <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-50 mb-2">Raw CSV</p>
+                  {["Jan, 1200", "Feb, 2100", "Mar, 1800", "Apr, 2400"].map((row) => (
+                    <div key={row} className="flex items-center gap-2">
+                      <span className="w-1 h-1 rounded-full bg-blue-500/50 shrink-0" aria-hidden="true" />
+                      <span className="text-[10px] font-mono text-muted-foreground opacity-60">{row}</span>
+                    </div>
+                  ))}
+                  <div className="flex items-center gap-2 opacity-25">
+                    <span className="w-1 h-1 rounded-full bg-border shrink-0" aria-hidden="true" />
+                    <span className="text-[10px] font-mono text-muted-foreground">···</span>
                   </div>
                 </div>
 
-                {/* Workspace Area */}
-                <div className="flex-1 p-8 space-y-6 overflow-hidden bg-linear-to-b from-transparent to-secondary/5">
-                  {/* AI Message Preview */}
+                {/* Transform icon */}
+                <div className="flex justify-center">
                   <motion.div
-                    initial={{ x: -20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{ delay: 0.8, duration: 0.6 }}
-                    className="bg-blue-600 text-white p-5 rounded-3xl rounded-tl-none max-w-[80%] shadow-xl shadow-blue-500/10 text-sm font-medium leading-relaxed"
+                    animate={{ rotate: [0, 20, -20, 0], scale: [1, 1.2, 1.2, 1] }}
+                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", repeatDelay: 1.5 }}
+                    className="w-9 h-9 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center"
+                    aria-hidden="true"
                   >
-                    "I've analyzed your 2024 revenue. There's a 12.5% outlier growth in North America. Want me to visualize it?"
+                    <Sparkles size={14} className="text-blue-500" />
                   </motion.div>
+                </div>
 
-                  {/* Visual Dashboard Cards */}
-                  <div className="grid grid-cols-2 gap-4">
-                    <motion.div
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: 1.2, duration: 0.6 }}
-                      className="bg-background border border-border/10 p-6 rounded-4xl shadow-lg space-y-3"
-                    >
-                      <div className="w-8 h-8 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
-                        <TrendingUp size={18} />
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Revenue Growth</p>
-                        <p className="text-2xl font-black">+12.5%</p>
-                      </div>
-                    </motion.div>
-                    <motion.div
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ delay: 1.4, duration: 0.6 }}
-                      className="bg-background border border-border/10 p-6 rounded-4xl shadow-lg space-y-3"
-                    >
-                      <div className="w-8 h-8 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500">
-                        <Database size={18} />
-                      </div>
-                      <div className="space-y-1">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Data Points</p>
-                        <p className="text-2xl font-black">2.4M</p>
-                      </div>
-                    </motion.div>
-                  </div>
-
-                  {/* Mock Action Bar */}
-                  <div className="absolute bottom-6 left-8 right-8 h-14 bg-secondary/50 backdrop-blur-3xl border border-border/10 rounded-[1.2rem] flex items-center px-6 justify-between animate-pulse">
-                    <p className="text-zinc-500 text-xs font-bold">Waiting for your command...</p>
-                    <div className="w-8 h-8 rounded-lg bg-blue-600/10 flex items-center justify-center text-blue-600">
-                      <Search size={16} />
-                    </div>
+                {/* Animated bar chart */}
+                <div className="rounded-2xl bg-secondary/30 border border-border/10 p-4">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-50 mb-3">Visual Output</p>
+                  <div className="flex items-end gap-1 h-14" role="img" aria-label="Bar chart preview">
+                    {[
+                      { pct: 40, month: "Jan" },
+                      { pct: 72, month: "Feb" },
+                      { pct: 55, month: "Mar" },
+                      { pct: 88, month: "Apr" },
+                      { pct: 62, month: "May" },
+                      { pct: 95, month: "Jun" },
+                      { pct: 78, month: "Jul" },
+                    ].map((bar, i) => (
+                      <motion.div
+                        key={bar.month}
+                        initial={{ scaleY: 0 }}
+                        animate={{ scaleY: [0, 1, 0.9, 1] }}
+                        transition={{
+                          delay: 1.1 + i * 0.08,
+                          duration: 1.2,
+                          ease: "easeInOut",
+                          repeat: Infinity,
+                          repeatDelay: 4,
+                          times: [0, 0.5, 0.75, 1],
+                        }}
+                        style={{ height: `${bar.pct}%`, transformOrigin: "bottom" }}
+                        className="flex-1 rounded-t bg-blue-500/70"
+                      />
+                    ))}
                   </div>
                 </div>
               </div>
-            </div>
-            {/* Decorative Floaters */}
-            <motion.div
-              animate={{ y: [0, -15, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -top-10 -right-6 p-4 rounded-3xl bg-background border border-border/40 shadow-xl z-20 hidden md:block"
-            >
-              <TrendingUp size={24} className="text-blue-500" />
+
+              {/* AI Insight callout */}
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0, borderColor: ["rgba(59,130,246,0.15)", "rgba(59,130,246,0.4)", "rgba(59,130,246,0.15)"] }}
+                transition={{ delay: 1, duration: 0.5, borderColor: { delay: 2, duration: 3, repeat: Infinity, ease: "easeInOut" } }}
+                className="flex items-start gap-3 p-4 rounded-2xl bg-blue-500/8 border border-blue-500/15"
+              >
+                <div className="w-6 h-6 rounded-lg bg-blue-600 flex items-center justify-center shrink-0 mt-0.5">
+                  <Sparkles size={11} className="text-white" aria-hidden="true" />
+                </div>
+                <p className="text-xs font-bold text-foreground/80 leading-relaxed">
+                  Revenue peaked in <span className="text-blue-500 font-black">April (+12.5%)</span>. North America is the primary growth driver this quarter.
+                </p>
+              </motion.div>
+
+              {/* Stat chips */}
+              <div className="grid grid-cols-3 gap-3">
+                {[
+                  { icon: TrendingUp, label: "Growth",  value: "+12.5%", color: "text-blue-500",       bg: "bg-blue-500/10"  },
+                  { icon: Database,   label: "Records", value: "2.4M",   color: "text-foreground/80",  bg: "bg-secondary/60" },
+                  { icon: Search,     label: "Insight",  value: "3 sec",  color: "text-foreground/80",  bg: "bg-secondary/60" },
+                ].map((s, i) => (
+                  <motion.div
+                    key={s.label}
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.5 + i * 0.1, duration: 0.4 }}
+                    className="p-3 rounded-2xl bg-background/60 border border-border/10 space-y-1.5"
+                  >
+                    <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${s.bg}`}>
+                      <s.icon size={12} className={s.color} aria-hidden="true" />
+                    </div>
+                    <p className={`text-base font-black ${s.color}`}>{s.value}</p>
+                    <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-50">{s.label}</p>
+                  </motion.div>
+                ))}
+              </div>
             </motion.div>
+
+            {/* Floating badges */}
             <motion.div
-              animate={{ y: [0, 15, 0] }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-              className="absolute -bottom-6 -left-6 p-4 rounded-3xl bg-background border border-border/40 shadow-xl z-20 hidden md:block"
+              animate={{ y: [0, -12, 0], boxShadow: ["0 8px 30px rgba(0,0,0,0.12)", "0 8px 30px rgba(59,130,246,0.18)", "0 8px 30px rgba(0,0,0,0.12)"] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="absolute -top-5 -right-4 px-4 py-2.5 rounded-2xl bg-background border border-border/20 shadow-xl z-20 hidden md:flex items-center gap-2"
             >
-              <Database size={24} className="text-emerald-500" />
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" aria-hidden="true" />
+              <span className="text-[10px] font-black text-foreground/70 uppercase tracking-widest">Live Analysis</span>
+            </motion.div>
+
+            <motion.div
+              animate={{ y: [0, 12, 0], boxShadow: ["0 8px 30px rgba(0,0,0,0.12)", "0 8px 30px rgba(59,130,246,0.18)", "0 8px 30px rgba(0,0,0,0.12)"] }}
+              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+              className="absolute -bottom-5 -left-4 px-4 py-2.5 rounded-2xl bg-background border border-border/20 shadow-xl z-20 hidden md:flex items-center gap-2"
+            >
+              <BarChart2 size={13} className="text-blue-500" aria-hidden="true" />
+              <span className="text-[10px] font-black text-foreground/70 uppercase tracking-widest">50+ Chart Types</span>
             </motion.div>
           </motion.div>
         </div>
@@ -203,7 +279,7 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
 function ProductStory() {
   const checkmarks = [
     "No Python, No SQL, No terminal — ever",
-    "Works with Excel, CSV & Google Sheets",
+    "Works with Excel, JSON, CSV & Parquet",
     "Instant results — no setup, no wait",
     "Boardroom-ready charts, always",
   ];
@@ -308,7 +384,7 @@ function ProductStory() {
                   <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Less setup time</p>
                 </div>
                 <div className="p-5 rounded-4xl bg-background/60 backdrop-blur-xl border border-border/10 shadow-lg space-y-2">
-                  <p className="text-3xl font-black text-emerald-500">50+</p>
+                  <p className="text-3xl font-black text-emerald-500">30+</p>
                   <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Chart types ready</p>
                 </div>
               </div>
