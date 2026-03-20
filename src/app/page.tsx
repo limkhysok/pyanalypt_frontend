@@ -36,7 +36,7 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
   if (!mounted) return <div className="min-h-[70vh]" />;
 
   return (
-    <section className="relative min-h-[85vh] flex flex-col items-center justify-center pt-24 pb-12 overflow-hidden border-b border-border/10">
+    <section className="relative min-h-[85vh] flex flex-col items-center justify-center pt-24 pb-4 overflow-hidden border-b border-border/10">
       {/* 1. Subtle Background Elements */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-blue-500/5 blur-[120px] rounded-full opacity-50" />
@@ -200,7 +200,7 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
 }
 function ProductStory() {
   return (
-    <div className="py-20 container mx-auto px-6 max-w-[1300px]">
+    <div className="py-8 container mx-auto px-6 max-w-[1300px]">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-20 items-center">
         <ScrollReveal>
           <div className="space-y-8">
@@ -279,7 +279,7 @@ function AnalysisFeatures() {
   ];
 
   return (
-    <div className="py-20 space-y-16">
+    <div className="py-8 space-y-16">
       <div className="text-center space-y-4">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 shadow-sm mx-auto">
           <RefreshCcw size={12} className="text-blue-500" />
@@ -371,7 +371,7 @@ function VisualizationPanel() {
   ];
 
   return (
-    <div id="visuals-section" className="max-w-[1300px] mx-auto px-6 py-20 space-y-12 relative">
+    <div id="visuals-section" className="max-w-[1300px] mx-auto px-6 py-8 space-y-12 relative">
       <div className="text-center space-y-4">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 shadow-sm mx-auto">
           <BarChart2 size={12} className="text-blue-500" />
@@ -461,7 +461,7 @@ export default function Home() {
       <div className="relative z-0">
         <HeroSection onStart={scrollToVisuals} />
 
-        <div className="relative bg-background/50 backdrop-blur-3xl py-4 border-y border-border/20">
+        <div className="relative bg-background/50 backdrop-blur-3xl py-2 border-y border-border/20">
           <LogoTicker />
         </div>
 
