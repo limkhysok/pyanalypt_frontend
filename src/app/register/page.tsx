@@ -17,7 +17,7 @@ export default function Register() {
 	const router = useRouter();
 	const { login: setAuthUser } = useAuth();
 	const [isLoading, setIsLoading] = React.useState(false);
-	const [username, setUsername] = React.useState("");
+	const [email, setEmail] = React.useState("");
 	const [password, setPassword] = React.useState("");
 	const [error, setError] = React.useState<string | null>(null);
 	const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
@@ -28,13 +28,8 @@ export default function Register() {
 		setError(null);
 		setFieldErrors({});
 		try {
-			const response = await authApi.register({
-				username,
-				password1: password,
-				password2: password,
-			});
-			setAuthUser(response.user);
-			router.push("/dashboard");
+			await authApi.register({ email, password });
+			router.push(`/verify-email?email=${encodeURIComponent(email)}`);
 		} catch (err) {
 			const formattedErrors = formatFieldErrors(err);
 			if (formattedErrors) {
@@ -79,21 +74,21 @@ export default function Register() {
 				)}
 
 				<div className="space-y-2">
-					<Label htmlFor="username">Username</Label>
+					<Label htmlFor="email">Email</Label>
 					<div className="relative">
 						<Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
 						<Input
-							id="username"
-							type="text"
-							value={username}
-							onChange={(e) => setUsername(e.target.value)}
-							placeholder="johndoe"
+							id="email"
+							type="email"
+							value={email}
+							onChange={(e) => setEmail(e.target.value)}
+							placeholder="name@example.com"
 							className="pl-10"
 							required
 						/>
 					</div>
-					{fieldErrors.username && (
-						<p className="text-xs text-destructive">{fieldErrors.username}</p>
+					{fieldErrors.email && (
+						<p className="text-xs text-destructive">{fieldErrors.email}</p>
 					)}
 				</div>
 
@@ -111,8 +106,8 @@ export default function Register() {
 							required
 						/>
 					</div>
-					{fieldErrors.password1 && (
-						<p className="text-xs text-destructive">{fieldErrors.password1}</p>
+					{fieldErrors.password && (
+						<p className="text-xs text-destructive">{fieldErrors.password}</p>
 					)}
 				</div>
 

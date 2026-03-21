@@ -17,7 +17,7 @@ export default function Login() {
 	const router = useRouter();
 	const { login: setAuthUser } = useAuth();
 	const [isLoading, setIsLoading] = React.useState(false);
-	const [username, setUsername] = React.useState("");
+	const [email, setEmail] = React.useState("");
 	const [password, setPassword] = React.useState("");
 	const [error, setError] = React.useState<string | null>(null);
 
@@ -26,7 +26,7 @@ export default function Login() {
 		setIsLoading(true);
 		setError(null);
 		try {
-			const response = await authApi.login({ username, password });
+			const response = await authApi.login({ email, password });
 			setAuthUser(response.user);
 			router.push("/dashboard");
 		} catch (err) {
@@ -68,15 +68,15 @@ export default function Login() {
 				)}
 
 				<div className="space-y-2">
-					<Label htmlFor="username">Username or Email</Label>
+					<Label htmlFor="email">Email</Label>
 					<div className="relative">
 						<Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
 						<Input
-							id="username"
-							type="text"
-							value={username}
-							onChange={(e) => setUsername(e.target.value)}
-							placeholder="johndoe or name@example.com"
+							id="email"
+							type="email"
+							value={email}
+							onChange={(e) => setEmail(e.target.value)}
+							placeholder="name@example.com"
 							className="pl-10"
 							required
 						/>

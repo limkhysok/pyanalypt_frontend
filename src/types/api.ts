@@ -12,6 +12,7 @@ export interface User {
     is_staff?: boolean;
     is_active?: boolean;
     date_joined?: string;
+    last_login?: string;
 }
 
 export interface AuthResponse {
@@ -21,13 +22,18 @@ export interface AuthResponse {
 }
 
 export interface RegisterRequest {
-    username: string;
-    password1: string;
-    password2: string;
+    email: string;
+    password: string;
+    first_name?: string;
+    last_name?: string;
+}
+
+export interface RegisterResponse {
+    detail: string;
 }
 
 export interface LoginRequest {
-    username: string; // Accepts username or email
+    email: string;
     password: string;
 }
 
