@@ -1,52 +1,14 @@
-"use client";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { AppShell } from "@/components/layout/AppShell";
 
-import * as React from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/context/auth-context";
-import { useSidebar } from "@/hooks/use-sidebar";
-import { AppNavbar } from "@/components/layout/AppNavbar";
-import { AppSidebar } from "@/components/layout/AppSidebar";
-import { motion } from "motion/react";
-
-export default function ProfileLayout({
+export default async function ProfileLayout({
     children,
-}: Readonly<{
-    children: React.ReactNode;
-}>) {
-    const { isAuthenticated, isLoading } = useAuth();
-    const router = useRouter();
-    const { collapsed, toggleSidebar } = useSidebar();
-
-    React.useEffect(() => {
-        if (!isLoading && !isAuthenticated) {
-            router.replace("/login");
-        }
-    }, [isAuthenticated, isLoading, router]);
-
-    if (isLoading) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-background">
-                <div className="h-8 w-8 rounded-full border-2 border-foreground border-t-transparent animate-spin" />
-            </div>
-        );
+}: Readonly<{ children: React.ReactNode }>) {
+    const cookieStore = await cookies();
+    if (!cookieStore.get("auth_session")?.value) {
+        redirect("/login");
     }
 
-    if (!isAuthenticated) return null;
-
-    return (
-        <div className="min-h-screen bg-background text-foreground relative">
-            <AppNavbar collapsed={collapsed} />
-            <AppSidebar
-                collapsed={collapsed}
-                onToggle={toggleSidebar}
-            />
-            <motion.main
-                animate={{ marginLeft: collapsed ? 72 : 230 }}
-                transition={{ duration: 0.25, ease: "easeInOut" }}
-                className="pt-14 min-h-screen relative"
-            >
-                {children}
-            </motion.main>
-        </div>
-    );
+    return <AppShell>{children}</AppShell>;
 }

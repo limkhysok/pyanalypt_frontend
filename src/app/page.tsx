@@ -285,7 +285,7 @@ function ProductStory() {
   ];
 
   return (
-    <section className="py-20 relative overflow-hidden">
+    <section className="py-0 relative overflow-hidden">
       <div className="absolute inset-0 pointer-events-none">
         <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-border/30 to-transparent" />
         <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-border/30 to-transparent" />

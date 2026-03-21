@@ -1,34 +1,202 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { motion } from "motion/react";
+import * as echarts from "echarts";
+import { useTheme } from "next-themes";
 import {
     LayoutDashboard,
-    Clock,
-    ArrowUpRight,
     Plus,
-    Cpu,
+    Upload,
+    BarChart3,
+    TrendingUp,
+    Database,
     Activity,
-    PieChart as PieChartIcon,
-    Brain,
-    HardDrive
+    HardDrive,
+    ArrowUpRight,
+    Clock,
+    CheckCircle2,
+    AlertCircle,
+    Loader,
+    FileText,
+    Search,
 } from "lucide-react";
+
 import EChart from "@/components/ui/EChart";
 import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
-import { motion } from "motion/react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
 
-const stats = [
-    { title: "Global Insights", value: "1,284", icon: Brain, trend: "+12.5%", color: "text-blue-500", label: "neural detections" },
-    { title: "Vector Storage", value: "84.2", icon: HardDrive, trend: "72%", color: "text-purple-500", label: "GB used" },
-    { title: "Compute Pulse", value: "99.9%", icon: Activity, trend: "Stable", color: "text-amber-500", label: "system health" },
-    { title: "Active Forges", value: "8", icon: Cpu, trend: "High Load", color: "text-emerald-500", label: "processing units" },
+// ─── Static demo data ────────────────────────────────────────────────────────
+
+const STATS = [
+    {
+        title: "Total Datasets",
+        value: "24",
+        label: "files uploaded",
+        trend: "+3 this week",
+        trendUp: true,
+        icon: Database,
+    },
+    {
+        title: "Analyses Run",
+        value: "142",
+        label: "jobs completed",
+        trend: "+18 today",
+        trendUp: true,
+        icon: Activity,
+    },
+    {
+        title: "Insights Found",
+        value: "1,284",
+        label: "auto-detections",
+        trend: "+12.5%",
+        trendUp: true,
+        icon: TrendingUp,
+    },
+    {
+        title: "Storage Used",
+        value: "84.2 GB",
+        label: "of 120 GB plan",
+        trend: "70% capacity",
+        trendUp: false,
+        icon: HardDrive,
+    },
 ];
+
+const QUICK_ACTIONS = [
+    { label: "Import Dataset",   icon: Upload,    href: "/datasets",      desc: "Upload CSV, Excel or JSON" },
+    { label: "New Analysis",     icon: BarChart3, href: "/analysis",      desc: "Run AI-powered analysis" },
+    { label: "View Charts",      icon: TrendingUp, href: "/visualization", desc: "Explore your visualizations" },
+    { label: "Browse Docs",      icon: FileText,  href: "/docs",          desc: "Tutorials and guides" },
+];
+
+const RECENT_DATASETS = [
+    { name: "Sales_Q1_2026.csv",          rows: "12,400",  status: "ready",      updated: "2 min ago"  },
+    { name: "Customer_Segments.xlsx",     rows: "5,820",   status: "processing", updated: "18 min ago" },
+    { name: "Supply_Chain_2025.csv",      rows: "98,340",  status: "ready",      updated: "1 hr ago"   },
+    { name: "Marketing_Attribution.json", rows: "2,100",   status: "error",      updated: "3 hr ago"   },
+    { name: "Inventory_Report.csv",       rows: "41,000",  status: "ready",      updated: "Yesterday"  },
+];
+
+const ACTIVITY_FEED = [
+    { icon: CheckCircle2, color: "text-blue-500",       bg: "bg-blue-500/10",  label: "Analysis completed",    sub: "Sales_Q1_2026 · Regression model",   time: "2 min ago"  },
+    { icon: Upload,       color: "text-foreground/60",  bg: "bg-secondary/60", label: "Dataset imported",      sub: "Customer_Segments.xlsx · 5,820 rows",time: "18 min ago" },
+    { icon: AlertCircle,  color: "text-amber-500",      bg: "bg-amber-500/10", label: "Issue detected",        sub: "Marketing_Attribution.json · 3 nulls",time: "3 hr ago"  },
+    { icon: BarChart3,    color: "text-blue-500",       bg: "bg-blue-500/10",  label: "Chart exported",        sub: "Revenue Trend · PNG 2×",             time: "Yesterday"  },
+    { icon: Search,       color: "text-foreground/60",  bg: "bg-secondary/60", label: "Insight generated",     sub: "High correlation: Latency ↔ Fuel",   time: "Yesterday"  },
+];
+
+const STATUS_CONFIG: Record<string, { icon: React.ElementType; label: string; className: string }> = {
+    ready:      { icon: CheckCircle2, label: "Ready",      className: "text-blue-500 bg-blue-500/10 border-blue-500/20"     },
+    processing: { icon: Loader,       label: "Processing", className: "text-foreground/60 bg-secondary/60 border-border/20" },
+    error:      { icon: AlertCircle,  label: "Error",      className: "text-amber-500 bg-amber-500/10 border-amber-500/20"  },
+};
+
+// ─── Sub-components ──────────────────────────────────────────────────────────
+
+function StatCard({ stat, index }: Readonly<{ stat: typeof STATS[number]; index: number }>) {
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 + index * 0.08, ease: "easeOut" }}
+        >
+            <Card className="group relative bg-background/60 backdrop-blur-xl border border-border/20 rounded-4xl overflow-hidden hover:-translate-y-1 hover:border-blue-500/30 hover:shadow-xl hover:shadow-blue-500/5 transition-all duration-500">
+                <div className="absolute inset-0 bg-linear-to-b from-blue-500/3 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-4xl" />
+                <CardContent className="p-6 relative z-10">
+                    <div className="flex items-start justify-between mb-5">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{stat.title}</p>
+                        <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 group-hover:scale-110 transition-transform duration-300">
+                            <stat.icon size={14} className="text-blue-500" aria-hidden="true" />
+                        </div>
+                    </div>
+                    <p className="text-3xl font-black tracking-tight text-foreground">{stat.value}</p>
+                    <p className="text-[10px] text-muted-foreground/60 font-bold uppercase tracking-widest mt-1">{stat.label}</p>
+                    <div className="mt-4 pt-4 border-t border-border/10">
+                        <span className={cn(
+                            "text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border",
+                            stat.trendUp
+                                ? "text-blue-500 bg-blue-500/10 border-blue-500/20"
+                                : "text-muted-foreground bg-secondary/60 border-border/20"
+                        )}>
+                            {stat.trend}
+                        </span>
+                    </div>
+                </CardContent>
+            </Card>
+        </motion.div>
+    );
+}
+
+function ActivityChart() {
+    const { resolvedTheme } = useTheme();
+    const isDark = resolvedTheme === "dark";
+
+    const option = useMemo(() => ({
+        backgroundColor: "transparent",
+        tooltip: {
+            trigger: "axis",
+            backgroundColor: isDark ? "#09090b" : "#ffffff",
+            borderColor: isDark ? "#27272a" : "#e4e4e7",
+            textStyle: { color: isDark ? "#f4f4f5" : "#18181b", fontSize: 11 },
+        },
+        grid: { left: "0%", right: "0%", top: "10%", bottom: "0%", containLabel: true },
+        xAxis: {
+            type: "category",
+            data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+            axisLine: { lineStyle: { color: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)" } },
+            axisLabel: { color: isDark ? "#52525b" : "#a1a1aa", fontSize: 10, fontWeight: "bold" },
+        },
+        yAxis: {
+            type: "value",
+            splitLine: { lineStyle: { color: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)" } },
+            axisLabel: { color: isDark ? "#52525b" : "#a1a1aa", fontSize: 10 },
+        },
+        series: [
+            {
+                name: "Analyses",
+                type: "line",
+                smooth: true,
+                lineStyle: { width: 2.5, color: "#3b82f6" },
+                showSymbol: false,
+                symbol: "circle",
+                symbolSize: 6,
+                areaStyle: {
+                    opacity: 0.12,
+                    color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+                        { offset: 0, color: "#3b82f6" },
+                        { offset: 1, color: "transparent" },
+                    ]),
+                },
+                data: [18, 25, 20, 42, 31, 14, 28],
+                itemStyle: { color: "#3b82f6" },
+            },
+            {
+                name: "Datasets",
+                type: "line",
+                smooth: true,
+                lineStyle: { width: 2, color: "#94a3b8", type: "dashed" },
+                showSymbol: false,
+                data: [4, 7, 5, 9, 6, 3, 5],
+                itemStyle: { color: "#94a3b8" },
+            },
+        ],
+    }), [isDark]);
+
+    return (
+        <EChart
+            option={option}
+            style={{ height: "240px", width: "100%" }}
+        />
+    );
+}
+
+// ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function DashboardPage() {
     const { user, isAuthenticated, isLoading } = useAuth();
@@ -36,283 +204,285 @@ export default function DashboardPage() {
 
     React.useEffect(() => {
         if (!isLoading && !isAuthenticated) {
-            router.push("/login");
+            router.replace("/login");
         }
     }, [isLoading, isAuthenticated, router]);
 
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            <div className="min-h-screen flex items-center justify-center bg-background">
+                <div className="flex flex-col items-center gap-3">
+                    <div className="h-8 w-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+                    <p className="text-sm font-bold text-muted-foreground">Loading workspace…</p>
+                </div>
             </div>
         );
     }
 
     if (!isAuthenticated) return null;
 
+    const displayName = user?.username || user?.first_name || "there";
+    const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
+
     return (
-        <main className="min-h-screen pt-16 pb-12 px-6 md:px-12 bg-zinc-50/50 dark:bg-zinc-950/50 relative z-0">
-            {/* Background Ambience */}
-            <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
-                <div className="absolute top-[0%] left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-blue-500/5 blur-[150px] rounded-full" />
-                <div className="absolute bottom-[0%] right-[-10%] w-[600px] h-[600px] bg-purple-500/5 blur-[120px] rounded-full" />
+        <main className="min-h-screen pb-16 px-6 md:px-10 bg-background relative z-0">
+
+            {/* Background */}
+            <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+                <div className="absolute inset-0 bg-background" />
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[32px_32px]" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-200 h-80 bg-blue-500/5 blur-[100px] rounded-full" />
             </div>
 
-            <div className="max-w-7xl mx-auto space-y-8">
+            <div className="max-w-7xl mx-auto space-y-8 pt-8">
 
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+                {/* ── Header ── */}
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
                     <motion.div
-                        initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                        transition={{ duration: 0.8, ease: "easeOut" }}
-                        className="space-y-3"
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5 }}
+                        className="space-y-2"
                     >
-                        <div className="flex items-center gap-2 text-primary font-bold text-[10px] tracking-[0.3em] uppercase">
-                            <LayoutDashboard size={14} className="text-primary" /> Workspace
+                        <div className="flex items-center gap-2">
+                            <LayoutDashboard size={13} className="text-blue-500" aria-hidden="true" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
+                                Workspace
+                            </span>
                         </div>
-                        <h1 className="text-4xl md:text-5xl font-black tracking-tight">Dashboard Overview</h1>
-                        <p className="text-muted-foreground mt-1 text-lg">
-                            Welcome back, <span className="text-foreground font-medium">{user?.username || "Explorer"}</span>. Here's what's happening with your data.
+                        <h1 className="text-3xl md:text-4xl font-black tracking-tight">
+                            Good morning, <span className="text-blue-600 dark:text-blue-400">{displayName}.</span>
+                        </h1>
+                        <p className="text-sm text-muted-foreground font-medium flex items-center gap-1.5">
+                            <Clock size={12} aria-hidden="true" />
+                            {today}
                         </p>
                     </motion.div>
+
                     <motion.div
-                        initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-                        animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                        transition={{ duration: 0.8, delay: 0.15, ease: "easeOut" }}
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.1 }}
                         className="flex items-center gap-3"
                     >
-                        <Button variant="outline" size="sm" className="hidden sm:flex rounded-full px-6 h-10 bg-background/50 border-border/50 hover:bg-secondary/50 transition-all font-bold tracking-widest text-[10px] uppercase">
-                            <Clock className="mr-2 h-4 w-4" />
-                            History
-                        </Button>
-                        <Button size="sm" asChild className="rounded-full px-6 h-10 bg-foreground text-background hover:bg-primary transition-all duration-300 font-bold tracking-widest text-[10px] uppercase hover:ambient-glow-mono shadow-sm">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="rounded-2xl h-10 px-5 border-border/30 bg-background/60 hover:bg-secondary/50 font-black text-[10px] uppercase tracking-widest transition-all"
+                            asChild
+                        >
                             <Link href="/datasets">
-                                <Plus className="mr-2 h-4 w-4" />
-                                Import Dataset
+                                <Upload size={13} className="mr-1.5" aria-hidden="true" />
+                                Import Data
+                            </Link>
+                        </Button>
+                        <Button
+                            size="sm"
+                            className="rounded-2xl h-10 px-5 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] uppercase tracking-widest shadow-sm shadow-blue-500/20 transition-all"
+                            asChild
+                        >
+                            <Link href="/analysis">
+                                <Plus size={13} className="mr-1.5" aria-hidden="true" />
+                                New Analysis
                             </Link>
                         </Button>
                     </motion.div>
                 </div>
 
-                {/* Stats Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {stats.map((stat, i) => (
-                        <motion.div
-                            key={stat.title}
-                            initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-                            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                            transition={{ duration: 0.8, delay: 0.3 + (i * 0.1), ease: "easeOut" }}
-                        >
-                            <Card className="group relative bg-background/40 backdrop-blur-2xl border border-border/30 rounded-[2.5rem] p-2 overflow-hidden transition-all duration-700 hover:-translate-y-2 hover:shadow-2xl hover:shadow-primary/10 hover:border-primary/40 hover:bg-background/60">
-                                <div className="bg-secondary/10 rounded-[2rem] border border-white/5 h-full p-6 transition-all duration-700 group-hover:bg-secondary/20 relative z-10">
-                                    <div className="absolute inset-0 bg-gradient-to-b from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 rounded-[2rem] pointer-events-none" />
-                                    <CardHeader className="flex flex-row items-center justify-between p-0 pb-4 relative z-20">
-                                        <CardTitle className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em]">
-                                            {stat.title}
-                                        </CardTitle>
-                                        <div className={`p-2.5 rounded-xl bg-background/50 border border-border/30 group-hover:scale-110 group-hover:border-primary/30 transition-all duration-500 shadow-inner`}>
-                                            <stat.icon className={`h-4 w-4 ${stat.color}`} />
-                                        </div>
-                                    </CardHeader>
-                                    <CardContent className="p-0 relative z-20">
-                                        <div className="flex items-baseline gap-2">
-                                            <div className="text-4xl font-black tracking-tighter">{stat.value}</div>
-                                            <span className="text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest">{stat.label}</span>
-                                        </div>
-                                        <p className="text-[9px] font-black text-muted-foreground mt-4 uppercase tracking-[0.15em] flex items-center gap-2">
-                                            <span className="text-emerald-500 bg-emerald-500/10 px-2.5 py-1 rounded-full border border-emerald-500/20">{stat.trend}</span> momentum
-                                        </p>
-                                    </CardContent>
-                                </div>
-                                <div className="absolute inset-0 pointer-events-none border-2 border-transparent group-hover:border-primary/20 rounded-[2.5rem] transition-colors duration-700 z-20" />
-                            </Card>
-                        </motion.div>
+                {/* ── Stats Grid ── */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
+                    {STATS.map((stat, i) => (
+                        <StatCard key={stat.title} stat={stat} index={i} />
                     ))}
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                    {/* Neural Discovery Spotlight */}
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 0.8, delay: 0.6 }}
-                        className="lg:col-span-2"
-                    >
-                        <Card className="h-full bg-foreground text-background rounded-[3.5rem] overflow-hidden shadow-2xl relative group">
-                            <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-10" />
-                            <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/20 blur-[100px] rounded-full group-hover:bg-primary/40 transition-colors" />
-                            
-                            <CardContent className="p-12 relative z-10 space-y-8">
-                                <div className="flex items-center gap-4">
-                                    <div className="p-3 bg-background/10 backdrop-blur-md rounded-2xl border border-white/10">
-                                        <Brain className="h-6 w-6 text-primary" />
-                                    </div>
-                                    <Badge className="bg-primary/20 text-primary border-none font-black text-[10px] tracking-widest uppercase py-1.5 px-4 rounded-full">Neural Spotlight</Badge>
-                                </div>
-
-                                <div className="space-y-4">
-                                    <h2 className="text-4xl font-black tracking-tight leading-none">High-Fidelity Correlation Detected.</h2>
-                                    <p className="text-background/60 text-lg font-medium max-w-xl">
-                                        In your recent <span className="text-primary font-black">Supply Chain Optimization</span> dataset, the core algorithm detected a <span className="text-white font-black underline decoration-primary underline-offset-4">0.92 coefficient</span> between automated latency and total fuel expenditure.
-                                    </p>
-                                </div>
-
-                                <div className="flex flex-wrap items-center gap-6 pt-4">
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-background/40 mb-1">Confidence Score</span>
-                                        <span className="text-2xl font-black text-primary tracking-tighter">98.4%</span>
-                                    </div>
-                                    <Separator orientation="vertical" className="h-10 bg-white/10" />
-                                    <div className="flex flex-col">
-                                        <span className="text-[10px] font-black uppercase tracking-widest text-background/40 mb-1">Impact Radius</span>
-                                        <span className="text-2xl font-black text-white tracking-tighter">GLOBAL_LOGISTICS</span>
-                                    </div>
-                                    <Button className="ml-auto bg-primary text-primary-foreground hover:ambient-glow rounded-2xl h-14 px-10 font-black text-xs uppercase tracking-widest shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95">
-                                        Inspect Vector Space
-                                    </Button>
-                                </div>
-                            </CardContent>
-                        </Card>
-                    </motion.div>
-
-                    {/* Category Distribution Chart */}
-                    <motion.div
-                        initial={{ opacity: 0, x: 20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.8, delay: 0.7 }}
-                    >
-                        <Card className="h-full bg-background/40 backdrop-blur-2xl border border-border/30 rounded-[3.5rem] p-3 overflow-hidden group hover:border-primary/40 transition-all duration-700">
-                            <div className="bg-secondary/10 rounded-[3rem] border border-white/5 h-full p-8 transition-all duration-700 group-hover:bg-secondary/20 flex flex-col relative overflow-hidden">
-                                <CardHeader className="p-0 pb-6 relative z-10">
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <div className="p-2 bg-primary/10 rounded-lg">
-                                            <PieChartIcon className="h-4 w-4 text-primary" />
-                                        </div>
-                                        <CardTitle className="text-xl font-black">Dataset Matrix</CardTitle>
-                                    </div>
-                                    <CardDescription className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Analytical volume by domain.</CardDescription>
-                                </CardHeader>
-                                <CardContent className="flex-1 p-0 flex items-center justify-center relative z-10">
-                                    <EChart
-                                        style={{ height: '300px', width: '100%' }}
-                                        option={{
-                                            tooltip: { trigger: 'item' },
-                                            legend: { bottom: '0%', left: 'center', textStyle: { color: '#888', fontSize: 10, fontWeight: 'bold' }, icon: 'circle' },
-                                            series: [{
-                                                name: 'Intelligence Domain',
-                                                type: 'pie',
-                                                radius: ['45%', '75%'],
-                                                avoidLabelOverlap: false,
-                                                itemStyle: { borderRadius: 12, borderColor: 'transparent', borderWidth: 2 },
-                                                label: { show: false },
-                                                emphasis: { label: { show: false } },
-                                                data: [
-                                                    { value: 40, name: 'Machine Learning', itemStyle: { color: '#3b82f6' } },
-                                                    { value: 25, name: 'Data Research', itemStyle: { color: '#a855f7' } },
-                                                    { value: 20, name: 'Financials', itemStyle: { color: '#10b981' } },
-                                                    { value: 15, name: 'Predictive', itemStyle: { color: '#f59e0b' } },
-                                                ]
-                                            }]
-                                        }}
-                                    />
-                                </CardContent>
-                            </div>
-                        </Card>
-                    </motion.div>
-                </div>
-
+                {/* ── Quick Actions ── */}
                 <motion.div
-                    initial={{ opacity: 0, y: 20, filter: "blur(10px)" }}
-                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                    transition={{ duration: 0.8, delay: 0.6, ease: "easeOut" }}
-                    className="grid grid-cols-1 lg:grid-cols-7 gap-8"
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.35 }}
                 >
-                    {/* Main Analytics Chart Placeholder */}
-                    <Card className="lg:col-span-4 bg-background/40 backdrop-blur-2xl border border-border/30 rounded-[3rem] p-3 overflow-hidden group hover:border-primary/40 transition-all duration-700 hover:shadow-2xl hover:shadow-primary/10">
-                        <div className="bg-secondary/10 rounded-[2.5rem] border border-white/5 h-full p-8 transition-all duration-700 group-hover:bg-secondary/20 flex flex-col relative overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-                            <CardHeader className="p-0 pb-6 relative z-10">
-                                <CardTitle className="text-xl font-black">Usage Analytics</CardTitle>
-                                <CardDescription className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Daily compute hours consumed over the last 30 days.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="flex-1 p-0 flex items-end justify-between gap-3 h-[300px] relative z-10">
-                                {[
-                                    { h: 40, id: 'h1' }, { h: 60, id: 'h2' }, { h: 45, id: 'h3' }, 
-                                    { h: 90, id: 'h4' }, { h: 65, id: 'h5' }, { h: 48, id: 'h6' }, 
-                                    { h: 75, id: 'h7' }, { h: 55, id: 'h8' }, { h: 95, id: 'h9' }, 
-                                    { h: 60, id: 'h10' }, { h: 40, id: 'h11' }, { h: 80, id: 'h12' }
-                                ].map((bar, i) => (
-                                    <motion.div
-                                        key={bar.id}
-                                        initial={{ height: 0 }}
-                                        animate={{ height: `${bar.h}%` }}
-                                        transition={{ duration: 1, delay: 0.8 + (i * 0.05), ease: "easeOut" }}
-                                        className="w-full bg-primary/20 group-hover:bg-primary/40 hover:!bg-primary rounded-t-lg transition-colors border-t border-primary/50 relative overflow-hidden group/bar cursor-pointer"
-                                    >
-                                        <div className="absolute inset-0 bg-gradient-to-t from-transparent to-white/20 opacity-0 group-hover/bar:opacity-100 transition-opacity" />
-                                    </motion.div>
-                                ))}
-                            </CardContent>
-                        </div>
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-4">Quick Actions</p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {QUICK_ACTIONS.map((action) => (
+                            <Link key={action.label} href={action.href}>
+                                <div className="group p-5 rounded-[1.75rem] bg-background/60 backdrop-blur-xl border border-border/20 hover:border-blue-500/30 hover:bg-blue-500/5 transition-all duration-300 cursor-pointer space-y-3">
+                                    <div className="w-9 h-9 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                        <action.icon size={15} className="text-blue-500" aria-hidden="true" />
+                                    </div>
+                                    <div>
+                                        <p className="text-sm font-black tracking-tight group-hover:text-blue-500 transition-colors">{action.label}</p>
+                                        <p className="text-[10px] text-muted-foreground font-medium mt-0.5">{action.desc}</p>
+                                    </div>
+                                </div>
+                            </Link>
+                        ))}
+                    </div>
+                </motion.div>
+
+                {/* ── Main Grid ── */}
+                <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.45 }}
+                    className="grid grid-cols-1 lg:grid-cols-5 gap-6"
+                >
+                    {/* Activity chart */}
+                    <Card className="lg:col-span-3 bg-background/60 backdrop-blur-xl border border-border/20 rounded-4xl overflow-hidden">
+                        <CardHeader className="p-6 pb-2 border-b border-border/10">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <CardTitle className="text-base font-black tracking-tight">Weekly Activity</CardTitle>
+                                    <CardDescription className="text-[10px] font-bold uppercase tracking-widest mt-0.5">
+                                        Analyses &amp; datasets · last 7 days
+                                    </CardDescription>
+                                </div>
+                                <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest border-blue-500/20 text-blue-500 bg-blue-500/8">
+                                    {"Live"}
+                                    <span className="ml-1.5 w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse inline-block" aria-hidden="true" />
+                                </Badge>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="p-6 pt-4">
+                            <ActivityChart />
+                            <div className="flex items-center gap-5 mt-4">
+                                <div className="flex items-center gap-2">
+                                    <span className="w-3 h-0.5 bg-blue-500 rounded-full inline-block" aria-hidden="true" />
+                                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Analyses</span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <span className="w-3 h-0.5 bg-slate-400 rounded-full inline-block border-dashed" aria-hidden="true" />
+                                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Datasets</span>
+                                </div>
+                            </div>
+                        </CardContent>
                     </Card>
 
-                    {/* Recent Activity / Pipeline Pulse */}
-                    <Card className="lg:col-span-3 bg-background/40 backdrop-blur-2xl border border-border/30 rounded-[3rem] p-3 overflow-hidden group hover:border-primary/40 transition-all duration-700 hover:shadow-2xl hover:shadow-primary/10">
-                        <div className="bg-secondary/10 rounded-[2.5rem] border border-white/5 h-full p-8 transition-all duration-700 group-hover:bg-secondary/20 flex flex-col relative overflow-hidden">
-                            <div className="absolute inset-0 bg-gradient-to-bl from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
-                            <CardHeader className="p-0 pb-6 flex flex-row items-center justify-between relative z-10">
-                                <div>
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <div className="p-2 bg-primary/10 rounded-lg">
-                                            <Activity className="h-4 w-4 text-primary animate-pulse" />
+                    {/* Recent activity feed */}
+                    <Card className="lg:col-span-2 bg-background/60 backdrop-blur-xl border border-border/20 rounded-4xl overflow-hidden">
+                        <CardHeader className="p-6 pb-2 border-b border-border/10">
+                            <CardTitle className="text-base font-black tracking-tight flex items-center gap-2">
+                                <Activity size={14} className="text-blue-500" aria-hidden="true" />
+                                Recent Activity
+                            </CardTitle>
+                            <CardDescription className="text-[10px] font-bold uppercase tracking-widest mt-0.5">
+                                Your latest actions
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="p-4">
+                            <ul className="space-y-2" aria-label="Recent activity">
+                                {ACTIVITY_FEED.map((item) => (
+                                    <li
+                                        key={item.label + item.time}
+                                        className="flex items-start gap-3 p-3 rounded-2xl hover:bg-secondary/40 transition-colors"
+                                    >
+                                        <div className={cn("w-7 h-7 rounded-xl flex items-center justify-center shrink-0 mt-0.5", item.bg)}>
+                                            <item.icon size={13} className={item.color} aria-hidden="true" />
                                         </div>
-                                        <CardTitle className="text-xl font-black">Pipeline Pulse</CardTitle>
-                                    </div>
-                                    <CardDescription className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Real-time vector operations status.</CardDescription>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="p-0 flex-1 flex flex-col relative z-10">
-                                <div className="space-y-4 flex-1">
-                                    {[
-                                        { name: "Global_Sales_2026", type: "Neural Ingestion", status: "Active", progress: 65, color: "bg-blue-500" },
-                                        { name: "Retention_Analysis", type: "Clustering ML", status: "Indexing", progress: 88, color: "bg-purple-500" },
-                                        { name: "Risk_Profiling_Vector", type: "Vector Alignment", status: "Queued", progress: 0, color: "bg-zinc-500" }
-                                    ].map((job) => (
-                                        <div key={job.name} className="p-5 rounded-[2rem] bg-background/40 border border-border/20 group/item hover:bg-background/60 transition-all duration-300">
-                                            <div className="flex items-center justify-between mb-4">
-                                                <div className="flex items-center gap-3">
-                                                    <div className={cn("h-2.5 w-2.5 rounded-full animate-pulse shadow-[0_0_10px_rgba(0,0,0,0.1)]", job.color)} />
-                                                    <p className="text-sm font-black text-foreground/80 truncate max-w-[120px]">{job.name}</p>
-                                                </div>
-                                                <Badge className="bg-background border-border/4 hover:bg-background h-6 text-[9px] font-black uppercase tracking-widest px-2.5">{job.status}</Badge>
-                                            </div>
-                                            <div className="space-y-2">
-                                                <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">
-                                                    <span>{job.type}</span>
-                                                    <span>{job.progress}%</span>
-                                                </div>
-                                                <div className="h-1.5 w-full bg-muted/30 rounded-full overflow-hidden">
-                                                    <motion.div
-                                                        initial={{ width: 0 }}
-                                                        animate={{ width: `${job.progress}%` }}
-                                                        transition={{ duration: 1.5 }}
-                                                        className={cn("h-full rounded-full shadow-[0_0_10px", job.progress > 0 ? job.color : "bg-transparent")}
-                                                    />
-                                                </div>
-                                            </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-xs font-black text-foreground/80 leading-tight">{item.label}</p>
+                                            <p className="text-[10px] text-muted-foreground font-medium mt-0.5 truncate">{item.sub}</p>
                                         </div>
-                                    ))}
-                                </div>
-                                <Button className="w-full mt-6 rounded-[2rem] h-14 font-black uppercase tracking-widest text-[10px] bg-background/50 hover:bg-primary hover:text-white transition-all duration-300 group/btn border border-border/50 hover:border-primary" variant="outline" onClick={() => router.push('/datasets')}>
-                                    Explore Datasets
-                                    <ArrowUpRight className="ml-2 h-4 w-4 transition-transform group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1" />
-                                </Button>
-                            </CardContent>
-                        </div>
+                                        <span className="text-[9px] font-bold text-muted-foreground/50 shrink-0 pt-0.5">{item.time}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </CardContent>
                     </Card>
                 </motion.div>
+
+                {/* ── Recent Datasets ── */}
+                <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.55 }}
+                >
+                    <Card className="bg-background/60 backdrop-blur-xl border border-border/20 rounded-4xl overflow-hidden">
+                        <CardHeader className="p-6 border-b border-border/10">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <CardTitle className="text-base font-black tracking-tight flex items-center gap-2">
+                                        <Database size={14} className="text-blue-500" aria-hidden="true" />
+                                        Recent Datasets
+                                    </CardTitle>
+                                    <CardDescription className="text-[10px] font-bold uppercase tracking-widest mt-0.5">
+                                        Last 5 uploaded files
+                                    </CardDescription>
+                                </div>
+                                <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="rounded-xl text-[10px] font-black uppercase tracking-widest text-blue-500 hover:bg-blue-500/10 transition-all"
+                                    asChild
+                                >
+                                    <Link href="/datasets">
+                                        View all
+                                        <ArrowUpRight size={12} className="ml-1" aria-hidden="true" />
+                                    </Link>
+                                </Button>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="p-0">
+                            <section aria-label="Recent datasets table" className="overflow-x-auto">
+                                <table className="w-full text-sm">
+                                    <thead>
+                                        <tr className="border-b border-border/10">
+                                            <th className="text-left text-[9px] font-black uppercase tracking-widest text-muted-foreground px-6 py-3">Name</th>
+                                            <th className="text-left text-[9px] font-black uppercase tracking-widest text-muted-foreground px-6 py-3 hidden sm:table-cell">Rows</th>
+                                            <th className="text-left text-[9px] font-black uppercase tracking-widest text-muted-foreground px-6 py-3">Status</th>
+                                            <th className="text-left text-[9px] font-black uppercase tracking-widest text-muted-foreground px-6 py-3 hidden md:table-cell">Updated</th>
+                                            <th className="px-6 py-3" aria-label="Actions" />
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+                                        {RECENT_DATASETS.map((ds) => {
+                                            const cfg = STATUS_CONFIG[ds.status];
+                                            return (
+                                                <tr
+                                                    key={ds.name}
+                                                    className="border-b border-border/5 hover:bg-secondary/30 transition-colors group"
+                                                >
+                                                    <td className="px-6 py-4">
+                                                        <p className="font-bold text-sm text-foreground/80 truncate max-w-50">{ds.name}</p>
+                                                    </td>
+                                                    <td className="px-6 py-4 hidden sm:table-cell">
+                                                        <span className="text-xs font-bold text-muted-foreground">{ds.rows}</span>
+                                                    </td>
+                                                    <td className="px-6 py-4">
+                                                        <span className={cn(
+                                                            "inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border",
+                                                            cfg.className
+                                                        )}>
+                                                            <cfg.icon size={10} aria-hidden="true" />
+                                                            {cfg.label}
+                                                        </span>
+                                                    </td>
+                                                    <td className="px-6 py-4 hidden md:table-cell">
+                                                        <span className="text-[10px] font-bold text-muted-foreground/60">{ds.updated}</span>
+                                                    </td>
+                                                    <td className="px-6 py-4 text-right">
+                                                        <Button
+                                                            variant="ghost"
+                                                            size="sm"
+                                                            className="opacity-0 group-hover:opacity-100 rounded-xl text-[10px] font-black text-blue-500 hover:bg-blue-500/10 transition-all h-7 px-3"
+                                                            asChild
+                                                        >
+                                                            <Link href="/datasets" aria-label={`Open ${ds.name}`}>
+                                                                Open <ArrowUpRight size={11} className="ml-1" aria-hidden="true" />
+                                                            </Link>
+                                                        </Button>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })}
+                                    </tbody>
+                                </table>
+                            </section>
+                        </CardContent>
+                    </Card>
+                </motion.div>
+
             </div>
         </main>
     );

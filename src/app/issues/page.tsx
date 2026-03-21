@@ -1,6 +1,4 @@
-
 "use client";
-
 import React from "react";
 import {
     AlertCircle,
@@ -334,7 +332,7 @@ export default function IssuesPage() {
                             <tbody>
                                 {Object.entries(overview.columns).map(([colName, info]) => (
                                     <tr key={colName} className="border-b border-border/10 hover:bg-primary/5">
-                                        <td className="px-3 py-1.5 text-[11px] font-bold truncate max-w-[120px]">{colName}</td>
+                                        <td className="px-3 py-1.5 text-[11px] font-bold truncate max-w-30">{colName}</td>
                                         <td className="px-3 py-1.5 text-[11px] font-mono text-muted-foreground">{info.dtype}</td>
                                         <td className={cn("px-3 py-1.5 text-[11px] font-bold", info.null_count > 0 && "text-red-500")}>{info.null_count}</td>
                                     </tr>
@@ -364,7 +362,7 @@ export default function IssuesPage() {
                                 <tbody>
                                     {Object.entries(overview.numeric_summary).map(([colName, s]) => (
                                         <tr key={colName} className="border-b border-border/10 hover:bg-primary/5">
-                                            <td className="px-3 py-1.5 text-[11px] font-bold truncate max-w-[90px]">{colName}</td>
+                                            <td className="px-3 py-1.5 text-[11px] font-bold truncate max-w-22.5">{colName}</td>
                                             <td className="px-3 py-1.5 text-[11px] font-mono">{s.mean?.toFixed(1) ?? "-"}</td>
                                             <td className="px-3 py-1.5 text-[11px] font-mono">{s.std?.toFixed(1) ?? "-"}</td>
                                             <td className="px-3 py-1.5 text-[11px] font-mono">{s.min?.toFixed(1) ?? "-"}</td>
@@ -473,9 +471,9 @@ export default function IssuesPage() {
                     <td className="px-4 py-3 text-xs font-black">
                         <Badge variant="secondary" className="text-[9px] font-black">{issue.issue_type}</Badge>
                     </td>
-                    <td className="px-4 py-3 text-xs text-muted-foreground max-w-[240px]">{issue.description}</td>
+                    <td className="px-4 py-3 text-xs text-muted-foreground max-w-60">{issue.description}</td>
                     <td className="px-4 py-3 text-xs font-bold text-center">{issue.affected_rows ?? "-"}</td>
-                    <td className="px-4 py-3 text-xs max-w-[220px] text-foreground/80">{issue.suggested_fix || "-"}</td>
+                    <td className="px-4 py-3 text-xs max-w-55 text-foreground/80">{issue.suggested_fix || "-"}</td>
                     <td className="px-4 py-3">
                         <Button
                             variant="ghost"
@@ -502,9 +500,9 @@ export default function IssuesPage() {
     return (
         <main className="min-h-screen pt-16 pb-12 px-6 md:px-12 bg-zinc-50/50 dark:bg-zinc-950/50 relative z-0">
             <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
-                <div className="absolute top-[0%] right-1/2 translate-x-1/2 w-[800px] h-[600px] bg-red-500/5 blur-[150px] rounded-full" />
-                <div className="absolute bottom-[0%] left-[-10%] w-[600px] h-[600px] bg-amber-500/5 blur-[120px] rounded-full" />
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-size-[24px_24px]" />
+                <div className="absolute top-[0%] right-1/2 translate-x-1/2 w-200 h-150 bg-red-500/5 blur-[150px] rounded-full" />
+                <div className="absolute bottom-[0%] left-[-10%] w-150 h-150 bg-amber-500/5 blur-[120px] rounded-full" />
             </div>
 
             <div className="max-w-7xl mx-auto space-y-8">
@@ -518,7 +516,7 @@ export default function IssuesPage() {
                         <div className="flex items-center gap-2 text-red-500 font-bold text-[10px] tracking-[0.3em] uppercase">
                             <AlertCircle size={14} className="text-red-500" /> Data Integrity Unit
                         </div>
-                        <h1 className="text-3xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-foreground to-foreground/70 leading-[1.1]">
+                        <h1 className="text-3xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-linear-to-b from-foreground to-foreground/70 leading-[1.1]">
                             Incident Ledger
                         </h1>
                         <p className="text-muted-foreground mt-1 text-sm md:text-base max-w-xl leading-relaxed italic font-medium">
@@ -527,21 +525,21 @@ export default function IssuesPage() {
                     </motion.div>
 
                     <div className="flex flex-wrap gap-3">
-                        <Card className="flex-1 min-w-[140px] bg-background/40 backdrop-blur-md border border-border/40 p-3 rounded-2xl shadow-sm">
+                        <Card className="flex-1 min-w-35 bg-background/40 backdrop-blur-md border border-border/40 p-3 rounded-2xl shadow-sm">
                             <p className="text-[9px] uppercase font-black text-muted-foreground tracking-widest mb-1">Total Issues</p>
                             <div className="flex items-center gap-2">
                                 <ShieldAlert size={14} className="text-red-500" />
                                 <span className="text-xl font-black">{stats.total}</span>
                             </div>
                         </Card>
-                        <Card className="flex-1 min-w-[140px] bg-background/40 backdrop-blur-md border border-border/40 p-3 rounded-2xl shadow-sm">
+                        <Card className="flex-1 min-w-35 bg-background/40 backdrop-blur-md border border-border/40 p-3 rounded-2xl shadow-sm">
                             <p className="text-[9px] uppercase font-black text-muted-foreground tracking-widest mb-1">Columns Affected</p>
                             <div className="flex items-center gap-2">
                                 <Filter size={14} className="text-emerald-500" />
                                 <span className="text-xl font-black">{stats.uniqueColumns}</span>
                             </div>
                         </Card>
-                        <Card className="flex-1 min-w-[140px] bg-background/40 backdrop-blur-md border border-border/40 p-3 rounded-2xl shadow-sm">
+                        <Card className="flex-1 min-w-35 bg-background/40 backdrop-blur-md border border-border/40 p-3 rounded-2xl shadow-sm">
                             <p className="text-[9px] uppercase font-black text-muted-foreground tracking-widest mb-1">Dataset-Level</p>
                             <div className="flex items-center gap-2">
                                 <Database size={14} className="text-amber-500" />
@@ -567,11 +565,11 @@ export default function IssuesPage() {
                             <DropdownMenuTrigger asChild>
                                 <Button
                                     variant="outline"
-                                    className="h-12 px-5 rounded-2xl border-border/40 bg-background/50 backdrop-blur-sm font-bold text-xs gap-3 hover:bg-background/80 transition-all min-w-[140px] justify-between"
+                                    className="h-12 px-5 rounded-2xl border-border/40 bg-background/50 backdrop-blur-sm font-bold text-xs gap-3 hover:bg-background/80 transition-all min-w-35 justify-between"
                                 >
                                     <div className="flex items-center gap-2">
                                         <Database className="h-3.5 w-3.5 text-primary/70" />
-                                        <span className="max-w-[120px] truncate">
+                                        <span className="max-w-30 truncate">
                                             {selectedDataset === "all"
                                                 ? "Select Dataset"
                                                 : datasets.find((d) => d.id === Number.parseInt(selectedDataset))?.file_name || "Select Dataset"}
@@ -752,7 +750,7 @@ function IssuesContent({
                                 />
                             ) : (
                                 <div className="flex flex-col items-center justify-center py-20 text-center space-y-6 bg-muted/5 rounded-[2.5rem] border border-dashed border-border/60">
-                                    <div className="p-8 rounded-[2rem] bg-emerald-500/10 text-emerald-500/30 shadow-inner">
+                                    <div className="p-8 rounded-4xl bg-emerald-500/10 text-emerald-500/30 shadow-inner">
                                         <ShieldAlert className="h-14 w-14" />
                                     </div>
                                     <div className="max-w-sm space-y-2">

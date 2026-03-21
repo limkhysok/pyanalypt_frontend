@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, AlertCircle, Mail, Lock, Sparkles } from "lucide-react";
 import { useGoogleLogin } from "@react-oauth/google";
 import { authApi } from "@/services/auth.service";
-import { getErrorMessage, formatFieldErrors } from "@/lib/error-handler";
+import { getErrorMessage } from "@/lib/error-handler";
 
 // Shared Layout Component
 function AuthLayout({ children, title, subtitle }: Readonly<{ children: React.ReactNode, title: string, subtitle: string }>) {
@@ -16,10 +16,10 @@ function AuthLayout({ children, title, subtitle }: Readonly<{ children: React.Re
 		<main className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-background text-foreground p-4">
 			{/* Background Ambience */}
 			<div className="fixed top-0 left-0 w-full h-full pointer-events-none z-0 overflow-hidden">
-				<div className="absolute top-[20%] left-[20%] w-[600px] h-[600px] bg-foreground/5 rounded-full blur-[120px] translate-z-0" />
-				<div className="absolute bottom-[-10%] right-[-10%] w-[500px] h-[500px] bg-secondary/40 rounded-full blur-[100px] translate-z-0" />
+				<div className="absolute top-[20%] left-[20%] w-150 h-150 bg-foreground/5 rounded-full blur-[120px] translate-z-0" />
+				<div className="absolute bottom-[-10%] right-[-10%] w-125 h-125 bg-secondary/40 rounded-full blur-[100px] translate-z-0" />
 			</div>
-			<div className="relative z-10 w-full max-w-[420px] animation-in fade-in zoom-in duration-500">
+			<div className="relative z-10 w-full max-w-105 animation-in fade-in zoom-in duration-500">
 				<div className="mb-8 text-center flex flex-col items-center gap-2">
 					<Link href="/" className="p-2 rounded-xl bg-foreground text-background transition-transform hover:scale-110 mb-4">
 						<Sparkles size={24} fill="currentColor" />
@@ -63,7 +63,7 @@ export default function Login() {
 	const [password, setPassword] = React.useState("");
 	const [error, setError] = React.useState<string | null>(null);
 
-	const handleSubmit = async (e: React.FormEvent) => {
+	const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setIsLoading(true);
 		setError(null);

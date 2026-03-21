@@ -7,9 +7,8 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
-import { Mail, Calendar, ArrowRight, ShieldCheck, Fingerprint, CheckCircle2, Sparkles, Camera } from "lucide-react";
+import { ArrowRight, ShieldCheck, Fingerprint, CheckCircle2, Sparkles, Camera } from "lucide-react";
 
 export default function ProfilePage() {
     const { user, isLoading } = useAuth();

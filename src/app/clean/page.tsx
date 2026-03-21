@@ -1,7 +1,5 @@
 "use client";
 
-"use client";
-
 import React, { useEffect, useState } from "react";
 import { Sparkles, RotateCcw, PlusCircle } from "lucide-react";
 import { cleaningApi, CleaningOperation } from "@/services/cleaning.service";
@@ -14,7 +12,6 @@ export default function CleanPage() {
     const [operations, setOperations] = useState<CleaningOperation[]>([]);
     const [loading, setLoading] = useState(false);
     const [showNewOp, setShowNewOp] = useState(false);
-    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
         datasetApi.listDatasets().then(setDatasets);
@@ -68,49 +65,51 @@ export default function CleanPage() {
             </div>
             {loading ? (
                 <div>Loading operations...</div>
-            ) : selectedDataset ? (
-                <div className="mt-6">
-                    <h2 className="text-lg font-semibold mb-2">Cleaning Operations</h2>
-                    {operations.length === 0 ? (
-                        <div className="text-muted-foreground">No cleaning operations found.</div>
-                    ) : (
-                        <table className="w-full border text-sm">
-                            <thead>
-                                <tr className="bg-muted">
-                                    <th className="p-2">ID</th>
-                                    <th className="p-2">Type</th>
-                                    <th className="p-2">Column</th>
-                                    <th className="p-2">Status</th>
-                                    <th className="p-2">Rows</th>
-                                    <th className="p-2">Applied</th>
-                                    <th className="p-2">Actions</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {operations.map(op => (
-                                    <tr key={op.id} className="border-t">
-                                        <td className="p-2">{op.id}</td>
-                                        <td className="p-2">{op.operation_type}</td>
-                                        <td className="p-2">{op.column_name}</td>
-                                        <td className="p-2">{op.status}</td>
-                                        <td className="p-2">{op.rows_affected ?? '-'}</td>
-                                        <td className="p-2">{op.applied_at ? new Date(op.applied_at).toLocaleString() : '-'}</td>
-                                        <td className="p-2">
-                                            <button
-                                                className="flex items-center gap-1 text-xs text-blue-600 hover:underline"
-                                                onClick={() => handleRevert(op.id)}
-                                                disabled={op.status !== "APPLIED"}
-                                            >
-                                                <RotateCcw className="h-4 w-4" /> Revert
-                                            </button>
-                                        </td>
+            ) : (
+                selectedDataset && (
+                    <div className="mt-6">
+                        <h2 className="text-lg font-semibold mb-2">Cleaning Operations</h2>
+                        {operations.length === 0 ? (
+                            <div className="text-muted-foreground">No cleaning operations found.</div>
+                        ) : (
+                            <table className="w-full border text-sm">
+                                <thead>
+                                    <tr className="bg-muted">
+                                        <th className="p-2">ID</th>
+                                        <th className="p-2">Type</th>
+                                        <th className="p-2">Column</th>
+                                        <th className="p-2">Status</th>
+                                        <th className="p-2">Rows</th>
+                                        <th className="p-2">Applied</th>
+                                        <th className="p-2">Actions</th>
                                     </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    )}
-                </div>
-            ) : null}
+                                </thead>
+                                <tbody>
+                                    {operations.map(op => (
+                                        <tr key={op.id} className="border-t">
+                                            <td className="p-2">{op.id}</td>
+                                            <td className="p-2">{op.operation_type}</td>
+                                            <td className="p-2">{op.column_name}</td>
+                                            <td className="p-2">{op.status}</td>
+                                            <td className="p-2">{op.rows_affected ?? '-'}</td>
+                                            <td className="p-2">{op.applied_at ? new Date(op.applied_at).toLocaleString() : '-'}</td>
+                                            <td className="p-2">
+                                                <button
+                                                    className="flex items-center gap-1 text-xs text-blue-600 hover:underline"
+                                                    onClick={() => handleRevert(op.id)}
+                                                    disabled={op.status !== "APPLIED"}
+                                                >
+                                                    <RotateCcw className="h-4 w-4" /> Revert
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        )}
+                    </div>
+                )
+            )}
             {/* Modal for new operation (to be implemented) */}
             {showNewOp && (
                 <div className="fixed inset-0 bg-black/30 flex items-center justify-center z-50">

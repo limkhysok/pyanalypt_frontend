@@ -257,8 +257,8 @@ export default function DatasetPreviewPage() {
     return (
         <main className="min-h-screen pt-24 pb-12 px-6 md:px-12 bg-zinc-50/50 dark:bg-zinc-950/50 relative">
             <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:100px_100px]" />
-                <div className="absolute top-[0%] left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-primary/5 blur-[150px] rounded-full" />
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-size-[100px_100px]" />
+                <div className="absolute top-[0%] left-1/2 -translate-x-1/2 w-200 h-150 bg-primary/5 blur-[150px] rounded-full" />
             </div>
 
             <div className="max-w-7xl mx-auto space-y-8">
@@ -312,7 +312,7 @@ export default function DatasetPreviewPage() {
                             <span className="text-sm font-black">{columns.length} Cols</span>
                         </div>
                         <Separator orientation="vertical" className="h-8" />
-                        <div className="relative w-[170px]">
+                        <div className="relative w-42.5">
                             <select
                                 value={rowLimit}
                                 onChange={(e) => setRowLimit(e.target.value as "10" | "50" | "100" | "max")}

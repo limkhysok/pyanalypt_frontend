@@ -66,6 +66,10 @@ function formatFileSize(bytes: number): string {
 	return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
 }
 
+function isExportNotFoundError(error: unknown, status: number | undefined): boolean {
+	return status === 404 || (error instanceof Error && error.message.includes("Export endpoint not found"));
+}
+
 export default function DatasetPage() {
 	const { isAuthenticated, isLoading: authLoading } = useAuth();
 	const router = useRouter();
@@ -229,20 +233,20 @@ export default function DatasetPage() {
 			const fallbackName = `${dataset.file_name.replace(/\.[^.]+$/, "")}.${fallbackExt}`;
 			const downloadName = filename ? decodeURIComponent(filename) : fallbackName;
 
-			const url = window.URL.createObjectURL(blob);
+			const url = globalThis.URL.createObjectURL(blob);
 			const anchor = document.createElement("a");
 			anchor.href = url;
 			anchor.download = downloadName;
 			document.body.appendChild(anchor);
 			anchor.click();
 			anchor.remove();
-			window.URL.revokeObjectURL(url);
+			globalThis.URL.revokeObjectURL(url);
 
 			toast.success("Export ready.");
 		} catch (error) {
 			const sourceFormat = normalizeExportFormat(dataset.file_format);
 			const status = (error as { response?: { status?: number } })?.response?.status;
-			const isNotFoundError = status === 404 || (error instanceof Error && error.message.includes("Export endpoint not found"));
+			const isNotFoundError = isExportNotFoundError(error, status);
 			const shouldTryDirectFallback = !explicitFormat || explicitFormat === sourceFormat || isNotFoundError;
 
 			if (!shouldTryDirectFallback) {
@@ -265,14 +269,14 @@ export default function DatasetPage() {
 				const fallbackExt = normalizeExportFormat(dataset.file_format) ?? "csv";
 				const fallbackName = dataset.file_name || `dataset-${dataset.id}.${fallbackExt}`;
 
-				const url = window.URL.createObjectURL(blob);
+				const url = globalThis.URL.createObjectURL(blob);
 				const anchor = document.createElement("a");
 				anchor.href = url;
 				anchor.download = fallbackName;
 				document.body.appendChild(anchor);
 				anchor.click();
 				anchor.remove();
-				window.URL.revokeObjectURL(url);
+				globalThis.URL.revokeObjectURL(url);
 
 				if (explicitFormat && explicitFormat !== sourceFormat) {
 					toast.warning(`Converted export unavailable. Downloaded original ${dataset.file_format.toUpperCase()} file instead.`);
@@ -591,9 +595,9 @@ export default function DatasetPage() {
 		<main className="min-h-screen pt-20 pb-8 px-6 md:px-12 bg-zinc-50/50 dark:bg-zinc-950/50 relative z-0">
 			{/* Background Ambience */}
 			<div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
-				<div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:100px_100px]" />
-				<div className="absolute top-[0%] left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-primary/5 blur-[120px] rounded-full" />
-				<div className="absolute bottom-[0%] right-[-10%] w-[500px] h-[500px] bg-emerald-500/5 blur-[100px] rounded-full" />
+				<div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-size-[100px_100px]" />
+				<div className="absolute top-[0%] left-1/2 -translate-x-1/2 w-200 h-125 bg-primary/5 blur-[120px] rounded-full" />
+				<div className="absolute bottom-[0%] right-[-10%] w-125 h-125 bg-emerald-500/5 blur-[100px] rounded-full" />
 			</div>
 
 			<div className="max-w-7xl mx-auto space-y-8">
@@ -613,7 +617,7 @@ export default function DatasetPage() {
 							</span>{" "}
 							Import Your Dataset
 						</div>
-						<h1 className="text-3xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-b from-foreground to-foreground/70 leading-tight">
+						<h1 className="text-3xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-linear-to-b from-foreground to-foreground/70 leading-tight">
 							Datasets
 						</h1>
 						<p className="text-muted-foreground mt-2 text-base max-w-lg leading-relaxed font-medium">
@@ -686,7 +690,7 @@ export default function DatasetPage() {
 							</DropdownMenuContent>
 						</DropdownMenu>
 
-						<div className="relative group/search flex-1 sm:min-w-[280px]">
+						<div className="relative group/search flex-1 sm:min-w-70">
 							<Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/60 group-focus-within/search:text-primary transition-colors" />
 							<Input
 								placeholder="Search files..."
@@ -730,7 +734,7 @@ export default function DatasetPage() {
 
 			{/* Import Dialog */}
 			<Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
-				<DialogContent className="sm:max-w-[460px] border-border/40 bg-background/95 backdrop-blur-xl rounded-[2rem]">
+				<DialogContent className="sm:max-w-115 border-border/40 bg-background/95 backdrop-blur-xl rounded-4xl">
 					<DialogHeader className="space-y-1">
 						<DialogTitle className="text-xl font-black tracking-tight text-foreground">Choose Import Format</DialogTitle>
 						<DialogDescription className="text-sm font-semibold text-muted-foreground">
@@ -776,7 +780,7 @@ export default function DatasetPage() {
             
 			{/* Rename Dialog */}
 			<Dialog open={isRenameOpen} onOpenChange={setIsRenameOpen}>
-				<DialogContent className="sm:max-w-[425px] border-border/40 bg-background/95 backdrop-blur-xl rounded-[2rem]">
+				<DialogContent className="sm:max-w-106.25 border-border/40 bg-background/95 backdrop-blur-xl rounded-4xl">
 					<DialogHeader className="space-y-1">
 						<DialogTitle className="text-xl font-black tracking-tight text-foreground">
 							Rename File
@@ -805,11 +809,11 @@ export default function DatasetPage() {
 
 			{/* Delete Dialog */}
 			<Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-				<DialogContent className="sm:max-w-[425px] border-border/40 bg-background/95 backdrop-blur-xl rounded-[2rem]">
+				<DialogContent className="sm:max-w-106.25 border-border/40 bg-background/95 backdrop-blur-xl rounded-4xl">
 					<DialogHeader>
 						<DialogTitle className="text-xl font-black">Are you sure to delete?</DialogTitle>
 						<DialogDescription className="text-muted-foreground text-xs font-bold tracking-wide">
-							This action will permanently delete {deleteTarget?.file_name ? `\"${deleteTarget.file_name}\"` : "this dataset"} and cannot be undone.
+							This action will permanently delete {deleteTarget?.file_name ? `"${deleteTarget.file_name}"` : "this dataset"} and cannot be undone.
 						</DialogDescription>
 					</DialogHeader>
 					<div className="flex justify-end gap-3 pt-2">

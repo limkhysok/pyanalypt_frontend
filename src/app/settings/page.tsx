@@ -3,7 +3,7 @@
 import React from "react";
 import { useAuth } from "@/context/auth-context";
 import { motion, AnimatePresence } from "motion/react";
-import { User, Shield, Monitor, Bell, CreditCard, Lock, ShieldCheck, LogOut, Eye } from "lucide-react";
+import { User, Shield, Monitor, Bell, CreditCard, Camera, Save, Settings } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,6 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
-import { Camera, Save, Settings } from "lucide-react";
 
 const SESSIONS = [
     {
@@ -80,7 +79,7 @@ const ProfileSettingsTab = () => {
                             <div className="relative group">
                                 <Avatar className="h-28 w-28 border-4 border-background ring-2 ring-primary/20 shadow-2xl transition-transform group-hover:scale-105">
                                     <AvatarImage src={user?.profile_picture ?? undefined} />
-                                    <AvatarFallback className="text-2xl bg-gradient-to-br from-primary/20 to-primary/5 text-primary font-bold">
+                                    <AvatarFallback className="text-2xl bg-linear-to-br from-primary/20 to-primary/5 text-primary font-bold">
                                         {user?.username?.substring(0, 2).toUpperCase()}
                                     </AvatarFallback>
                                 </Avatar>
@@ -161,7 +160,7 @@ const SETTINGS_TABS = [
 ];
 
 export default function SettingsPage() {
-    const { user, isLoading } = useAuth();
+    const { isLoading } = useAuth();
     const [activeTab, setActiveTab] = React.useState("general");
 
     const containerVariants = {
