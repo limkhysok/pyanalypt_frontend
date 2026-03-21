@@ -70,6 +70,24 @@ function isExportNotFoundError(error: unknown, status: number | undefined): bool
 	return status === 404 || (error instanceof Error && error.message.includes("Export endpoint not found"));
 }
 
+function getFormatBadgeClass(format: string): string {
+	const f = format.toLowerCase();
+	if (f === "csv") return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20";
+	if (f === "json") return "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20";
+	if (f === "xlsx" || f === "xls") return "bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20";
+	if (f === "parquet" || f === "pq") return "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20";
+	return "bg-secondary/40 border-none";
+}
+
+function getFormatIconClass(format: string): string {
+	const f = format.toLowerCase();
+	if (f === "csv") return "text-emerald-500 bg-emerald-500/10";
+	if (f === "json") return "text-blue-500 bg-blue-500/10";
+	if (f === "xlsx" || f === "xls") return "text-orange-500 bg-orange-500/10";
+	if (f === "parquet" || f === "pq") return "text-purple-500 bg-purple-500/10";
+	return "text-primary bg-primary/10";
+}
+
 export default function DatasetPage() {
 	const { isAuthenticated, isLoading: authLoading } = useAuth();
 	const router = useRouter();
@@ -105,12 +123,10 @@ export default function DatasetPage() {
 	}, []);
 
 	useEffect(() => {
-		if (!authLoading && !isAuthenticated) {
-			router.push("/login");
-		} else if (isAuthenticated) {
+		if (!authLoading && isAuthenticated) {
 			fetchDatasets();
 		}
-	}, [authLoading, isAuthenticated, router, fetchDatasets]);
+	}, [authLoading, isAuthenticated, fetchDatasets]);
 
 	const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
 		const file = e.target.files?.[0];
@@ -149,7 +165,7 @@ export default function DatasetPage() {
 		setIsImportOpen(false);
 
 		// Wait for dialog close animation to avoid click interruption.
-		globalThis.window.setTimeout(() => {
+		globalThis.setTimeout(() => {
 			openFilePicker(format);
 		}, 30);
 	};
@@ -329,7 +345,7 @@ export default function DatasetPage() {
 	if (authLoading) {
 		return (
 			<div className="min-h-screen flex items-center justify-center">
-				<Loader2 className="h-8 w-8 text-primary animate-spin" />
+				<Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
 			</div>
 		);
 	}
@@ -362,21 +378,21 @@ export default function DatasetPage() {
 									animate={{ opacity: 1, y: 0 }}
 									exit={{ opacity: 0 }}
 									transition={{ duration: 0.2, delay: idx * 0.02 }}
-									className="border-b border-border/10 hover:bg-primary/5 transition-colors group"
+									className="border-b border-border/10 hover:bg-blue-500/5 transition-colors group"
 								>
 									<td className="px-4 py-4 text-center text-xs font-bold text-muted-foreground/60">
 										{idx + 1}
 									</td>
 									<td className="px-6 py-4">
 										<div className="flex items-center gap-3">
-											<div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-												<FileText className="h-4 w-4 text-primary" />
+											<div className={`h-8 w-8 rounded-lg flex items-center justify-center ${getFormatIconClass(dataset.file_format)}`}>
+												<FileText className="h-4 w-4" />
 											</div>
 											<span className="text-xs font-black tracking-tight">{dataset.file_name}</span>
 										</div>
 									</td>
 									<td className="px-6 py-4">
-										<Badge variant="secondary" className="text-[8px] font-black uppercase bg-secondary/40 border-none h-5 px-1.5">
+										<Badge className={`text-[8px] font-black uppercase h-5 px-1.5 ${getFormatBadgeClass(dataset.file_format)}`}>
 											{dataset.file_format}
 										</Badge>
 									</td>
@@ -391,7 +407,7 @@ export default function DatasetPage() {
 											<Button
 												variant="ghost"
 												size="icon"
-												className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+												className="h-8 w-8 rounded-lg text-muted-foreground/40 hover:bg-blue-500/10 hover:text-blue-500 transition-all"
 												onClick={() => router.push(`/datasets/${dataset.id}/preview`)}
 												title="Preview"
 											>
@@ -401,7 +417,7 @@ export default function DatasetPage() {
 												variant="ghost"
 												size="icon"
 												disabled={issueLoading === dataset.id}
-												className="h-8 w-8 rounded-lg hover:bg-red-500/10 hover:text-red-500 transition-colors"
+												className="h-8 w-8 rounded-lg text-muted-foreground/40 hover:bg-red-500/10 hover:text-red-500 transition-all"
 												onClick={() => handleDiagnose(dataset.id)}
 												title="Issue"
 											>
@@ -414,7 +430,7 @@ export default function DatasetPage() {
 											<Button
 												variant="ghost"
 												size="icon"
-												className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+												className="h-8 w-8 rounded-lg text-muted-foreground/40 hover:bg-blue-500/10 hover:text-blue-500 transition-all"
 												onClick={() => router.push(`/datasets/${dataset.id}/clean`)}
 												title="Clean"
 											>
@@ -423,7 +439,7 @@ export default function DatasetPage() {
 											<Button
 												variant="ghost"
 												size="icon"
-												className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+												className="h-8 w-8 rounded-lg text-muted-foreground/40 hover:bg-blue-500/10 hover:text-blue-500 transition-all"
 												onClick={() => router.push(`/datasets/${dataset.id}/analyze`)}
 												title="Analysis"
 											>
@@ -432,7 +448,7 @@ export default function DatasetPage() {
 											<Button
 												variant="ghost"
 												size="icon"
-												className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+												className="h-8 w-8 rounded-lg text-muted-foreground/40 hover:bg-blue-500/10 hover:text-blue-500 transition-all"
 												onClick={() => router.push(`/datasets/${dataset.id}/visualize`)}
 												title="Visualization"
 											>
@@ -441,7 +457,7 @@ export default function DatasetPage() {
 											<Button
 												variant="ghost"
 												size="icon"
-												className="h-8 w-8 rounded-lg hover:bg-primary/10 hover:text-primary transition-colors"
+												className="h-8 w-8 rounded-lg text-muted-foreground/40 hover:bg-blue-500/10 hover:text-blue-500 transition-all"
 												onClick={() => router.push(`/datasets/${dataset.id}/insight`)}
 												title="Insight"
 											>
@@ -577,7 +593,7 @@ export default function DatasetPage() {
 					</div>
 					<Button
 						size="lg"
-						className="rounded-xl h-12 px-8 font-black tracking-widest uppercase text-[10px] shadow-lg shadow-primary/10"
+						className="rounded-xl h-12 px-8 font-black tracking-widest uppercase text-[10px] bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/20"
 						onClick={openImportDialog}
 						disabled={uploadLoading}
 					>
@@ -592,14 +608,7 @@ export default function DatasetPage() {
 	}
 
 	return (
-		<main className="min-h-screen pt-20 pb-8 px-6 md:px-12 bg-zinc-50/50 dark:bg-zinc-950/50 relative z-0">
-			{/* Background Ambience */}
-			<div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
-				<div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-size-[100px_100px]" />
-				<div className="absolute top-[0%] left-1/2 -translate-x-1/2 w-200 h-125 bg-primary/5 blur-[120px] rounded-full" />
-				<div className="absolute bottom-[0%] right-[-10%] w-125 h-125 bg-emerald-500/5 blur-[100px] rounded-full" />
-			</div>
-
+		<main className="min-h-screen pt-20 pb-8 px-6 md:px-12 bg-background">
 			<div className="max-w-7xl mx-auto space-y-8">
 				{/* Header omitted for brevity in search but included in full content if needed */}
 				{/* ... existing header logic ... */}
@@ -643,16 +652,16 @@ export default function DatasetPage() {
 								<DropdownMenuLabel className="text-[9px] uppercase font-black tracking-[0.2em] text-muted-foreground/50 px-3 py-2">Sort By</DropdownMenuLabel>
 								<DropdownMenuSeparator className="bg-border/40 my-1" />
 								<DropdownMenuRadioGroup value={sortBy} onValueChange={setSortBy}>
-									<DropdownMenuRadioItem value="newest" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
+									<DropdownMenuRadioItem value="newest" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-blue-500/10 focus:text-blue-500 transition-colors">
 										<Calendar className="mr-2 h-3.5 w-3.5 opacity-50" /> Newest First
 									</DropdownMenuRadioItem>
-									<DropdownMenuRadioItem value="oldest" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
+									<DropdownMenuRadioItem value="oldest" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-blue-500/10 focus:text-blue-500 transition-colors">
 										<Calendar className="mr-2 h-3.5 w-3.5 opacity-50" /> Oldest First
 									</DropdownMenuRadioItem>
-									<DropdownMenuRadioItem value="name_asc" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
+									<DropdownMenuRadioItem value="name_asc" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-blue-500/10 focus:text-blue-500 transition-colors">
 										<ArrowUpAz className="mr-2 h-3.5 w-3.5 opacity-50" /> Name (A-Z)
 									</DropdownMenuRadioItem>
-									<DropdownMenuRadioItem value="name_desc" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
+									<DropdownMenuRadioItem value="name_desc" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-blue-500/10 focus:text-blue-500 transition-colors">
 										<ArrowDownAz className="mr-2 h-3.5 w-3.5 opacity-50" /> Name (Z-A)
 									</DropdownMenuRadioItem>
 								</DropdownMenuRadioGroup>
@@ -671,19 +680,19 @@ export default function DatasetPage() {
 								<DropdownMenuLabel className="text-[9px] uppercase font-black tracking-[0.2em] text-muted-foreground/50 px-3 py-2">Filter By Format</DropdownMenuLabel>
 								<DropdownMenuSeparator className="bg-border/40 my-1" />
 								<DropdownMenuRadioGroup value={filterType} onValueChange={setFilterType}>
-									<DropdownMenuRadioItem value="all" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
+									<DropdownMenuRadioItem value="all" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-blue-500/10 focus:text-blue-500 transition-colors">
 										All Formats
 									</DropdownMenuRadioItem>
-									<DropdownMenuRadioItem value="CSV" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
+									<DropdownMenuRadioItem value="CSV" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-blue-500/10 focus:text-blue-500 transition-colors">
 										CSV
 									</DropdownMenuRadioItem>
-									<DropdownMenuRadioItem value="JSON" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
+									<DropdownMenuRadioItem value="JSON" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-blue-500/10 focus:text-blue-500 transition-colors">
 										JSON
 									</DropdownMenuRadioItem>
-									<DropdownMenuRadioItem value="XLSX" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
+									<DropdownMenuRadioItem value="XLSX" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-blue-500/10 focus:text-blue-500 transition-colors">
 										Excel
 									</DropdownMenuRadioItem>
-									<DropdownMenuRadioItem value="PARQUET" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-primary/10 focus:text-primary transition-colors">
+									<DropdownMenuRadioItem value="PARQUET" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-blue-500/10 focus:text-blue-500 transition-colors">
 										Parquet
 									</DropdownMenuRadioItem>
 								</DropdownMenuRadioGroup>
@@ -694,7 +703,7 @@ export default function DatasetPage() {
 							<Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/60 group-focus-within/search:text-primary transition-colors" />
 							<Input
 								placeholder="Search files..."
-								className="pl-10 h-10 bg-background/50 border-border/40 focus:border-primary/40 focus:ring-4 focus:ring-primary/5 rounded-xl text-xs font-bold transition-all placeholder:text-muted-foreground/40 shadow-sm"
+								className="pl-10 h-10 bg-background/50 border-border/40 focus:border-blue-500/40 focus:ring-4 focus:ring-blue-500/5 rounded-xl text-xs font-bold transition-all placeholder:text-muted-foreground/40 shadow-sm"
 								value={searchQuery}
 								onChange={(e) => setSearchQuery(e.target.value)}
 							/>
@@ -702,7 +711,7 @@ export default function DatasetPage() {
 
 						<Button
 							size="sm"
-							className="h-10 px-6 rounded-xl font-black tracking-widest text-[10px] uppercase bg-foreground text-background hover:bg-primary transition-all duration-300 hover:ambient-glow-mono shadow-lg shadow-foreground/5 group"
+							className="h-10 px-6 rounded-xl font-black tracking-widest text-[10px] uppercase bg-blue-600 hover:bg-blue-700 text-white transition-all duration-300 shadow-sm shadow-blue-500/20 group"
 							onClick={openImportDialog}
 							disabled={uploadLoading}
 						>
@@ -802,7 +811,7 @@ export default function DatasetPage() {
 					</div>
 					<div className="flex justify-end gap-3">
 						<Button variant="ghost" className="rounded-xl font-bold text-xs" onClick={() => setIsRenameOpen(false)}>Cancel</Button>
-						<Button className="rounded-xl font-black text-xs uppercase tracking-widest bg-primary px-6 h-11" onClick={handleRename}>Update</Button>
+						<Button className="rounded-xl font-black text-xs uppercase tracking-widest bg-blue-600 hover:bg-blue-700 text-white px-6 h-11" onClick={handleRename}>Update</Button>
 					</div>
 				</DialogContent>
 			</Dialog>
