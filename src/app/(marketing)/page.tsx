@@ -42,12 +42,12 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
       {/* 1. Subtle Background Elements */}
       <div className="absolute inset-0 z-0 pointer-events-none">
         <motion.div
-          animate={{ opacity: [0.4, 0.8, 0.4], scale: [1, 1.15, 1] }}
+          animate={{ opacity: [0.4, 0.8, 0.4] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
           className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-200 bg-blue-500/5 blur-[120px] rounded-full"
         />
         <motion.div
-          animate={{ opacity: [0.2, 0.5, 0.2], scale: [1, 1.2, 1] }}
+          animate={{ opacity: [0.2, 0.5, 0.2] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 2 }}
           className="absolute top-1/4 right-1/4 w-80 h-80 bg-blue-600/8 blur-[80px] rounded-full"
         />
@@ -117,15 +117,14 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
             className="relative w-full max-w-2xl mx-auto"
           >
             {/* Main card */}
-            <motion.div
-              animate={{ boxShadow: [
-                "0 25px 50px rgba(0,0,0,0.15), 0 0 0px rgba(59,130,246,0)",
-                "0 25px 50px rgba(0,0,0,0.15), 0 0 60px rgba(59,130,246,0.12)",
-                "0 25px 50px rgba(0,0,0,0.15), 0 0 0px rgba(59,130,246,0)",
-              ]}}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-              className="relative rounded-[2.5rem] bg-background/70 backdrop-blur-xl border border-border/10 shadow-2xl p-6 space-y-5"
-            >
+            <div className="relative rounded-[2.5rem] bg-background/70 backdrop-blur-xl border border-border/10 shadow-2xl p-6 space-y-5">
+              {/* GPU-composited glow pulse via opacity on an absolutely-positioned layer */}
+              <motion.div
+                animate={{ opacity: [0, 0.5, 0] }}
+                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute inset-0 rounded-[2.5rem] shadow-[0_0_60px_rgba(59,130,246,0.2)] pointer-events-none"
+                aria-hidden="true"
+              />
 
               {/* Card header */}
               <div className="flex items-center justify-between">
@@ -197,15 +196,8 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
                       <motion.div
                         key={bar.month}
                         initial={{ scaleY: 0 }}
-                        animate={{ scaleY: [0, 1, 0.9, 1] }}
-                        transition={{
-                          delay: 1.1 + i * 0.08,
-                          duration: 1.2,
-                          ease: "easeInOut",
-                          repeat: Infinity,
-                          repeatDelay: 4,
-                          times: [0, 0.5, 0.75, 1],
-                        }}
+                        animate={{ scaleY: 1 }}
+                        transition={{ delay: 1.1 + i * 0.08, duration: 0.6, ease: "easeOut" }}
                         style={{ height: `${bar.pct}%`, transformOrigin: "bottom" }}
                         className="flex-1 rounded-t bg-blue-500/70"
                       />
@@ -217,8 +209,8 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
               {/* AI Insight callout */}
               <motion.div
                 initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0, borderColor: ["rgba(59,130,246,0.15)", "rgba(59,130,246,0.4)", "rgba(59,130,246,0.15)"] }}
-                transition={{ delay: 1, duration: 0.5, borderColor: { delay: 2, duration: 3, repeat: Infinity, ease: "easeInOut" } }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1, duration: 0.5 }}
                 className="flex items-start gap-3 p-4 rounded-2xl bg-blue-500/8 border border-blue-500/15"
               >
                 <div className="w-6 h-6 rounded-lg bg-blue-600 flex items-center justify-center shrink-0 mt-0.5">
@@ -251,11 +243,11 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
                   </motion.div>
                 ))}
               </div>
-            </motion.div>
+            </div>
 
             {/* Floating badges */}
             <motion.div
-              animate={{ y: [0, -12, 0], boxShadow: ["0 8px 30px rgba(0,0,0,0.12)", "0 8px 30px rgba(59,130,246,0.18)", "0 8px 30px rgba(0,0,0,0.12)"] }}
+              animate={{ y: [0, -12, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
               className="absolute -top-5 -right-4 px-4 py-2.5 rounded-2xl bg-background border border-border/20 shadow-xl z-20 hidden md:flex items-center gap-2"
             >
@@ -264,7 +256,7 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
             </motion.div>
 
             <motion.div
-              animate={{ y: [0, 12, 0], boxShadow: ["0 8px 30px rgba(0,0,0,0.12)", "0 8px 30px rgba(59,130,246,0.18)", "0 8px 30px rgba(0,0,0,0.12)"] }}
+              animate={{ y: [0, 12, 0] }}
               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
               className="absolute -bottom-5 -left-4 px-4 py-2.5 rounded-2xl bg-background border border-border/20 shadow-xl z-20 hidden md:flex items-center gap-2"
             >

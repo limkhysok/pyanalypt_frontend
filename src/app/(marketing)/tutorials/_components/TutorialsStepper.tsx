@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import {
     Database, Wand2, LineChart, BrainCircuit, Presentation,
     FileSpreadsheet, Code2, MessageSquareText,
-    CheckCircle2, ArrowRight, Lightbulb, Play,
+    CheckCircle2, ArrowRight, Lightbulb, 
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { cn } from "@/lib/utils";
