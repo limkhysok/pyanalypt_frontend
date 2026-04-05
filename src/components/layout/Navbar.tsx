@@ -52,7 +52,7 @@ export function Navbar() {
             >
                 {/* ── Brand Unit (Integrated) ── */}
                 <Link href="/" className="flex items-center gap-2.5 px-3 group shrink-0">
-                    <Logo className="w-6 h-6 transition-transform duration-500 group-hover:rotate-12 grayscale" />
+                    <Logo className="w-6 h-6 transition-all duration-500 group-hover:rotate-12 grayscale group-hover:grayscale-0" />
                     <span className="text-[12px] font-black tracking-tighter text-foreground uppercase opacity-80 hidden sm:block">
                         PyAnalypt
                     </span>
@@ -61,7 +61,7 @@ export function Navbar() {
                 <div className="h-4 w-px bg-border/40 mx-1 hidden md:block" />
 
                 {/* ── Navigation HUD Cluster ── */}
-                <nav className="flex items-center gap-1">
+                <nav className="hidden md:flex items-center gap-1">
                     {NAV_ITEMS.map((item) => (
                         <Link
                             key={item.label}
@@ -116,7 +116,7 @@ export function Navbar() {
                             </DropdownMenuContent>
                         </DropdownMenu>
                     ) : !isLoading && (
-                        <div className="hidden lg:flex items-center gap-1">
+                        <div className="hidden md:flex items-center gap-1">
                             <Link href="/login" className="px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground">
                                 Login
                             </Link>
@@ -126,11 +126,11 @@ export function Navbar() {
                         </div>
                     )}
 
-                    <div className="scale-75 opacity-50 hover:opacity-100 transition-opacity">
+                    <div className="scale-75 opacity-50 hover:opacity-100 transition-opacity hidden sm:block">
                         <ModeToggle />
                     </div>
 
-                    <Button variant="ghost" size="icon" className="lg:hidden h-8 w-8 rounded-full hover:bg-muted" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                    <Button variant="ghost" size="icon" className="md:hidden h-8 w-8 rounded-full hover:bg-muted" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
                         {mobileMenuOpen ? <X size={16} /> : <Menu size={16} />}
                     </Button>
                 </div>
@@ -138,21 +138,26 @@ export function Navbar() {
 
             {/* ── Mobile Pill Menu ── */}
             {mobileMenuOpen && (
-                <div className="lg:hidden absolute top-[calc(100%+12px)] inset-x-12 z-40 bg-background/95 backdrop-blur-2xl border border-border/80 rounded-[2rem] p-3 flex flex-col gap-1 shadow-2xl pointer-events-auto">
+                <div className="md:hidden absolute top-[calc(100%+8px)] inset-x-6 z-40 bg-background/95 backdrop-blur-3xl border border-border/80 rounded-[1.5rem] p-3 flex flex-col gap-1 shadow-2xl pointer-events-auto max-w-[320px] mx-auto w-full">
+                    <div className="flex items-center justify-between px-4 py-2 mb-2 border-b border-border/20">
+                         <span className="text-[10px] font-black uppercase tracking-widest opacity-30">Menu Cluster</span>
+                         <ModeToggle />
+                    </div>
                     {NAV_ITEMS.map((item) => (
                         <Link
                             key={item.label}
                             href={item.href}
                             onClick={() => setMobileMenuOpen(false)}
-                            className="p-4 hover:bg-muted rounded-full text-[10px] font-black tracking-[0.2em] uppercase text-muted-foreground hover:text-foreground transition-all text-center"
+                            className="p-4 hover:bg-muted rounded-2xl text-[10px] font-black tracking-[0.2em] uppercase text-muted-foreground hover:text-foreground transition-all text-left flex items-center justify-between"
                         >
                             {item.label}
+                            <span className="opacity-20">/</span>
                         </Link>
                     ))}
                     {!isLoading && !isAuthenticated && (
                         <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-border/40">
-                            <Link href="/login" className="p-3 text-center text-[9px] font-black uppercase tracking-widest text-muted-foreground">Login</Link>
-                            <Link href="/register" className="p-3 bg-foreground text-background rounded-full text-center text-[9px] font-black uppercase tracking-widest">Join</Link>
+                            <Link href="/login" className="p-3 text-center text-[9px] font-black uppercase tracking-widest text-muted-foreground" onClick={() => setMobileMenuOpen(false)}>Login</Link>
+                            <Link href="/register" className="p-3 bg-foreground text-background rounded-full text-center text-[9px] font-black uppercase tracking-widest" onClick={() => setMobileMenuOpen(false)}>Join</Link>
                         </div>
                     )}
                 </div>

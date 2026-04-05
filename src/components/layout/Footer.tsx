@@ -19,7 +19,7 @@ export function Footer() {
                     {/* ── Brand Unit ── */}
                     <div className="flex items-center gap-6 shrink-0">
                         <Link href="/" className="flex items-center gap-3 group/logo relative">
-                            <Logo className="w-8 h-8 transition-all duration-500 group-hover/logo:scale-110 grayscale" />
+                            <Logo className="w-8 h-8 transition-all duration-500 group-hover/logo:scale-110 grayscale group-hover/logo:grayscale-0" />
                             <div className="flex flex-col -gap-0.5">
                                 <span className="text-[13px] font-black tracking-tighter text-foreground uppercase opacity-80">
                                     PyAnalypt
@@ -34,18 +34,18 @@ export function Footer() {
                     </div>
 
                     {/* ── Navigation HUD Cluster ── */}
-                    <nav aria-label="Footer" className="md:px-2">
-                        <ul className="flex flex-wrap items-center justify-center gap-x-10 gap-y-4 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
-                            <li><Link href="/" className="hover:text-foreground transition-all flex items-center gap-2 group/link"><Home size={11} className="opacity-40 group-hover/link:opacity-100 transition-opacity" /> Home</Link></li>
-                            <li><Link href="/visuals" className="hover:text-foreground transition-all flex items-center gap-2 group/link"><BarChart3 size={11} className="opacity-40 group-hover/link:opacity-100 transition-opacity" /> Visuals</Link></li>
-                            <li><Link href="/playground" className="hover:text-foreground transition-all flex items-center gap-2 group/link"><FlaskConical size={11} className="opacity-40 group-hover/link:opacity-100 transition-opacity" /> Laboratory</Link></li>
-                            <li><Link href="/about" className="hover:text-foreground transition-all flex items-center gap-2 group/link"><Info size={11} className="opacity-40 group-hover/link:opacity-100 transition-opacity" /> Intelligence</Link></li>
+                    <nav aria-label="Footer" className="md:px-2 w-full md:w-auto">
+                        <ul className="grid grid-cols-2 md:flex md:items-center justify-center gap-x-8 gap-y-6 md:gap-x-12 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+                            <li className="flex justify-center md:justify-start"><Link href="/" className="hover:text-foreground transition-all flex items-center gap-2.5 group/link"><Home size={12} className="opacity-40 group-hover/link:opacity-100 transition-opacity" /> Home</Link></li>
+                            <li className="flex justify-center md:justify-start"><Link href="/visuals" className="hover:text-foreground transition-all flex items-center gap-2.5 group/link"><BarChart3 size={12} className="opacity-40 group-hover/link:opacity-100 transition-opacity" /> Visuals</Link></li>
+                            <li className="flex justify-center md:justify-start"><Link href="/playground" className="hover:text-foreground transition-all flex items-center gap-2.5 group/link"><FlaskConical size={12} className="opacity-40 group-hover/link:opacity-100 transition-opacity" /> Lab</Link></li>
+                            <li className="flex justify-center md:justify-start"><Link href="/about" className="hover:text-foreground transition-all flex items-center gap-2.5 group/link"><Info size={12} className="opacity-40 group-hover/link:opacity-100 transition-opacity" /> Intel</Link></li>
                         </ul>
                     </nav>
 
                     {/* ── Operational Network ── */}
-                    <div className="flex items-center gap-8 md:gap-12 shrink-0">
-                        <div className="flex items-center gap-4">
+                    <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 shrink-0">
+                        <div className="flex items-center gap-6">
                             {[
                                 { name: "GitHub", icon: GithubIcon, href: "https://github.com/soklimkhy/pyanalypt" },
                                 { name: "Email", icon: Mail, href: "/about" },
@@ -64,7 +64,7 @@ export function Footer() {
 
                         <div className="h-6 w-px bg-border/40 hidden md:block" />
 
-                        <div className="flex flex-col items-end gap-1.5 pt-0.5">
+                        <div className="flex flex-col items-center md:items-end gap-1.5 pt-0.5">
                             <p className="text-[9px] text-muted-foreground font-black uppercase tracking-[0.4em] opacity-30">
                                 © {new Date().getFullYear()} PyAnalypt
                             </p>
@@ -79,7 +79,7 @@ export function Footer() {
             </div>
 
             {/* Aesthetic Bottom Base */}
-            <div className="absolute bottom-0 inset-x-0 h-[2px] bg-linear-to-r from-transparent via-foreground/5 to-transparent pointer-events-none" />
+            <div className="absolute bottom-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-foreground/5 to-transparent pointer-events-none" />
         </footer>
     );
 }
