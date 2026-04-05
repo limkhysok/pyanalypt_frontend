@@ -1,18 +1,18 @@
 import Link from "next/link";
 import {
-    Home, BarChart3, FlaskConical, Info, 
+    Home, BarChart3, FlaskConical, Info,
     Mail, Globe
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
-import { GithubIcon, TiktokIcon } from "@/components/ui/Icons";
+import { GithubIcon } from "@/components/ui/Icons";
 
 export function Footer() {
     return (
         <footer className="relative bg-background border-t border-border/80 pt-10 pb-8 overflow-hidden selection:bg-foreground/10">
-            
+
             {/* Precision Blueprint Grid Backdrop */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none opacity-40 shadow-inner" />
-            
+
             <div className="container relative z-10 mx-auto px-6 max-w-7xl">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-12 md:gap-4">
 
@@ -45,7 +45,7 @@ export function Footer() {
 
                     {/* ── Operational Network ── */}
                     <div className="flex items-center gap-8 md:gap-12 shrink-0">
-                         <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-4">
                             {[
                                 { name: "GitHub", icon: GithubIcon, href: "https://github.com/soklimkhy/pyanalypt" },
                                 { name: "Email", icon: Mail, href: "/about" },
@@ -65,13 +65,13 @@ export function Footer() {
                         <div className="h-6 w-px bg-border/40 hidden md:block" />
 
                         <div className="flex flex-col items-end gap-1.5 pt-0.5">
-                                <p className="text-[9px] text-muted-foreground font-black uppercase tracking-[0.4em] opacity-30">
-                                    © {new Date().getFullYear()} PyAnalypt
-                                </p>
-                                <div className="flex items-center gap-2 opacity-20 cursor-default">
-                                    <div className="w-1 h-1 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
-                                    <span className="text-[7px] font-black uppercase tracking-widest text-foreground">Operational Status Nom.</span>
-                                </div>
+                            <p className="text-[9px] text-muted-foreground font-black uppercase tracking-[0.4em] opacity-30">
+                                © {new Date().getFullYear()} PyAnalypt
+                            </p>
+                            <div className="flex items-center gap-2 opacity-20 cursor-default">
+                                <div className="w-1 h-1 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
+                                <span className="text-[7px] font-black uppercase tracking-widest text-foreground">Operational Status Nom.</span>
+                            </div>
                         </div>
                     </div>
 

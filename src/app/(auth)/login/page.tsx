@@ -7,7 +7,7 @@ import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, AlertCircle, Mail, Lock } from "lucide-react";
+import { Loader2, AlertCircle, Mail, Lock, ShieldCheck, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useGoogleLogin } from "@react-oauth/google";
 import { authApi } from "@/services/auth.service";
 import { getErrorMessage } from "@/lib/error-handler";
@@ -19,6 +19,7 @@ export default function Login() {
 	const [isLoading, setIsLoading] = React.useState(false);
 	const [email, setEmail] = React.useState("");
 	const [password, setPassword] = React.useState("");
+	const [showPassword, setShowPassword] = React.useState(false);
 	const [error, setError] = React.useState<string | null>(null);
 
 	const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
@@ -56,82 +57,117 @@ export default function Login() {
 
 	return (
 		<AuthShell
-			title="Welcome back"
-			subtitle="Enter your details to access your workspace."
+			title="LOGIN"
+			subtitle="SECURE ACCESS HUD"
 		>
-			<form onSubmit={handleSubmit} className="space-y-4">
+			<form onSubmit={handleSubmit} className="space-y-5">
+
 				{error && (
-					<div className="p-3 rounded-lg bg-destructive/10 text-destructive text-xs flex items-center gap-2 border border-destructive/20 animate-in fade-in slide-in-from-top-1">
+					<div className="p-3 rounded-xl bg-red-500/5 text-red-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-3 border border-red-500/10 animate-in fade-in slide-in-from-top-1">
 						<AlertCircle size={14} />
 						{error}
 					</div>
 				)}
 
-				<div className="space-y-2">
-					<Label htmlFor="email">Email</Label>
-					<div className="relative">
-						<Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-						<Input
-							id="email"
-							type="email"
-							value={email}
-							onChange={(e) => setEmail(e.target.value)}
-							placeholder="name@example.com"
-							className="pl-10"
-							required
-						/>
+				<div className="space-y-4">
+					<div className="space-y-2">
+						<Label
+							htmlFor="email"
+							className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-60 ml-1"
+						>
+							Email
+						</Label>
+						<div className="relative group/input">
+							<Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within/input:text-foreground transition-colors pointer-events-none z-10 opactiy-40" />
+							<Input
+								id="email"
+								type="email"
+								value={email}
+								onChange={(e) => setEmail(e.target.value)}
+								placeholder="name@example.com"
+								className="h-11 pl-12 rounded-xl bg-muted/20 border-border/40 focus:border-foreground/30 focus:ring-0 transition-all text-[11px] font-medium"
+								required
+							/>
+						</div>
 					</div>
-				</div>
 
-				<div className="space-y-2">
-					<Label htmlFor="password">Password</Label>
-					<div className="relative">
-						<Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-						<Input
-							id="password"
-							type="password"
-							value={password}
-							onChange={(e) => setPassword(e.target.value)}
-							placeholder="••••••••"
-							className="pl-10"
-							required
-						/>
+					<div className="space-y-2">
+						<div className="flex items-center justify-between ml-1">
+							<Label
+								htmlFor="password"
+								className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-60"
+							>
+								Password
+							</Label>
+							<Link href="/about" className="text-[9px] font-black text-muted-foreground/30 hover:text-foreground transition-colors uppercase tracking-widest">
+								Recover?
+							</Link>
+						</div>
+						<div className="relative group/input">
+							<Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within/input:text-foreground transition-colors pointer-events-none z-10 opacity-40" />
+							<Input
+								id="password"
+								type={showPassword ? "text" : "password"}
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+								placeholder="••••••••"
+								className="h-11 pl-12 pr-12 rounded-xl bg-muted/20 border-border/40 focus:border-foreground/30 focus:ring-0 transition-all text-[11px] font-medium"
+								required
+							/>
+							<button
+								type="button"
+								onClick={() => setShowPassword(!showPassword)}
+								className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-all z-20"
+							>
+								{showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+							</button>
+						</div>
 					</div>
 				</div>
 
 				<Button
-					className="w-full bg-blue-600 hover:bg-blue-700 text-white mt-2"
 					disabled={isLoading}
+					className="w-full h-11 bg-foreground text-background hover:bg-foreground/90 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 shadow-xl shadow-foreground/5 hover:scale-[1.01] active:scale-[0.98]"
 				>
-					{isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Login"}
+					{isLoading ? (
+						<div className="flex items-center gap-3">
+							<Loader2 className="h-4 w-4 animate-spin" />
+							<span>PROCESSING...</span>
+						</div>
+					) : (
+						<div className="flex items-center gap-3">
+							<span>Login</span>
+							<ShieldCheck size={16} />
+						</div>
+					)}
 				</Button>
 
-				<div className="flex items-center gap-2 my-4">
-					<span className="h-px bg-border flex-1" />
-					<span className="text-xs text-muted-foreground">or continue with</span>
-					<span className="h-px bg-border flex-1" />
+				<div className="relative flex items-center gap-4 py-0.5">
+					<span className="h-[1px] bg-border/40 flex-1" />
+					<span className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.4em] opacity-30">or</span>
+					<span className="h-[1px] bg-border/40 flex-1" />
 				</div>
 
 				<Button
 					variant="outline"
 					type="button"
 					disabled={isLoading}
-					className="w-full"
+					className="w-full h-11 rounded-xl border-border/60 hover:bg-muted text-[10px] font-black uppercase tracking-widest transition-all hover:border-foreground/20"
 					onClick={() => loginWithGoogle()}
 				>
-					<svg viewBox="0 0 24 24" className="mr-2 h-4 w-4" aria-hidden="true">
+					<svg viewBox="0 0 24 24" className="mr-3 h-4 w-4" aria-hidden="true">
 						<path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
 						<path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
 						<path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05" />
 						<path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
 					</svg>
-					Google
+					CONTINUE WITH GOOGLE
 				</Button>
 
-				<p className="text-center text-sm text-muted-foreground mt-4">
-					Don&apos;t have an account?{" "}
-					<Link href="/register" className="text-blue-500 hover:underline font-medium">
-						Sign up
+				<p className="text-center text-[10px] font-black text-muted-foreground mt-6 uppercase tracking-widest opacity-60 flex items-center justify-center gap-2">
+					New User?
+					<Link href="/register" className="text-foreground hover:underline flex items-center gap-1.5">
+						Request Access <ArrowRight size={11} />
 					</Link>
 				</p>
 			</form>

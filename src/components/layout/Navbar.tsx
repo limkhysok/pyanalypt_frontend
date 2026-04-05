@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Menu, X, LogOut, LayoutDashboard, User as UserIcon, Settings, ChevronDown, Rocket } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard, User as Rocket } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -40,7 +40,7 @@ export function Navbar() {
 
     return (
         <div className="fixed top-0 inset-x-0 z-50 flex flex-col items-center pt-8 px-6 pointer-events-none">
-            
+
             {/* ── Single-Pill Integrated HUD ── */}
             <header
                 className={cn(
@@ -151,8 +151,8 @@ export function Navbar() {
                     ))}
                     {!isLoading && !isAuthenticated && (
                         <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-border/40">
-                             <Link href="/login" className="p-3 text-center text-[9px] font-black uppercase tracking-widest text-muted-foreground">Login</Link>
-                             <Link href="/register" className="p-3 bg-foreground text-background rounded-full text-center text-[9px] font-black uppercase tracking-widest">Join</Link>
+                            <Link href="/login" className="p-3 text-center text-[9px] font-black uppercase tracking-widest text-muted-foreground">Login</Link>
+                            <Link href="/register" className="p-3 bg-foreground text-background rounded-full text-center text-[9px] font-black uppercase tracking-widest">Join</Link>
                         </div>
                     )}
                 </div>

@@ -1,7 +1,13 @@
-// Auth layout — minimal shell for login, register, verify-email.
-// No Navbar, no Footer, no SmoothScroll.
+import { Navbar } from "@/components/layout/Navbar";
+
+// Auth layout — providing public navbar for consistency across auth flows as requested.
 export default function AuthLayout({
     children,
 }: Readonly<{ children: React.ReactNode }>) {
-    return <>{children}</>;
+    return (
+        <div className="relative min-h-screen">
+            <Navbar />
+            {children}
+        </div>
+    );
 }
