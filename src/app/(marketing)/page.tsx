@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
-  TrendingUp, ArrowRight, Sparkles,
+  ArrowRight, Sparkles,
   CheckCircle2, Quote,
   ChevronRight, Database, Code2, Search, Settings, Filter
 } from "lucide-react";
@@ -25,7 +25,7 @@ function HeroSection({ onStart }: Readonly<{ onStart: () => void }>) {
   if (!mounted) return <div className="min-h-screen" />;
 
   return (
-    <section className="relative min-h-[95vh] flex flex-col justify-center pt-24 pb-16 overflow-hidden bg-background">
+    <section className="relative min-h-[85vh] flex flex-col justify-center pt-20 pb-12 overflow-hidden bg-background">
 
       {/* Precision Blueprint Grid Background - High Fidelity */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
@@ -36,31 +36,31 @@ function HeroSection({ onStart }: Readonly<{ onStart: () => void }>) {
       <div className="absolute bottom-1/4 right-1/4 w-[550px] h-[550px] bg-foreground opacity-[0.02] blur-[150px] rounded-full pointer-events-none" />
 
       <div className="container relative z-10 mx-auto px-6 max-w-7xl">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
 
           {/* Left Column - High-Density Typography */}
-          <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-10 group/text">
+          <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-8 group/text">
             <Link href="/" className="inline-flex items-center gap-2 group px-4 py-1.5 rounded-full bg-muted border border-border/80 text-[10px] font-black text-muted-foreground hover:bg-foreground hover:text-background hover:border-foreground transition-all duration-300">
               <span className="flex h-1.5 w-1.5 rounded-full bg-zinc-400 group-hover:bg-background animate-pulse" aria-hidden="true" />
               <span>Public Beta Is Now Live</span>
               <ChevronRight size={10} className="ml-0.5 opacity-50 group-hover:translate-x-0.5 transition-transform" />
             </Link>
 
-            <div className="space-y-6">
-              <h1 className="text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-[0.95] text-foreground">
+            <div className="space-y-4">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter leading-[0.95] text-foreground">
                 Analytics As Fast As <br />
                 <span className="text-transparent bg-clip-text bg-linear-to-r from-foreground via-muted-foreground/60 to-muted-foreground/20">Your Decision Making.</span>
               </h1>
-              <p className="text-xl text-muted-foreground max-w-lg mx-auto lg:mx-0 leading-relaxed font-medium tracking-tight">
+              <p className="text-lg text-muted-foreground max-w-lg mx-auto lg:mx-0 leading-relaxed font-medium tracking-tight">
                 PyAnalypt bridges the gap between raw data and actionable strategy. No code, no complexity. Just results.
               </p>
             </div>
 
-            <div className="flex flex-col sm:flex-row items-center gap-4 w-full sm:w-auto pt-2">
+            <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto pt-2">
               <Button
                 size="lg"
                 onClick={onStart}
-                className="w-full sm:w-auto h-14 px-10 text-[14px]  gap-3 rounded-xl bg-foreground text-background hover:scale-[1.03] hover:shadow-2xl hover:shadow-foreground/20 active:scale-95 transition-all duration-300"
+                className="w-full sm:w-auto h-12 px-8 text-sm font-black gap-3 rounded-xl bg-foreground text-background hover:scale-[1.03] hover:shadow-2xl hover:shadow-foreground/20 active:scale-95 transition-all duration-300"
               >
                 Launch Dashboard <ArrowRight size={16} />
               </Button>
@@ -68,7 +68,7 @@ function HeroSection({ onStart }: Readonly<{ onStart: () => void }>) {
                 <Button
                   variant="outline"
                   size="lg"
-                  className="w-full sm:w-auto h-14 px-10 text-xs font-black gap-3 rounded-xl border-border/60 hover:bg-muted hover:border-foreground/20 active:scale-95 transition-all duration-300"
+                  className="w-full sm:w-auto h-12 px-8 text-sm font-black gap-3 rounded-xl border-border/60 hover:bg-muted hover:border-foreground/20 active:scale-95 transition-all duration-300"
                 >
                   <GithubIcon size={16} /> View Source
                 </Button>
@@ -94,29 +94,29 @@ function HeroSection({ onStart }: Readonly<{ onStart: () => void }>) {
             <div className="relative rounded-3xl bg-background border border-border shadow-[0_40px_80px_-15px_rgba(0,0,0,0.15)] dark:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.4)] overflow-hidden group/card hover:scale-[1.01] transition-all duration-700 ease-out">
 
               {/* Terminal Style Header - PREMIUM BORDERS */}
-              <div className="h-12 border-b border-border bg-muted/40 flex items-center justify-between px-6">
+              <div className="h-10 border-b border-border/60 bg-muted/40 flex items-center justify-between px-6">
                 <div className="flex items-center gap-4">
                   <div className="flex gap-2">
-                    <div className="w-3 h-3 rounded-full bg-border/60 group-hover/card:bg-red-500/50 transition-colors" />
-                    <div className="w-3 h-3 rounded-full bg-border/60 group-hover/card:bg-amber-500/50 transition-colors" />
-                    <div className="w-3 h-3 rounded-full bg-border/60 group-hover/card:bg-emerald-500/50 transition-colors" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-border/60 group-hover/card:bg-red-500/50 transition-colors" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-border/60 group-hover/card:bg-amber-500/50 transition-colors" />
+                    <div className="w-2.5 h-2.5 rounded-full bg-border/60 group-hover/card:bg-emerald-500/50 transition-colors" />
                   </div>
-                  <span className="text-[11px] font-bold text-muted-foreground/60 tracking-tight">dist/v1.0/performance_snapshot.json</span>
+                  <span className="text-[10px] font-bold text-muted-foreground/60 tracking-tight">dist/v1.0/performance_snapshot.json</span>
                 </div>
                 <div className="flex items-center gap-4 text-muted-foreground/40">
-                  <div className="p-1.5 hover:bg-background hover:text-foreground rounded-lg transition-colors cursor-pointer">
-                    <Settings size={14} />
+                  <div className="p-1 hover:bg-background hover:text-foreground rounded-lg transition-colors cursor-pointer">
+                    <Settings size={12} />
                   </div>
-                  <div className="p-1.5 hover:bg-background hover:text-foreground rounded-lg transition-colors cursor-pointer">
-                    <Database size={14} />
+                  <div className="p-1 hover:bg-background hover:text-foreground rounded-lg transition-colors cursor-pointer">
+                    <Database size={12} />
                   </div>
                 </div>
               </div>
 
               {/* Mockup Toolbar */}
-              <div className="h-14 border-b border-border bg-background/50 backdrop-blur-sm flex items-center justify-between px-6">
+              <div className="h-12 border-b border-border/60 bg-background/50 backdrop-blur-sm flex items-center justify-between px-6">
                 <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-3 px-3 py-1.5 bg-muted/30 border border-border/60 rounded-lg text-[10px] font-bold text-muted-foreground/80 hover:border-foreground/30 transition-colors cursor-text min-w-[120px]">
+                  <div className="flex items-center gap-3 px-3 py-1 bg-muted/30 border border-border/60 rounded-lg text-[11px] font-bold text-muted-foreground/80 hover:border-foreground/30 transition-colors cursor-text min-w-[120px]">
                     <Search size={12} className="opacity-40" /> Search Telemetry...
                   </div>
                   <div className="h-6 w-px bg-border/60" />
@@ -127,31 +127,31 @@ function HeroSection({ onStart }: Readonly<{ onStart: () => void }>) {
               </div>
 
               {/* Dashboard Content */}
-              <div className="p-10 space-y-12">
+              <div className="p-8 space-y-10">
                 {/* Performance Chart Grid */}
-                <div className="space-y-8">
+                <div className="space-y-6">
                   <div className="flex items-end justify-between">
-                    <div className="space-y-1.5">
-                      <h3 className="text-base font-black tracking-tighter">Growth Attribution</h3>
-                      <p className="text-[10px] font-bold text-muted-foreground flex items-center gap-2">
-                        <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" aria-hidden="true" />
+                    <div className="space-y-1">
+                      <h3 className="text-md font-black tracking-tighter">Growth Attribution</h3>
+                      <p className="text-[11px] font-bold text-muted-foreground flex items-center gap-2">
+                        <span className="flex h-1 w-1 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" aria-hidden="true" />
                         <span>Real-time Stream Processing</span>
                       </p>
                     </div>
                     <div className="flex items-center gap-6">
                       <div className="flex items-center gap-2 group/legend cursor-help">
-                        <div className="w-2.5 h-2.5 rounded-full border-2 border-border group-hover:border-foreground transition-colors" />
-                        <span className="text-[10px] font-black text-muted-foreground group-hover:text-foreground transition-colors">Projected</span>
+                        <div className="w-2 h-2 rounded-full border-2 border-border group-hover:border-foreground transition-colors" />
+                        <span className="text-[11px] font-black text-muted-foreground group-hover:text-foreground transition-colors">Projected</span>
                       </div>
                       <div className="flex items-center gap-2 group/legend cursor-help">
-                        <div className="w-2.5 h-2.5 rounded-full bg-foreground shadow-[0_0_12px_rgba(0,0,0,0.1)] dark:shadow-[0_0_12px_rgba(255,255,255,0.2)]" />
-                        <span className="text-[10px] font-black text-foreground">Actual</span>
+                        <div className="w-2 h-2 rounded-full bg-foreground shadow-[0_0_12px_rgba(0,0,0,0.1)] dark:shadow-[0_0_12px_rgba(255,255,255,0.2)]" />
+                        <span className="text-[11px] font-black text-foreground">Actual</span>
                       </div>
                     </div>
                   </div>
 
                   {/* Bar Chart Area - MONOCHROME BARS - HIGHER FIDELITY */}
-                  <div className="h-48 flex items-end gap-2 border-b border-border/80 pb-3 relative group/chart">
+                  <div className="h-40 flex items-end gap-2 border-b border-border/80 pb-3 relative group/chart">
                     {[35, 62, 50, 85, 58, 92, 72, 88, 60, 82, 65, 95].map((h, i) => {
                       const colorMap = [
                         'bg-foreground/5 border-foreground/10',
@@ -174,32 +174,23 @@ function HeroSection({ onStart }: Readonly<{ onStart: () => void }>) {
                 </div>
 
                 {/* Processing Status Bar - PREMIUM TREATMENT */}
-                <div className="p-5 rounded-2xl border border-dashed border-border bg-transparent backdrop-blur-md flex items-center justify-between hover:border-foreground/30 hover:bg-background transition-all duration-300">
-                  <div className="flex items-center gap-5">
-                    <div className="w-12 h-12 rounded-xl bg-background border border-border shadow-sm flex items-center justify-center text-zinc-400 group-hover/card:text-foreground transition-colors">
-                      <Code2 size={20} />
+                <div className="p-4 rounded-2xl border border-dashed border-border bg-transparent backdrop-blur-md flex items-center justify-between hover:border-foreground/30 hover:bg-background transition-all duration-300">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-xl bg-background border border-border shadow-sm flex items-center justify-center text-zinc-400 group-hover/card:text-foreground transition-colors">
+                      <Code2 size={18} />
                     </div>
-                    <div className="space-y-1">
-                      <p className="text-sm font-black text-foreground">Stream Active</p>
-                      <p className="text-[11px] font-bold text-muted-foreground opacity-70">Parsing 2,412 records/sec</p>
+                    <div className="space-y-0.5">
+                      <p className="text-xs font-black text-foreground">Stream Active</p>
+                      <p className="text-[10px] font-bold text-muted-foreground opacity-70">Parsing 2,412 records/sec</p>
                     </div>
                   </div>
-                  <div className="h-10 px-4 rounded-xl border border-border bg-background flex items-center text-[10px] font-black tracking-widest text-muted-foreground uppercase cursor-wait hover:text-foreground transition-colors">
+                  <div className="h-8 px-3 rounded-lg border border-border bg-background flex items-center text-[10px] font-black tracking-widest text-muted-foreground uppercase cursor-wait hover:text-foreground transition-colors">
                     0.4s
                   </div>
                 </div>
               </div>
             </div>
           </div>
-
-        </div>
-      </div>
-
-      {/* Modern bottom border/divider */}
-      <div className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 text-muted-foreground/30 hover:text-muted-foreground transition-colors cursor-pointer group">
-        <span className="text-[9px] font-bold tracking-[0.3em] uppercase opacity-50 group-hover:opacity-100 transition-opacity">Explore</span>
-        <div className="w-0.5 h-16 bg-linear-to-b from-border via-border/40 to-transparent relative overflow-hidden">
-          <div className="absolute top-0 left-0 w-full h-1/2 bg-foreground/10" />
         </div>
       </div>
     </section>
