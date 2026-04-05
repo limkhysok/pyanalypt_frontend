@@ -2,7 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Sparkles, Menu, X, LogOut, LayoutDashboard, User as UserIcon, Settings } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard, User as UserIcon, Settings } from "lucide-react";
+import { Logo } from "@/components/ui/Logo";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/ui/ModeToggle";
@@ -46,17 +47,15 @@ export function Navbar() {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.8, type: "spring", stiffness: 100, damping: 20 }}
                 className={cn(
-                    "relative pointer-events-auto flex items-center justify-between pl-4 pr-3 h-14 transition-all duration-700 rounded-full border-2 border-black dark:border-white/20 mx-auto w-full max-w-325",
+                    "relative pointer-events-auto flex items-center justify-between pl-4 pr-3 h-14 transition-all duration-700 rounded-full border border-border mx-auto w-full max-w-325",
                     scrolled
-                        ? "bg-background/40 backdrop-blur-3xl shadow-[0_8px_32px_rgba(0,0,0,0.12)]"
-                        : "bg-background/10 backdrop-blur-xl shadow-none"
+                        ? "bg-background/80 backdrop-blur-md shadow-sm"
+                        : "bg-background/40 backdrop-blur-sm shadow-none"
                 )}
             >
                 {/* Logo & Brand */}
                 <Link href="/" className="flex items-center gap-3 group shrink-0">
-                    <div className="p-1.5 rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-500/20 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3">
-                        <Sparkles size={16} />
-                    </div>
+                    <Logo className="transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3" />
                     <span className="text-lg font-black tracking-tight text-foreground/90 hidden sm:block">
                         PyAnalypt
                     </span>
@@ -96,7 +95,7 @@ export function Navbar() {
                                     </Avatar>
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-56 rounded-4xl p-2 bg-background/90 backdrop-blur-2xl border-border/10 shadow-2xl" align="end">
+                            <DropdownMenuContent className="w-56 rounded-2xl p-2 bg-background/90 backdrop-blur-xl border-border/10 shadow-sm" align="end">
                                 <DropdownMenuLabel className="px-4 py-3">
                                     <p className="text-sm font-black tracking-tight truncate">{user?.full_name || user?.username}</p>
                                     <p className="text-[10px] font-bold text-muted-foreground truncate">@{user?.username}</p>
@@ -157,14 +156,14 @@ export function Navbar() {
                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
                     animate={{ opacity: 1, y: 0, scale: 1 }}
                     exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="lg:hidden absolute top-[calc(100%+12px)] inset-x-6 z-40 bg-background/80 backdrop-blur-3xl border-2 border-black dark:border-white/20 rounded-[2.5rem] p-4 flex flex-col gap-1 shadow-2xl pointer-events-auto"
+                    className="lg:hidden absolute top-[calc(100%+12px)] inset-x-6 z-40 bg-background/90 backdrop-blur-xl border border-border rounded-2xl p-4 flex flex-col gap-1 shadow-md pointer-events-auto"
                 >
                     {NAV_ITEMS.map((item) => (
                         <Link
                             key={item.label}
                             href={item.href}
                             onClick={() => setMobileMenuOpen(false)}
-                            className="p-4 hover:bg-blue-500/5 rounded-3xl text-muted-foreground hover:text-blue-500 transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase"
+                            className="p-4 hover:bg-blue-500/5 rounded-xl text-muted-foreground hover:text-blue-500 transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase"
                         >
                             {item.label}
                         </Link>
@@ -177,13 +176,13 @@ export function Navbar() {
                             <Link
                                 href="/dashboard"
                                 onClick={() => setMobileMenuOpen(false)}
-                                className="p-4 hover:bg-blue-500/5 rounded-3xl text-muted-foreground hover:text-blue-500 transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase"
+                                className="p-4 hover:bg-blue-500/5 rounded-xl text-muted-foreground hover:text-blue-500 transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase"
                             >
                                 Dashboard
                             </Link>
                             <button
                                 onClick={() => { logout(); setMobileMenuOpen(false); }}
-                                className="w-full p-4 hover:bg-red-500/5 rounded-3xl text-red-500/70 hover:text-red-500 transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase"
+                                className="w-full p-4 hover:bg-red-500/5 rounded-xl text-red-500/70 hover:text-red-500 transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase"
                             >
                                 Log out
                             </button>
@@ -193,14 +192,14 @@ export function Navbar() {
                             <Link
                                 href="/login"
                                 onClick={() => setMobileMenuOpen(false)}
-                                className="flex-1 p-4 hover:bg-blue-500/5 rounded-3xl text-muted-foreground hover:text-blue-500 transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase border border-border/20"
+                                className="flex-1 p-4 hover:bg-blue-500/5 rounded-xl text-muted-foreground hover:text-blue-500 transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase border border-border/20"
                             >
                                 LOGIN
                             </Link>
                             <Link
                                 href="/register"
                                 onClick={() => setMobileMenuOpen(false)}
-                                className="flex-1 p-4 bg-blue-600 hover:bg-blue-700 rounded-3xl text-white transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase"
+                                className="flex-1 p-4 bg-blue-600 hover:bg-blue-700 rounded-xl text-white transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase"
                             >
                                 REGISTER
                             </Link>

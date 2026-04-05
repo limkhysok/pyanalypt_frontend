@@ -1,22 +1,18 @@
 "use client";
 
-import React, { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "motion/react";
+import { motion } from "motion/react";
 import {
   BarChart2, Search,
   TrendingUp, Database, ArrowRight, Sparkles,
-  Target, Wand2, Brain,
-  MessageSquareText, RefreshCcw,
   CheckCircle2, Quote,
 } from "lucide-react";
-import { useTheme } from "next-themes";
 import dynamic from "next/dynamic";
 
 // UI Components
 import { Button } from "@/components/ui/button";
-import { TiltCard } from "@/components/ui/tilt-card";
+import { Logo } from "@/components/ui/Logo";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { LogoTicker } from "@/components/ui/logo-ticker";
 import { GithubIcon } from "@/components/ui/Icons";
@@ -39,20 +35,7 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
 
   return (
     <section className="relative min-h-[85vh] flex flex-col items-center justify-center pt-24 pb-4 overflow-hidden border-b border-border/10">
-      {/* 1. Subtle Background Elements */}
-      <div className="absolute inset-0 z-0 pointer-events-none">
-        <motion.div
-          animate={{ opacity: [0.4, 0.8, 0.4] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-200 bg-blue-500/5 blur-[64px] rounded-full will-change-[opacity]"
-        />
-        <motion.div
-          animate={{ opacity: [0.2, 0.5, 0.2] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-          className="absolute top-1/4 right-1/4 w-80 h-80 bg-blue-600/8 blur-[48px] rounded-full will-change-[opacity]"
-        />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[32px_32px] will-change-transform" />
-      </div>
+
 
       <div className="container relative z-10 mx-auto px-6 max-w-325">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
@@ -63,10 +46,10 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 shadow-sm"
+              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted border border-border shadow-sm"
             >
-              <Sparkles size={14} className="text-blue-500" aria-hidden="true" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
+              <Logo className="w-3.5 h-3.5" />
+              <span className="text-[10px] font-black uppercase tracking-widest text-foreground">
                 Next-Gen Data Engine
               </span>
             </motion.div>
@@ -79,7 +62,7 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
             >
               <h1 className="text-4xl md:text-6xl xl:text-7xl font-black tracking-tight leading-[1.05] text-foreground">
                 Turn Raw Data <br />
-                Into <span className="text-blue-600 dark:text-blue-400 italic">Actionable</span> <br />
+                Into <span className="text-foreground italic">Actionable</span> <br />
                 Intelligence.
               </h1>
               <p className="text-lg md:text-xl text-muted-foreground font-medium max-w-xl mx-auto lg:mx-0 leading-relaxed pt-2">
@@ -94,16 +77,17 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
               className="flex flex-col sm:flex-row items-center gap-4 pt-4"
             >
               <Button
+                size="lg"
                 onClick={onStart}
                 aria-label="Get Started for Free"
-                className="h-14 px-8 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-base transition-all hover:scale-105 active:scale-95 shadow-lg shadow-blue-500/20 flex items-center gap-2 w-full sm:w-auto"
+                className="w-full sm:w-auto gap-2"
               >
-                Get Started Free <ArrowRight size={18} aria-hidden="true" />
+                Get Started Free <ArrowRight size={16} aria-hidden="true" />
               </Button>
 
               <Link href="https://github.com/soklimkhy/pyanalypt" target="_blank" className="w-full sm:w-auto">
-                <Button variant="ghost" className="h-14 px-8 rounded-xl border border-border/60 hover:bg-muted font-bold text-base transition-all flex items-center gap-2 w-full sm:w-auto">
-                  <GithubIcon size={18} /> Repository
+                <Button variant="outline" size="lg" className="w-full sm:w-auto gap-2">
+                  <GithubIcon size={16} /> Repository
                 </Button>
               </Link>
             </motion.div>
@@ -117,28 +101,20 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
             className="relative w-full max-w-2xl mx-auto"
           >
             {/* Main card */}
-            <div className="relative rounded-[2.5rem] bg-background/70 backdrop-blur-xl border border-border/10 shadow-2xl p-6 space-y-5">
-              {/* GPU-composited glow pulse via opacity on an absolutely-positioned layer */}
-              <motion.div
-                animate={{ opacity: [0, 0.5, 0] }}
-                transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute inset-0 rounded-[2.5rem] shadow-[0_0_60px_rgba(59,130,246,0.2)] pointer-events-none will-change-[opacity]"
-                aria-hidden="true"
-              />
+            <div className="relative rounded-xl bg-background/70  border border-border/10 shadow-md p-6 space-y-5">
+
 
               {/* Card header */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-500/20">
-                    <Sparkles size={16} className="text-white" aria-hidden="true" />
-                  </div>
+                  <Logo className="w-9 h-9" />
                   <div>
                     <p className="text-sm font-black tracking-tight leading-none">PyAnalypt</p>
-                    <p className="text-[10px] font-bold text-blue-500 uppercase tracking-widest mt-0.5">AI Analyst · Active</p>
+                    <p className="text-[10px] font-bold text-foreground uppercase tracking-widest mt-0.5">AI Analyst · Active</p>
                   </div>
                 </div>
                 <div className="flex gap-1.5 items-center">
-                  <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" aria-hidden="true" />
+                  <span className="w-2 h-2 rounded-full bg-foreground animate-pulse" aria-hidden="true" />
                   <span className="w-2 h-2 rounded-full bg-border/40" aria-hidden="true" />
                   <span className="w-2 h-2 rounded-full bg-border/40" aria-hidden="true" />
                 </div>
@@ -151,14 +127,14 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
                 <div className="rounded-2xl bg-secondary/30 border border-border/10 p-4 space-y-2 relative overflow-hidden">
                   {/* Scanning highlight */}
                   <motion.div
-                    className="absolute left-0 right-0 h-5 bg-blue-500/10 pointer-events-none will-change-transform"
+                    className="absolute left-0 right-0 h-5 bg-muted pointer-events-none will-change-transform"
                     animate={{ y: [10, 28, 46, 64, 82] }}
                     transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 2, ease: "linear" }}
                   />
                   <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-50 mb-2">Raw CSV</p>
                   {["Jan, 1200", "Feb, 2100", "Mar, 1800", "Apr, 2400"].map((row) => (
                     <div key={row} className="flex items-center gap-2">
-                      <span className="w-1 h-1 rounded-full bg-blue-500/50 shrink-0" aria-hidden="true" />
+                      <span className="w-1 h-1 rounded-full bg-muted-foreground/50 shrink-0" aria-hidden="true" />
                       <span className="text-[10px] font-mono text-muted-foreground opacity-60">{row}</span>
                     </div>
                   ))}
@@ -173,10 +149,10 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
                   <motion.div
                     animate={{ rotate: [0, 20, -20, 0], scale: [1, 1.2, 1.2, 1] }}
                     transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", repeatDelay: 1.5 }}
-                    className="w-9 h-9 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center"
+                    className="w-9 h-9 flex items-center justify-center"
                     aria-hidden="true"
                   >
-                    <Sparkles size={14} className="text-blue-500" />
+                    <Logo className="w-full h-full" />
                   </motion.div>
                 </div>
 
@@ -199,7 +175,7 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
                         animate={{ scaleY: 1 }}
                         transition={{ delay: 1.1 + i * 0.08, duration: 0.6, ease: "easeOut" }}
                         style={{ height: `${bar.pct}%`, transformOrigin: "bottom" }}
-                        className="flex-1 rounded-t bg-blue-500/70"
+                        className="flex-1 rounded-t bg-zinc-800 dark:bg-zinc-200"
                       />
                     ))}
                   </div>
@@ -211,22 +187,20 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 1, duration: 0.5 }}
-                className="flex items-start gap-3 p-4 rounded-2xl bg-blue-500/8 border border-blue-500/15"
+                className="flex items-start gap-3 p-4 rounded-2xl bg-muted/50 border border-border"
               >
-                <div className="w-6 h-6 rounded-lg bg-blue-600 flex items-center justify-center shrink-0 mt-0.5">
-                  <Sparkles size={11} className="text-white" aria-hidden="true" />
-                </div>
+                <Logo className="w-6 h-6 shrink-0 mt-0.5" />
                 <p className="text-xs font-bold text-foreground/80 leading-relaxed">
-                  Revenue peaked in <span className="text-blue-500 font-black">April (+12.5%)</span>. North America is the primary growth driver this quarter.
+                  Revenue peaked in <span className="text-foreground font-black">April (+12.5%)</span>. North America is the primary growth driver this quarter.
                 </p>
               </motion.div>
 
               {/* Stat chips */}
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { icon: TrendingUp, label: "Growth",  value: "+12.5%", color: "text-blue-500",       bg: "bg-blue-500/10"  },
-                  { icon: Database,   label: "Records", value: "2.4M",   color: "text-foreground/80",  bg: "bg-secondary/60" },
-                  { icon: Search,     label: "Insight",  value: "3 sec",  color: "text-foreground/80",  bg: "bg-secondary/60" },
+                  { icon: TrendingUp, label: "Growth", value: "+12.5%", color: "text-foreground", bg: "bg-muted" },
+                  { icon: Database, label: "Records", value: "2.4M", color: "text-foreground/80", bg: "bg-secondary/60" },
+                  { icon: Search, label: "Insight", value: "3 sec", color: "text-foreground/80", bg: "bg-secondary/60" },
                 ].map((s, i) => (
                   <motion.div
                     key={s.label}
@@ -249,18 +223,18 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
             <motion.div
               animate={{ y: [0, -12, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -top-5 -right-4 px-4 py-2.5 rounded-2xl bg-background border border-border/20 shadow-xl z-20 hidden md:flex items-center gap-2"
+              className="absolute -top-5 -right-4 px-4 py-2.5 rounded-2xl bg-background border border-border/20 shadow-sm z-20 hidden md:flex items-center gap-2"
             >
-              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" aria-hidden="true" />
+              <span className="w-1.5 h-1.5 rounded-full bg-foreground animate-pulse" aria-hidden="true" />
               <span className="text-[10px] font-black text-foreground/70 uppercase tracking-widest">Live Analysis</span>
             </motion.div>
 
             <motion.div
               animate={{ y: [0, 12, 0] }}
               transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-              className="absolute -bottom-5 -left-4 px-4 py-2.5 rounded-2xl bg-background border border-border/20 shadow-xl z-20 hidden md:flex items-center gap-2"
+              className="absolute -bottom-5 -left-4 px-4 py-2.5 rounded-2xl bg-background border border-border/20 shadow-sm z-20 hidden md:flex items-center gap-2"
             >
-              <BarChart2 size={13} className="text-blue-500" aria-hidden="true" />
+              <BarChart2 size={13} className="text-foreground" aria-hidden="true" />
               <span className="text-[10px] font-black text-foreground/70 uppercase tracking-widest">50+ Chart Types</span>
             </motion.div>
           </motion.div>
@@ -290,16 +264,16 @@ function ProductStory() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
           <ScrollReveal>
             <div className="space-y-8 max-w-xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 shadow-sm">
-                <Sparkles size={14} className="text-emerald-500" aria-hidden="true" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-600 dark:text-emerald-400">
+              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-500/10 border border-zinc-500/20 shadow-sm">
+                <Sparkles size={14} className="text-zinc-500" aria-hidden="true" />
+                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600 dark:text-zinc-400">
                   Built for Real People
                 </span>
               </div>
 
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.05]">
                 Your data has answers. <br />
-                <span className="text-emerald-600 dark:text-emerald-400">You just need the right translator.</span>
+                <span className="text-zinc-600 dark:text-zinc-400">You just need the right translator.</span>
               </h2>
 
               <div className="space-y-5 text-lg text-muted-foreground leading-relaxed font-medium">
@@ -323,8 +297,8 @@ function ProductStory() {
               <ul className="space-y-3 pt-2" aria-label="Key benefits">
                 {checkmarks.map((item) => (
                   <li key={item} className="flex items-center gap-3 text-sm font-bold text-foreground/80">
-                    <div className="w-5 h-5 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center shrink-0">
-                      <CheckCircle2 size={12} className="text-emerald-500" aria-hidden="true" />
+                    <div className="w-5 h-5 rounded-full bg-zinc-500/10 border border-zinc-500/30 flex items-center justify-center shrink-0">
+                      <CheckCircle2 size={12} className="text-zinc-500" aria-hidden="true" />
                     </div>
                     {item}
                   </li>
@@ -350,17 +324,16 @@ function ProductStory() {
           {/* Right: Testimonial + stat chips */}
           <ScrollReveal>
             <div className="relative w-full max-w-md mx-auto lg:ml-auto space-y-4">
-              <div className="absolute inset-0 bg-linear-to-tr from-emerald-500/10 via-blue-500/5 to-transparent blur-3xl rounded-full pointer-events-none" />
 
               {/* Testimonial card */}
-              <div className="relative p-8 rounded-[2.5rem] bg-background/60 backdrop-blur-xl border border-border/10 shadow-2xl">
-                <Quote size={32} className="text-emerald-500/30 mb-4" aria-hidden="true" />
+              <div className="relative p-8 rounded-xl bg-background/60  border border-border/10 shadow-md">
+                <Quote size={32} className="text-zinc-500/30 mb-4" aria-hidden="true" />
                 <p className="text-lg font-bold leading-relaxed text-foreground/80 italic">
                   &ldquo;I spent 3 days every month building reports in Excel. With PyAnalypt I get the same output in
                   4 minutes — and the charts actually look good.&rdquo;
                 </p>
                 <div className="flex items-center gap-3 mt-6 pt-6 border-t border-border/10">
-                  <div className="w-10 h-10 rounded-full bg-linear-to-br from-blue-500 to-emerald-500 flex items-center justify-center text-white text-xs font-black" aria-hidden="true">
+                  <div className="w-10 h-10 rounded-full bg-linear-to-br from-zinc-800 dark:from-zinc-200 to-zinc-500 flex items-center justify-center text-white text-xs font-black" aria-hidden="true">
                     SL
                   </div>
                   <div>
@@ -372,12 +345,12 @@ function ProductStory() {
 
               {/* Stat chips */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="p-5 rounded-4xl bg-background/60 backdrop-blur-xl border border-border/10 shadow-lg space-y-2">
-                  <p className="text-3xl font-black text-blue-500">97%</p>
+                <div className="p-5 rounded-2xl bg-background/60  border border-border/10 shadow-sm space-y-2">
+                  <p className="text-3xl font-black text-foreground">97%</p>
                   <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Less setup time</p>
                 </div>
-                <div className="p-5 rounded-4xl bg-background/60 backdrop-blur-xl border border-border/10 shadow-lg space-y-2">
-                  <p className="text-3xl font-black text-emerald-500">30+</p>
+                <div className="p-5 rounded-2xl bg-background/60  border border-border/10 shadow-sm space-y-2">
+                  <p className="text-3xl font-black text-zinc-500">30+</p>
                   <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Chart types ready</p>
                 </div>
               </div>
@@ -389,8 +362,8 @@ function ProductStory() {
         <ScrollReveal>
           <div className="flex justify-center pt-4">
             <Link href="/tutorials" aria-label="See the full step-by-step tutorial guide">
-              <Button variant="ghost" className="gap-2 rounded-2xl px-10 h-14 text-base font-black hover:bg-blue-500/10 text-blue-500 transition-all border border-blue-500/20">
-                See the Full Step-by-Step Guide <ArrowRight size={18} aria-hidden="true" />
+              <Button variant="outline" size="lg" className="gap-2">
+                See the Full Step-by-Step Guide <ArrowRight size={16} aria-hidden="true" />
               </Button>
             </Link>
           </div>
@@ -401,304 +374,7 @@ function ProductStory() {
   );
 }
 
-// --- Features Section Components ---
 
-
-function AnalysisFeatures() {
-  const workflow = [
-    { title: "Define Objective", desc: "Identify the problem and business goals for targeted analysis.", icon: Target, badge: null },
-    { title: "Data Collection", desc: "Gather raw data from APIs, databases, and local files.", icon: Database, badge: null },
-    { title: "Cleaning & Prep", desc: "Process and normalize data to ensure high-quality inputs.", icon: Wand2, badge: null },
-    { title: "EDA", desc: "Uncover initial patterns and anomalies via statistical summaries.", icon: Search, badge: null },
-    { title: "Modeling", desc: "Apply ML models or statistical methods for deeper insights.", icon: Brain, badge: "Optional" },
-    { title: "Visualization", desc: "Communicate results via high-performance interactives.", icon: BarChart2, badge: null },
-    { title: "Interpretation", desc: "Translate patterns into actionable business recommendations.", icon: MessageSquareText, badge: null },
-    { title: "Feedback", desc: "Refine objectives based on results for continuous growth.", icon: RefreshCcw, badge: "Critical" }
-  ];
-
-  return (
-    <div className="py-8 space-y-16">
-      <div className="text-center space-y-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 shadow-sm mx-auto">
-          <RefreshCcw size={12} className="text-blue-500" aria-hidden="true" />
-          <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
-            Lifecycle Workflow
-          </span>
-        </div>
-        <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-[1.1]">The Analyst Path</h2>
-        <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-6">
-          A seamless transition from raw data to business decisions.
-        </p>
-      </div>
-
-      <div className="relative">
-        {/* Connection Line Visual */}
-        <div className="absolute top-1/2 left-0 right-0 h-px bg-linear-to-r from-transparent via-blue-500/20 to-transparent hidden lg:block z-0" />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10 px-4">
-          {workflow.map((step, idx) => (
-            <TiltCard key={step.title} className="border-0 h-full group" classNameContent="p-6 h-full flex flex-col items-center text-center gap-6 bg-background/40 backdrop-blur-3xl rounded-[2.5rem] border border-border/10 hover:border-blue-500/20 transition-all shadow-lg hover:shadow-2xl">
-              <div className="relative">
-                <div className="p-5 rounded-4xl bg-blue-500/10 text-blue-500 group-hover:scale-110 group-hover:bg-blue-600 group-hover:text-white transition-all duration-500 shadow-inner">
-                  <step.icon size={32} aria-hidden="true" />
-                </div>
-                <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-background border border-border/10 flex items-center justify-center text-[10px] font-black text-blue-500">
-                  {idx + 1}
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <div className="flex items-center justify-center gap-2">
-                  <h3 className="text-lg font-black tracking-tight leading-tight">{step.title}</h3>
-                  {step.badge && (
-                    <span className={cn(
-                      "text-[8px] font-black px-1.5 py-0.5 rounded border uppercase tracking-tighter",
-                      step.badge === "Critical" 
-                        ? "bg-red-500/10 border-red-500/20 text-red-500"
-                        : "bg-blue-500/10 border-blue-500/20 text-blue-500"
-                    )}>
-                      {step.badge}
-                    </span>
-                  )}
-                </div>
-                <p className="text-sm font-medium text-muted-foreground leading-relaxed opacity-70">
-                  {step.desc}
-                </p>
-              </div>
-            </TiltCard>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// --- Visualization Panel ---
-function VisualizationPanel() {
-  const { resolvedTheme } = useTheme();
-  const isDark = resolvedTheme === 'dark';
-  const [activeTab, setActiveTab] = useState(0);
-
-  const textColor = isDark ? '#a1a1aa' : '#52525b';
-  const gridColor = isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)';
-  const axisLineColor = isDark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)';
-  const tooltipBg = isDark ? '#09090b' : '#ffffff';
-  const tooltipBorder = isDark ? '#27272a' : '#e4e4e7';
-  const tooltipText = isDark ? '#f4f4f5' : '#18181b';
-
-  const lineOption = useMemo(() => ({
-    backgroundColor: 'transparent',
-    tooltip: { trigger: 'axis', backgroundColor: tooltipBg, borderColor: tooltipBorder, textStyle: { color: tooltipText } },
-    grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
-    xAxis: [{ type: 'category', boundaryGap: false, data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'], axisLine: { lineStyle: { color: axisLineColor } }, axisLabel: { color: textColor, fontSize: 10 } }],
-    yAxis: [{ type: 'value', splitLine: { lineStyle: { color: gridColor } }, axisLabel: { color: textColor, fontSize: 10 } }],
-    series: [{ name: 'Revenue', type: 'line', smooth: true, lineStyle: { width: 3, color: '#3b82f6' }, showSymbol: false, areaStyle: { opacity: 0.1, color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: '#3b82f6' }, { offset: 1, color: 'transparent' }] } }, data: [420, 932, 901, 1234, 1290, 1530, 2120] }]
-  }), [tooltipBg, tooltipBorder, tooltipText, axisLineColor, textColor, gridColor]);
-
-  const scatterData = useMemo(() => Array.from({ length: 40 }, () => [Math.random() * 100, Math.random() * 100]), []);
-  const scatterOption = useMemo(() => ({
-    backgroundColor: 'transparent',
-    tooltip: { trigger: 'item', backgroundColor: tooltipBg, borderColor: tooltipBorder, textStyle: { color: tooltipText } },
-    xAxis: { splitLine: { lineStyle: { color: gridColor } }, axisLine: { lineStyle: { color: axisLineColor } }, axisLabel: { color: textColor, fontSize: 10 } },
-    yAxis: { splitLine: { lineStyle: { color: gridColor } }, axisLine: { lineStyle: { color: axisLineColor } }, axisLabel: { color: textColor, fontSize: 10 } },
-    series: [{ symbolSize: 12, data: scatterData, type: 'scatter', itemStyle: { color: '#6366f1', opacity: 0.7 } }]
-  }), [tooltipBg, tooltipBorder, tooltipText, axisLineColor, textColor, gridColor, scatterData]);
-
-  const bubbleData = [[10, 8.04, 20, 'A'], [8.07, 6.95, 40, 'B'], [13, 7.58, 60, 'C'], [9.05, 8.81, 30, 'D'], [11, 8.33, 50, 'E'], [14, 7.66, 80, 'F'], [12.5, 6.82, 70, 'G']];
-  const bubbleOption = useMemo(() => ({
-    backgroundColor: 'transparent',
-    xAxis: { axisLine: { lineStyle: { color: axisLineColor } }, axisLabel: { color: textColor, fontSize: 10 }, splitLine: { lineStyle: { color: gridColor } } },
-    yAxis: { axisLine: { lineStyle: { color: axisLineColor } }, axisLabel: { color: textColor, fontSize: 10 }, splitLine: { lineStyle: { color: gridColor } } },
-    series: [{
-      data: bubbleData, type: 'scatter', symbolSize: (data: number[]) => data[2] * 0.8,
-      itemStyle: { shadowBlur: 10, shadowColor: 'rgba(16, 185, 129, 0.4)', color: { type: 'radial', x: 0.4, y: 0.3, r: 1, colorStops: [{ offset: 0, color: '#34d399' }, { offset: 1, color: 'transparent' }] } }
-    }]
-  }), [axisLineColor, textColor, gridColor]);
-
-  const charts = [
-    {
-      id: 0,
-      title: "Revenue Trend",
-      subtitle: "Monthly Growth · Jan – Jul",
-      type: "Area Chart",
-      option: lineOption,
-      icon: TrendingUp,
-      color: "text-blue-500",
-      bg: "bg-blue-500/10",
-      border: "border-blue-500/20",
-      insight: "12.5% outlier growth detected in Q2. North America segment is the primary driver.",
-      stats: [
-        { label: "Peak Month", value: "Jul" },
-        { label: "Total Growth", value: "+405%" },
-        { label: "Trend", value: "↑ Strong" },
-      ],
-    },
-    {
-      id: 1,
-      title: "Customer Clusters",
-      subtitle: "Behavioural Segmentation",
-      type: "Scatter Plot",
-      option: scatterOption,
-      icon: Search,
-      color: "text-indigo-500",
-      bg: "bg-indigo-500/10",
-      border: "border-indigo-500/20",
-      insight: "Positive correlation detected. High-value segment concentrated in the upper-right quadrant.",
-      stats: [
-        { label: "Data Points", value: "40" },
-        { label: "Correlation", value: "0.82" },
-        { label: "Segments", value: "3" },
-      ],
-    },
-    {
-      id: 2,
-      title: "Market Nodes",
-      subtitle: "Segment Size Analysis",
-      type: "Bubble Chart",
-      option: bubbleOption,
-      icon: Database,
-      color: "text-emerald-500",
-      bg: "bg-emerald-500/10",
-      border: "border-emerald-500/20",
-      insight: "Segment G is the dominant revenue node. High volume, high efficiency — prioritise for Q4 investment.",
-      stats: [
-        { label: "Segments", value: "7" },
-        { label: "Top Node", value: "G" },
-        { label: "Dominance", value: "38%" },
-      ],
-    },
-  ];
-
-  const active = charts[activeTab];
-
-  return (
-    <div id="visuals-section" className="max-w-325 mx-auto px-6 py-16 space-y-12 relative">
-
-      {/* Header */}
-      <div className="text-center space-y-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 shadow-sm mx-auto">
-          <BarChart2 size={12} className="text-blue-500" aria-hidden="true" />
-          <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
-            Interactive Canvas
-          </span>
-        </div>
-        <h2 className="text-4xl md:text-5xl font-black tracking-tight leading-[1.1]">
-          Charts that <span className="text-blue-600 dark:text-blue-400">think with you.</span>
-        </h2>
-        <p className="text-base md:text-lg text-muted-foreground max-w-2xl mx-auto px-6">
-          Explore 50+ chart types — each one rendered in real-time from your data, no design tools required.
-        </p>
-      </div>
-
-      <ScrollReveal>
-        {/* Tab switcher */}
-        <div className="flex justify-center mb-8">
-          <div className="inline-flex gap-2 p-1.5 rounded-2xl bg-secondary/50 border border-border/10 backdrop-blur-xl" role="tablist" aria-label="Chart types">
-            {charts.map((chart, i) => (
-              <button
-                key={chart.id}
-                role="tab"
-                aria-selected={activeTab === i}
-                aria-controls={`chart-panel-${i}`}
-                onClick={() => setActiveTab(i)}
-                className={cn(
-                  "flex items-center gap-2 px-5 py-2.5 rounded-xl text-[11px] font-black tracking-widest uppercase transition-all",
-                  activeTab === i
-                    ? `bg-background shadow-lg ${chart.color} border border-border/10`
-                    : "text-muted-foreground hover:text-foreground"
-                )}
-              >
-                <chart.icon size={14} aria-hidden="true" />
-                {chart.title}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Chart showcase - Optimized to prevent full chart remount */}
-        <div className="relative">
-          <TiltCard className="border-0" classNameContent="p-0 bg-background/50 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border border-border/10 shadow-2xl">
-            {/* Stable Header/Visual container but inner text animates */}
-            <div className="flex items-start justify-between p-8 pb-0 h-24">
-              <div className="flex items-center gap-4">
-                <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${active.bg} ${active.color}`}>
-                  <active.icon size={22} aria-hidden="true" />
-                </div>
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={`title-${activeTab}`}
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -5 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    <h3 className="text-xl font-black tracking-tight">{active.title}</h3>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-60 mt-0.5">{active.subtitle}</p>
-                  </motion.div>
-                </AnimatePresence>
-              </div>
-              <AnimatePresence mode="wait">
-                <motion.span
-                  key={`badge-${activeTab}`}
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.9 }}
-                  className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border ${active.border} ${active.bg} ${active.color}`}
-                >
-                  {active.type}
-                </motion.span>
-              </AnimatePresence>
-            </div>
-
-            {/* Stable Chart Canvas - Transition is handled by ECharts itself */}
-            <div className="px-8 pt-6">
-              <div className="rounded-3xl overflow-hidden bg-secondary/20 dark:bg-black/40 border border-border/10 p-4" style={{ height: '360px' }}>
-                <EChart option={active.option} theme={resolvedTheme} style={{ height: '100%', width: '100%' }} />
-              </div>
-            </div>
-
-            {/* Animating Insight + stats */}
-            <div className="p-8 pt-6 space-y-4">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={`insight-${activeTab}`}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.25 }}
-                  className="space-y-4"
-                >
-                  <div className={`p-4 rounded-2xl border ${active.border} ${active.bg} flex items-start gap-3`}>
-                    <Sparkles size={16} className={`${active.color} shrink-0 mt-0.5`} aria-hidden="true" />
-                    <p className="text-sm font-bold opacity-80">{active.insight}</p>
-                  </div>
-
-                  <div className="grid grid-cols-3 gap-3">
-                    {active.stats.map((stat) => (
-                      <div key={stat.label} className="p-4 rounded-2xl bg-secondary/30 border border-border/10 text-center">
-                        <p className="text-xl font-black">{stat.value}</p>
-                        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-50 mt-1">{stat.label}</p>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              </AnimatePresence>
-            </div>
-          </TiltCard>
-        </div>
-
-        {/* CTA */}
-        <div className="flex justify-center mt-12">
-          <Button variant="ghost" aria-label="Explore our wide library of data visualizations" className="gap-2 rounded-2xl px-12 h-16 text-lg font-black hover:bg-blue-500/10 text-blue-500 transition-all border border-blue-500/10" asChild>
-            <Link href="/visuals">
-              EXPLORE 50+ CHART TYPES <ArrowRight size={22} aria-hidden="true" />
-            </Link>
-          </Button>
-        </div>
-      </ScrollReveal>
-    </div>
-  );
-}
 
 // --- Main Assembly ---
 export default function Home() {
@@ -708,32 +384,22 @@ export default function Home() {
   };
 
   return (
-    <main className="min-h-screen bg-background relative selection:bg-blue-500/30 overflow-x-hidden">
+    <main className="min-h-screen bg-background relative selection:bg-foreground/30 overflow-x-hidden">
 
-      {/* GLOBAL BACKGROUND SYSTEM - Reduced blurs for performance */}
-      <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
-        <div className="absolute inset-0 bg-background" />
-        <div className="absolute -top-[10%] left-[20%] w-[150%] sm:w-200 h-[150%] sm:h-200 bg-blue-500/5 dark:bg-blue-600/10 blur-[64px] rounded-full will-change-[opacity]" />
-        <div className="absolute -bottom-[20%] -right-[10%] w-[120%] sm:w-150 h-[120%] sm:h-150 bg-emerald-500/3 dark:bg-emerald-600/10 blur-[48px] rounded-full will-change-[opacity]" />
-      </div>
+
 
       <div className="relative z-0">
         <HeroSection onStart={scrollToVisuals} />
 
-        <div className="relative bg-background/50 backdrop-blur-3xl py-2 border-y border-border/20 will-change-transform">
+        <div className="relative bg-background/50  py-2 border-y border-border/20 will-change-transform">
           <LogoTicker />
         </div>
 
         <ProductStory />
 
-        <VisualizationPanel />
 
-        <div className="max-w-325 mx-auto px-6 relative">
-          <ScrollReveal>
-            <AnalysisFeatures />
-          </ScrollReveal>
 
-        </div>
+
       </div>
     </main>
   );

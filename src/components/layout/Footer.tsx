@@ -1,23 +1,22 @@
 import Link from "next/link";
 import {
-    Sparkles, Home, BarChart3, FlaskConical, BookOpen,
-    GraduationCap, Info, Phone, LifeBuoy
+    Home, BarChart3, FlaskConical, BookOpen,
+    GraduationCap, Info, Phone, LifeBuoy, CreditCard
 } from "lucide-react";
+import { Logo } from "@/components/ui/Logo";
 import { GithubIcon, TiktokIcon } from "@/components/ui/Icons";
 import { NewsletterForm } from "@/components/ui/NewsletterForm";
 
 export function Footer() {
     return (
-        <footer className="relative border-t border-border/10 bg-background/50 backdrop-blur-3xl pt-12 pb-8 overflow-hidden">
+        <footer className="relative border-t border-border bg-background pt-12 pb-8 overflow-hidden">
             <div className="container relative z-10 mx-auto px-6 max-w-325">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 mb-12">
 
                     {/* Brand Section */}
                     <div className="lg:col-span-4 space-y-6">
                         <Link href="/" className="flex items-center gap-3 group w-fit">
-                            <div className="p-2.5 rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-500/20 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3">
-                                <Sparkles size={20} />
-                            </div>
+                            <Logo className="w-10 h-10 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3" />
                             <span className="text-2xl font-black tracking-tight text-foreground transition-all duration-300">
                                 PyAnalypt
                             </span>
@@ -38,7 +37,7 @@ export function Footer() {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     aria-label={social.name}
-                                    className={`p-3 rounded-2xl bg-secondary/50 border border-border/10 text-muted-foreground transition-all duration-300 hover:text-white hover:scale-110 ${social.color}`}
+                                    className={`p-3 rounded-xl border border-border text-muted-foreground transition-all duration-300 hover:text-foreground hover:scale-110 ${social.color}`}
                                 >
                                     <social.icon size={18} className={social.name === "GitHub" ? "" : "fill-current"} />
                                 </Link>
@@ -52,7 +51,7 @@ export function Footer() {
                         <ul className="space-y-4 text-sm font-bold text-muted-foreground">
                             <li><Link href="/" className="hover:text-blue-500 transition-colors flex items-center gap-2 group"><Home size={14} className="opacity-50 group-hover:opacity-100" /> Home</Link></li>
                             <li><Link href="/visuals" className="hover:text-blue-500 transition-colors flex items-center gap-2 group"><BarChart3 size={14} className="opacity-50 group-hover:opacity-100" /> Visuals</Link></li>
-                            <li><Link href="/contact" className="hover:text-blue-500 transition-colors flex items-center gap-2 group"><Sparkles size={14} className="opacity-50 group-hover:opacity-100" /> Pricing</Link></li>
+                            <li><Link href="/contact" className="hover:text-blue-500 transition-colors flex items-center gap-2 group"><CreditCard size={14} className="opacity-50 group-hover:opacity-100" /> Pricing</Link></li>
                             <li><Link href="/tutorials" className="hover:text-blue-500 transition-colors flex items-center gap-2 group"><GraduationCap size={14} className="opacity-50 group-hover:opacity-100" /> Tutorials</Link></li>
                             <li><Link href="/playground" className="hover:text-blue-500 transition-colors flex items-center gap-2 group"><FlaskConical size={14} className="opacity-50 group-hover:opacity-100" /> Playground</Link></li>
                             <li><Link href="/docs" className="hover:text-blue-500 transition-colors flex items-center gap-2 group"><BookOpen size={14} className="opacity-50 group-hover:opacity-100" /> Documentation</Link></li>
@@ -82,7 +81,7 @@ export function Footer() {
                 </div>
 
                 {/* Bottom Bar */}
-                <div className="pt-8 border-t border-border/10 flex flex-col sm:flex-row justify-between items-center gap-4">
+                <div className="pt-8 border-t border-border flex flex-col sm:flex-row justify-between items-center gap-4">
                     <p className="text-sm text-muted-foreground font-black uppercase tracking-widest opacity-40">
                         © {new Date().getFullYear()} PyAnalypt Inc.
                     </p>
@@ -93,7 +92,7 @@ export function Footer() {
             </div>
 
             {/* Background Effects */}
-            <div className="absolute bottom-0 left-0 w-full h-px bg-linear-to-r from-transparent via-blue-500/20 to-transparent" />
+            <div className="absolute bottom-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-blue-500/20 to-transparent" />
         </footer>
     );
 }
