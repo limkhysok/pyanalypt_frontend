@@ -8,7 +8,6 @@ import {
   TrendingUp, Database, ArrowRight, Sparkles,
   CheckCircle2, Quote,
 } from "lucide-react";
-import dynamic from "next/dynamic";
 
 // UI Components
 import { Button } from "@/components/ui/button";
@@ -17,9 +16,7 @@ import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { LogoTicker } from "@/components/ui/logo-ticker";
 import { GithubIcon } from "@/components/ui/Icons";
 
-const EChart = dynamic(() => import("@/components/ui/EChart"), { ssr: false });
-
-// --- REDESIGNED Hero Section ---
+// --- Hero Section ---
 interface HeroSectionProps {
   onStart: () => void;
 }
@@ -35,31 +32,19 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
 
   return (
     <section className="relative min-h-[85vh] flex flex-col items-center justify-center pt-24 pb-4 overflow-hidden border-b border-border/10">
-
-
       <div className="container relative z-10 mx-auto px-6 max-w-325">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
           {/* Text Content - Left Side */}
           <div className="space-y-8 text-center lg:text-left flex flex-col items-center lg:items-start max-w-2xl mx-auto lg:mx-0">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted border border-border shadow-sm"
-            >
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted border border-border shadow-sm">
               <Logo className="w-3.5 h-3.5" />
               <span className="text-[10px] font-black uppercase tracking-widest text-foreground">
                 Next-Gen Data Engine
               </span>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.1 }}
-              className="space-y-4"
-            >
+            <div className="space-y-4">
               <h1 className="text-4xl md:text-6xl xl:text-7xl font-black tracking-tight leading-[1.05] text-foreground">
                 Turn Raw Data <br />
                 Into <span className="text-foreground italic">Actionable</span> <br />
@@ -68,14 +53,9 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
               <p className="text-lg md:text-xl text-muted-foreground font-medium max-w-xl mx-auto lg:mx-0 leading-relaxed pt-2">
                 PyAnalypt is the bridge between complex data science and intuitive business decisions. No configuration, just insights.
               </p>
-            </motion.div>
+            </div>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-col sm:flex-row items-center gap-4 pt-4"
-            >
+            <div className="flex flex-col sm:flex-row items-center gap-4 pt-4">
               <Button
                 size="lg"
                 onClick={onStart}
@@ -90,20 +70,13 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
                   <GithubIcon size={16} /> Repository
                 </Button>
               </Link>
-            </motion.div>
+            </div>
           </div>
 
           {/* Visual Content - Right Side */}
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.9, delay: 0.2 }}
-            className="relative w-full max-w-2xl mx-auto"
-          >
+          <div className="relative w-full max-w-2xl mx-auto">
             {/* Main card */}
-            <div className="relative rounded-xl bg-background/70  border border-border/10 shadow-md p-6 space-y-5">
-
-
+            <div className="relative rounded-xl bg-background/70 border border-border/10 shadow-md p-6 space-y-5 transform-gpu transition-all">
               {/* Card header */}
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
@@ -122,14 +95,12 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
 
               {/* Raw → Chart transform */}
               <div className="grid grid-cols-[1fr_36px_1fr] gap-3 items-center">
-
                 {/* Raw CSV */}
                 <div className="rounded-2xl bg-secondary/30 border border-border/10 p-4 space-y-2 relative overflow-hidden">
-                  {/* Scanning highlight */}
                   <motion.div
-                    className="absolute left-0 right-0 h-5 bg-muted pointer-events-none will-change-transform"
-                    animate={{ y: [10, 28, 46, 64, 82] }}
-                    transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 2, ease: "linear" }}
+                    className="absolute left-0 right-0 h-5 bg-muted pointer-events-none transform-gpu"
+                    animate={{ y: [10, 82] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
                   />
                   <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-50 mb-2">Raw CSV</p>
                   {["Jan, 1200", "Feb, 2100", "Mar, 1800", "Apr, 2400"].map((row) => (
@@ -138,19 +109,14 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
                       <span className="text-[10px] font-mono text-muted-foreground opacity-60">{row}</span>
                     </div>
                   ))}
-                  <div className="flex items-center gap-2 opacity-25">
-                    <span className="w-1 h-1 rounded-full bg-border shrink-0" aria-hidden="true" />
-                    <span className="text-[10px] font-mono text-muted-foreground">···</span>
-                  </div>
                 </div>
 
                 {/* Transform icon */}
                 <div className="flex justify-center">
                   <motion.div
-                    animate={{ rotate: [0, 20, -20, 0], scale: [1, 1.2, 1.2, 1] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", repeatDelay: 1.5 }}
-                    className="w-9 h-9 flex items-center justify-center"
-                    aria-hidden="true"
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                    className="w-9 h-9 flex items-center justify-center transform-gpu"
                   >
                     <Logo className="w-full h-full" />
                   </motion.div>
@@ -161,20 +127,12 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
                   <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-50 mb-3">Visual Output</p>
                   <div className="flex items-end gap-1 h-14" role="img" aria-label="Bar chart preview">
                     {[
-                      { pct: 40, month: "Jan" },
-                      { pct: 72, month: "Feb" },
-                      { pct: 55, month: "Mar" },
-                      { pct: 88, month: "Apr" },
-                      { pct: 62, month: "May" },
-                      { pct: 95, month: "Jun" },
-                      { pct: 78, month: "Jul" },
-                    ].map((bar, i) => (
-                      <motion.div
-                        key={bar.month}
-                        initial={{ scaleY: 0 }}
-                        animate={{ scaleY: 1 }}
-                        transition={{ delay: 1.1 + i * 0.08, duration: 0.6, ease: "easeOut" }}
-                        style={{ height: `${bar.pct}%`, transformOrigin: "bottom" }}
+                      { v: 40, m: "Jan" }, { v: 72, m: "Feb" }, { v: 55, m: "Mar" }, 
+                      { v: 88, m: "Apr" }, { v: 62, m: "May" }, { v: 95, m: "Jun" }, { v: 78, m: "Jul" }
+                    ].map((bar) => (
+                      <div
+                        key={bar.m}
+                        style={{ height: `${bar.v}%` }}
                         className="flex-1 rounded-t bg-zinc-800 dark:bg-zinc-200"
                       />
                     ))}
@@ -183,66 +141,49 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
               </div>
 
               {/* AI Insight callout */}
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1, duration: 0.5 }}
-                className="flex items-start gap-3 p-4 rounded-2xl bg-muted/50 border border-border"
-              >
+              <div className="flex items-start gap-3 p-4 rounded-2xl bg-muted/50 border border-border transform-gpu">
                 <Logo className="w-6 h-6 shrink-0 mt-0.5" />
                 <p className="text-xs font-bold text-foreground/80 leading-relaxed">
-                  Revenue peaked in <span className="text-foreground font-black">April (+12.5%)</span>. North America is the primary growth driver this quarter.
+                  Revenue peaked in <span className="text-foreground font-black">April (+12.5%)</span>. North America is the primary growth driver.
                 </p>
-              </motion.div>
+              </div>
 
               {/* Stat chips */}
               <div className="grid grid-cols-3 gap-3">
                 {[
-                  { icon: TrendingUp, label: "Growth", value: "+12.5%", color: "text-foreground", bg: "bg-muted" },
-                  { icon: Database, label: "Records", value: "2.4M", color: "text-foreground/80", bg: "bg-secondary/60" },
-                  { icon: Search, label: "Insight", value: "3 sec", color: "text-foreground/80", bg: "bg-secondary/60" },
-                ].map((s, i) => (
-                  <motion.div
+                  { icon: TrendingUp, label: "Growth", value: "+12.5%" },
+                  { icon: Database, label: "Records", value: "2.4M" },
+                  { icon: Search, label: "Insight", value: "3 sec" },
+                ].map((s) => (
+                  <div
                     key={s.label}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1.5 + i * 0.1, duration: 0.4 }}
-                    className="p-3 rounded-2xl bg-background/60 border border-border/10 space-y-1.5"
+                    className="p-3 rounded-2xl bg-background/60 border border-border/10 space-y-1.5 transform-gpu"
                   >
-                    <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${s.bg}`}>
-                      <s.icon size={12} className={s.color} aria-hidden="true" />
-                    </div>
-                    <p className={`text-base font-black ${s.color}`}>{s.value}</p>
+                    <s.icon size={12} className="text-foreground" aria-hidden="true" />
+                    <p className="text-base font-black">{s.value}</p>
                     <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-50">{s.label}</p>
-                  </motion.div>
+                  </div>
                 ))}
               </div>
             </div>
 
-            {/* Floating badges */}
-            <motion.div
-              animate={{ y: [0, -12, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -top-5 -right-4 px-4 py-2.5 rounded-2xl bg-background border border-border/20 shadow-sm z-20 hidden md:flex items-center gap-2"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-foreground animate-pulse" aria-hidden="true" />
+            {/* Badges */}
+            <div className="absolute -top-5 -right-4 px-4 py-2.5 rounded-2xl bg-background border border-border/20 shadow-sm z-20 hidden md:flex items-center gap-2 transform-gpu">
+              <span className="w-1.5 h-1.5 rounded-full bg-foreground" aria-hidden="true" />
               <span className="text-[10px] font-black text-foreground/70 uppercase tracking-widest">Live Analysis</span>
-            </motion.div>
+            </div>
 
-            <motion.div
-              animate={{ y: [0, 12, 0] }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-              className="absolute -bottom-5 -left-4 px-4 py-2.5 rounded-2xl bg-background border border-border/20 shadow-sm z-20 hidden md:flex items-center gap-2"
-            >
+            <div className="absolute -bottom-5 -left-4 px-4 py-2.5 rounded-2xl bg-background border border-border/20 shadow-sm z-20 hidden md:flex items-center gap-2 transform-gpu">
               <BarChart2 size={13} className="text-foreground" aria-hidden="true" />
               <span className="text-[10px] font-black text-foreground/70 uppercase tracking-widest">50+ Chart Types</span>
-            </motion.div>
-          </motion.div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
   );
 }
+
 function ProductStory() {
   const checkmarks = [
     "No Python, No SQL, No terminal — ever",
@@ -259,8 +200,6 @@ function ProductStory() {
       </div>
 
       <div className="container mx-auto px-6 max-w-325 space-y-28">
-
-        {/* ── Part 1: The Problem + Solution narrative ── */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
           <ScrollReveal>
             <div className="space-y-8 max-w-xl">
@@ -287,13 +226,8 @@ function ProductStory() {
                   <span className="text-foreground font-bold">hundreds of thousands of dollars</span> for — without
                   writing a single line of code.
                 </p>
-                <p>
-                  Import your file. Ask a question. Get the answer.{" "}
-                  <span className="text-foreground font-bold">No technical knowledge required — ever.</span>
-                </p>
               </div>
 
-              {/* Checkmarks */}
               <ul className="space-y-3 pt-2" aria-label="Key benefits">
                 {checkmarks.map((item) => (
                   <li key={item} className="flex items-center gap-3 text-sm font-bold text-foreground/80">
@@ -304,36 +238,19 @@ function ProductStory() {
                   </li>
                 ))}
               </ul>
-
-              {/* Mini stats */}
-              <div className="flex gap-8 pt-6 border-t border-border/10">
-                {[
-                  { value: "10K+", label: "Businesses" },
-                  { value: "< 5 min", label: "First Insight" },
-                  { value: "0", label: "Lines of Code" },
-                ].map((stat) => (
-                  <div key={stat.label} className="space-y-1">
-                    <p className="text-2xl font-black text-foreground">{stat.value}</p>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">{stat.label}</p>
-                  </div>
-                ))}
-              </div>
             </div>
           </ScrollReveal>
 
-          {/* Right: Testimonial + stat chips */}
           <ScrollReveal>
             <div className="relative w-full max-w-md mx-auto lg:ml-auto space-y-4">
-
-              {/* Testimonial card */}
-              <div className="relative p-8 rounded-xl bg-background/60  border border-border/10 shadow-md">
+              <div className="relative p-8 rounded-xl bg-background/60 border border-border/10 shadow-md">
                 <Quote size={32} className="text-zinc-500/30 mb-4" aria-hidden="true" />
                 <p className="text-lg font-bold leading-relaxed text-foreground/80 italic">
                   &ldquo;I spent 3 days every month building reports in Excel. With PyAnalypt I get the same output in
                   4 minutes — and the charts actually look good.&rdquo;
                 </p>
                 <div className="flex items-center gap-3 mt-6 pt-6 border-t border-border/10">
-                  <div className="w-10 h-10 rounded-full bg-linear-to-br from-zinc-800 dark:from-zinc-200 to-zinc-500 flex items-center justify-center text-white text-xs font-black" aria-hidden="true">
+                  <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center text-white text-xs font-black">
                     SL
                   </div>
                   <div>
@@ -342,41 +259,24 @@ function ProductStory() {
                   </div>
                 </div>
               </div>
-
-              {/* Stat chips */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-5 rounded-2xl bg-background/60  border border-border/10 shadow-sm space-y-2">
-                  <p className="text-3xl font-black text-foreground">97%</p>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Less setup time</p>
-                </div>
-                <div className="p-5 rounded-2xl bg-background/60  border border-border/10 shadow-sm space-y-2">
-                  <p className="text-3xl font-black text-zinc-500">30+</p>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Chart types ready</p>
-                </div>
-              </div>
             </div>
           </ScrollReveal>
         </div>
 
-        {/* ── CTA to Tutorials ── */}
         <ScrollReveal>
           <div className="flex justify-center pt-4">
-            <Link href="/tutorials" aria-label="See the full step-by-step tutorial guide">
+            <Link href="/tutorials">
               <Button variant="outline" size="lg" className="gap-2">
-                See the Full Step-by-Step Guide <ArrowRight size={16} aria-hidden="true" />
+                See the Full Guide <ArrowRight size={16} />
               </Button>
             </Link>
           </div>
         </ScrollReveal>
-
       </div>
     </section>
   );
 }
 
-
-
-// --- Main Assembly ---
 export default function Home() {
   const scrollToVisuals = () => {
     const element = document.getElementById('visuals-section');
@@ -385,21 +285,12 @@ export default function Home() {
 
   return (
     <main className="min-h-screen bg-background relative selection:bg-foreground/30 overflow-x-hidden">
-
-
-
       <div className="relative z-0">
         <HeroSection onStart={scrollToVisuals} />
-
-        <div className="relative bg-background/50  py-2 border-y border-border/20 will-change-transform">
+        <div className="relative bg-background/50 py-2 border-y border-border/10 transform-gpu">
           <LogoTicker />
         </div>
-
         <ProductStory />
-
-
-
-
       </div>
     </main>
   );

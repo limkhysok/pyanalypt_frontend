@@ -92,10 +92,10 @@ export function LogoTicker() {
                                 className="flex flex-col items-center gap-2.5 group min-w-14"
                             >
                                 <div
-                                    className={`relative p-3.5 rounded-2xl border backdrop-blur-sm transition-all duration-300 hover:scale-110 shadow-sm ${bgShades[slot]} ${borderShades[slot]}`}
+                                    className={`relative p-3.5 rounded-2xl border transition-all duration-300 hover:scale-110 shadow-sm ${bgShades[slot]} ${borderShades[slot]}`}
                                 >
                                     {/* Subtle inner glow on hover */}
-                                    <div className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-blue-500/10 blur-md`} />
+                                    <div className={`absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-blue-500/5`} />
                                     <item.icon
                                         size={22}
                                         strokeWidth={1.5}

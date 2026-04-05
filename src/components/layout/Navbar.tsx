@@ -151,62 +151,62 @@ export function Navbar() {
 
             {/* Mobile Menu Dropdown */}
             <AnimatePresence>
-            {mobileMenuOpen && (
-                <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="lg:hidden absolute top-[calc(100%+12px)] inset-x-6 z-40 bg-background/90 backdrop-blur-xl border border-border rounded-2xl p-4 flex flex-col gap-1 shadow-md pointer-events-auto"
-                >
-                    {NAV_ITEMS.map((item) => (
-                        <Link
-                            key={item.label}
-                            href={item.href}
-                            onClick={() => setMobileMenuOpen(false)}
-                            className="p-4 hover:bg-blue-500/5 rounded-xl text-muted-foreground hover:text-blue-500 transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase"
-                        >
-                            {item.label}
-                        </Link>
-                    ))}
-
-                    <div className="h-px bg-border/10 my-2 mx-4" />
-
-                    {!isLoading && isAuthenticated ? (
-                        <div className="space-y-1">
+                {mobileMenuOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className="lg:hidden absolute top-[calc(100%+12px)] inset-x-6 z-40 bg-background/90 backdrop-blur-xl border border-border rounded-2xl p-4 flex flex-col gap-1 shadow-md pointer-events-auto"
+                    >
+                        {NAV_ITEMS.map((item) => (
                             <Link
-                                href="/dashboard"
+                                key={item.label}
+                                href={item.href}
                                 onClick={() => setMobileMenuOpen(false)}
                                 className="p-4 hover:bg-blue-500/5 rounded-xl text-muted-foreground hover:text-blue-500 transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase"
                             >
-                                Dashboard
+                                {item.label}
                             </Link>
-                            <button
-                                onClick={() => { logout(); setMobileMenuOpen(false); }}
-                                className="w-full p-4 hover:bg-red-500/5 rounded-xl text-red-500/70 hover:text-red-500 transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase"
-                            >
-                                Log out
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="flex gap-2 px-2 pb-2">
-                            <Link
-                                href="/login"
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="flex-1 p-4 hover:bg-blue-500/5 rounded-xl text-muted-foreground hover:text-blue-500 transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase border border-border/20"
-                            >
-                                LOGIN
-                            </Link>
-                            <Link
-                                href="/register"
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="flex-1 p-4 bg-blue-600 hover:bg-blue-700 rounded-xl text-white transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase"
-                            >
-                                REGISTER
-                            </Link>
-                        </div>
-                    )}
-                </motion.div>
-            )}
+                        ))}
+
+                        <div className="h-px bg-border/10 my-2 mx-4" />
+
+                        {!isLoading && isAuthenticated ? (
+                            <div className="space-y-1">
+                                <Link
+                                    href="/dashboard"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="p-4 hover:bg-blue-500/5 rounded-xl text-muted-foreground hover:text-blue-500 transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase"
+                                >
+                                    Dashboard
+                                </Link>
+                                <button
+                                    onClick={() => { logout(); setMobileMenuOpen(false); }}
+                                    className="w-full p-4 hover:bg-red-500/5 rounded-xl text-red-500/70 hover:text-red-500 transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase"
+                                >
+                                    Log out
+                                </button>
+                            </div>
+                        ) : (
+                            <div className="flex gap-2 px-2 pb-2">
+                                <Link
+                                    href="/login"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="flex-1 p-4 hover:bg-blue-500/5 rounded-xl text-muted-foreground hover:text-blue-500 transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase border border-border/20"
+                                >
+                                    LOGIN
+                                </Link>
+                                <Link
+                                    href="/register"
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className="flex-1 p-4 bg-blue-600 hover:bg-blue-700 rounded-xl text-white transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase"
+                                >
+                                    REGISTER
+                                </Link>
+                            </div>
+                        )}
+                    </motion.div>
+                )}
             </AnimatePresence>
         </div>
     );
