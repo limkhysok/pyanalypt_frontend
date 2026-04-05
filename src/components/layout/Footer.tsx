@@ -52,7 +52,7 @@ export function Footer() {
                         <ul className="space-y-4 text-sm font-bold text-muted-foreground">
                             <li><Link href="/" className="hover:text-blue-500 transition-colors flex items-center gap-2 group"><Home size={14} className="opacity-50 group-hover:opacity-100" /> Home</Link></li>
                             <li><Link href="/visuals" className="hover:text-blue-500 transition-colors flex items-center gap-2 group"><BarChart3 size={14} className="opacity-50 group-hover:opacity-100" /> Visuals</Link></li>
-                            <li><Link href="/pricing" className="hover:text-blue-500 transition-colors flex items-center gap-2 group"><Sparkles size={14} className="opacity-50 group-hover:opacity-100" /> Pricing</Link></li>
+                            <li><Link href="/contact" className="hover:text-blue-500 transition-colors flex items-center gap-2 group"><Sparkles size={14} className="opacity-50 group-hover:opacity-100" /> Pricing</Link></li>
                             <li><Link href="/tutorials" className="hover:text-blue-500 transition-colors flex items-center gap-2 group"><GraduationCap size={14} className="opacity-50 group-hover:opacity-100" /> Tutorials</Link></li>
                             <li><Link href="/playground" className="hover:text-blue-500 transition-colors flex items-center gap-2 group"><FlaskConical size={14} className="opacity-50 group-hover:opacity-100" /> Playground</Link></li>
                             <li><Link href="/docs" className="hover:text-blue-500 transition-colors flex items-center gap-2 group"><BookOpen size={14} className="opacity-50 group-hover:opacity-100" /> Documentation</Link></li>
@@ -65,8 +65,8 @@ export function Footer() {
                         <ul className="space-y-4 text-sm font-bold text-muted-foreground">
                             <li><Link href="/about" className="hover:text-blue-500 transition-colors flex items-center gap-2 group"><Info size={14} className="opacity-50 group-hover:opacity-100" /> About Us</Link></li>
                             <li><Link href="/contact" className="hover:text-blue-500 transition-colors flex items-center gap-2 group"><Phone size={14} className="opacity-50 group-hover:opacity-100" /> Contact Us</Link></li>
-                            <li><Link href="/support" className="hover:text-blue-500 transition-colors flex items-center gap-2 group"><LifeBuoy size={14} className="opacity-50 group-hover:opacity-100" /> Help Center</Link></li>
-                            <li><Link href="/blog" className="hover:text-blue-500 transition-colors flex items-center gap-2 group"><BarChart3 size={14} className="opacity-50 group-hover:opacity-100" /> Case Studies</Link></li>
+                            <li><Link href="/docs" className="hover:text-blue-500 transition-colors flex items-center gap-2 group"><LifeBuoy size={14} className="opacity-50 group-hover:opacity-100" /> Help Center</Link></li>
+                            <li><Link href="/tutorials" className="hover:text-blue-500 transition-colors flex items-center gap-2 group"><BarChart3 size={14} className="opacity-50 group-hover:opacity-100" /> Case Studies</Link></li>
                         </ul>
                     </nav>
 

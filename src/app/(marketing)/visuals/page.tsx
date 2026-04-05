@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState, Suspense } from "react";
+import React, { useState, Suspense, useMemo } from "react";
 import {
     Info, Search, ChevronRight, BarChart2,
 } from "lucide-react";
 import { motion, AnimatePresence, Variants } from "motion/react";
 import { useSearchParams, useRouter } from "next/navigation";
-import EChart from "@/components/ui/EChart";
+import dynamic from "next/dynamic";
+const EChart = dynamic(() => import("@/components/ui/EChart"), { ssr: false });
 import { VISUALIZATIONS_CATALOG } from "@/lib/visualizations-data";
 import sampleData from "@/lib/sample_visuals_data.json";
 import { Card } from "@/components/ui/card";
@@ -546,9 +547,12 @@ function VisualsPageContent() {
     const [activeChartId, setActiveChartId] = useState(initialChart);
     const [searchTerm, setSearchTerm] = useState("");
     const activeChart = VISUALIZATIONS_CATALOG.find(c => c.id === activeChartId) || VISUALIZATIONS_CATALOG[0];
-    const filteredCatalog = VISUALIZATIONS_CATALOG.filter(c =>
-        c.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        c.desc.toLowerCase().includes(searchTerm.toLowerCase())
+    const filteredCatalog = useMemo(() =>
+        VISUALIZATIONS_CATALOG.filter(c =>
+            c.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            c.desc.toLowerCase().includes(searchTerm.toLowerCase())
+        ),
+        [searchTerm]
     );
 
     return (

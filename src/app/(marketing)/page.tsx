@@ -11,8 +11,8 @@ import {
   MessageSquareText, RefreshCcw,
   CheckCircle2, Quote,
 } from "lucide-react";
-import * as echarts from "echarts";
 import { useTheme } from "next-themes";
+import dynamic from "next/dynamic";
 
 // UI Components
 import { Button } from "@/components/ui/button";
@@ -20,7 +20,8 @@ import { TiltCard } from "@/components/ui/tilt-card";
 import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { LogoTicker } from "@/components/ui/logo-ticker";
 import { GithubIcon } from "@/components/ui/Icons";
-import EChart from "@/components/ui/EChart";
+
+const EChart = dynamic(() => import("@/components/ui/EChart"), { ssr: false });
 
 // --- REDESIGNED Hero Section ---
 interface HeroSectionProps {
@@ -499,7 +500,7 @@ function VisualizationPanel() {
     grid: { left: '3%', right: '4%', bottom: '3%', containLabel: true },
     xAxis: [{ type: 'category', boundaryGap: false, data: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'], axisLine: { lineStyle: { color: axisLineColor } }, axisLabel: { color: textColor, fontSize: 10 } }],
     yAxis: [{ type: 'value', splitLine: { lineStyle: { color: gridColor } }, axisLabel: { color: textColor, fontSize: 10 } }],
-    series: [{ name: 'Revenue', type: 'line', smooth: true, lineStyle: { width: 3, color: '#3b82f6' }, showSymbol: false, areaStyle: { opacity: 0.1, color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{ offset: 0, color: '#3b82f6' }, { offset: 1, color: 'transparent' }]) }, data: [420, 932, 901, 1234, 1290, 1530, 2120] }]
+    series: [{ name: 'Revenue', type: 'line', smooth: true, lineStyle: { width: 3, color: '#3b82f6' }, showSymbol: false, areaStyle: { opacity: 0.1, color: { type: 'linear', x: 0, y: 0, x2: 0, y2: 1, colorStops: [{ offset: 0, color: '#3b82f6' }, { offset: 1, color: 'transparent' }] } }, data: [420, 932, 901, 1234, 1290, 1530, 2120] }]
   }), [tooltipBg, tooltipBorder, tooltipText, axisLineColor, textColor, gridColor]);
 
   const scatterData = useMemo(() => Array.from({ length: 40 }, () => [Math.random() * 100, Math.random() * 100]), []);
@@ -518,7 +519,7 @@ function VisualizationPanel() {
     yAxis: { axisLine: { lineStyle: { color: axisLineColor } }, axisLabel: { color: textColor, fontSize: 10 }, splitLine: { lineStyle: { color: gridColor } } },
     series: [{
       data: bubbleData, type: 'scatter', symbolSize: (data: number[]) => data[2] * 0.8,
-      itemStyle: { shadowBlur: 10, shadowColor: 'rgba(16, 185, 129, 0.4)', color: new echarts.graphic.RadialGradient(0.4, 0.3, 1, [{ offset: 0, color: '#34d399' }, { offset: 1, color: 'transparent' }]) }
+      itemStyle: { shadowBlur: 10, shadowColor: 'rgba(16, 185, 129, 0.4)', color: { type: 'radial', x: 0.4, y: 0.3, r: 1, colorStops: [{ offset: 0, color: '#34d399' }, { offset: 1, color: 'transparent' }] } }
     }]
   }), [axisLineColor, textColor, gridColor]);
 

@@ -3,7 +3,8 @@
 import React, { useState, useMemo, useRef } from "react";
 import { motion } from "motion/react";
 import { Zap, BarChart3, PieChart, LineChart, FileText, Download } from "lucide-react";
-import EChart from "@/components/ui/EChart";
+import dynamic from "next/dynamic";
+const EChart = dynamic(() => import("@/components/ui/EChart"), { ssr: false });
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 
