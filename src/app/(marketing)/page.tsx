@@ -4,12 +4,11 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import {
   ArrowRight, Sparkles,
-  CheckCircle2, Quote, Database, Code2, Search, Settings, Filter
+  CheckCircle2, Database, Code2, Search, Settings, Filter
 } from "lucide-react";
 
 // UI Components
 import { Button } from "@/components/ui/button";
-import { ScrollReveal } from "@/components/ui/scroll-reveal";
 import { GithubIcon } from "@/components/ui/Icons";
 
 // --- Hero Section ---
@@ -121,11 +120,11 @@ function HeroSection({ onStart }: Readonly<{ onStart: () => void }>) {
                     <div className="flex items-center gap-4 md:gap-6">
                       <div className="flex items-center gap-2 group/legend cursor-help">
                         <div className="w-2 h-2 rounded-full border-2 border-border group-hover:border-foreground transition-colors" />
-                        <span className="text-[10px] font-black text-muted-foreground group-hover:text-foreground transition-colors">Projected</span>
+                        <span className="text-[11px] font-black text-muted-foreground group-hover:text-foreground transition-colors">Projected</span>
                       </div>
                       <div className="flex items-center gap-2 group/legend cursor-help">
                         <div className="w-2 h-2 rounded-full bg-foreground shadow-sm" />
-                        <span className="text-[10px] font-black text-foreground">Actual</span>
+                        <span className="text-[11px] font-black text-foreground">Actual</span>
                       </div>
                     </div>
                   </div>
@@ -144,7 +143,7 @@ function HeroSection({ onStart }: Readonly<{ onStart: () => void }>) {
                         <div
                           key={`gray-bar-${i}-${h}`}
                           style={{ height: `${h}%` }}
-                          className={`flex-1 transition-all duration-300 border-x border-t border-transparent hover:h-[${h + 4}%] hover:brightness-125 hover:shadow-[0_0_15px_rgba(0,0,0,0.05)] cursor-pointer group/bar ${colorClass} relative`}
+                          className={`flex-1 transition-all duration-500 border-x border-t border-transparent hover:h-[${h + 4}%] hover:brightness-125 hover:shadow-[0_0_15px_rgba(0,0,0,0.05)] cursor-pointer group/bar ${colorClass} relative`}
                         >
                           <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-opacity text-[8px] font-black">{h}%</div>
                         </div>
@@ -182,65 +181,49 @@ function ProductStory() {
   const checkmarks = [
     "No python, no sql, no terminal — Ever",
     "Works with Excel, JSON, CSV & Parquet",
-    "Instant results — No setup, no wait",
+    "Instant results — No developer, no setup, no wait",
     "Boardroom-ready charts, always",
+    "Secure local processing — Your data stays yours",
+    "One-click PDF & image exports",
   ];
 
   return (
-    <section className="py-24 relative overflow-hidden bg-secondary/5">
-      <div className="container mx-auto px-6 max-w-7xl space-y-28">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
-          <ScrollReveal>
-            <div className="space-y-8 max-w-xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-100 dark:bg-zinc-800 border border-border shadow-sm">
-                <Sparkles size={14} className="text-zinc-500" aria-hidden="true" />
-                <span className="text-[10px] font-black text-muted-foreground ">
-                  The Problem & Solved
+    <section className="py-32 relative overflow-hidden bg-background">
+      {/* Structural Backdrop Grid */}
+      <div className="absolute inset-x-0 top-0 h-24 bg-linear-to-b from-secondary/10 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808005_1px,transparent_1px),linear-gradient(to_bottom,#80808005_1px,transparent_1px)] bg-[size:60px_60px] pointer-events-none" />
+
+      <div className="container mx-auto px-6 max-w-5xl relative z-10">
+        <div className="flex flex-col items-center text-center space-y-10">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted border border-border/60">
+            <Sparkles size={14} className="text-foreground/40" aria-hidden="true" />
+            <span className="text-[10px] font-black text-muted-foreground tracking-tight">
+              For Business Owners & Non-Coders
+            </span>
+          </div>
+
+          <div className="space-y-6 max-w-3xl">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter leading-[0.95] text-foreground">
+              Stop waiting for reports. <br />
+              <span className="text-muted-foreground opacity-60">Start leading with data.</span>
+            </h2>
+            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-medium max-w-2xl mx-auto">
+              We built PyAnalypt for leaders who need answers, not code. Upload your data and get professional insights in seconds — completely free.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 pt-8 w-full">
+            {checkmarks.map((item) => (
+              <div key={item} className="flex flex-col items-center gap-4 text-center p-6 rounded-2xl border border-border/40 bg-zinc-50/10 hover:border-foreground/20 hover:bg-background transition-all duration-300 group">
+                <div className="w-8 h-8 rounded-lg bg-muted border border-border/60 flex items-center justify-center group-hover:border-foreground/20 transition-colors">
+                  <CheckCircle2 size={16} className="text-zinc-400 group-hover:text-foreground transition-colors" aria-hidden="true" />
+                </div>
+                <span className="text-xs md:text-sm font-black text-foreground/70 group-hover:text-foreground transition-colors">
+                  {item}
                 </span>
               </div>
-
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-black tracking-tight leading-[1.1] ">
-                Your data has answers. <br />
-                <span className="text-muted-foreground">You just need the right translator.</span>
-              </h2>
-
-              <div className="space-y-5 text-lg text-muted-foreground leading-relaxed font-medium">
-                <p>
-                  Spreadsheets are where data goes to die. They are disconnected, slow, and impossible to scale. We built the engine that breathes life back into your numbers.
-                </p>
-              </div>
-
-              <div className="flex flex-col gap-3 pt-2">
-                {checkmarks.map((item) => (
-                  <div key={item} className="flex items-center gap-3 text-sm font-bold text-foreground/80">
-                    <div className="w-5 h-5 rounded-full bg-zinc-100 border border-zinc-200 flex items-center justify-center shrink-0">
-                      <CheckCircle2 size={12} className="text-zinc-400" aria-hidden="true" />
-                    </div>
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </ScrollReveal>
-
-          <ScrollReveal>
-            <div className="relative p-10 rounded-2xl bg-background border border-border shadow-2xl">
-              <Quote size={40} className="text-zinc-200 dark:text-zinc-800 mb-6" aria-hidden="true" />
-              <p className="text-xl font-bold leading-relaxed text-foreground/80 italic ">
-                &ldquo;I spent 3 days every month building reports in Excel. With PyAnalypt I get the same output in
-                4 minutes — and the charts actually look good.&rdquo;
-              </p>
-              <div className="flex items-center gap-4 mt-8 pt-8 border-t border-border/10">
-                <div className="w-12 h-12 rounded-full bg-zinc-800 flex items-center justify-center text-white text-sm font-black overflow-hidden">
-                  SL
-                </div>
-                <div>
-                  <p className="text-sm font-black tracking-tight ">Sarah L.</p>
-                  <p className="text-[10px] font-bold text-muted-foreground opacity-60 ">E-commerce Founder</p>
-                </div>
-              </div>
-            </div>
-          </ScrollReveal>
+            ))}
+          </div>
         </div>
       </div>
     </section>
