@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useRef } from "react";
-import { useScroll, useTransform, motion } from "framer-motion";
+import { useScroll, useTransform, motion } from "motion/react";
 
-export function ScrollReveal({ children }: { children: React.ReactNode }) {
+export function ScrollReveal({ children }: Readonly<{ children: React.ReactNode }>) {
     const ref = useRef(null);
     const { scrollYProgress } = useScroll({
         target: ref,

@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { motion } from "motion/react";
 
 export function TypewriterEffect() {
     const text = "Actionable Insights";
@@ -10,14 +10,13 @@ export function TypewriterEffect() {
         <span className="inline-block relative">
             {characters.map((char, index) => (
                 <motion.span
-                    key={index}
+                    key={`${char}-${index}`}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{
-                        delay: index * 0.1,
-                        repeat: Infinity,
-                        repeatDelay: 5,
-                        duration: 0.2,
+                        delay: index * 0.05,
+                        duration: 0.4,
+                        ease: "easeOut"
                     }}
                     className="bg-clip-text text-transparent bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-gradient-x"
                 >

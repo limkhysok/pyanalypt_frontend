@@ -2,90 +2,106 @@ import { AxiosError } from 'axios';
 import { ApiError } from '@/types/api';
 
 /**
- * Parse API error response into a user-friendly format
+ * Handle different error response formats from the backend (DRF)
  */
-export function parseApiError(error: unknown): ApiError {
-    if (error instanceof AxiosError) {
-        const statusCode = error.response?.status;
-        const responseData = error.response?.data;
+function parseResponseData(responseData: any, statusCode?: number): ApiError | null {
+    if (!responseData) return null;
 
-        // Handle different error response formats
-        if (responseData) {
-            // Django REST Framework error format
-            if (typeof responseData === 'object') {
-                // Check for detail field (common in DRF)
-                if ('detail' in responseData) {
-                    return {
-                        message: responseData.detail as string,
-                        status: statusCode,
-                    };
-                }
-
-                // Check for field-specific errors
-                const errors: Record<string, string[]> = {};
-                let hasFieldErrors = false;
-
-                Object.keys(responseData).forEach((key) => {
-                    const value = responseData[key];
-                    if (Array.isArray(value)) {
-                        errors[key] = value;
-                        hasFieldErrors = true;
-                    } else if (typeof value === 'string') {
-                        errors[key] = [value];
-                        hasFieldErrors = true;
-                    }
-                });
-
-                if (hasFieldErrors) {
-                    // Create a combined message from field errors
-                    const firstError = Object.values(errors)[0]?.[0];
-                    return {
-                        message: firstError || 'Validation error',
-                        errors,
-                        status: statusCode,
-                    };
-                }
-            }
-
-            // If responseData is a string
-            if (typeof responseData === 'string') {
-                return {
-                    message: responseData,
-                    status: statusCode,
-                };
-            }
-        }
-
-        // Network errors
-        if (error.code === 'ECONNABORTED') {
-            return {
-                message: 'Request timeout. Please try again.',
-                status: 408,
-            };
-        }
-
-        if (error.code === 'ERR_NETWORK') {
-            return {
-                message: 'Network error. Please check your connection.',
-                status: 0,
-            };
-        }
-
-        // Default Axios error
+    // Handle String response
+    if (typeof responseData === 'string') {
         return {
-            message: error.message || 'An error occurred',
+            message: responseData,
             status: statusCode,
         };
     }
 
-    // Generic error
+    // Handle Object response (Django REST Framework)
+    if (typeof responseData === 'object') {
+        // Check for 'detail' field (common in DRF)
+        if ('detail' in responseData) {
+            return {
+                message: responseData.detail as string,
+                status: statusCode,
+            };
+        }
+
+        // Check for field-specific errors
+        const errors: Record<string, string[]> = {};
+        let hasFieldErrors = false;
+
+        Object.entries(responseData).forEach(([key, value]) => {
+            if (Array.isArray(value)) {
+                errors[key] = value;
+                hasFieldErrors = true;
+            } else if (typeof value === 'string') {
+                errors[key] = [value];
+                hasFieldErrors = true;
+            }
+        });
+
+        if (hasFieldErrors) {
+            const firstError = Object.values(errors)[0]?.[0];
+            return {
+                message: firstError || 'Validation error',
+                errors,
+                status: statusCode,
+            };
+        }
+    }
+
+    return null;
+}
+
+/**
+ * Handle network-level errors (timeouts, connection issues)
+ */
+function handleNetworkError(errorCode?: string): ApiError | null {
+    if (errorCode === 'ECONNABORTED') {
+        return {
+            message: 'Request timeout. Please try again.',
+            status: 408,
+        };
+    }
+
+    if (errorCode === 'ERR_NETWORK') {
+        return {
+            message: 'Network error. Please check your connection.',
+            status: 0,
+        };
+    }
+
+    return null;
+}
+
+/**
+ * Parse API error response into a user-friendly format
+ */
+export function parseApiError(error: unknown): ApiError {
+    // 1. Specific handling for Axios Errors
+    if (error instanceof AxiosError) {
+        // Try parsing specialized response data first
+        const parsedResponse = parseResponseData(error.response?.data, error.response?.status);
+        if (parsedResponse) return parsedResponse;
+
+        // Try network specific error codes
+        const networkError = handleNetworkError(error.code);
+        if (networkError) return networkError;
+
+        // Fallback for generic Axios error
+        return {
+            message: error.message || 'An error occurred',
+            status: error.response?.status,
+        };
+    }
+
+    // 2. Generic JS Error objects
     if (error instanceof Error) {
         return {
             message: error.message,
         };
     }
 
-    // Unknown error
+    // 3. Complete unknowns
     return {
         message: 'An unexpected error occurred',
     };

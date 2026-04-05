@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { useMotionValue, useSpring, motion } from "framer-motion";
+import { useMotionValue, useSpring, motion } from "motion/react";
 
 export function CursorFollower() {
     const cursorX = useMotionValue(-100);
@@ -17,10 +17,10 @@ export function CursorFollower() {
             cursorY.set(e.clientY - 16);
         };
 
-        window.addEventListener("mousemove", moveCursor);
+        globalThis.addEventListener("mousemove", moveCursor);
 
         return () => {
-            window.removeEventListener("mousemove", moveCursor);
+            globalThis.removeEventListener("mousemove", moveCursor);
         };
     }, [cursorX, cursorY]);
 

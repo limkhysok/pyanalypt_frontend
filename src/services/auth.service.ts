@@ -4,6 +4,7 @@ import {
     User,
     AuthResponse,
     RegisterRequest,
+    RegisterResponse,
     LoginRequest,
     GoogleAuthRequest,
     RefreshTokenResponse,
@@ -15,29 +16,20 @@ import {
  */
 export const authApi = {
     /**
-     * Register a new user with username and passwords
+     * Register a new user — returns { detail } only; tokens are issued after email verification
      */
-    async register(data: RegisterRequest): Promise<AuthResponse> {
-        console.log("[AuthApi] Registering user:", data.username);
-        const response = await apiClient.post<AuthResponse>('auth/registration/', data);
+    async register(data: RegisterRequest): Promise<RegisterResponse> {
+        console.log("[AuthApi] Registering user:", data.email);
+        const response = await apiClient.post<RegisterResponse>('auth/registration/', data);
         console.log("[AuthApi] Registration Response:", response.data);
-
-        // Store tokens after successful registration
-        if (response.data.access) {
-            tokenManager.setTokens(response.data.access, response.data.refresh || "");
-            console.log("[AuthApi] Tokens stored successfully.");
-        } else {
-            console.warn("[AuthApi] Access token missing in registration response!", response.data);
-        }
-
         return response.data;
     },
 
     /**
-     * Login with username/email and password
+     * Login with email and password
      */
     async login(data: LoginRequest): Promise<AuthResponse> {
-        console.log("[AuthApi] Logging in user:", data.username);
+        console.log("[AuthApi] Logging in user:", data.email);
         const response = await apiClient.post<AuthResponse>('auth/login/', data);
         console.log("[AuthApi] Login Response:", response.data);
 
@@ -82,9 +74,12 @@ export const authApi = {
             refresh: refreshToken,
         });
 
-        // Update access token
-        if (response.data.access) {
-            tokenManager.setAccessToken(response.data.access);
+        // Update tokens (handle optional refresh rotation)
+        const { access, refresh } = response.data;
+        if (refresh) {
+            tokenManager.setTokens(access, refresh);
+        } else if (access) {
+            tokenManager.setAccessToken(access);
         }
 
         return response.data;
@@ -137,18 +132,34 @@ export const authApi = {
             console.log("[AuthApi] auth/user/ Response:", response.data);
             return response.data;
         } catch (error: any) {
-            const errorReport = {
-                status: error.response?.status,
-                data: error.response?.data,
-                message: error.message || "Unknown transport error",
-                endpoint: error.config?.url
-            };
-            console.error("[AuthApi] auth/user/ Error detail:", errorReport);
-            console.error("[AuthApi] Raw Axios Error:", error);
-            // If it's a 401, let the axios interceptor handle it or rethrow
-            // For other errors, return null so we can handle it gracefully
+            // Silently handle 401s during background fetch as the interceptor or AuthContext will manage it
+            if (error.response?.status === 401) {
+                console.log("[AuthApi] auth/user/ session expired or invalid (401). State will be updated.");
+            } else {
+                const errorReport = {
+                    status: error.response?.status,
+                    data: error.response?.data,
+                    message: error.message || "Unknown transport error",
+                    endpoint: error.config?.url
+                };
+                console.error("[AuthApi] auth/user/ fetch error:", errorReport);
+            }
             return null;
         }
+    },
+
+    /**
+     * Confirm email using the key from the verification link
+     */
+    async verifyEmail(key: string): Promise<void> {
+        await apiClient.post('auth/registration/verify-email/', { key });
+    },
+
+    /**
+     * Resend email verification link (expires after 3 days)
+     */
+    async resendVerificationEmail(email: string): Promise<void> {
+        await apiClient.post('auth/registration/resend-email/', { email });
     },
 
     /**
