@@ -18,196 +18,187 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/context/auth-context";
 
-import { motion, useScroll, useMotionValueEvent, AnimatePresence } from "motion/react";
+// Remove motion entry animations as per user desire for motion-lite experience
+// But keep subtle hover/scroll states via static CSS or standard framer-motion props if necessary
+// Actually, user said 'no using motion', so I'll minimize it.
 
 const NAV_ITEMS = [
     { label: "Home", href: "/" },
-    { label: "Tutorials", href: "/tutorials" },
     { label: "Visuals", href: "/visuals" },
     { label: "Playground", href: "/playground" },
-    { label: "About Us", href: "/about" },
-    { label: "Contact Us", href: "/contact" },
-    { label: "Docs", href: "/docs" },
+    { label: "About", href: "/about" },
 ];
 
 export function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
     const [scrolled, setScrolled] = React.useState(false);
     const { user, isAuthenticated, isLoading, logout } = useAuth();
-    const { scrollY } = useScroll();
 
-    useMotionValueEvent(scrollY, "change", (latest) => {
-        setScrolled(latest > 50);
-    });
+    React.useEffect(() => {
+        const handleScroll = () => {
+            setScrolled(window.scrollY > 40);
+        };
+        window.addEventListener("scroll", handleScroll);
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
 
     return (
-        <div className="fixed top-0 inset-x-0 z-50 flex justify-center pt-6 px-6 pointer-events-none">
-            <motion.div
-                initial={{ y: -100, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.8, type: "spring", stiffness: 100, damping: 20 }}
+        <div className="fixed top-0 inset-x-0 z-50 flex justify-center pt-5 px-6 pointer-events-none">
+            <header
                 className={cn(
-                    "relative pointer-events-auto flex items-center justify-between pl-4 pr-3 h-14 transition-all duration-700 rounded-full border border-border mx-auto w-full max-w-325",
+                    "relative pointer-events-auto flex items-center justify-between pl-4 pr-3 h-14 transition-all duration-500 rounded-2xl border border-border/80 mx-auto w-full max-w-7xl",
                     scrolled
-                        ? "bg-background/80 backdrop-blur-md shadow-sm"
-                        : "bg-background/40 backdrop-blur-sm shadow-none"
+                        ? "bg-background/80 backdrop-blur-md shadow-[0_8px_30px_rgb(0,0,0,0.04)] border-border/100"
+                        : "bg-background/40 backdrop-blur-sm shadow-none border-transparent"
                 )}
             >
                 {/* Logo & Brand */}
-                <Link href="/" className="flex items-center gap-3 group shrink-0">
-                    <Logo className="transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3" />
-                    <span className="text-lg font-black tracking-tight text-foreground/90 hidden sm:block">
+                <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+                    <Logo className="transition-transform duration-300 group-hover:scale-105" />
+                    <span className="text-md font-black tracking-tighter text-foreground selection:bg-none hidden md:block">
                         PyAnalypt
                     </span>
                 </Link>
 
-                {/* Center Menu - Desktop */}
-                <div className="hidden lg:flex items-center gap-1">
+                {/* Center Menu - Desktop - SHADCN MONOCHROME STYLE */}
+                <nav className="hidden lg:flex items-center gap-0.5">
                     {NAV_ITEMS.map((item) => (
                         <Link
                             key={item.label}
                             href={item.href}
-                            className="px-4 py-2 rounded-full text-[11px] font-black tracking-widest text-foreground/70 hover:text-blue-500 hover:bg-blue-500/5 transition-all text-center flex items-center"
+                            className="px-4 py-2 rounded-lg text-[10px] font-black tracking-widest text-muted-foreground uppercase hover:text-foreground hover:bg-muted/50 transition-all text-center flex items-center"
                         >
                             {item.label}
                         </Link>
                     ))}
-                </div>
+                </nav>
 
                 {/* Right Actions */}
                 <div className="flex items-center gap-2 shrink-0">
                     {!isLoading && isAuthenticated ? (
                         <DropdownMenu modal={false}>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="relative flex items-center gap-2.5 h-9 rounded-full px-2 hover:bg-blue-500/5">
-                                    {/* Greeting — hidden on small screens */}
-                                    <span className="hidden sm:flex flex-col items-end leading-tight">
-                                        <span className="text-[9px] font-black tracking-widest uppercase text-muted-foreground/60">Hello!</span>
-                                        <span className="text-[11px] font-black tracking-tight text-foreground/80 max-w-25 truncate">
+                                <Button variant="ghost" className="relative flex items-center gap-3 h-9 rounded-xl px-2 hover:bg-muted">
+                                    <span className="hidden sm:flex flex-col items-end leading-tight pr-1">
+                                        <span className="text-[10px] font-black tracking-tight text-foreground/90 max-w-28 truncate">
                                             {user?.full_name || user?.username}
                                         </span>
+                                        <span className="text-[8px] font-bold text-muted-foreground/60 uppercase tracking-tighter">Status: Active</span>
                                     </span>
-                                    <Avatar className="h-8 w-8 shrink-0 border border-border/10 transition-all duration-300 hover:border-blue-500/30">
+                                    <Avatar className="h-8 w-8 shrink-0 border border-border/20 transition-all duration-300 hover:border-foreground/40">
                                         <AvatarImage src={user?.profile_picture ?? undefined} alt={user?.username} />
-                                        <AvatarFallback className="bg-blue-500/10 text-blue-500 text-xs font-black">
+                                        <AvatarFallback className="bg-muted text-foreground text-[10px] font-black">
                                             {user?.username?.substring(0, 2).toUpperCase()}
                                         </AvatarFallback>
                                     </Avatar>
                                 </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-56 rounded-2xl p-2 bg-background/90 backdrop-blur-xl border-border/10 shadow-sm" align="end">
-                                <DropdownMenuLabel className="px-4 py-3">
-                                    <p className="text-sm font-black tracking-tight truncate">{user?.full_name || user?.username}</p>
-                                    <p className="text-[10px] font-bold text-muted-foreground truncate">@{user?.username}</p>
+                            <DropdownMenuContent className="w-52 rounded-xl p-1.5 bg-background/95 backdrop-blur-xl border border-border/80 shadow-2xl shadow-foreground/5 mt-2" align="end">
+                                <DropdownMenuLabel className="px-3 py-2.5">
+                                    <p className="text-[11px] font-black tracking-tight truncate">{user?.full_name || user?.username}</p>
+                                    <p className="text-[9px] font-bold text-muted-foreground truncate opacity-60">@{user?.username}</p>
                                 </DropdownMenuLabel>
-                                <DropdownMenuSeparator className="bg-border/5" />
-                                <DropdownMenuItem asChild className="rounded-xl px-4 py-2 hover:bg-blue-500/5 hover:text-blue-500 cursor-pointer transition-colors font-bold text-sm">
+                                <DropdownMenuSeparator className="bg-border/50" />
+                                <DropdownMenuItem asChild className="rounded-lg px-3 py-2 hover:bg-muted cursor-pointer transition-colors font-black text-[10px] tracking-widest uppercase">
                                     <Link href="/dashboard" className="flex items-center">
-                                        <LayoutDashboard className="mr-3 h-4 w-4 opacity-40" />
-                                        <span>Dashboard</span>
+                                        <LayoutDashboard className="mr-3 h-3.5 w-3.5 opacity-50" />
+                                        <span>DASHBOARD</span>
                                     </Link>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem asChild className="rounded-xl px-4 py-2 hover:bg-blue-500/5 hover:text-blue-500 cursor-pointer transition-colors font-bold text-sm">
+                                <DropdownMenuItem asChild className="rounded-lg px-3 py-2 hover:bg-muted cursor-pointer transition-colors font-black text-[10px] tracking-widest uppercase">
                                     <Link href="/profile" className="flex items-center">
-                                        <UserIcon className="mr-3 h-4 w-4 opacity-40" />
-                                        <span>Profile</span>
+                                        <UserIcon className="mr-3 h-3.5 w-3.5 opacity-50" />
+                                        <span>PROFILE</span>
                                     </Link>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem asChild className="rounded-xl px-4 py-2 hover:bg-blue-500/5 hover:text-blue-500 cursor-pointer transition-colors font-bold text-sm">
+                                <DropdownMenuItem asChild className="rounded-lg px-3 py-2 hover:bg-muted cursor-pointer transition-colors font-black text-[10px] tracking-widest uppercase">
                                     <Link href="/settings" className="flex items-center">
-                                        <Settings className="mr-3 h-4 w-4 opacity-40" />
-                                        <span>Settings</span>
+                                        <Settings className="mr-3 h-3.5 w-3.5 opacity-50" />
+                                        <span>SETTINGS</span>
                                     </Link>
                                 </DropdownMenuItem>
-                                <DropdownMenuSeparator className="bg-border/5" />
+                                <DropdownMenuSeparator className="bg-border/50" />
                                 <DropdownMenuItem
-                                    className="text-red-500 focus:text-red-500 focus:bg-red-500/5 cursor-pointer rounded-xl px-4 py-2 font-bold text-sm transition-colors"
+                                    className="text-red-500/80 focus:text-red-500 focus:bg-red-500/5 cursor-pointer rounded-lg px-3 py-2 font-black text-[10px] tracking-widest uppercase transition-colors"
                                     onClick={logout}
                                 >
-                                    <LogOut className="mr-3 h-4 w-4 opacity-40" />
-                                    <span>Log out</span>
+                                    <LogOut className="mr-3 h-3.5 w-3.5 opacity-40 text-red-400" />
+                                    <span>LOG OUT</span>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     ) : !isLoading && (
-                        <div className="hidden lg:flex items-center gap-1 text-[11px] font-black tracking-widest text-foreground/70">
-                            <Link href="/login" className="hover:text-blue-500 transition-colors uppercase">LOGIN</Link>
-                            <span className="opacity-30">/</span>
-                            <Link href="/register" className="hover:text-blue-500 transition-colors uppercase">REGISTER</Link>
+                        <div className="hidden lg:flex items-center gap-1 text-[10px] font-black tracking-widest text-muted-foreground">
+                            <Link href="/login" className="px-3 py-1.5 hover:text-foreground hover:bg-muted rounded-lg transition-all uppercase">LOGIN</Link>
+                            <span className="opacity-20 select-none">|</span>
+                            <Link href="/register" className="px-3 py-1.5 bg-foreground text-background hover:bg-foreground/90 rounded-lg transition-all uppercase">GET STARTED</Link>
                         </div>
                     )}
 
                     {/* Theme toggle — always visible on all breakpoints */}
-                    <div className="scale-90">
+                    <div className="scale-90 opacity-60 hover:opacity-100 transition-opacity">
                         <ModeToggle />
                     </div>
 
                     {/* Burger — visible below lg */}
-                    <Button variant="ghost" size="icon" className="lg:hidden h-9 w-9 rounded-full" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label={mobileMenuOpen ? "Close menu" : "Open menu"} aria-expanded={mobileMenuOpen}>
-                        {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+                    <Button variant="ghost" size="icon" className="lg:hidden h-9 w-9 rounded-xl hover:bg-muted" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label={mobileMenuOpen ? "Close menu" : "Open menu"} aria-expanded={mobileMenuOpen}>
+                        {mobileMenuOpen ? <X size={18} /> : <Menu size={18} />}
                     </Button>
                 </div>
-            </motion.div>
+            </header>
 
-            {/* Mobile Menu Dropdown */}
-            <AnimatePresence>
-                {mobileMenuOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="lg:hidden absolute top-[calc(100%+12px)] inset-x-6 z-40 bg-background/90 backdrop-blur-xl border border-border rounded-2xl p-4 flex flex-col gap-1 shadow-md pointer-events-auto"
-                    >
-                        {NAV_ITEMS.map((item) => (
+            {/* Mobile Menu Dropdown — SIMPLIFIED REFINED STYLE */}
+            {mobileMenuOpen && (
+                <div className="lg:hidden absolute top-[calc(100%+12px)] inset-x-6 z-40 bg-background/95 backdrop-blur-xl border border-border/80 rounded-2xl p-3 flex flex-col gap-1 shadow-2xl shadow-foreground/5 pointer-events-auto overflow-hidden">
+                    {NAV_ITEMS.map((item) => (
+                        <Link
+                            key={item.label}
+                            href={item.href}
+                            onClick={() => setMobileMenuOpen(false)}
+                            className="p-4 hover:bg-muted rounded-xl text-muted-foreground hover:text-foreground transition-all flex items-center justify-center text-[10px] font-black tracking-widest uppercase"
+                        >
+                            {item.label}
+                        </Link>
+                    ))}
+
+                    <div className="h-px bg-border/20 my-2 mx-4" />
+
+                    {!isLoading && isAuthenticated ? (
+                        <div className="space-y-1">
                             <Link
-                                key={item.label}
-                                href={item.href}
+                                href="/dashboard"
                                 onClick={() => setMobileMenuOpen(false)}
-                                className="p-4 hover:bg-blue-500/5 rounded-xl text-muted-foreground hover:text-blue-500 transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase"
+                                className="p-4 hover:bg-muted rounded-xl text-muted-foreground hover:text-foreground transition-all flex items-center justify-center text-[10px] font-black tracking-widest uppercase"
                             >
-                                {item.label}
+                                Dashboard
                             </Link>
-                        ))}
-
-                        <div className="h-px bg-border/10 my-2 mx-4" />
-
-                        {!isLoading && isAuthenticated ? (
-                            <div className="space-y-1">
-                                <Link
-                                    href="/dashboard"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="p-4 hover:bg-blue-500/5 rounded-xl text-muted-foreground hover:text-blue-500 transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase"
-                                >
-                                    Dashboard
-                                </Link>
-                                <button
-                                    onClick={() => { logout(); setMobileMenuOpen(false); }}
-                                    className="w-full p-4 hover:bg-red-500/5 rounded-xl text-red-500/70 hover:text-red-500 transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase"
-                                >
-                                    Log out
-                                </button>
-                            </div>
-                        ) : (
-                            <div className="flex gap-2 px-2 pb-2">
-                                <Link
-                                    href="/login"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="flex-1 p-4 hover:bg-blue-500/5 rounded-xl text-muted-foreground hover:text-blue-500 transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase border border-border/20"
-                                >
-                                    LOGIN
-                                </Link>
-                                <Link
-                                    href="/register"
-                                    onClick={() => setMobileMenuOpen(false)}
-                                    className="flex-1 p-4 bg-blue-600 hover:bg-blue-700 rounded-xl text-white transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase"
-                                >
-                                    REGISTER
-                                </Link>
-                            </div>
-                        )}
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                            <button
+                                onClick={() => { logout(); setMobileMenuOpen(false); }}
+                                className="w-full p-4 hover:bg-red-500/5 rounded-xl text-red-500/60 hover:text-red-500 transition-all flex items-center justify-center text-[10px] font-black tracking-widest uppercase"
+                            >
+                                Log out
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-2 gap-2 p-2">
+                            <Link
+                                href="/login"
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="p-4 bg-muted/30 border border-border/40 rounded-xl text-foreground transition-all flex items-center justify-center text-[10px] font-black tracking-widest uppercase"
+                            >
+                                LOGIN
+                            </Link>
+                            <Link
+                                href="/register"
+                                onClick={() => setMobileMenuOpen(false)}
+                                className="p-4 bg-foreground text-background rounded-xl transition-all flex items-center justify-center text-[10px] font-black tracking-widest uppercase"
+                            >
+                                REGISTER
+                            </Link>
+                        </div>
+                    )}
+                </div>
+            )}
         </div>
     );
 }

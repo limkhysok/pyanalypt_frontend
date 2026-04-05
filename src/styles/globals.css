@@ -39,15 +39,24 @@
   --animate-gradient-x: gradient-x 15s ease infinite;
 
   @keyframes gradient-x {
-    0%, 100% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-  }
 
-  @keyframes gradient-text {
     0%,
     100% {
       background-position: 0% 50%;
     }
+
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  @keyframes gradient-text {
+
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+
     50% {
       background-position: 100% 50%;
     }
@@ -58,6 +67,7 @@
       opacity: 0;
       transform: translateY(20px);
     }
+
     to {
       opacity: 1;
       transform: translateY(0);
@@ -134,7 +144,10 @@
     @apply border-border;
   }
 
-  html, body, main, .container {
+  html,
+  body,
+  main,
+  .container {
     @apply relative;
   }
 
@@ -155,12 +168,15 @@
   .mono-glow {
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
   }
+
   .text-glow-blue {
     text-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
   }
+
   .text-glow-purple {
     text-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
   }
+
   .text-glow-emerald {
     text-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
   }
@@ -168,21 +184,27 @@
   .ambient-glow-mono {
     box-shadow: 0 0 40px -10px rgba(255, 255, 255, 0.1);
   }
+
   .ambient-glow-blue {
     box-shadow: 0 0 30px -10px rgba(59, 130, 246, 0.1);
   }
+
   .dark .ambient-glow-blue {
     box-shadow: 0 0 40px -10px rgba(59, 130, 246, 0.25);
   }
+
   .ambient-glow-purple {
     box-shadow: 0 0 30px -10px rgba(168, 85, 247, 0.1);
   }
+
   .dark .ambient-glow-purple {
     box-shadow: 0 0 40px -10px rgba(168, 85, 247, 0.25);
   }
+
   .ambient-glow-emerald {
     box-shadow: 0 0 30px -10px rgba(16, 185, 129, 0.1);
   }
+
   .dark .ambient-glow-emerald {
     box-shadow: 0 0 40px -10px rgba(16, 185, 129, 0.25);
   }
