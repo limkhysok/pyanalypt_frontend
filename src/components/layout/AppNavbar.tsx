@@ -18,7 +18,7 @@ import {
 import { useAuth } from "@/context/auth-context";
 import { motion } from "motion/react";
 
-const SIDEBAR_EXPANDED = 230;
+const SIDEBAR_EXPANDED = 240;
 const SIDEBAR_COLLAPSED = 72;
 
 interface AppNavbarProps {
@@ -31,86 +31,103 @@ export function AppNavbar({ collapsed }: Readonly<AppNavbarProps>) {
     return (
         <motion.header
             animate={{ left: collapsed ? SIDEBAR_COLLAPSED : SIDEBAR_EXPANDED }}
-            transition={{ duration: 0.25, ease: "easeInOut" }}
-            className="fixed top-0 right-0 z-50 h-14 flex items-center justify-end px-4 border-b border-border bg-background/95 backdrop-blur-xl"
+            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+            className="fixed top-0 right-0 z-50 h-14 flex items-center justify-between px-6 border-b border-border/40 bg-background/80 backdrop-blur-xl"
         >
+            {/* Left — Contextual Identifier */}
+            <div className="flex items-center gap-4">
+
+            </div>
 
             {/* Right — actions */}
-            <div className="flex items-center gap-2">
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    asChild
-                    className="text-muted-foreground hover:text-foreground"
-                >
-                    <Link
-                        href="https://github.com/soklimkhy/pyanalypt_frontend"
-                        target="_blank"
-                        aria-label="GitHub"
+            <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 pr-4 border-r border-border/40">
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        asChild
+                        className="h-8 w-8 rounded-lg text-muted-foreground/40 hover:text-foreground hover:bg-muted transition-all"
                     >
-                        <GithubIcon size={18} />
-                    </Link>
-                </Button>
+                        <Link
+                            href="https://github.com/soklimkhy/pyanalypt_frontend"
+                            target="_blank"
+                            aria-label="GitHub"
+                        >
+                            <GithubIcon size={14} className="grayscale" />
+                        </Link>
+                    </Button>
 
-                <ModeToggle />
+                    <div className="scale-75 opacity-40 hover:opacity-100 transition-opacity">
+                        <ModeToggle />
+                    </div>
+                </div>
 
                 {/* User dropdown */}
                 <DropdownMenu modal={false}>
                     <DropdownMenuTrigger asChild>
-                        <Button
-                            variant="ghost"
-                            className="relative h-8 w-8 rounded-full"
-                        >
-                            <Avatar className="h-8 w-8 border border-border transition-all duration-300 hover:border-blue-500/50 hover:ambient-glow-blue">
+                        <button className="flex items-center gap-3 group outline-none">
+                            <div className="flex flex-col items-end gap-0.5">
+                                <span className="text-[11px] font-bold text-foreground leading-none">
+                                    {user?.username}
+                                </span>
+                                <span className="text-[9px] font-semibold text-muted-foreground opacity-40 leading-none">
+                                    Authorized Access
+                                </span>
+                            </div>
+                            <Avatar className="h-8 w-8 border border-border/60 rounded-xl transition-all duration-500 group-hover:scale-105 group-hover:border-foreground/20">
                                 <AvatarImage
                                     src={user?.profile_picture ?? undefined}
                                     alt={user?.username}
+                                    className="grayscale group-hover:grayscale-0 transition-all duration-500"
                                 />
-                                <AvatarFallback className="bg-primary/10 text-primary text-xs font-bold">
-                                    {user?.username?.substring(0, 2).toUpperCase()}
+                                <AvatarFallback className="bg-muted text-foreground text-[10px] font-black uppercase">
+                                    {user?.username?.substring(0, 2)}
                                 </AvatarFallback>
                             </Avatar>
-                        </Button>
+                        </button>
                     </DropdownMenuTrigger>
 
-                    <DropdownMenuContent className="w-52" align="end" forceMount>
-                        <DropdownMenuLabel className="font-normal">
-                            <div className="flex flex-col space-y-0.5">
-                                <p className="text-sm font-semibold leading-none">
-                                    {user?.full_name || user?.username}
-                                </p>
-                                <p className="text-xs text-muted-foreground truncate">
-                                    {user?.email}
-                                </p>
-                            </div>
+                    <DropdownMenuContent className="w-56 bg-background/95 backdrop-blur-2xl border border-border/80 rounded-2xl p-2 shadow-2xl mt-2" align="end">
+                        <DropdownMenuLabel className="px-4 py-4 pt-3">
+                            <p className="text-[12px] font-bold text-foreground truncate">{user?.full_name || user?.username}</p>
+                            <p className="text-[9px] font-semibold text-muted-foreground opacity-30 mt-1 truncate">ID: {user?.id ? String(user.id).substring(0, 16) : "Guest"}</p>
                         </DropdownMenuLabel>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem asChild>
-                            <Link href="/dashboard" className="cursor-pointer">
-                                <LayoutDashboard className="mr-2 h-4 w-4" />
-                                Dashboard
-                            </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                            <Link href="/profile" className="cursor-pointer">
-                                <UserIcon className="mr-2 h-4 w-4" />
-                                Profile
-                            </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem asChild>
-                            <Link href="/profile/setting" className="cursor-pointer">
-                                <Settings className="mr-2 h-4 w-4" />
-                                Settings
-                            </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem
-                            className="text-destructive focus:text-destructive cursor-pointer"
-                            onClick={() => logout()}
-                        >
-                            <LogOut className="mr-2 h-4 w-4" />
-                            Log out
-                        </DropdownMenuItem>
+                        <DropdownMenuSeparator className="bg-border/40" />
+
+                        <div className="p-1 space-y-1">
+                            <DropdownMenuItem asChild className="rounded-xl px-4 py-3 hover:bg-muted cursor-pointer transition-all text-[11px] font-semibold">
+                                <Link href="/dashboard" className="flex items-center justify-between w-full">
+                                    <span>Workspace HUD</span>
+                                    <LayoutDashboard size={14} className="opacity-40" />
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild className="rounded-xl px-4 py-3 hover:bg-muted cursor-pointer transition-all text-[11px] font-semibold">
+                                <Link href="/profile" className="flex items-center justify-between w-full">
+                                    <span>Profile Core</span>
+                                    <UserIcon size={14} className="opacity-40" />
+                                </Link>
+                            </DropdownMenuItem>
+                            <DropdownMenuItem asChild className="rounded-xl px-4 py-3 hover:bg-muted cursor-pointer transition-all text-[11px] font-semibold">
+                                <Link href="/profile/setting" className="flex items-center justify-between w-full">
+                                    <span>System Config</span>
+                                    <Settings size={14} className="opacity-40" />
+                                </Link>
+                            </DropdownMenuItem>
+                        </div>
+
+                        <DropdownMenuSeparator className="bg-border/40" />
+
+                        <div className="p-1">
+                            <DropdownMenuItem
+                                className="rounded-xl px-4 py-3 text-red-500/80 focus:text-red-500 focus:bg-red-500/5 cursor-pointer text-[11px] font-semibold transition-all"
+                                onClick={() => logout()}
+                            >
+                                <div className="flex items-center justify-between w-full">
+                                    <span>Terminate Session</span>
+                                    <LogOut size={14} className="opacity-40" />
+                                </div>
+                            </DropdownMenuItem>
+                        </div>
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
