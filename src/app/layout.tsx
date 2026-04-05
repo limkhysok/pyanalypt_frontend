@@ -10,11 +10,6 @@ export const metadata: Metadata = {
     description: "Advanced Data Analysis Dashboard",
 };
 
-// Root layout — global providers only.
-// Navbar/Footer → (marketing)/layout.tsx
-// SmoothScroll   → (marketing)/layout.tsx
-// Auth shell     → (auth)/layout.tsx
-// App shell      → (app)/layout.tsx + each route's own layout.tsx
 export default function RootLayout({
     children,
 }: Readonly<{ children: React.ReactNode }>) {
