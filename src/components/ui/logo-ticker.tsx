@@ -82,7 +82,7 @@ export function LogoTicker() {
                 <motion.div
                     animate={{ x: ["0%", "-50%"] }}
                     transition={{ duration: 28, ease: "linear", repeat: Infinity }}
-                    className="flex gap-8 items-center shrink-0"
+                    className="flex gap-8 items-center shrink-0 will-change-transform"
                 >
                     {items.map((item, index) => {
                         const slot = index % chartIcons.length;

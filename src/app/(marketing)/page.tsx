@@ -44,14 +44,14 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
         <motion.div
           animate={{ opacity: [0.4, 0.8, 0.4] }}
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-200 bg-blue-500/5 blur-[120px] rounded-full"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-200 h-200 bg-blue-500/5 blur-[64px] rounded-full will-change-[opacity]"
         />
         <motion.div
           animate={{ opacity: [0.2, 0.5, 0.2] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-          className="absolute top-1/4 right-1/4 w-80 h-80 bg-blue-600/8 blur-[80px] rounded-full"
+          className="absolute top-1/4 right-1/4 w-80 h-80 bg-blue-600/8 blur-[48px] rounded-full will-change-[opacity]"
         />
-        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[32px_32px]" />
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[32px_32px] will-change-transform" />
       </div>
 
       <div className="container relative z-10 mx-auto px-6 max-w-325">
@@ -122,7 +122,7 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
               <motion.div
                 animate={{ opacity: [0, 0.5, 0] }}
                 transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                className="absolute inset-0 rounded-[2.5rem] shadow-[0_0_60px_rgba(59,130,246,0.2)] pointer-events-none"
+                className="absolute inset-0 rounded-[2.5rem] shadow-[0_0_60px_rgba(59,130,246,0.2)] pointer-events-none will-change-[opacity]"
                 aria-hidden="true"
               />
 
@@ -151,7 +151,7 @@ function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
                 <div className="rounded-2xl bg-secondary/30 border border-border/10 p-4 space-y-2 relative overflow-hidden">
                   {/* Scanning highlight */}
                   <motion.div
-                    className="absolute left-0 right-0 h-5 bg-blue-500/10 pointer-events-none"
+                    className="absolute left-0 right-0 h-5 bg-blue-500/10 pointer-events-none will-change-transform"
                     animate={{ y: [10, 28, 46, 64, 82] }}
                     transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 2, ease: "linear" }}
                   />
@@ -615,61 +615,77 @@ function VisualizationPanel() {
           </div>
         </div>
 
-        {/* Chart showcase */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={activeTab}
-            id={`chart-panel-${activeTab}`}
-            role="tabpanel"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -12 }}
-            transition={{ duration: 0.25 }}
-          >
-            <TiltCard className="border-0" classNameContent="p-0 bg-background/50 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border border-border/10 shadow-2xl">
-
-              {/* Chart header row */}
-              <div className="flex items-start justify-between p-8 pb-0">
-                <div className="flex items-center gap-4">
-                  <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${active.bg} ${active.color}`}>
-                    <active.icon size={22} aria-hidden="true" />
-                  </div>
-                  <div>
+        {/* Chart showcase - Optimized to prevent full chart remount */}
+        <div className="relative">
+          <TiltCard className="border-0" classNameContent="p-0 bg-background/50 backdrop-blur-xl rounded-[2.5rem] overflow-hidden border border-border/10 shadow-2xl">
+            {/* Stable Header/Visual container but inner text animates */}
+            <div className="flex items-start justify-between p-8 pb-0 h-24">
+              <div className="flex items-center gap-4">
+                <div className={`w-11 h-11 rounded-2xl flex items-center justify-center ${active.bg} ${active.color}`}>
+                  <active.icon size={22} aria-hidden="true" />
+                </div>
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={`title-${activeTab}`}
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -5 }}
+                    transition={{ duration: 0.2 }}
+                  >
                     <h3 className="text-xl font-black tracking-tight">{active.title}</h3>
                     <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-60 mt-0.5">{active.subtitle}</p>
-                  </div>
-                </div>
-                <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border ${active.border} ${active.bg} ${active.color}`}>
+                  </motion.div>
+                </AnimatePresence>
+              </div>
+              <AnimatePresence mode="wait">
+                <motion.span
+                  key={`badge-${activeTab}`}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-[0.2em] border ${active.border} ${active.bg} ${active.color}`}
+                >
                   {active.type}
-                </span>
-              </div>
+                </motion.span>
+              </AnimatePresence>
+            </div>
 
-              {/* Chart canvas */}
-              <div className="px-8 pt-6">
-                <div className="rounded-3xl overflow-hidden bg-secondary/20 dark:bg-black/40 border border-border/10 p-4" style={{ height: '360px' }}>
-                  <EChart option={active.option} theme={resolvedTheme} style={{ height: '100%', width: '100%' }} />
-                </div>
+            {/* Stable Chart Canvas - Transition is handled by ECharts itself */}
+            <div className="px-8 pt-6">
+              <div className="rounded-3xl overflow-hidden bg-secondary/20 dark:bg-black/40 border border-border/10 p-4" style={{ height: '360px' }}>
+                <EChart option={active.option} theme={resolvedTheme} style={{ height: '100%', width: '100%' }} />
               </div>
+            </div>
 
-              {/* Insight + stats */}
-              <div className="p-8 pt-6 space-y-4">
-                <div className={`p-4 rounded-2xl border ${active.border} ${active.bg} flex items-start gap-3`}>
-                  <Sparkles size={16} className={`${active.color} shrink-0 mt-0.5`} aria-hidden="true" />
-                  <p className="text-sm font-bold opacity-80">{active.insight}</p>
-                </div>
+            {/* Animating Insight + stats */}
+            <div className="p-8 pt-6 space-y-4">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={`insight-${activeTab}`}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  transition={{ duration: 0.25 }}
+                  className="space-y-4"
+                >
+                  <div className={`p-4 rounded-2xl border ${active.border} ${active.bg} flex items-start gap-3`}>
+                    <Sparkles size={16} className={`${active.color} shrink-0 mt-0.5`} aria-hidden="true" />
+                    <p className="text-sm font-bold opacity-80">{active.insight}</p>
+                  </div>
 
-                <div className="grid grid-cols-3 gap-3">
-                  {active.stats.map((stat) => (
-                    <div key={stat.label} className="p-4 rounded-2xl bg-secondary/30 border border-border/10 text-center">
-                      <p className="text-xl font-black">{stat.value}</p>
-                      <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-50 mt-1">{stat.label}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </TiltCard>
-          </motion.div>
-        </AnimatePresence>
+                  <div className="grid grid-cols-3 gap-3">
+                    {active.stats.map((stat) => (
+                      <div key={stat.label} className="p-4 rounded-2xl bg-secondary/30 border border-border/10 text-center">
+                        <p className="text-xl font-black">{stat.value}</p>
+                        <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-50 mt-1">{stat.label}</p>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </TiltCard>
+        </div>
 
         {/* CTA */}
         <div className="flex justify-center mt-12">
@@ -694,17 +710,17 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-background relative selection:bg-blue-500/30 overflow-x-hidden">
 
-      {/* GLOBAL BACKGROUND SYSTEM */}
+      {/* GLOBAL BACKGROUND SYSTEM - Reduced blurs for performance */}
       <div className="fixed inset-0 -z-10 pointer-events-none overflow-hidden">
         <div className="absolute inset-0 bg-background" />
-        <div className="absolute -top-[10%] left-[20%] w-[150%] sm:w-200 h-[150%] sm:h-200 bg-blue-500/5 dark:bg-blue-600/10 blur-[120px] rounded-full" />
-        <div className="absolute -bottom-[20%] -right-[10%] w-[120%] sm:w-150 h-[120%] sm:h-150 bg-emerald-500/3 dark:bg-emerald-600/10 blur-[100px] rounded-full" />
+        <div className="absolute -top-[10%] left-[20%] w-[150%] sm:w-200 h-[150%] sm:h-200 bg-blue-500/5 dark:bg-blue-600/10 blur-[64px] rounded-full will-change-[opacity]" />
+        <div className="absolute -bottom-[20%] -right-[10%] w-[120%] sm:w-150 h-[120%] sm:h-150 bg-emerald-500/3 dark:bg-emerald-600/10 blur-[48px] rounded-full will-change-[opacity]" />
       </div>
 
       <div className="relative z-0">
         <HeroSection onStart={scrollToVisuals} />
 
-        <div className="relative bg-background/50 backdrop-blur-3xl py-2 border-y border-border/20">
+        <div className="relative bg-background/50 backdrop-blur-3xl py-2 border-y border-border/20 will-change-transform">
           <LogoTicker />
         </div>
 
