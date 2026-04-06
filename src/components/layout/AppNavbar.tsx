@@ -32,7 +32,7 @@ export function AppNavbar({ collapsed }: Readonly<AppNavbarProps>) {
         <motion.header
             animate={{ left: collapsed ? SIDEBAR_COLLAPSED : SIDEBAR_EXPANDED }}
             transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-            className="fixed top-0 right-0 z-50 h-14 flex items-center justify-between px-6 border-b border-border/40 bg-background"
+            className="fixed top-0 right-0 z-50 h-14 flex items-center justify-between px-6 border-b border-border/90 bg-background"
         >
             {/* Left — Contextual Identifier */}
             <div className="flex items-center gap-4">

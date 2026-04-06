@@ -40,7 +40,7 @@ export function AppSidebar({ collapsed, onToggle }: Readonly<AppSidebarProps>) {
         <motion.aside
             animate={{ width: collapsed ? 64 : 200 }}
             transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-            className="fixed left-0 top-0 h-full z-51 flex flex-col border-r border-border/40 bg-background"
+            className="fixed left-0 top-0 h-full z-51 flex flex-col border-r border-border/90 bg-background"
             style={{ willChange: "width" }}
         >
             {/* Toggle Button Hanging on Border — TOP POSITIONED */}
@@ -52,7 +52,7 @@ export function AppSidebar({ collapsed, onToggle }: Readonly<AppSidebarProps>) {
                 {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
             </button>
             {/* Header */}
-            <div className="flex items-center h-14 border-b border-border/40 shrink-0 px-5 overflow-hidden">
+            <div className="flex items-center h-14 border-b border-border/90 shrink-0 px-5 overflow-hidden">
                 {/* Logo with signature transition */}
                 <Link href="/dashboard" className="flex items-center gap-3 group/logo min-w-0">
                     <Logo className="w-6 h-6 transition-all duration-500 group-hover/logo:rotate-12 grayscale group-hover/logo:grayscale-0 shrink-0" />
@@ -84,7 +84,7 @@ export function AppSidebar({ collapsed, onToggle }: Readonly<AppSidebarProps>) {
                                 href={href}
                                 title={collapsed ? label : undefined}
                                 className={cn(
-                                    "group flex items-center gap-3 h-10 rounded-xl text-[12px] font-medium transition-colors duration-300 relative",
+                                    "group flex items-center gap-3 h-10 rounded-md text-[12px] font-medium transition-colors duration-300 relative",
                                     collapsed ? "justify-center px-0" : "px-3",
                                     isActive ? "text-background" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                                 )}

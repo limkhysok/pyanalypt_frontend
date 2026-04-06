@@ -10,20 +10,14 @@ import {
 	FileText,
 	Download,
 	Eye,
-	BarChart3,
 	Bug,
 	Sparkles,
 	ArrowUpDown,
-	ChevronDown,
 	Calendar,
-	ArrowDownAz,
-	ArrowUpAz,
 	Filter,
 	Trash2,
 	MoreVertical,
 	Edit2,
-	TrendingUp,
-	Lightbulb,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +25,7 @@ import {
 	Dialog,
 	DialogContent,
 	DialogDescription,
+	DialogFooter,
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
@@ -47,7 +42,6 @@ import {
 	DropdownMenu,
 	DropdownMenuContent,
 	DropdownMenuItem,
-	DropdownMenuLabel,
 	DropdownMenuSeparator,
 	DropdownMenuSub,
 	DropdownMenuSubContent,
@@ -68,24 +62,6 @@ function formatFileSize(bytes: number): string {
 
 function isExportNotFoundError(error: unknown, status: number | undefined): boolean {
 	return status === 404 || (error instanceof Error && error.message.includes("Export endpoint not found"));
-}
-
-function getFormatBadgeClass(format: string): string {
-	const f = format.toLowerCase();
-	if (f === "csv") return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20";
-	if (f === "json") return "bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20";
-	if (f === "xlsx" || f === "xls") return "bg-orange-500/10 text-orange-600 dark:text-orange-400 border border-orange-500/20";
-	if (f === "parquet" || f === "pq") return "bg-purple-500/10 text-purple-600 dark:text-purple-400 border border-purple-500/20";
-	return "bg-secondary/40 border-none";
-}
-
-function getFormatIconClass(format: string): string {
-	const f = format.toLowerCase();
-	if (f === "csv") return "text-emerald-500 bg-emerald-500/10";
-	if (f === "json") return "text-blue-500 bg-blue-500/10";
-	if (f === "xlsx" || f === "xls") return "text-orange-500 bg-orange-500/10";
-	if (f === "parquet" || f === "pq") return "text-purple-500 bg-purple-500/10";
-	return "text-primary bg-primary/10";
 }
 
 export default function DatasetPage() {
@@ -164,7 +140,6 @@ export default function DatasetPage() {
 		setSelectedImportFormat(format);
 		setIsImportOpen(false);
 
-		// Wait for dialog close animation to avoid click interruption.
 		globalThis.setTimeout(() => {
 			openFilePicker(format);
 		}, 30);
@@ -187,7 +162,7 @@ export default function DatasetPage() {
 			router.push("/issues");
 		} catch (error) {
 			if (error instanceof Error && error.message.includes("Diagnose endpoint not found")) {
-				toast.warning("Issue scan endpoint is unavailable. Opening Issues page.");
+				toast.warning("Issue scan endpoint is unavailable. Opening issues page.");
 				router.push("/issues");
 			} else {
 				console.error("Issue detection error:", error);
@@ -267,7 +242,7 @@ export default function DatasetPage() {
 
 			if (!shouldTryDirectFallback) {
 				console.error("Export failed", error);
-				toast.error(`Failed to export ${explicitFormat.toUpperCase()}.`);
+				toast.error(`Failed to export ${explicitFormat}.`);
 				return;
 			}
 
@@ -295,7 +270,7 @@ export default function DatasetPage() {
 				globalThis.URL.revokeObjectURL(url);
 
 				if (explicitFormat && explicitFormat !== sourceFormat) {
-					toast.warning(`Converted export unavailable. Downloaded original ${dataset.file_format.toUpperCase()} file instead.`);
+					toast.warning(`Converted export unavailable. Downloaded original ${dataset.file_format} file instead.`);
 				} else {
 					toast.success("Export ready.");
 				}
@@ -316,7 +291,7 @@ export default function DatasetPage() {
 		);
 
 		if (filterType !== "all") {
-			result = result.filter((d) => d.file_format.toUpperCase() === filterType.toUpperCase());
+			result = result.filter((d) => d.file_format.toLowerCase() === filterType.toLowerCase());
 		}
 
 		result.sort((a, b) => {
@@ -334,10 +309,10 @@ export default function DatasetPage() {
 
 	const getSortLabel = () => {
 		switch (sortBy) {
-			case "newest": return "Newest";
-			case "oldest": return "Oldest";
-			case "name_asc": return "Name (A-Z)";
-			case "name_desc": return "Name (Z-A)";
+			case "newest": return "Newest first";
+			case "oldest": return "Oldest first";
+			case "name_asc": return "Name (a-z)";
+			case "name_desc": return "Name (z-a)";
 			default: return "Sort";
 		}
 	};
@@ -345,81 +320,75 @@ export default function DatasetPage() {
 	if (authLoading) {
 		return (
 			<div className="min-h-screen flex items-center justify-center">
-				<Loader2 className="h-8 w-8 text-blue-500 animate-spin" />
+				<Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
 			</div>
 		);
 	}
 
 	const renderListView = () => (
-		<div className="rounded-3xl border border-border/40 bg-background/40 backdrop-blur-xl overflow-hidden shadow-sm">
-			<div className="px-6 py-4 border-b border-border/20 bg-muted/20 flex items-center justify-between gap-3">
-				<Badge variant="outline" className="rounded-lg px-2.5 py-1 h-auto text-[10px] font-black uppercase tracking-wider bg-background/70">
-					{filteredDatasets.length} files
-				</Badge>
-			</div>
+		<div className="border rounded-md">
 			<div className="overflow-x-auto">
-				<table className="w-full text-left border-collapse">
-					<thead>
-						<tr className="bg-muted/50 border-b border-border/20 text-[10px] font-black uppercase tracking-widest text-muted-foreground/70">
-							<th className="px-4 py-4 text-xs w-12 text-center">#</th>
-							<th className="px-6 py-4 text-xs">File Name</th>
-							<th className="px-6 py-4 text-xs">Format</th>
-							<th className="px-6 py-4 text-xs text-right">Size</th>
-							<th className="px-6 py-4 text-xs">Upload Date</th>
-							<th className="px-6 py-4 text-xs text-right">Actions</th>
+				<table className="w-full text-sm text-left border-collapse">
+					<thead className="bg-muted/50 border-b">
+						<tr className="text-muted-foreground font-medium">
+							<th className="px-4 py-3 w-12 text-center">Id</th>
+							<th className="px-4 py-3">File Name</th>
+							<th className="px-4 py-3">Format</th>
+							<th className="px-4 py-3 text-right">Size</th>
+							<th className="px-4 py-3">Uploaded</th>
+							<th className="px-4 py-3 text-right">Actions</th>
 						</tr>
 					</thead>
-					<tbody>
+					<tbody className="divide-y">
 						<AnimatePresence mode="popLayout">
 							{filteredDatasets.map((dataset, idx) => (
 								<motion.tr
 									key={dataset.id}
-									initial={{ opacity: 0, y: 10 }}
-									animate={{ opacity: 1, y: 0 }}
+									initial={{ opacity: 0 }}
+									animate={{ opacity: 1 }}
 									exit={{ opacity: 0 }}
-									transition={{ duration: 0.2, delay: idx * 0.02 }}
-									className="border-b border-border/10 hover:bg-blue-500/5 transition-colors group"
+									transition={{ duration: 0.1 }}
+									className="hover:bg-muted/30"
 								>
-									<td className="px-4 py-4 text-center text-xs font-bold text-muted-foreground/60">
+									<td className="px-4 py-3 text-center text-muted-foreground font-mono">
 										{idx + 1}
 									</td>
-									<td className="px-6 py-4">
-										<div className="flex items-center gap-3">
-											<div className={`h-8 w-8 rounded-lg flex items-center justify-center ${getFormatIconClass(dataset.file_format)}`}>
-												<FileText className="h-4 w-4" />
-											</div>
-											<span className="text-xs font-black tracking-tight">{dataset.file_name}</span>
+									<td className="px-4 py-3">
+										<div className="flex items-center gap-2">
+											<FileText className="h-4 w-4 text-muted-foreground" />
+											<span className="font-medium text-foreground">{dataset.file_name}</span>
 										</div>
 									</td>
-									<td className="px-6 py-4">
-										<Badge className={`text-[8px] font-black uppercase h-5 px-1.5 ${getFormatBadgeClass(dataset.file_format)}`}>
-											{dataset.file_format}
+									<td className="px-4 py-3">
+										<Badge variant="secondary" className="font-normal">
+											{dataset.file_format.toLowerCase()}
 										</Badge>
 									</td>
-									<td className="px-6 py-4 text-xs font-bold text-right tabular-nums text-muted-foreground/70">
+									<td className="px-4 py-3 text-right tabular-nums">
 										{formatFileSize(dataset.file_size)}
 									</td>
-									<td className="px-6 py-4 text-[10px] font-bold text-muted-foreground/60 uppercase">
-										{new Date(dataset.uploaded_date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
+									<td className="px-4 py-3 text-muted-foreground">
+										<div className="flex items-center gap-1.5">
+											<Calendar size={14} />
+											{new Date(dataset.uploaded_date).toLocaleDateString()}
+										</div>
 									</td>
-									<td className="px-6 py-4">
+									<td className="px-4 py-3 text-right">
 										<div className="flex items-center justify-end gap-1">
 											<Button
 												variant="ghost"
 												size="icon"
-												className="h-8 w-8 rounded-lg text-muted-foreground/40 hover:bg-blue-500/10 hover:text-blue-500 transition-all"
+												className="h-8 w-8"
 												onClick={() => router.push(`/datasets/${dataset.id}/preview`)}
-												title="Preview"
 											>
 												<Eye className="h-4 w-4" />
 											</Button>
 											<Button
 												variant="ghost"
 												size="icon"
-												disabled={issueLoading === dataset.id}
-												className="h-8 w-8 rounded-lg text-muted-foreground/40 hover:bg-red-500/10 hover:text-red-500 transition-all"
+												className="h-8 w-8"
 												onClick={() => handleDiagnose(dataset.id)}
-												title="Issue"
+												disabled={issueLoading === dataset.id}
 											>
 												{issueLoading === dataset.id ? (
 													<Loader2 className="h-4 w-4 animate-spin" />
@@ -430,118 +399,47 @@ export default function DatasetPage() {
 											<Button
 												variant="ghost"
 												size="icon"
-												className="h-8 w-8 rounded-lg text-muted-foreground/40 hover:bg-blue-500/10 hover:text-blue-500 transition-all"
+												className="h-8 w-8"
 												onClick={() => router.push(`/datasets/${dataset.id}/clean`)}
-												title="Clean"
 											>
 												<Sparkles className="h-4 w-4" />
 											</Button>
-											<Button
-												variant="ghost"
-												size="icon"
-												className="h-8 w-8 rounded-lg text-muted-foreground/40 hover:bg-blue-500/10 hover:text-blue-500 transition-all"
-												onClick={() => router.push(`/datasets/${dataset.id}/analyze`)}
-												title="Analysis"
-											>
-												<BarChart3 className="h-4 w-4" />
-											</Button>
-											<Button
-												variant="ghost"
-												size="icon"
-												className="h-8 w-8 rounded-lg text-muted-foreground/40 hover:bg-blue-500/10 hover:text-blue-500 transition-all"
-												onClick={() => router.push(`/datasets/${dataset.id}/visualize`)}
-												title="Visualization"
-											>
-												<TrendingUp className="h-4 w-4" />
-											</Button>
-											<Button
-												variant="ghost"
-												size="icon"
-												className="h-8 w-8 rounded-lg text-muted-foreground/40 hover:bg-blue-500/10 hover:text-blue-500 transition-all"
-												onClick={() => router.push(`/datasets/${dataset.id}/insight`)}
-												title="Insight"
-											>
-												<Lightbulb className="h-4 w-4" />
-											</Button>
 											<DropdownMenu>
 												<DropdownMenuTrigger asChild>
-													<Button
-														variant="ghost"
-														size="icon"
-														className="h-8 w-8 rounded-lg hover:bg-muted/50 transition-colors"
-														title="More"
-													>
+													<Button variant="ghost" size="icon" className="h-8 w-8">
 														<MoreVertical className="h-4 w-4" />
 													</Button>
 												</DropdownMenuTrigger>
-												<DropdownMenuContent align="end" sideOffset={6} className="w-36 overflow-visible rounded-2xl p-1.5 bg-background/95 backdrop-blur-xl border-border/40 shadow-2xl">
-													<DropdownMenuLabel className="px-2 py-1 text-[9px] uppercase tracking-[0.18em] font-black text-muted-foreground/60">
-														Quick Actions
-													</DropdownMenuLabel>
-													<DropdownMenuSeparator className="bg-border/30 my-1" />
+												<DropdownMenuContent align="end">
 													<DropdownMenuItem
-														className="h-8 rounded-lg px-1.5 font-black text-[10px] uppercase tracking-wider cursor-pointer focus:bg-primary/10 focus:text-foreground text-muted-foreground transition-colors"
 														onClick={() => {
 															setSelectedDataset(dataset);
 															setNewName(dataset.file_name);
 															setIsRenameOpen(true);
 														}}
 													>
-														<Edit2 className="mr-2 h-3.5 w-3.5" /> Rename
+														<Edit2 className="mr-2 h-4 w-4" /> Rename
 													</DropdownMenuItem>
-													<DropdownMenuSeparator className="bg-border/20 my-1" />
 													<DropdownMenuSub>
-														<DropdownMenuSubTrigger
-															className="h-8 rounded-lg px-2 font-black text-[10px] uppercase tracking-wider focus:bg-primary/10 focus:text-foreground text-muted-foreground"
-															disabled={exportingDatasetId === dataset.id}
-														>
-															{exportingDatasetId === dataset.id ? (
-																<Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
-															) : (
-																<Download className="mr-2 h-3.5 w-3.5" />
-															)}
-															Export
+														<DropdownMenuSubTrigger>
+															<Download className="mr-2 h-4 w-4" /> Export
 														</DropdownMenuSubTrigger>
-														<DropdownMenuSubContent className="w-36 rounded-xl p-1.5 border-border/40 bg-background/95 backdrop-blur-xl shadow-2xl">
-															<DropdownMenuItem
-																className="h-8 rounded-lg px-2 font-black text-[10px] uppercase tracking-wider"
-																onClick={() => handleExport(dataset, "csv")}
-																disabled={exportingDatasetId === dataset.id}
-															>
-																CSV
-															</DropdownMenuItem>
-															<DropdownMenuItem
-																className="h-8 rounded-lg px-2 font-black text-[10px] uppercase tracking-wider"
-																onClick={() => handleExport(dataset, "xlsx")}
-																disabled={exportingDatasetId === dataset.id}
-															>
-																XLSX
-															</DropdownMenuItem>
-															<DropdownMenuItem
-																className="h-8 rounded-lg px-2 font-black text-[10px] uppercase tracking-wider"
-																onClick={() => handleExport(dataset, "json")}
-																disabled={exportingDatasetId === dataset.id}
-															>
-																JSON
-															</DropdownMenuItem>
-															<DropdownMenuItem
-																className="h-8 rounded-lg px-2 font-black text-[10px] uppercase tracking-wider"
-																onClick={() => handleExport(dataset, "parquet")}
-																disabled={exportingDatasetId === dataset.id}
-															>
-																PARQUET
-															</DropdownMenuItem>
+														<DropdownMenuSubContent>
+															<DropdownMenuItem onClick={() => handleExport(dataset, "csv")}>csv</DropdownMenuItem>
+															<DropdownMenuItem onClick={() => handleExport(dataset, "xlsx")}>xlsx</DropdownMenuItem>
+															<DropdownMenuItem onClick={() => handleExport(dataset, "json")}>json</DropdownMenuItem>
+															<DropdownMenuItem onClick={() => handleExport(dataset, "parquet")}>parquet</DropdownMenuItem>
 														</DropdownMenuSubContent>
 													</DropdownMenuSub>
-													<DropdownMenuSeparator className="bg-border/20 my-1" />
+													<DropdownMenuSeparator />
 													<DropdownMenuItem
-														className="h-8 rounded-lg px-2 font-black text-[10px] uppercase tracking-wider cursor-pointer text-red-500/80 focus:bg-red-500/10 focus:text-red-500 transition-colors"
+														className="text-destructive focus:text-destructive"
 														onClick={() => {
 															setDeleteTarget(dataset);
 															setIsDeleteOpen(true);
 														}}
 													>
-														<Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
+														<Trash2 className="mr-2 h-4 w-4" /> Delete
 													</DropdownMenuItem>
 												</DropdownMenuContent>
 											</DropdownMenu>
@@ -554,8 +452,8 @@ export default function DatasetPage() {
 				</table>
 			</div>
 			{filteredDatasets.length === 0 && (
-				<div className="py-12 text-center text-muted-foreground text-sm font-bold italic">
-					No intelligence assets matching your criteria.
+				<div className="py-20 text-center text-muted-foreground border-t">
+					No datasets found.
 				</div>
 			)}
 		</div>
@@ -564,43 +462,24 @@ export default function DatasetPage() {
 	const renderContent = () => {
 		if (isLoading) {
 			return (
-				<div className="rounded-3xl border border-border/40 bg-background/40 backdrop-blur-xl overflow-hidden shadow-sm">
-					<div className="h-14 border-b border-border/20 bg-muted/20 animate-pulse" />
-					<div className="space-y-2 p-4">
-						{[1, 2, 3, 4, 5].map((i) => (
-							<div key={i} className="h-12 rounded-xl bg-muted/20 animate-pulse border border-border/20" />
-						))}
-					</div>
+				<div className="border rounded-md p-4 space-y-4">
+					{[1, 2, 3, 4].map((i) => (
+						<div key={i} className="h-10 bg-muted/40 animate-pulse rounded" />
+					))}
 				</div>
 			)
 		}
 
 		if (datasets.length === 0) {
 			return (
-				<motion.div
-					initial={{ opacity: 0, scale: 0.98 }}
-					animate={{ opacity: 1, scale: 1 }}
-					className="flex flex-col items-center justify-center py-24 text-center space-y-6 bg-muted/5 rounded-[3rem] border border-dashed border-border/60"
-				>
-					<div className="p-8 rounded-[2.5rem] bg-secondary/30 text-muted-foreground/30 shadow-inner">
-						<Database className="h-12 w-12" />
-					</div>
-					<div className="max-w-md space-y-2">
-						<h3 className="text-2xl font-black tracking-tight">No Datasets Yet</h3>
-						<p className="text-muted-foreground font-bold text-base italic">
-							Upload your first file to get started.
-						</p>
-					</div>
-					<Button
-						size="lg"
-						className="rounded-xl h-12 px-8 font-black tracking-widest uppercase text-[10px] bg-blue-600 hover:bg-blue-700 text-white shadow-sm shadow-blue-500/20"
-						onClick={openImportDialog}
-						disabled={uploadLoading}
-					>
-						<Plus className="mr-2 h-4 w-4" />{" "}
-						Upload File
+				<div className="flex flex-col items-center justify-center py-24 text-center border border-dashed rounded-md">
+					<Database className="h-12 w-12 text-muted-foreground/30 mb-4" />
+					<h3 className="text-lg font-semibold mb-1">No datasets available</h3>
+					<p className="text-sm text-muted-foreground mb-6">Start by importing your first telemetry file.</p>
+					<Button onClick={openImportDialog}>
+						<Plus className="mr-2 h-4 w-4" /> Import Dataset
 					</Button>
-				</motion.div>
+				</div>
 			)
 		}
 
@@ -608,247 +487,138 @@ export default function DatasetPage() {
 	}
 
 	return (
-		<main className="min-h-screen pt-10 pb-8 px-6 md:px-12 bg-background">
-			<div className="max-w-7xl mx-auto space-y-8">
-				{/* Header omitted for brevity in search but included in full content if needed */}
-				{/* ... existing header logic ... */}
-
-				<div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-					<motion.div
-						initial={{ opacity: 0, y: 15, filter: "blur(8px)" }}
-						animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-						transition={{ duration: 0.6, ease: "easeOut" }}
-						className="space-y-3"
-					>
-						<div className="flex items-center gap-2 text-primary font-bold text-[9px] tracking-[0.25em] uppercase">
-							<span className="p-1 rounded-sm bg-primary/10">
-								<Database size={10} className="text-primary" />
-							</span>{" "}
-							Import Your Dataset
-						</div>
-						<h1 className="text-3xl md:text-5xl font-black tracking-tight text-transparent bg-clip-text bg-linear-to-b from-foreground to-foreground/70 leading-tight">
-							Datasets
-						</h1>
-						<p className="text-muted-foreground mt-2 text-base max-w-lg leading-relaxed font-medium">
-							Upload and manage your data files for analysis.
-						</p>
-					</motion.div>
-
-					<motion.div
-						initial={{ opacity: 0, y: 15, filter: "blur(8px)" }}
-						animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-						transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
-						className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto"
-					>
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button variant="outline" size="sm" className="h-10 px-4 rounded-xl border-border/40 bg-background/50 backdrop-blur-sm font-bold text-xs gap-2 hover:bg-background/80 transition-all">
-									<ArrowUpDown className="h-3.5 w-3.5 text-primary/70" />
-									<span className="hidden lg:inline">{getSortLabel()}</span>
-									<ChevronDown className="h-3 w-3 opacity-30" />
-								</Button>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent align="end" className="w-56 rounded-2xl p-2 bg-background/95 backdrop-blur-xl border-border/40 shadow-2xl">
-								<DropdownMenuLabel className="text-[9px] uppercase font-black tracking-[0.2em] text-muted-foreground/50 px-3 py-2">Sort By</DropdownMenuLabel>
-								<DropdownMenuSeparator className="bg-border/40 my-1" />
-								<DropdownMenuRadioGroup value={sortBy} onValueChange={setSortBy}>
-									<DropdownMenuRadioItem value="newest" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-blue-500/10 focus:text-blue-500 transition-colors">
-										<Calendar className="mr-2 h-3.5 w-3.5 opacity-50" /> Newest First
-									</DropdownMenuRadioItem>
-									<DropdownMenuRadioItem value="oldest" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-blue-500/10 focus:text-blue-500 transition-colors">
-										<Calendar className="mr-2 h-3.5 w-3.5 opacity-50" /> Oldest First
-									</DropdownMenuRadioItem>
-									<DropdownMenuRadioItem value="name_asc" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-blue-500/10 focus:text-blue-500 transition-colors">
-										<ArrowUpAz className="mr-2 h-3.5 w-3.5 opacity-50" /> Name (A-Z)
-									</DropdownMenuRadioItem>
-									<DropdownMenuRadioItem value="name_desc" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-blue-500/10 focus:text-blue-500 transition-colors">
-										<ArrowDownAz className="mr-2 h-3.5 w-3.5 opacity-50" /> Name (Z-A)
-									</DropdownMenuRadioItem>
-								</DropdownMenuRadioGroup>
-							</DropdownMenuContent>
-						</DropdownMenu>
-
-						<DropdownMenu>
-							<DropdownMenuTrigger asChild>
-								<Button variant="outline" size="sm" className="h-10 px-4 rounded-xl border-border/40 bg-background/50 backdrop-blur-sm font-bold text-xs gap-2 hover:bg-background/80 transition-all">
-									<Filter className="h-3.5 w-3.5 text-primary/70" />
-									<span className="hidden lg:inline">{filterType === 'all' ? 'All Files' : filterType}</span>
-									<ChevronDown className="h-3 w-3 opacity-30" />
-								</Button>
-							</DropdownMenuTrigger>
-							<DropdownMenuContent align="end" className="w-48 rounded-2xl p-2 bg-background/95 backdrop-blur-xl border-border/40 shadow-2xl">
-								<DropdownMenuLabel className="text-[9px] uppercase font-black tracking-[0.2em] text-muted-foreground/50 px-3 py-2">Filter By Format</DropdownMenuLabel>
-								<DropdownMenuSeparator className="bg-border/40 my-1" />
-								<DropdownMenuRadioGroup value={filterType} onValueChange={setFilterType}>
-									<DropdownMenuRadioItem value="all" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-blue-500/10 focus:text-blue-500 transition-colors">
-										All Formats
-									</DropdownMenuRadioItem>
-									<DropdownMenuRadioItem value="CSV" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-blue-500/10 focus:text-blue-500 transition-colors">
-										CSV
-									</DropdownMenuRadioItem>
-									<DropdownMenuRadioItem value="JSON" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-blue-500/10 focus:text-blue-500 transition-colors">
-										JSON
-									</DropdownMenuRadioItem>
-									<DropdownMenuRadioItem value="XLSX" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-blue-500/10 focus:text-blue-500 transition-colors">
-										Excel
-									</DropdownMenuRadioItem>
-									<DropdownMenuRadioItem value="PARQUET" className="rounded-lg py-2.5 font-bold text-xs cursor-pointer focus:bg-blue-500/10 focus:text-blue-500 transition-colors">
-										Parquet
-									</DropdownMenuRadioItem>
-								</DropdownMenuRadioGroup>
-							</DropdownMenuContent>
-						</DropdownMenu>
-
-						<div className="relative group/search flex-1 sm:min-w-70">
-							<Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/60 group-focus-within/search:text-primary transition-colors" />
-							<Input
-								placeholder="Search files..."
-								className="pl-10 h-10 bg-background/50 border-border/40 focus:border-blue-500/40 focus:ring-4 focus:ring-blue-500/5 rounded-xl text-xs font-bold transition-all placeholder:text-muted-foreground/40 shadow-sm"
-								value={searchQuery}
-								onChange={(e) => setSearchQuery(e.target.value)}
-							/>
-						</div>
-
-						<Button
-							size="sm"
-							className="h-10 px-6 rounded-xl font-black tracking-widest text-[10px] uppercase bg-blue-600 hover:bg-blue-700 text-white transition-all duration-300 shadow-sm shadow-blue-500/20 group"
-							onClick={openImportDialog}
-							disabled={uploadLoading}
-						>
-							{uploadLoading ? (
-								<Loader2 className="mr-2 h-4 w-4 animate-spin" />
-							) : (
-								<Plus className="mr-2 h-4 w-4 group-hover:rotate-90 transition-transform duration-300" />
-							)}
-							Import
-						</Button>
-						<input
-							ref={fileInputRef}
-							type="file"
-							className="hidden"
-							onChange={handleFileUpload}
-							accept={importAccept}
-							disabled={uploadLoading}
-						/>
-					</motion.div>
+		<div className="container px-4 md:px-8 py-10 space-y-8 mx-auto">
+			<div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+				<div>
+					<h1 className="text-3xl font-bold tracking-tight">Datasets</h1>
+					<p className="text-muted-foreground">Manage and process your data artifacts.</p>
 				</div>
-
-				<Separator className="bg-border/40 opacity-30" />
-
-				{/* Content Area */}
-				<div className="relative">
-					{renderContent()}
+				<div className="flex items-center gap-2">
+					<Button onClick={openImportDialog}>
+						<Plus className="mr-2 h-4 w-4" /> Import
+					</Button>
 				</div>
 			</div>
 
-			{/* Import Dialog */}
+			<Separator />
+
+			<div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
+				<div className="flex items-center gap-2 w-full sm:w-auto">
+					<div className="relative flex-1 sm:w-80">
+						<Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+						<Input
+							placeholder="Search datasets..."
+							className="pl-9"
+							value={searchQuery}
+							onChange={(e) => setSearchQuery(e.target.value)}
+						/>
+					</div>
+				</div>
+
+				<div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button variant="outline" size="sm">
+								<ArrowUpDown className="mr-2 h-4 w-4" /> {getSortLabel()}
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end">
+							<DropdownMenuRadioGroup value={sortBy} onValueChange={setSortBy}>
+								<DropdownMenuRadioItem value="newest">Newest first</DropdownMenuRadioItem>
+								<DropdownMenuRadioItem value="oldest">Oldest first</DropdownMenuRadioItem>
+								<DropdownMenuRadioItem value="name_asc">Name (a-z)</DropdownMenuRadioItem>
+								<DropdownMenuRadioItem value="name_desc">Name (z-a)</DropdownMenuRadioItem>
+							</DropdownMenuRadioGroup>
+						</DropdownMenuContent>
+					</DropdownMenu>
+
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button variant="outline" size="sm">
+								<Filter className="mr-2 h-4 w-4" /> {filterType === 'all' ? 'All formats' : filterType}
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent align="end">
+							<DropdownMenuRadioGroup value={filterType} onValueChange={setFilterType}>
+								<DropdownMenuRadioItem value="all">All formats</DropdownMenuRadioItem>
+								<DropdownMenuRadioItem value="CSV">csv</DropdownMenuRadioItem>
+								<DropdownMenuRadioItem value="JSON">json</DropdownMenuRadioItem>
+								<DropdownMenuRadioItem value="XLSX">xlsx</DropdownMenuRadioItem>
+								<DropdownMenuRadioItem value="PARQUET">parquet</DropdownMenuRadioItem>
+							</DropdownMenuRadioGroup>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				</div>
+			</div>
+
+			{renderContent()}
+
 			<Dialog open={isImportOpen} onOpenChange={setIsImportOpen}>
-				<DialogContent className="sm:max-w-115 border-border/40 bg-background/95 backdrop-blur-xl rounded-4xl">
-					<DialogHeader className="space-y-1">
-						<DialogTitle className="text-xl font-black tracking-tight text-foreground">Choose Import Format</DialogTitle>
-						<DialogDescription className="text-sm font-semibold text-muted-foreground">
-							Select the file type to import: CSV, XLSX, JSON, or Parquet.
-						</DialogDescription>
-					</DialogHeader>
-					<div className="grid grid-cols-2 gap-3 py-2">
-						<Button
-							variant="outline"
-							className="h-12 rounded-xl font-black text-[10px] uppercase tracking-widest"
-							onClick={() => handleImportFormatSelect("csv")}
-							disabled={uploadLoading}
-						>
-							CSV
-						</Button>
-						<Button
-							variant="outline"
-							className="h-12 rounded-xl font-black text-[10px] uppercase tracking-widest"
-							onClick={() => handleImportFormatSelect("xlsx")}
-							disabled={uploadLoading}
-						>
-							XLSX
-						</Button>
-						<Button
-							variant="outline"
-							className="h-12 rounded-xl font-black text-[10px] uppercase tracking-widest"
-							onClick={() => handleImportFormatSelect("json")}
-							disabled={uploadLoading}
-						>
-							JSON
-						</Button>
-						<Button
-							variant="outline"
-							className="h-12 rounded-xl font-black text-[10px] uppercase tracking-widest"
-							onClick={() => handleImportFormatSelect("parquet")}
-							disabled={uploadLoading}
-						>
-							PARQUET
-						</Button>
-					</div>
-				</DialogContent>
-			</Dialog>
-
-			{/* Rename Dialog */}
-			<Dialog open={isRenameOpen} onOpenChange={setIsRenameOpen}>
-				<DialogContent className="sm:max-w-106.25 border-border/40 bg-background/95 backdrop-blur-xl rounded-4xl">
-					<DialogHeader className="space-y-1">
-						<DialogTitle className="text-xl font-black tracking-tight text-foreground">
-							Rename File
-						</DialogTitle>
-						<DialogDescription className="text-sm font-semibold text-muted-foreground">
-							Update the display filename.
-						</DialogDescription>
-					</DialogHeader>
-					<div className="grid gap-4 py-4">
-						<div className="grid gap-2">
-							<Label htmlFor="name" className="text-[9px] font-black uppercase tracking-widest text-muted-foreground px-1">File Name</Label>
-							<Input
-								id="name"
-								value={newName}
-								onChange={(e) => setNewName(e.target.value)}
-								className="h-11 rounded-xl bg-muted/20 border-border/40 font-bold"
-							/>
-						</div>
-					</div>
-					<div className="flex justify-end gap-3">
-						<Button variant="ghost" className="rounded-xl font-bold text-xs" onClick={() => setIsRenameOpen(false)}>Cancel</Button>
-						<Button className="rounded-xl font-black text-xs uppercase tracking-widest bg-blue-600 hover:bg-blue-700 text-white px-6 h-11" onClick={handleRename}>Update</Button>
-					</div>
-				</DialogContent>
-			</Dialog>
-
-			{/* Delete Dialog */}
-			<Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
-				<DialogContent className="sm:max-w-106.25 border-border/40 bg-background/95 backdrop-blur-xl rounded-4xl">
+				<DialogContent>
 					<DialogHeader>
-						<DialogTitle className="text-xl font-black">Are you sure to delete?</DialogTitle>
-						<DialogDescription className="text-muted-foreground text-xs font-bold tracking-wide">
-							This action will permanently delete {deleteTarget?.file_name ? `"${deleteTarget.file_name}"` : "this dataset"} and cannot be undone.
-						</DialogDescription>
+						<DialogTitle>Import Dataset</DialogTitle>
+						<DialogDescription>Select the source format for your data import.</DialogDescription>
 					</DialogHeader>
-					<div className="flex justify-end gap-3 pt-2">
-						<Button
-							variant="ghost"
-							className="rounded-xl font-bold text-xs"
-							onClick={() => {
-								if (deleteLoading) return;
-								setIsDeleteOpen(false);
-								setDeleteTarget(null);
-							}}
-							disabled={deleteLoading}
-						>
-							Cancel
-						</Button>
-						<Button
-							className="rounded-xl font-black text-xs uppercase tracking-widest bg-red-600 hover:bg-red-700 px-6 h-11"
-							onClick={() => deleteTarget && handleDelete(deleteTarget.id)}
-							disabled={!deleteTarget || deleteLoading}
-						>
-							{deleteLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
-							Delete
-						</Button>
+					<div className="grid grid-cols-2 gap-4 py-4">
+						{["csv", "xlsx", "json", "parquet"].map((fmt) => (
+							<Button
+								key={fmt}
+								variant="outline"
+								onClick={() => handleImportFormatSelect(fmt as DatasetExportFormat)}
+							>
+								{fmt.toUpperCase()}
+							</Button>
+						))}
 					</div>
 				</DialogContent>
 			</Dialog>
-		</main>
+
+			<Dialog open={isRenameOpen} onOpenChange={setIsRenameOpen}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Rename Dataset</DialogTitle>
+						<DialogDescription>Enter a new name for your telemetry file.</DialogDescription>
+					</DialogHeader>
+					<div className="py-4 space-y-2">
+						<Label htmlFor="name">New Name</Label>
+						<Input
+							id="name"
+							value={newName}
+							onChange={(e) => setNewName(e.target.value)}
+						/>
+					</div>
+					<DialogFooter>
+						<Button variant="outline" onClick={() => setIsRenameOpen(false)}>Cancel</Button>
+						<Button onClick={handleRename}>Save Changes</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+
+			<Dialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Delete Dataset</DialogTitle>
+						<DialogDescription>
+							Are you sure you want to delete <span className="font-bold text-foreground">{deleteTarget?.file_name}</span>?
+						</DialogDescription>
+					</DialogHeader>
+					<DialogFooter>
+						<Button variant="outline" onClick={() => setIsDeleteOpen(false)}>Cancel</Button>
+						<Button variant="destructive" onClick={() => deleteTarget && handleDelete(deleteTarget.id)} disabled={deleteLoading}>
+							{deleteLoading ? <Loader2 className="animate-spin" /> : "Delete"}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+
+			<input
+				ref={fileInputRef}
+				type="file"
+				className="hidden"
+				onChange={handleFileUpload}
+				accept={importAccept}
+				disabled={uploadLoading}
+			/>
+		</div>
 	);
 }
