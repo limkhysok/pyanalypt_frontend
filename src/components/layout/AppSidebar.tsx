@@ -38,20 +38,21 @@ export function AppSidebar({ collapsed, onToggle }: Readonly<AppSidebarProps>) {
 
     return (
         <motion.aside
-            animate={{ width: collapsed ? 72 : 240 }}
+            animate={{ width: collapsed ? 64 : 200 }}
             transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-            className="fixed left-0 top-0 h-full z-51 flex flex-col border-r border-border/40 bg-background backdrop-blur-xl transition-all"
+            className="fixed left-0 top-0 h-full z-51 flex flex-col border-r border-border/40 bg-background"
+            style={{ willChange: "width" }}
         >
             {/* Toggle Button Hanging on Border — TOP POSITIONED */}
             <button
                 onClick={onToggle}
                 title={collapsed ? "Expand" : "Collapse"}
-                className="absolute -right-3 top-4 z-50 flex h-6 w-6 items-center justify-center rounded-full border border-border/40 bg-background shadow-lg hover:bg-foreground hover:text-background transition-all text-muted-foreground hover:scale-110 active:scale-95"
+                className="absolute -right-3 top-4 z-50 flex h-6 w-6 items-center justify-center rounded-full border border-border/40 bg-background shadow-lg hover:bg-foreground hover:text-background text-muted-foreground hover:scale-110 active:scale-95 transition-colors"
             >
                 {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
             </button>
             {/* Header */}
-            <div className={cn("flex items-center h-14 border-b border-border/40 shrink-0 transition-all pl-8", collapsed && "justify-center px-0")}>
+            <div className="flex items-center h-14 border-b border-border/40 shrink-0 px-5 overflow-hidden">
                 {/* Logo with signature transition */}
                 <Link href="/dashboard" className="flex items-center gap-3 group/logo min-w-0">
                     <Logo className="w-6 h-6 transition-all duration-500 group-hover/logo:rotate-12 grayscale group-hover/logo:grayscale-0 shrink-0" />
@@ -62,7 +63,7 @@ export function AppSidebar({ collapsed, onToggle }: Readonly<AppSidebarProps>) {
                                 animate={{ opacity: 1, width: "auto" }}
                                 exit={{ opacity: 0, width: 0 }}
                                 transition={{ duration: 0.2 }}
-                                className="text-[14px] font-bold tracking-tight text-foreground whitespace-nowrap overflow-hidden"
+                                className="text-[13px] font-bold tracking-tight text-foreground whitespace-nowrap overflow-hidden"
                             >
                                 PyAnalypt
                             </motion.span>
@@ -72,7 +73,7 @@ export function AppSidebar({ collapsed, onToggle }: Readonly<AppSidebarProps>) {
             </div>
 
             {/* Nav Items */}
-            <nav className="flex-1 py-8 px-3 space-y-1.5 overflow-y-auto custom-scrollbar overflow-x-hidden">
+            <nav className="flex-1 py-2 px-2.5 space-y-1.5 overflow-y-auto custom-scrollbar overflow-x-hidden">
                 {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
                     const safePathname = pathname || "";
                     const isActive = safePathname === href || (href !== "/dashboard" && safePathname.startsWith(href));
@@ -83,14 +84,20 @@ export function AppSidebar({ collapsed, onToggle }: Readonly<AppSidebarProps>) {
                                 href={href}
                                 title={collapsed ? label : undefined}
                                 className={cn(
-                                    "group flex items-center gap-3.5 h-11 rounded-xl text-[13px] font-semibold transition-all duration-300 relative",
-                                    collapsed ? "justify-center px-0" : "px-4",
-                                    isActive
-                                        ? "bg-foreground text-background shadow-xl shadow-foreground/5 scale-[1.02]"
-                                        : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                                    "group flex items-center gap-3 h-10 rounded-xl text-[12px] font-medium transition-colors duration-300 relative",
+                                    collapsed ? "justify-center px-0" : "px-3",
+                                    isActive ? "text-background" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                                 )}
                             >
-                                <Icon size={18} className={cn("shrink-0 transition-transform duration-300 group-hover:scale-110", isActive ? "opacity-100" : "opacity-40 group-hover:opacity-100")} />
+                                {isActive && (
+                                    <motion.div
+                                        layoutId="activeBackground"
+                                        className="absolute inset-0 bg-foreground rounded-xl shadow-xl shadow-foreground/5"
+                                        transition={{ type: "spring", stiffness: 400, damping: 35 }}
+                                    />
+                                )}
+
+                                <Icon size={16} className={cn("relative z-10 shrink-0 transition-transform duration-300 group-hover:scale-110", isActive ? "opacity-100" : "opacity-40 group-hover:opacity-100")} />
                                 <AnimatePresence>
                                     {!collapsed && (
                                         <motion.span
@@ -98,7 +105,7 @@ export function AppSidebar({ collapsed, onToggle }: Readonly<AppSidebarProps>) {
                                             animate={{ opacity: 1, x: 0 }}
                                             exit={{ opacity: 0, x: -6 }}
                                             transition={{ duration: 0.2 }}
-                                            className="whitespace-nowrap overflow-hidden flex-1"
+                                            className="relative z-10 whitespace-nowrap overflow-hidden flex-1"
                                         >
                                             {label}
                                         </motion.span>
@@ -108,7 +115,8 @@ export function AppSidebar({ collapsed, onToggle }: Readonly<AppSidebarProps>) {
                                 {isActive && (
                                     <motion.div
                                         layoutId="activeIndicator"
-                                        className="absolute left-1 w-1 h-5 bg-background rounded-full opacity-30"
+                                        className="absolute left-1 w-1 h-4 bg-background rounded-full opacity-30 z-20"
+                                        transition={{ type: "spring", stiffness: 400, damping: 35 }}
                                     />
                                 )}
                             </Link>
@@ -118,37 +126,52 @@ export function AppSidebar({ collapsed, onToggle }: Readonly<AppSidebarProps>) {
             </nav>
 
             {/* Footer Items */}
-            <div className="p-4 border-t border-border/40 space-y-1.5 bg-muted/5">
+            <div className="p-3 border-t border-border/40 space-y-1 bg-muted/5">
                 <Link
                     href="/profile"
                     title={collapsed ? "Profile" : undefined}
                     className={cn(
-                        "group flex items-center gap-3.5 h-11 rounded-xl text-[13px] font-semibold transition-all duration-300",
-                        collapsed ? "justify-center px-0" : "px-4",
+                        "group flex items-center gap-3 h-10 rounded-xl text-[12px] font-medium transition-colors duration-300 relative",
+                        collapsed ? "justify-center px-0" : "px-3",
                         pathname === "/profile"
-                            ? "bg-foreground text-background shadow-lg"
+                            ? "text-background"
                             : "text-muted-foreground hover:text-foreground hover:bg-muted"
                     )}
                 >
-                    <User size={18} className="shrink-0 opacity-40 group-hover:opacity-100" />
-                    {!collapsed && <span className="flex-1">Profile</span>}
+                    {pathname === "/profile" && (
+                        <motion.div
+                            layoutId="activeBackground"
+                            className="absolute inset-0 bg-foreground rounded-xl shadow-lg"
+                            transition={{ type: "spring", stiffness: 400, damping: 35 }}
+                        />
+                    )}
+                    <User size={16} className="relative z-10 shrink-0 opacity-40 group-hover:opacity-100" />
+                    {!collapsed && <span className="relative z-10 flex-1">Profile</span>}
                 </Link>
 
                 <Link
                     href="/profile/setting"
                     title={collapsed ? "Settings" : undefined}
                     className={cn(
-                        "group flex items-center gap-3.5 h-11 rounded-xl text-[13px] font-semibold transition-all duration-300",
-                        collapsed ? "justify-center px-0" : "px-4",
+                        "group flex items-center gap-3 h-10 rounded-xl text-[12px] font-medium transition-colors duration-300 relative",
+                        collapsed ? "justify-center px-0" : "px-3",
                         pathname?.startsWith("/profile/setting")
-                            ? "bg-foreground text-background shadow-lg"
+                            ? "text-background"
                             : "text-muted-foreground hover:text-foreground hover:bg-muted"
                     )}
                 >
-                    <Settings size={18} className="shrink-0 opacity-40 group-hover:opacity-100" />
-                    {!collapsed && <span className="flex-1">Settings</span>}
+                    {pathname?.startsWith("/profile/setting") && (
+                        <motion.div
+                            layoutId="activeBackground"
+                            className="absolute inset-0 bg-foreground rounded-xl shadow-lg"
+                            transition={{ type: "spring", stiffness: 400, damping: 35 }}
+                        />
+                    )}
+                    <Settings size={16} className="relative z-10 shrink-0 opacity-40 group-hover:opacity-100" />
+                    {!collapsed && <span className="relative z-10 flex-1">Settings</span>}
                 </Link>
             </div>
         </motion.aside>
     );
 }
+

@@ -1,30 +1,40 @@
 import { useState, useEffect } from "react";
 
 export function useSidebar() {
-    const [collapsed, setCollapsed] = useState(false);
+    // Start with a nullish state to handle SSR gracefully
+    const [collapsed, setCollapsed] = useState<boolean>(false);
+    const [isInitialized, setIsInitialized] = useState(false);
 
     useEffect(() => {
+        // Load initial state from localStorage or window width
+        const stored = localStorage.getItem("sidebar_collapsed");
+        if (stored === null) {
+            // Default if nothing stored
+            const initialCollapsed = window.innerWidth < 1024;
+            setCollapsed(initialCollapsed);
+            localStorage.setItem("sidebar_collapsed", String(initialCollapsed));
+        } else {
+            setCollapsed(stored === "true");
+        }
+        setIsInitialized(true);
+
         const handleResize = () => {
             if (window.innerWidth < 1024) {
                 setCollapsed(true);
-            } else {
-                setCollapsed(false);
             }
         };
 
-        // Initial check
-        handleResize();
-
-        // Listen for window resize
         window.addEventListener("resize", handleResize);
-
-        // Cleanup event listener
         return () => window.removeEventListener("resize", handleResize);
     }, []);
 
     const toggleSidebar = () => {
-        setCollapsed((prev) => !prev);
+        setCollapsed((prev) => {
+            const newState = !prev;
+            localStorage.setItem("sidebar_collapsed", String(newState));
+            return newState;
+        });
     };
 
-    return { collapsed, toggleSidebar };
+    return { collapsed, toggleSidebar, isInitialized };
 }

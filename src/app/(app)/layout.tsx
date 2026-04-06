@@ -1,8 +1,15 @@
-// App layout — passthrough for authenticated routes.
-// Each route (dashboard, datasets, analysis, etc.) owns its own layout.tsx
-// with its AppNavbar + AppSidebar configuration.
-export default function AppLayout({
+import * as React from "react";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import { AppShell } from "@/components/layout/AppShell";
+
+export default async function AppLayout({
     children,
 }: Readonly<{ children: React.ReactNode }>) {
-    return <>{children}</>;
+    const cookieStore = await cookies();
+    if (!cookieStore.get("auth_session")?.value) {
+        redirect("/login");
+    }
+
+    return <AppShell>{children}</AppShell>;
 }

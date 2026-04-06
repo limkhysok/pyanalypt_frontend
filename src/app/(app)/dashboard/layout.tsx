@@ -1,14 +1,3 @@
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { AppShell } from "@/components/layout/AppShell";
+import * as React from "react";
 
-export default async function DashboardLayout({
-    children,
-}: Readonly<{ children: React.ReactNode }>) {
-    const cookieStore = await cookies();
-    if (!cookieStore.get("auth_session")?.value) {
-        redirect("/login");
-    }
-
-    return <AppShell>{children}</AppShell>;
-}
+export default function Layout({ children }: { children: React.ReactNode }) { return <>{children}</>; }

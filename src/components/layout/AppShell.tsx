@@ -18,9 +18,10 @@ export function AppShell({ children }: Readonly<{ children: React.ReactNode }>) 
             <AppSidebar collapsed={collapsed} onToggle={toggleSidebar} />
 
             <motion.main
-                animate={{ marginLeft: collapsed ? 72 : 240 }}
+                animate={{ marginLeft: collapsed ? 64 : 200 }}
                 transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
                 className="pt-14 min-h-screen relative z-10"
+                style={{ willChange: "margin-left" }}
             >
                 {children}
             </motion.main>

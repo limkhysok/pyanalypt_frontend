@@ -608,11 +608,11 @@ export default function DatasetPage() {
 	}
 
 	return (
-		<main className="min-h-screen pt-20 pb-8 px-6 md:px-12 bg-background">
+		<main className="min-h-screen pt-10 pb-8 px-6 md:px-12 bg-background">
 			<div className="max-w-7xl mx-auto space-y-8">
 				{/* Header omitted for brevity in search but included in full content if needed */}
 				{/* ... existing header logic ... */}
-                
+
 				<div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
 					<motion.div
 						initial={{ opacity: 0, y: 15, filter: "blur(8px)" }}
@@ -786,7 +786,7 @@ export default function DatasetPage() {
 					</div>
 				</DialogContent>
 			</Dialog>
-            
+
 			{/* Rename Dialog */}
 			<Dialog open={isRenameOpen} onOpenChange={setIsRenameOpen}>
 				<DialogContent className="sm:max-w-106.25 border-border/40 bg-background/95 backdrop-blur-xl rounded-4xl">

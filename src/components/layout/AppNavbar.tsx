@@ -18,8 +18,8 @@ import {
 import { useAuth } from "@/context/auth-context";
 import { motion } from "motion/react";
 
-const SIDEBAR_EXPANDED = 240;
-const SIDEBAR_COLLAPSED = 72;
+const SIDEBAR_EXPANDED = 200;
+const SIDEBAR_COLLAPSED = 64;
 
 interface AppNavbarProps {
     collapsed: boolean;
@@ -32,7 +32,7 @@ export function AppNavbar({ collapsed }: Readonly<AppNavbarProps>) {
         <motion.header
             animate={{ left: collapsed ? SIDEBAR_COLLAPSED : SIDEBAR_EXPANDED }}
             transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-            className="fixed top-0 right-0 z-50 h-14 flex items-center justify-between px-6 border-b border-border/40 bg-background/80 backdrop-blur-xl"
+            className="fixed top-0 right-0 z-50 h-14 flex items-center justify-between px-6 border-b border-border/40 bg-background"
         >
             {/* Left — Contextual Identifier */}
             <div className="flex items-center gap-4">
