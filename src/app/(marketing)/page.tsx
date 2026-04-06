@@ -25,12 +25,12 @@ function HeroSection({ onStart }: Readonly<{ onStart: () => void }>) {
     <section className="relative min-h-[85vh] flex flex-col justify-center pt-26 pb-10 md:pt-34 md:pb-16 overflow-hidden bg-background">
 
       {/* Precision Blueprint Grid Background - High Fidelity */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-size-[40px_40px] pointer-events-none" />
       <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-border/50 to-transparent shadow-[0_0_20px_rgba(0,0,0,0.05)]" />
 
       {/* Decorative Layered Glows (Monochrome) */}
-      <div className="absolute top-1/4 left-1/4 w-[300px] md:w-[500px] h-[300px] md:h-[500px] bg-foreground opacity-[0.01] blur-[100px] md:blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-[350px] md:w-[550px] h-[350px] md:h-[550px] bg-foreground opacity-[0.02] blur-[120px] md:blur-[150px] rounded-full pointer-events-none" />
+      <div className="absolute top-1/4 left-1/4 w-75 md:w-md:w-12500px] md:h-125 bg-foreground opacity-[0.01] blur-[100px] md:blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/4 w-87.5 md:w-137.5 h-87.5 md:h-137.5 bg-foreground opacity-[0.02] blur-[120px] md:blur-[150px] rounded-full pointer-events-none" />
 
       <div className="container relative z-10 mx-auto px-6 max-w-7xl">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
@@ -80,7 +80,7 @@ function HeroSection({ onStart }: Readonly<{ onStart: () => void }>) {
                     <div className="w-2 md:w-3 h-2 md:h-3 rounded-full bg-border/60 group-hover/card:bg-amber-500/50 transition-colors" />
                     <div className="w-2 md:w-3 h-2 md:h-3 rounded-full bg-border/60 group-hover/card:bg-emerald-500/50 transition-colors" />
                   </div>
-                  <span className="text-[10px] md:text-[11px] font-bold text-muted-foreground/60 tracking-tight truncate max-w-[120px] md:max-w-none">dist/v1.0/performance_snapshot.json</span>
+                  <span className="text-[10px] md:text-[11px] font-bold text-muted-foreground/60 tracking-tight truncate max-w-30 md:max-w-none">dist/v1.0/performance_snapshot.json</span>
                 </div>
                 <div className="flex items-center gap-3 md:gap-4 text-muted-foreground/40">
                   <div className="p-1 hover:bg-background hover:text-foreground rounded-lg transition-colors cursor-pointer">
@@ -95,7 +95,7 @@ function HeroSection({ onStart }: Readonly<{ onStart: () => void }>) {
               {/* Mockup Toolbar */}
               <div className="h-12 md:h-14 border-b border-border/60 bg-background/50 backdrop-blur-sm flex items-center justify-between px-4 md:px-6">
                 <div className="flex items-center gap-2 md:gap-3">
-                  <div className="flex items-center gap-2 md:gap-3 px-2 md:px-3 py-1.5 bg-muted/30 border border-border/60 rounded-lg text-[10px] font-bold text-muted-foreground/80 hover:border-foreground/30 transition-colors cursor-text min-w-[110px] md:min-w-[140px]">
+                  <div className="flex items-center gap-2 md:gap-3 px-2 md:px-3 py-1.5 bg-muted/30 border border-border/60 rounded-lg text-[10px] font-bold text-muted-foreground/80 hover:border-foreground/30 transition-colors cursor-text min-w-27.5 md:min-w-35">
                     <Search size={12} className="opacity-40" /> <span className="hidden sm:inline">Search Telemetry...</span><span className="sm:hidden">Search...</span>
                   </div>
                   <div className="h-6 w-px bg-border/60" />
@@ -156,7 +156,7 @@ function HeroSection({ onStart }: Readonly<{ onStart: () => void }>) {
                 <div className="p-4 md:p-5 rounded-xl md:rounded-2xl border border-dashed border-border/80 bg-transparent dark:bg-transparent backdrop-blur-sm flex items-center justify-between hover:border-foreground/30 hover:bg-background transition-all duration-300">
                   <div className="flex items-center gap-3 md:gap-4">
                     <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-background border border-border shadow-sm flex items-center justify-center text-zinc-400 group-hover/card:text-foreground transition-colors">
-                      <Code2 className="w-[18px] h-[18px] md:w-5 md:h-5" />
+                      <Code2 className="w-4.5 h-4.5 md:w-5 md:h-5" />
                     </div>
                     <div className="space-y-0.5 md:space-y-1">
                       <p className="text-xs md:text-sm font-black text-foreground">Worker Active</p>
@@ -191,7 +191,7 @@ function ProductStory() {
     <section className="py-32 relative overflow-hidden bg-background">
       {/* Structural Backdrop Grid */}
       <div className="absolute inset-x-0 top-0 h-24 bg-linear-to-b from-secondary/10 to-transparent pointer-events-none" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808005_1px,transparent_1px),linear-gradient(to_bottom,#80808005_1px,transparent_1px)] bg-[size:60px_60px] pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808005_1px,transparent_1px),linear-gradient(to_bottom,#80808005_1px,transparent_1px)] bg-size-[60px_60px] pointer-events-none" />
 
       <div className="container mx-auto px-6 max-w-5xl relative z-10">
         <div className="flex flex-col items-center text-center space-y-10">
