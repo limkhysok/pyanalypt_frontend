@@ -1,30 +1,22 @@
 "use client";
 
 import * as React from "react";
-import { useSidebar } from "@/hooks/use-sidebar";
 import { AppNavbar } from "@/components/layout/AppNavbar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
-import { motion } from "motion/react";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 export function AppShell({ children }: Readonly<{ children: React.ReactNode }>) {
-    const { collapsed, toggleSidebar } = useSidebar();
-
     return (
-        <div className="min-h-screen bg-background text-foreground relative overflow-hidden">
+        <SidebarProvider className="bg-background text-foreground" style={{ "--sidebar-width": "13rem" } as React.CSSProperties}>
             {/* Precision Blueprint Grid Backdrop */}
-            <div className="fixed inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none opacity-20 shadow-inner" />
+            <div className="fixed inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[40px_40px] pointer-events-none opacity-20 shadow-inner" />
 
-            <AppNavbar collapsed={collapsed} />
-            <AppSidebar collapsed={collapsed} onToggle={toggleSidebar} />
+            <AppSidebar />
 
-            <motion.main
-                animate={{ marginLeft: collapsed ? 64 : 200 }}
-                transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-                className="pt-14 min-h-screen relative z-10"
-                style={{ willChange: "margin-left" }}
-            >
+            <SidebarInset>
+                <AppNavbar />
                 {children}
-            </motion.main>
-        </div>
+            </SidebarInset>
+        </SidebarProvider>
     );
 }

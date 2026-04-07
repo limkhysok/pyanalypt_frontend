@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import Link from "next/link";
 import { LogOut, User as UserIcon, Settings, LayoutDashboard } from "lucide-react";
 import { GithubIcon } from "@/components/ui/Icons";
@@ -16,27 +15,16 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/auth-context";
-import { motion } from "motion/react";
+import { SidebarTrigger } from "@/components/ui/sidebar";
 
-const SIDEBAR_EXPANDED = 200;
-const SIDEBAR_COLLAPSED = 64;
-
-interface AppNavbarProps {
-    collapsed: boolean;
-}
-
-export function AppNavbar({ collapsed }: Readonly<AppNavbarProps>) {
+export function AppNavbar() {
     const { user, logout } = useAuth();
 
     return (
-        <motion.header
-            animate={{ left: collapsed ? SIDEBAR_COLLAPSED : SIDEBAR_EXPANDED }}
-            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-            className="fixed top-0 right-0 z-50 h-14 flex items-center justify-between px-6 border-b border-border/90 bg-background"
-        >
-            {/* Left — Contextual Identifier */}
-            <div className="flex items-center gap-4">
-
+        <header className="sticky top-0 z-50 h-14 flex items-center justify-between px-6 border-b border-border/90 bg-background">
+            {/* Left */}
+            <div className="flex items-center gap-2">
+                <SidebarTrigger className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all" />
             </div>
 
             {/* Right — actions */}
@@ -131,6 +119,6 @@ export function AppNavbar({ collapsed }: Readonly<AppNavbarProps>) {
                     </DropdownMenuContent>
                 </DropdownMenu>
             </div>
-        </motion.header>
+        </header>
     );
 }

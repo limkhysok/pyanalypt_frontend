@@ -1,177 +1,195 @@
 "use client";
 
-import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
     LayoutDashboard,
     Database,
     AlertCircle,
-    ChevronRight,
-    ChevronLeft,
     Settings,
     User,
     Trash2,
     BarChart3,
     Lightbulb,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { motion, AnimatePresence } from "motion/react";
 import { Logo } from "@/components/ui/Logo";
+import { cn } from "@/lib/utils";
+import {
+    Sidebar,
+    SidebarContent,
+    SidebarFooter,
+    SidebarGroup,
+    SidebarGroupContent,
+    SidebarGroupLabel,
+    SidebarHeader,
+    SidebarMenu,
+    SidebarMenuButton,
+    SidebarMenuItem,
+    SidebarRail,
+    SidebarSeparator,
+} from "@/components/ui/sidebar";
 
 const NAV_ITEMS = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { label: "Datasets", href: "/datasets", icon: Database },
-    { label: "Issues", href: "/issues", icon: AlertCircle },
-    { label: "Clean", href: "/clean", icon: Trash2 },
-    { label: "Analysis", href: "/analysis", icon: BarChart3 },
-    { label: "Insight", href: "/insight", icon: Lightbulb },
+    { label: "Datasets",  href: "/datasets",  icon: Database         },
+    { label: "Issues",    href: "/issues",    icon: AlertCircle      },
+    { label: "Clean",     href: "/clean",     icon: Trash2           },
+    { label: "Analysis",  href: "/analysis",  icon: BarChart3        },
+    { label: "Insight",   href: "/insight",   icon: Lightbulb        },
 ];
 
-interface AppSidebarProps {
-    collapsed: boolean;
-    onToggle: () => void;
-}
+const FOOTER_ITEMS = [
+    { label: "Profile",  href: "/profile",        icon: User     },
+    { label: "Settings", href: "/profile/setting", icon: Settings },
+];
 
-export function AppSidebar({ collapsed, onToggle }: Readonly<AppSidebarProps>) {
-    const pathname = usePathname();
+function NavItem({
+    label,
+    href,
+    icon: Icon,
+}: Readonly<{ label: string; href: string; icon: React.ElementType }>) {
+    const pathname = usePathname() ?? "";
+    const isActive =
+        pathname === href || (href !== "/dashboard" && pathname.startsWith(href));
 
     return (
-        <motion.aside
-            animate={{ width: collapsed ? 64 : 200 }}
-            transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
-            className="fixed left-0 top-0 h-full z-51 flex flex-col border-r border-border/90 bg-background"
-            style={{ willChange: "width" }}
-        >
-            {/* Toggle Button Hanging on Border — TOP POSITIONED */}
-            <button
-                onClick={onToggle}
-                title={collapsed ? "Expand" : "Collapse"}
-                className="absolute -right-3 top-4 z-50 flex h-6 w-6 items-center justify-center rounded-full border border-border/40 bg-background shadow-lg hover:bg-foreground hover:text-background text-muted-foreground hover:scale-110 active:scale-95 transition-colors"
+        <SidebarMenuItem className="relative">
+            <SidebarMenuButton
+                asChild
+                isActive={isActive}
+                tooltip={{ children: label, side: "right" }}
+                className={cn(
+                    "h-9 gap-3 rounded-lg text-[12px] font-medium transition-all duration-150",
+                    isActive
+                        ? [
+                              "bg-sidebar-primary text-sidebar-primary-foreground font-semibold",
+                              "data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground",
+                              "hover:bg-sidebar-primary hover:text-sidebar-primary-foreground",
+                          ].join(" ")
+                        : [
+                              "text-sidebar-foreground/50 hover:text-sidebar-foreground",
+                              "hover:bg-sidebar-accent",
+                              "data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground",
+                          ].join(" ")
+                )}
             >
-                {collapsed ? <ChevronRight size={12} /> : <ChevronLeft size={12} />}
-            </button>
-            {/* Header */}
-            <div className="flex items-center h-14 border-b border-border/90 shrink-0 px-5 overflow-hidden">
-                {/* Logo with signature transition */}
-                <Link href="/dashboard" className="flex items-center gap-3 group/logo min-w-0">
-                    <Logo className="w-6 h-6 transition-all duration-500 group-hover/logo:rotate-12 grayscale group-hover/logo:grayscale-0 shrink-0" />
-                    <AnimatePresence>
-                        {!collapsed && (
-                            <motion.span
-                                initial={{ opacity: 0, width: 0 }}
-                                animate={{ opacity: 1, width: "auto" }}
-                                exit={{ opacity: 0, width: 0 }}
-                                transition={{ duration: 0.2 }}
-                                className="text-[13px] font-bold tracking-tight text-foreground whitespace-nowrap overflow-hidden"
-                            >
-                                PyAnalypt
-                            </motion.span>
+                <Link href={href}>
+                    <Icon
+                        className={cn(
+                            "shrink-0 size-4 transition-opacity duration-150",
+                            isActive ? "opacity-100" : "opacity-40"
                         )}
-                    </AnimatePresence>
+                    />
+                    <span className="tracking-tight">{label}</span>
                 </Link>
-            </div>
+            </SidebarMenuButton>
 
-            {/* Nav Items */}
-            <nav className="flex-1 py-2 px-2.5 space-y-1.5 overflow-y-auto custom-scrollbar overflow-x-hidden">
-                {NAV_ITEMS.map(({ label, href, icon: Icon }) => {
-                    const safePathname = pathname || "";
-                    const isActive = safePathname === href || (href !== "/dashboard" && safePathname.startsWith(href));
-
-                    return (
-                        <div key={href} className="space-y-1">
-                            <Link
-                                href={href}
-                                title={collapsed ? label : undefined}
-                                className={cn(
-                                    "group flex items-center gap-3 h-10 rounded-md text-[12px] font-medium transition-colors duration-300 relative",
-                                    collapsed ? "justify-center px-0" : "px-3",
-                                    isActive ? "text-background" : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                                )}
-                            >
-                                {isActive && (
-                                    <motion.div
-                                        layoutId="activeBackground"
-                                        className="absolute inset-0 bg-foreground rounded-xl shadow-xl shadow-foreground/5"
-                                        transition={{ type: "spring", stiffness: 400, damping: 35 }}
-                                    />
-                                )}
-
-                                <Icon size={16} className={cn("relative z-10 shrink-0 transition-transform duration-300 group-hover:scale-110", isActive ? "opacity-100" : "opacity-40 group-hover:opacity-100")} />
-                                <AnimatePresence>
-                                    {!collapsed && (
-                                        <motion.span
-                                            initial={{ opacity: 0, x: -6 }}
-                                            animate={{ opacity: 1, x: 0 }}
-                                            exit={{ opacity: 0, x: -6 }}
-                                            transition={{ duration: 0.2 }}
-                                            className="relative z-10 whitespace-nowrap overflow-hidden flex-1"
-                                        >
-                                            {label}
-                                        </motion.span>
-                                    )}
-                                </AnimatePresence>
-
-                                {isActive && (
-                                    <motion.div
-                                        layoutId="activeIndicator"
-                                        className="absolute left-1 w-1 h-4 bg-background rounded-full opacity-30 z-20"
-                                        transition={{ type: "spring", stiffness: 400, damping: 35 }}
-                                    />
-                                )}
-                            </Link>
-                        </div>
-                    );
-                })}
-            </nav>
-
-            {/* Footer Items */}
-            <div className="p-3 border-t border-border/40 space-y-1 bg-muted/5">
-                <Link
-                    href="/profile"
-                    title={collapsed ? "Profile" : undefined}
-                    className={cn(
-                        "group flex items-center gap-3 h-10 rounded-xl text-[12px] font-medium transition-colors duration-300 relative",
-                        collapsed ? "justify-center px-0" : "px-3",
-                        pathname === "/profile"
-                            ? "text-background"
-                            : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                    )}
-                >
-                    {pathname === "/profile" && (
-                        <motion.div
-                            layoutId="activeBackground"
-                            className="absolute inset-0 bg-foreground rounded-xl shadow-lg"
-                            transition={{ type: "spring", stiffness: 400, damping: 35 }}
-                        />
-                    )}
-                    <User size={16} className="relative z-10 shrink-0 opacity-40 group-hover:opacity-100" />
-                    {!collapsed && <span className="relative z-10 flex-1">Profile</span>}
-                </Link>
-
-                <Link
-                    href="/profile/setting"
-                    title={collapsed ? "Settings" : undefined}
-                    className={cn(
-                        "group flex items-center gap-3 h-10 rounded-xl text-[12px] font-medium transition-colors duration-300 relative",
-                        collapsed ? "justify-center px-0" : "px-3",
-                        pathname?.startsWith("/profile/setting")
-                            ? "text-background"
-                            : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                    )}
-                >
-                    {pathname?.startsWith("/profile/setting") && (
-                        <motion.div
-                            layoutId="activeBackground"
-                            className="absolute inset-0 bg-foreground rounded-xl shadow-lg"
-                            transition={{ type: "spring", stiffness: 400, damping: 35 }}
-                        />
-                    )}
-                    <Settings size={16} className="relative z-10 shrink-0 opacity-40 group-hover:opacity-100" />
-                    {!collapsed && <span className="relative z-10 flex-1">Settings</span>}
-                </Link>
-            </div>
-        </motion.aside>
+            {/* Left accent indicator */}
+            {isActive && (
+                <span
+                    aria-hidden
+                    className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.75 rounded-r-full bg-sidebar-primary group-data-[collapsible=icon]:hidden"
+                />
+            )}
+        </SidebarMenuItem>
     );
 }
 
+export function AppSidebar() {
+    const pathname = usePathname() ?? "";
+
+    return (
+        <Sidebar collapsible="icon">
+            {/* ── Header ── */}
+            <SidebarHeader className="h-14 border-b border-sidebar-border/60 px-3 group-data-[collapsible=icon]:px-0">
+                <Link
+                    href="/dashboard"
+                    className="flex h-full items-center gap-3 group/logo overflow-hidden group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+                >
+                    <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-xl border border-sidebar-border/80 bg-sidebar-accent shadow-xs">
+                        <Logo className="h-4 w-4 grayscale transition-all duration-500 group-hover/logo:rotate-12 group-hover/logo:grayscale-0" />
+                    </div>
+
+                    <div className="grid gap-0.5 leading-none group-data-[collapsible=icon]:hidden min-w-0">
+                        <span className="truncate text-[13px] font-bold tracking-tight text-sidebar-foreground">
+                            PyAnalypt
+                        </span>
+                        <span className="truncate text-[10px] font-medium text-sidebar-foreground/35">
+                            Data Platform
+                        </span>
+                    </div>
+                </Link>
+            </SidebarHeader>
+
+            {/* ── Navigation ── */}
+            <SidebarContent className="px-1 group-data-[collapsible=icon]:px-0">
+                <SidebarGroup className="px-2 py-3 group-data-[collapsible=icon]:px-2">
+                    <SidebarGroupLabel className="mb-2 h-auto px-1 text-[9px] font-bold uppercase tracking-[0.12em] text-sidebar-foreground/30 group-data-[collapsible=icon]:hidden">
+                        Workspace
+                    </SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        <SidebarMenu className="gap-px">
+                            {NAV_ITEMS.map((item) => (
+                                <NavItem key={item.href} {...item} />
+                            ))}
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
+            </SidebarContent>
+
+            {/* ── Footer ── */}
+            <SidebarFooter className="px-3 pb-3 group-data-[collapsible=icon]:px-2">
+                <SidebarSeparator className="mb-3 bg-sidebar-border/50" />
+                <SidebarMenu className="gap-px">
+                    {FOOTER_ITEMS.map(({ label, href, icon: Icon }) => {
+                        const isActive =
+                            pathname === href || pathname.startsWith(href + "/");
+
+                        return (
+                            <SidebarMenuItem key={href} className="relative">
+                                <SidebarMenuButton
+                                    asChild
+                                    isActive={isActive}
+                                    tooltip={{ children: label, side: "right" }}
+                                    className={cn(
+                                        "h-9 gap-3 rounded-lg text-[12px] font-medium transition-all duration-150",
+                                        isActive
+                                            ? [
+                                                  "bg-sidebar-primary text-sidebar-primary-foreground font-semibold",
+                                                  "data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground",
+                                                  "hover:bg-sidebar-primary hover:text-sidebar-primary-foreground",
+                                              ].join(" ")
+                                            : [
+                                                  "text-sidebar-foreground/50 hover:text-sidebar-foreground",
+                                                  "hover:bg-sidebar-accent",
+                                                  "data-[active=true]:bg-sidebar-primary data-[active=true]:text-sidebar-primary-foreground",
+                                              ].join(" ")
+                                    )}
+                                >
+                                    <Link href={href}>
+                                        <Icon
+                                            className={cn(
+                                                "shrink-0 size-4 transition-opacity duration-150",
+                                                isActive ? "opacity-100" : "opacity-40"
+                                            )}
+                                        />
+                                        <span className="tracking-tight">{label}</span>
+                                    </Link>
+                                </SidebarMenuButton>
+
+                                {isActive && (
+                                    <span
+                                        aria-hidden
+                                        className="pointer-events-none absolute left-0 top-1/2 -translate-y-1/2 h-5 w-0.75 rounded-r-full bg-sidebar-primary group-data-[collapsible=icon]:hidden"
+                                    />
+                                )}
+                            </SidebarMenuItem>
+                        );
+                    })}
+                </SidebarMenu>
+            </SidebarFooter>
+
+            <SidebarRail />
+        </Sidebar>
+    );
+}
