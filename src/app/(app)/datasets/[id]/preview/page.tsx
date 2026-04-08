@@ -288,19 +288,45 @@ export default function DatasetPreviewPage() {
 
     if (isLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-background">
-                <Card className="p-10 flex flex-col items-center gap-4 shadow-lg">
-                    <Loader2 className="h-10 w-10 text-primary animate-spin" />
-                    <p className="text-sm text-muted-foreground font-medium">Loading dataset preview…</p>
-                </Card>
+            <div className="flex flex-col items-center justify-center min-h-[calc(100vh-3.5rem)] w-full bg-background relative z-0">
+                {/* Precision Blueprint Grid Backdrop */}
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[40px_40px] pointer-events-none opacity-20" />
+                
+                <div className="relative flex flex-col items-center gap-6">
+                    {/* Outer spin ring */}
+                    <div className="absolute -inset-4 border-t-2 border-r-2 border-blue-600/20 rounded-full animate-[spin_3s_linear_infinite]" />
+                    <div className="absolute -inset-8 border-b-2 border-l-2 border-blue-600/10 rounded-full animate-[spin_4s_linear_infinite_reverse]" />
+                    
+                    <div className="relative">
+                        <Loader2 className="h-12 w-12 text-blue-600 animate-spin" strokeWidth={1.5} />
+                        <div className="absolute inset-0 h-12 w-12 bg-blue-600/20 rounded-full animate-ping" />
+                    </div>
+                    
+                    <div className="flex flex-col items-center gap-1.5">
+                        <span className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-600/40 animate-pulse">
+                            Synchronizing
+                        </span>
+                        <h2 className="text-sm font-bold tracking-tight text-foreground/80">
+                            Initializing Data Stream...
+                        </h2>
+                    </div>
+                </div>
+
+                {/* Bottom Status Indicator */}
+                <div className="absolute bottom-12 flex flex-col items-center gap-2">
+                    <div className="h-[1px] w-32 bg-gradient-to-r from-transparent via-border to-transparent" />
+                    <span className="text-[9px] font-mono text-muted-foreground/40 italic">
+                        PyAnalypt v1.0.4.sys // Init_Sequence
+                    </span>
+                </div>
             </div>
         );
     }
 
     return (
         <TooltipProvider>
-            <main className="min-h-screen pt-20 pb-16 px-4 md:px-8 bg-background">
-                <div className="max-w-screen-2xl mx-auto space-y-6 w-full overflow-hidden">
+            <main className="min-h-screen pb-20 px-6 md:px-10 bg-background">
+                <div className="max-w-7xl mx-auto space-y-8 pt-8 w-full overflow-hidden">
 
                     {/* ── Header ── */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
@@ -319,9 +345,9 @@ export default function DatasetPreviewPage() {
                                 <TooltipContent>Back to datasets</TooltipContent>
                             </Tooltip>
 
-                            <div className="space-y-0.5">
+                            <div className="space-y-1">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                    <h1 className="text-2xl font-bold tracking-tight leading-none">
+                                    <h1 className="text-3xl md:text-4xl font-black tracking-tight leading-none">
                                         {dataset?.file_name ?? "Dataset Preview"}
                                     </h1>
                                     {dataset?.file_format && (

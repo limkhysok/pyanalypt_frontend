@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Card } from "@/components/ui/card";
 import {
 	Dialog,
 	DialogContent,
@@ -31,7 +32,6 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
@@ -59,6 +59,8 @@ function formatFileSize(bytes: number): string {
 	const i = Math.floor(Math.log(bytes) / Math.log(k));
 	return Math.round((bytes / Math.pow(k, i)) * 100) / 100 + ' ' + sizes[i];
 }
+
+
 
 function isExportNotFoundError(error: unknown, status: number | undefined): boolean {
 	return status === 404 || (error instanceof Error && error.message.includes("Export endpoint not found"));
@@ -326,17 +328,17 @@ export default function DatasetPage() {
 	}
 
 	const renderListView = () => (
-		<div className="border rounded-md">
+		<Card className="shadow-sm overflow-hidden border-border/60">
 			<div className="overflow-x-auto">
 				<table className="w-full text-sm text-left border-collapse">
 					<thead className="bg-muted/50 border-b">
-						<tr className="text-muted-foreground font-medium">
-							<th className="px-4 py-3 w-12 text-center">Id</th>
-							<th className="px-4 py-3">File Name</th>
-							<th className="px-4 py-3">Format</th>
-							<th className="px-4 py-3 text-right">Size</th>
-							<th className="px-4 py-3">Uploaded</th>
-							<th className="px-4 py-3 text-right">Actions</th>
+						<tr className="text-muted-foreground">
+							<th className="px-4 py-3 w-12 text-center text-[10px] font-black uppercase tracking-widest opacity-50">Id</th>
+							<th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest opacity-50">File Name</th>
+							<th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest opacity-50">Format</th>
+							<th className="px-4 py-3 text-right text-[10px] font-black uppercase tracking-widest opacity-50">Size</th>
+							<th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest opacity-50">Uploaded</th>
+							<th className="px-4 py-3 text-right text-[10px] font-black uppercase tracking-widest opacity-50">Actions</th>
 						</tr>
 					</thead>
 					<tbody className="divide-y">
@@ -456,7 +458,7 @@ export default function DatasetPage() {
 					No datasets found.
 				</div>
 			)}
-		</div>
+		</Card>
 	);
 
 	const renderContent = () => {
@@ -487,11 +489,12 @@ export default function DatasetPage() {
 	}
 
 	return (
-		<div className="container px-4 md:px-8 py-10 space-y-8 mx-auto">
-			<div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-				<div>
-					<h1 className="text-3xl font-bold tracking-tight">Datasets</h1>
-					<p className="text-muted-foreground">Manage and process your data artifacts.</p>
+		<main className="min-h-screen pb-20 px-6 md:px-10 bg-background">
+			<div className="max-w-7xl mx-auto space-y-8 pt-8">
+			<div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+				<div className="space-y-1">
+					<h1 className="text-3xl md:text-4xl font-black tracking-tight leading-none">Datasets</h1>
+					<p className="text-sm text-muted-foreground font-medium">Manage and process your data artifacts.</p>
 				</div>
 				<div className="flex items-center gap-2">
 					<Button onClick={openImportDialog}>
@@ -499,8 +502,6 @@ export default function DatasetPage() {
 					</Button>
 				</div>
 			</div>
-
-			<Separator />
 
 			<div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
 				<div className="flex items-center gap-2 w-full sm:w-auto">
@@ -619,6 +620,7 @@ export default function DatasetPage() {
 				accept={importAccept}
 				disabled={uploadLoading}
 			/>
-		</div>
+			</div>
+		</main>
 	);
 }
