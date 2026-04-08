@@ -161,7 +161,7 @@ export default function DatasetPage() {
 			toast.info("Processing issue detection...");
 			await datasetApi.diagnoseDataset(id);
 			toast.success("Issue detection complete. Issues logged.");
-			router.push("/issues");
+			router.push(`/issues?dataset=${id}`);
 		} catch (error) {
 			if (error instanceof Error && error.message.includes("Diagnose endpoint not found")) {
 				toast.warning("Issue scan endpoint is unavailable. Opening issues page.");

@@ -40,13 +40,13 @@ export function AppNavbar() {
                 <Breadcrumb className="hidden sm:block">
                     <BreadcrumbList>
                         <BreadcrumbItem>
-                            <BreadcrumbLink asChild className="text-[11px] font-medium tracking-tight">
+                            <BreadcrumbLink asChild className="text-[12px] font-medium tracking-tight">
                                 <Link href="/dashboard">Workspace</Link>
                             </BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
-                            <BreadcrumbPage className="text-[11px] font-bold tracking-tight">
+                            <BreadcrumbPage className="text-[12px] font-bold tracking-tight">
                                 {(() => {
                                     if (pathname.includes("/datasets")) {
                                         if (pathname.includes("/preview")) return "Datasets / Preview";

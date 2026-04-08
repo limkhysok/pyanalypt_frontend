@@ -28,7 +28,7 @@ import {
     DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/auth-context";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { datasetApi } from "@/services/api";
 import { Issue, Dataset, DiagnoseOverview, IssueSummaryResponse } from "@/types/dataset";
 import { toast } from "sonner";
@@ -70,7 +70,9 @@ export function IssuesPage() {
     const [isLoading, setIsLoading] = React.useState(true);
     const [isScanning, setIsScanning] = React.useState(false);
     const [searchQuery, setSearchQuery] = React.useState("");
-    const [selectedDataset, setSelectedDataset] = React.useState<string>("all");
+    const searchParams = useSearchParams();
+    const datasetQuery = searchParams.get("dataset");
+    const [selectedDataset, setSelectedDataset] = React.useState<string>(datasetQuery || "all");
     const [previewRows, setPreviewRows] = React.useState<PreviewRow[]>([]);
     const [isPreviewLoading, setIsPreviewLoading] = React.useState(false);
     const [overview, setOverview] = React.useState<DiagnoseOverview | null>(null);

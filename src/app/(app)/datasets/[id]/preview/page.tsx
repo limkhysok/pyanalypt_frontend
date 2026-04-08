@@ -291,17 +291,17 @@ export default function DatasetPreviewPage() {
             <div className="flex flex-col items-center justify-center min-h-[calc(100vh-3.5rem)] w-full bg-background relative z-0">
                 {/* Precision Blueprint Grid Backdrop */}
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[40px_40px] pointer-events-none opacity-20" />
-                
+
                 <div className="relative flex flex-col items-center gap-6">
                     {/* Outer spin ring */}
                     <div className="absolute -inset-4 border-t-2 border-r-2 border-blue-600/20 rounded-full animate-[spin_3s_linear_infinite]" />
                     <div className="absolute -inset-8 border-b-2 border-l-2 border-blue-600/10 rounded-full animate-[spin_4s_linear_infinite_reverse]" />
-                    
+
                     <div className="relative">
                         <Loader2 className="h-12 w-12 text-blue-600 animate-spin" strokeWidth={1.5} />
                         <div className="absolute inset-0 h-12 w-12 bg-blue-600/20 rounded-full animate-ping" />
                     </div>
-                    
+
                     <div className="flex flex-col items-center gap-1.5">
                         <span className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-600/40 animate-pulse">
                             Synchronizing
@@ -347,7 +347,7 @@ export default function DatasetPreviewPage() {
 
                             <div className="space-y-1">
                                 <div className="flex items-center gap-2 flex-wrap">
-                                    <h1 className="text-3xl md:text-4xl font-black tracking-tight leading-none">
+                                    <h1 className="text-xl md:text-xl font-black tracking-tight leading-none">
                                         {dataset?.file_name ?? "Dataset Preview"}
                                     </h1>
                                     {dataset?.file_format && (
@@ -449,100 +449,100 @@ export default function DatasetPreviewPage() {
                             <ScrollArea className="w-full">
                                 <div className="w-full relative">
                                     <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-accent">
-                                    <table className="w-full text-left border-collapse text-sm table-auto min-w-full">
-                                    <thead>
-                                        <tr className="bg-muted/50 border-b">
-                                            <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground w-12 text-center">#</th>
-                                            {columns.map((col) => {
-                                                const isSorted = sortConfig?.key === col;
+                                        <table className="w-full text-left border-collapse text-sm table-auto min-w-full">
+                                            <thead>
+                                                <tr className="bg-muted/50 border-b">
+                                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground w-12 text-center">#</th>
+                                                    {columns.map((col) => {
+                                                        const isSorted = sortConfig?.key === col;
 
-                                                let sortIcon = (
-                                                    <div className="h-3 w-3 opacity-0 group-hover/h:opacity-40 transition-opacity">
-                                                        <ArrowUp className="h-3 w-3" />
-                                                    </div>
-                                                );
+                                                        let sortIcon = (
+                                                            <div className="h-3 w-3 opacity-0 group-hover/h:opacity-40 transition-opacity">
+                                                                <ArrowUp className="h-3 w-3" />
+                                                            </div>
+                                                        );
 
-                                                if (isSorted) {
-                                                    sortIcon = sortConfig.direction === "asc" ? (
-                                                        <ArrowUp className="h-3 w-3 text-primary" />
-                                                    ) : (
-                                                        <ArrowDown className="h-3 w-3 text-primary" />
-                                                    );
-                                                }
-
-                                                return (
-                                                    <th
-                                                        key={col}
-                                                        onClick={() => handleSort(col)}
-                                                        className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground whitespace-nowrap cursor-pointer hover:bg-muted/40 transition-colors group/h"
-                                                    >
-                                                        <div className="flex items-center gap-1.5">
-                                                            {col}
-                                                            {sortIcon}
-                                                        </div>
-                                                    </th>
-                                                );
-                                            })}
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <AnimatePresence mode="popLayout">
-                                            {visibleRows.map(({ payload, position }: DataTableRow, rowIdx) => {
-                                                const rowKey = `row-${position}-${id}`;
-
-                                                return (
-                                                    <motion.tr
-                                                        key={rowKey}
-                                                        initial={{ opacity: 0, y: 6 }}
-                                                        animate={{ opacity: 1, y: 0 }}
-                                                        transition={{ delay: rowIdx * 0.008, duration: 0.15 }}
-                                                        className="border-b border-border/50 hover:bg-muted/40 transition-colors group"
-                                                    >
-                                                        <td className="px-4 py-2.5 text-[11px] text-muted-foreground/60 text-center font-mono tabular-nums select-none">
-                                                            {position + 1}
-                                                        </td>
-                                                        {columns.map((col) => {
-                                                            const cellKey = `${position}-${col}`;
-                                                            const isEditing = editingCell?.sourceIndex === position && editingCell.column === col;
-                                                            const isSaving = savingCellKey === cellKey;
-                                                            const cellValue = payload[col];
-
-                                                            return (
-                                                                <td
-                                                                    key={cellKey}
-                                                                    className="px-4 py-2.5 font-mono text-xs text-foreground/80 group-hover:text-foreground transition-colors max-w-60 truncate"
-                                                                    onDoubleClick={() => startEditCell(position, col, cellValue)}
-                                                                    title={isEditing ? undefined : safeStringify(cellValue)}
-                                                                >
-                                                                    {isEditing ? (
-                                                                        <Input
-                                                                            autoFocus
-                                                                            value={editingValue}
-                                                                            onChange={(e) => setEditingValue(e.target.value)}
-                                                                            onKeyDown={(e) => {
-                                                                                if (e.key === "Enter") { e.preventDefault(); commitEditCell(); }
-                                                                                if (e.key === "Escape") { e.preventDefault(); cancelEditCell(); }
-                                                                            }}
-                                                                            onBlur={commitEditCell}
-                                                                            disabled={isSaving}
-                                                                            className="h-7 text-xs font-mono py-0 px-2"
-                                                                        />
-                                                                    ) : (
-                                                                        <span className="inline-flex items-center gap-1.5">
-                                                                            <span className="truncate">{safeStringify(cellValue)}</span>
-                                                                            {isSaving && <Loader2 className="h-3 w-3 animate-spin shrink-0 text-muted-foreground" />}
-                                                                        </span>
-                                                                    )}
-                                                                </td>
+                                                        if (isSorted) {
+                                                            sortIcon = sortConfig.direction === "asc" ? (
+                                                                <ArrowUp className="h-3 w-3 text-primary" />
+                                                            ) : (
+                                                                <ArrowDown className="h-3 w-3 text-primary" />
                                                             );
-                                                        })}
-                                                    </motion.tr>
-                                                );
-                                            })}
-                                        </AnimatePresence>
-                                    </tbody>
-                                </table>
-                                     </div>
+                                                        }
+
+                                                        return (
+                                                            <th
+                                                                key={col}
+                                                                onClick={() => handleSort(col)}
+                                                                className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground whitespace-nowrap cursor-pointer hover:bg-muted/40 transition-colors group/h"
+                                                            >
+                                                                <div className="flex items-center gap-1.5">
+                                                                    {col}
+                                                                    {sortIcon}
+                                                                </div>
+                                                            </th>
+                                                        );
+                                                    })}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <AnimatePresence mode="popLayout">
+                                                    {visibleRows.map(({ payload, position }: DataTableRow, rowIdx) => {
+                                                        const rowKey = `row-${position}-${id}`;
+
+                                                        return (
+                                                            <motion.tr
+                                                                key={rowKey}
+                                                                initial={{ opacity: 0, y: 6 }}
+                                                                animate={{ opacity: 1, y: 0 }}
+                                                                transition={{ delay: rowIdx * 0.008, duration: 0.15 }}
+                                                                className="border-b border-border/50 hover:bg-muted/40 transition-colors group"
+                                                            >
+                                                                <td className="px-4 py-2.5 text-[11px] text-muted-foreground/60 text-center font-mono tabular-nums select-none">
+                                                                    {position + 1}
+                                                                </td>
+                                                                {columns.map((col) => {
+                                                                    const cellKey = `${position}-${col}`;
+                                                                    const isEditing = editingCell?.sourceIndex === position && editingCell.column === col;
+                                                                    const isSaving = savingCellKey === cellKey;
+                                                                    const cellValue = payload[col];
+
+                                                                    return (
+                                                                        <td
+                                                                            key={cellKey}
+                                                                            className="px-4 py-2.5 font-mono text-xs text-foreground/80 group-hover:text-foreground transition-colors max-w-60 truncate"
+                                                                            onDoubleClick={() => startEditCell(position, col, cellValue)}
+                                                                            title={isEditing ? undefined : safeStringify(cellValue)}
+                                                                        >
+                                                                            {isEditing ? (
+                                                                                <Input
+                                                                                    autoFocus
+                                                                                    value={editingValue}
+                                                                                    onChange={(e) => setEditingValue(e.target.value)}
+                                                                                    onKeyDown={(e) => {
+                                                                                        if (e.key === "Enter") { e.preventDefault(); commitEditCell(); }
+                                                                                        if (e.key === "Escape") { e.preventDefault(); cancelEditCell(); }
+                                                                                    }}
+                                                                                    onBlur={commitEditCell}
+                                                                                    disabled={isSaving}
+                                                                                    className="h-7 text-xs font-mono py-0 px-2"
+                                                                                />
+                                                                            ) : (
+                                                                                <span className="inline-flex items-center gap-1.5">
+                                                                                    <span className="truncate">{safeStringify(cellValue)}</span>
+                                                                                    {isSaving && <Loader2 className="h-3 w-3 animate-spin shrink-0 text-muted-foreground" />}
+                                                                                </span>
+                                                                            )}
+                                                                        </td>
+                                                                    );
+                                                                })}
+                                                            </motion.tr>
+                                                        );
+                                                    })}
+                                                </AnimatePresence>
+                                            </tbody>
+                                        </table>
+                                    </div>
                                 </div>
                                 <ScrollBar orientation="horizontal" className="bg-muted/30" />
                             </ScrollArea>
