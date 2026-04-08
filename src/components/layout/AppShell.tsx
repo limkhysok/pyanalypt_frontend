@@ -13,9 +13,11 @@ export function AppShell({ children }: Readonly<{ children: React.ReactNode }>) 
 
             <AppSidebar />
 
-            <SidebarInset>
+            <SidebarInset className="overflow-x-hidden w-full min-w-0">
                 <AppNavbar />
-                {children}
+                <div className="flex-1 w-full min-w-0 overflow-x-hidden">
+                    {children}
+                </div>
             </SidebarInset>
         </SidebarProvider>
     );

@@ -16,15 +16,53 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/auth-context";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { usePathname } from "next/navigation";
+import { Separator } from "@/components/ui/separator";
+import {
+    Breadcrumb,
+    BreadcrumbList,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
 
 export function AppNavbar() {
     const { user, logout } = useAuth();
+    const pathname = usePathname() ?? "";
 
     return (
         <header className="sticky top-0 z-50 h-14 flex items-center justify-between px-6 border-b border-border/90 bg-background">
             {/* Left */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-4">
                 <SidebarTrigger className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all" />
+                <Separator orientation="vertical" className="h-4 w-[1px] bg-border/40" />
+                <Breadcrumb className="hidden sm:block">
+                    <BreadcrumbList>
+                        <BreadcrumbItem>
+                            <BreadcrumbLink asChild className="text-[11px] font-medium tracking-tight">
+                                <Link href="/dashboard">Workspace</Link>
+                            </BreadcrumbLink>
+                        </BreadcrumbItem>
+                        <BreadcrumbSeparator />
+                        <BreadcrumbItem>
+                            <BreadcrumbPage className="text-[11px] font-bold tracking-tight">
+                                {(() => {
+                                    if (pathname.includes("/datasets")) {
+                                        if (pathname.includes("/preview")) return "Datasets / Preview";
+                                        if (pathname.includes("/clean")) return "Datasets / Clean";
+                                        return "Datasets";
+                                    }
+                                    if (pathname.includes("/issues")) return "Issues";
+                                    if (pathname.includes("/clean")) return "Clean";
+                                    if (pathname.includes("/analysis")) return "Analysis";
+                                    if (pathname.includes("/insight")) return "Insight";
+                                    return "Dashboard";
+                                })()}
+                            </BreadcrumbPage>
+                        </BreadcrumbItem>
+                    </BreadcrumbList>
+                </Breadcrumb>
             </div>
 
             {/* Right — actions */}

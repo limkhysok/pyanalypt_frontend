@@ -299,8 +299,8 @@ export default function DatasetPreviewPage() {
 
     return (
         <TooltipProvider>
-            <main className="min-h-screen pt-20 pb-16 px-4 md:px-8 bg-background overflow-x-hidden">
-                <div className="max-w-screen-2xl mx-auto space-y-6 w-full min-w-0">
+            <main className="min-h-screen pt-20 pb-16 px-4 md:px-8 bg-background">
+                <div className="max-w-screen-2xl mx-auto space-y-6 w-full overflow-hidden">
 
                     {/* ── Header ── */}
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
@@ -351,7 +351,7 @@ export default function DatasetPreviewPage() {
                     <Card className="shadow-sm">
                         <CardContent className="p-4 flex flex-col sm:flex-row gap-4 items-center justify-between">
                             {/* Search */}
-                            <div className="relative w-full sm:max-w-sm">
+                            <div className="relative w-full sm:max-w-xs md:max-w-sm">
                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                                 <Input
                                     placeholder="Search rows…"
@@ -362,26 +362,26 @@ export default function DatasetPreviewPage() {
                             </div>
 
                             {/* Stats + Row limit */}
-                            <div className="flex items-center gap-4 shrink-0">
-                                <div className="flex items-center gap-1.5 text-sm">
+                            <div className="flex flex-wrap items-center gap-3 sm:gap-4 shrink-0 sm:justify-end w-full sm:w-auto">
+                                <div className="flex items-center gap-1.5 text-xs sm:text-sm">
                                     <Rows3 className="h-4 w-4 text-muted-foreground" />
                                     <span className="font-semibold">{previewData.length.toLocaleString()}</span>
-                                    <span className="text-muted-foreground text-xs">rows</span>
+                                    <span className="text-muted-foreground text-[10px] sm:text-xs">rows</span>
                                 </div>
 
-                                <Separator orientation="vertical" className="h-5" />
+                                <Separator orientation="vertical" className="hidden sm:block h-5" />
 
-                                <div className="flex items-center gap-1.5 text-sm">
+                                <div className="flex items-center gap-1.5 text-xs sm:text-sm">
                                     <Columns3 className="h-4 w-4 text-muted-foreground" />
                                     <span className="font-semibold">{columns.length}</span>
-                                    <span className="text-muted-foreground text-xs">cols</span>
+                                    <span className="text-muted-foreground text-[10px] sm:text-xs">cols</span>
                                 </div>
 
                                 <Separator orientation="vertical" className="h-5" />
 
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
-                                        <Button variant="outline" size="sm" className="gap-2 h-9 text-sm font-medium min-w-27.5 justify-between">
+                                        <Button variant="outline" size="sm" className="gap-2 h-9 text-xs sm:text-sm font-medium min-w-24 sm:min-w-27.5 justify-between">
                                             <span>{currentLimitLabel}</span>
                                             <ChevronDown className="h-3.5 w-3.5 text-muted-foreground" />
                                         </Button>
@@ -406,7 +406,7 @@ export default function DatasetPreviewPage() {
                     </Card>
 
                     {/* ── Table ── */}
-                    <Card className="shadow-sm overflow-hidden w-full max-w-full border-border/60">
+                    <Card className="shadow-sm overflow-hidden border-border/60 w-full max-w-full">
                         <CardHeader className="px-6 py-4 border-b flex flex-row items-center justify-between flex-wrap gap-4">
                             <div className="flex items-center gap-2">
                                 <Database className="h-4 w-4 text-muted-foreground" />
@@ -419,10 +419,11 @@ export default function DatasetPreviewPage() {
                             </div>
                         </CardHeader>
 
-                        <CardContent className="p-0 overflow-hidden">
+                        <CardContent className="p-0 relative w-full overflow-hidden">
                             <ScrollArea className="w-full">
-                                <div className="min-w-max">
-                                    <table className="w-full text-left border-collapse text-sm">
+                                <div className="w-full relative">
+                                    <div className="overflow-x-auto scrollbar-thin scrollbar-thumb-accent">
+                                    <table className="w-full text-left border-collapse text-sm table-auto min-w-full">
                                     <thead>
                                         <tr className="bg-muted/50 border-b">
                                             <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground w-12 text-center">#</th>
@@ -515,6 +516,7 @@ export default function DatasetPreviewPage() {
                                         </AnimatePresence>
                                     </tbody>
                                 </table>
+                                     </div>
                                 </div>
                                 <ScrollBar orientation="horizontal" className="bg-muted/30" />
                             </ScrollArea>
