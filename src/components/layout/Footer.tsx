@@ -11,7 +11,7 @@ export function Footer() {
         <footer className="relative bg-background border-t border-border/80 pt-10 pb-8 overflow-hidden selection:bg-foreground/10">
 
             {/* Precision Blueprint Grid Backdrop */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none opacity-40 shadow-inner" />
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[40px_40px] pointer-events-none opacity-40 shadow-inner" />
 
             <div className="container relative z-10 mx-auto px-6 max-w-7xl">
                 <div className="flex flex-col md:flex-row items-center justify-between gap-12 md:gap-4">
@@ -28,7 +28,7 @@ export function Footer() {
                             </div>
                         </Link>
                         <div className="h-4 w-px bg-border/40 hidden xl:block" />
-                        <p className="hidden xl:block text-[9px] font-bold text-muted-foreground uppercase tracking-widest opacity-30 max-w-[160px] leading-tight">
+                        <p className="hidden xl:block text-[9px] font-bold text-muted-foreground uppercase tracking-widest opacity-30 max-w-40 leading-tight">
                             Intelligence built for modern engineering.
                         </p>
                     </div>
@@ -79,7 +79,7 @@ export function Footer() {
             </div>
 
             {/* Aesthetic Bottom Base */}
-            <div className="absolute bottom-0 inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-foreground/5 to-transparent pointer-events-none" />
+            <div className="absolute bottom-0 inset-x-0 h-0.5 bg-linear-to-r from-transparent via-foreground/5 to-transparent pointer-events-none" />
         </footer>
     );
 }
