@@ -452,7 +452,7 @@ export default function DatasetPreviewPage() {
                                         <table className="w-full text-left border-collapse text-sm table-auto min-w-full">
                                             <thead>
                                                 <tr className="bg-muted/50 border-b">
-                                                    <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground w-12 text-center">#</th>
+                                                    <th className="px-4 py-3 text-[10px] font-semibold tracking-widest text-muted-foreground w-12 text-center">#</th>
                                                     {columns.map((col) => {
                                                         const isSorted = sortConfig?.key === col;
 
@@ -474,7 +474,7 @@ export default function DatasetPreviewPage() {
                                                             <th
                                                                 key={col}
                                                                 onClick={() => handleSort(col)}
-                                                                className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground whitespace-nowrap cursor-pointer hover:bg-muted/40 transition-colors group/h"
+                                                                className="px-4 py-3 text-[10px] font-semibold tracking-widest text-muted-foreground whitespace-nowrap cursor-pointer hover:bg-muted/40 transition-colors group/h"
                                                             >
                                                                 <div className="flex items-center gap-1.5">
                                                                     {col}

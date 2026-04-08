@@ -333,12 +333,12 @@ export default function DatasetPage() {
 				<table className="w-full text-sm text-left border-collapse">
 					<thead className="bg-muted/50 border-b">
 						<tr className="text-muted-foreground">
-							<th className="px-4 py-3 w-12 text-center text-[10px] font-black uppercase tracking-widest opacity-50">Id</th>
-							<th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest opacity-50">File Name</th>
-							<th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest opacity-50">Format</th>
-							<th className="px-4 py-3 text-right text-[10px] font-black uppercase tracking-widest opacity-50">Size</th>
-							<th className="px-4 py-3 text-[10px] font-black uppercase tracking-widest opacity-50">Uploaded</th>
-							<th className="px-4 py-3 text-right text-[10px] font-black uppercase tracking-widest opacity-50">Actions</th>
+							<th className="px-4 py-3 w-12 text-center text-[10px] font-black tracking-widest opacity-50">Id</th>
+							<th className="px-4 py-3 text-[10px] font-black tracking-widest opacity-50">File Name</th>
+							<th className="px-4 py-3 text-[10px] font-black tracking-widest opacity-50">Format</th>
+							<th className="px-4 py-3 text-right text-[10px] font-black tracking-widest opacity-50">Size</th>
+							<th className="px-4 py-3 text-[10px] font-black tracking-widest opacity-50">Uploaded</th>
+							<th className="px-4 py-3 text-right text-[10px] font-black tracking-widest opacity-50">Actions</th>
 						</tr>
 					</thead>
 					<tbody className="divide-y">
