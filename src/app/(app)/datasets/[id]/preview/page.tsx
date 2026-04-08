@@ -11,6 +11,8 @@ import {
     Rows3,
     Columns3,
     PencilLine,
+    ArrowUp,
+    ArrowDown,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion, AnimatePresence } from "framer-motion";
@@ -19,7 +21,7 @@ import { DatasetDetail } from "@/types/dataset";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -35,8 +37,6 @@ import {
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 
-type PreviewRow = Record<string, unknown>;
-type IndexedRow = { row: PreviewRow; sourceIndex: number };
 
 const ROW_LIMIT_OPTIONS = [
     { value: "10", label: "10 rows" },
@@ -98,36 +98,62 @@ function safeStringify(val: unknown): string {
 }
 
 export default function DatasetPreviewPage() {
+    interface DatasetRow {
+        [key: string]: unknown;
+    }
+    interface DataTableRow {
+        payload: DatasetRow;
+        position: number;
+    }
+
     const params = useParams();
     const id = params?.id as string;
     const router = useRouter();
 
     const [dataset, setDataset] = useState<DatasetDetail | null>(null);
-    const [previewData, setPreviewData] = useState<PreviewRow[]>([]);
+    const [previewData, setPreviewData] = useState<DatasetRow[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
-    const [rowLimit, setRowLimit] = useState<RowLimit>("50");
+    const [rowLimit, setRowLimit] = useState<RowLimit>("100");
     const [editingCell, setEditingCell] = useState<{ sourceIndex: number; column: string } | null>(null);
     const [editingValue, setEditingValue] = useState("");
     const [savingCellKey, setSavingCellKey] = useState<string | null>(null);
+    const [sortConfig, setSortConfig] = useState<{ key: string; direction: "asc" | "desc" } | null>(null);
 
     useEffect(() => {
         const loadPreview = async () => {
             if (!id) return;
             setIsLoading(true);
             try {
-                const detail = await datasetApi.getDataset(Number(id));
+                // Determine how many rows to fetch from the API (max 1000 as per service contract)
+                const requestedRows = rowLimit === "max" ? 1000 : Number(rowLimit);
+
+                // Concurrent data fetching for efficiency
+                // - getDataset: for metadata (file name, format)
+                // - previewDataset: for the actual rows based on user count selection
+                const [detail, fetchedRows] = await Promise.all([
+                    datasetApi.getDataset(Number(id)),
+                    datasetApi.previewDataset(Number(id), requestedRows)
+                ]);
+
                 setDataset(detail);
-                let data = extractPreviewRows(detail?.data_preview);
-                if (data.length === 0) {
-                    const fallbackData: unknown = await datasetApi.previewDataset(Number(id));
-                    data = extractPreviewRows(fallbackData);
+
+                // If detail didn't have data_preview but fetchedRows did, use fetchedRows
+                const dataFromPreview = extractPreviewRows(fetchedRows);
+                if (dataFromPreview.length > 0) {
+                    setPreviewData(dataFromPreview);
+                } else {
+                    // Fallback to what's in the detail object
+                    setPreviewData(extractPreviewRows(detail?.data_preview));
                 }
-                setPreviewData(data);
-            } catch {
+
+            } catch (err) {
+                console.error("Failed to load dataset preview:", err);
+                // Fallback to basic dataset detail if preview fails
                 try {
-                    const fallbackData: unknown = await datasetApi.previewDataset(Number(id));
-                    setPreviewData(extractPreviewRows(fallbackData));
+                    const detail = await datasetApi.getDataset(Number(id));
+                    setDataset(detail);
+                    setPreviewData(extractPreviewRows(detail.data_preview));
                 } catch {
                     setPreviewData([]);
                 }
@@ -136,10 +162,10 @@ export default function DatasetPreviewPage() {
             }
         };
         loadPreview();
-    }, [id]);
+    }, [id, rowLimit]);
 
-    const indexedPreviewData = useMemo<IndexedRow[]>(() => {
-        return previewData.map((row, sourceIndex) => ({ row, sourceIndex }));
+    const indexedPreviewData = useMemo<DataTableRow[]>(() => {
+        return previewData.map((payload, position) => ({ payload, position }));
     }, [previewData]);
 
     const columns = useMemo(() => {
@@ -147,12 +173,12 @@ export default function DatasetPreviewPage() {
         return Object.keys(previewData[0]);
     }, [previewData]);
 
-    const filteredData = useMemo(() => {
+    const filteredData = useMemo<DataTableRow[]>(() => {
         const query = searchTerm.trim().toLowerCase();
         if (!query) return indexedPreviewData;
-        return indexedPreviewData.filter(({ row }) => {
-            if (!row || typeof row !== "object") return false;
-            return Object.values(row).some((val) => {
+        return indexedPreviewData.filter(({ payload }) => {
+            if (!payload || typeof payload !== "object") return false;
+            return Object.values(payload).some((val) => {
                 if (val === null || val === undefined) return false;
                 let s: string;
                 if (typeof val === "string") s = val;
@@ -163,10 +189,40 @@ export default function DatasetPreviewPage() {
         });
     }, [indexedPreviewData, searchTerm]);
 
+    const sortedData = useMemo(() => {
+        if (!sortConfig) return filteredData;
+        return [...filteredData].sort((a, b) => {
+            const aVal = a.payload[sortConfig.key];
+            const bVal = b.payload[sortConfig.key];
+
+            if (aVal === bVal) return 0;
+            if (aVal === null || aVal === undefined) return 1;
+            if (bVal === null || bVal === undefined) return -1;
+
+            const direction = sortConfig.direction === "asc" ? 1 : -1;
+
+            if (typeof aVal === "string" && typeof bVal === "string") {
+                return aVal.localeCompare(bVal) * direction;
+            }
+
+            return (aVal < (bVal as any) ? -1 : 1) * direction;
+        });
+    }, [filteredData, sortConfig]);
+
     const visibleRows = useMemo(() => {
-        if (rowLimit === "max") return filteredData;
-        return filteredData.slice(0, Number(rowLimit));
-    }, [filteredData, rowLimit]);
+        if (rowLimit === "max") return sortedData;
+        return sortedData.slice(0, Number(rowLimit));
+    }, [sortedData, rowLimit]);
+
+    const handleSort = (key: string) => {
+        setSortConfig((prev) => {
+            if (prev?.key === key) {
+                if (prev.direction === "asc") return { key, direction: "desc" };
+                return null;
+            }
+            return { key, direction: "asc" };
+        });
+    };
 
     const startEditCell = (sourceIndex: number, column: string, value: unknown) => {
         setEditingCell({ sourceIndex, column });
@@ -243,12 +299,12 @@ export default function DatasetPreviewPage() {
 
     return (
         <TooltipProvider>
-            <main className="min-h-screen pt-20 pb-16 px-4 md:px-8 bg-background">
-                <div className="max-w-screen-2xl mx-auto space-y-6">
+            <main className="min-h-screen pt-20 pb-16 px-4 md:px-8 bg-background overflow-x-hidden">
+                <div className="max-w-screen-2xl mx-auto space-y-6 w-full min-w-0">
 
                     {/* ── Header ── */}
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                        <div className="flex items-center gap-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 w-full">
+                        <div className="flex items-center gap-4 min-w-0">
                             <Tooltip>
                                 <TooltipTrigger asChild>
                                     <Button
@@ -350,88 +406,117 @@ export default function DatasetPreviewPage() {
                     </Card>
 
                     {/* ── Table ── */}
-                    <Card className="shadow-sm overflow-hidden">
-                        <CardHeader className="px-6 py-4 border-b">
+                    <Card className="shadow-sm overflow-hidden w-full max-w-full border-border/60">
+                        <CardHeader className="px-6 py-4 border-b flex flex-row items-center justify-between flex-wrap gap-4">
                             <div className="flex items-center gap-2">
                                 <Database className="h-4 w-4 text-muted-foreground" />
                                 <CardTitle className="text-sm font-semibold">Data Preview</CardTitle>
-                                {searchTerm && (
-                                    <CardDescription className="text-xs">
-                                        &mdash; {filteredData.length.toLocaleString()} matching rows
-                                    </CardDescription>
-                                )}
+                            </div>
+                            <div className="text-[11px] font-medium text-muted-foreground bg-muted hover:bg-muted/80 transition-colors px-3 py-1 rounded-full border border-border/50 shadow-sm shrink-0">
+                                Showing <span className="text-foreground font-bold">{visibleRows.length.toLocaleString()}</span> of{" "}
+                                <span className="text-foreground font-bold">{filteredData.length.toLocaleString()}</span>{" "}
+                                {searchTerm ? "matching" : "total"} rows
                             </div>
                         </CardHeader>
 
-                        <CardContent className="p-0">
+                        <CardContent className="p-0 overflow-hidden">
                             <ScrollArea className="w-full">
-                                <table className="w-full text-left border-collapse text-sm">
+                                <div className="min-w-max">
+                                    <table className="w-full text-left border-collapse text-sm">
                                     <thead>
                                         <tr className="bg-muted/50 border-b">
                                             <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground w-12 text-center">#</th>
-                                            {columns.map((col) => (
-                                                <th
-                                                    key={col}
-                                                    className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground whitespace-nowrap"
-                                                >
-                                                    {col}
-                                                </th>
-                                            ))}
+                                            {columns.map((col) => {
+                                                const isSorted = sortConfig?.key === col;
+
+                                                let sortIcon = (
+                                                    <div className="h-3 w-3 opacity-0 group-hover/h:opacity-40 transition-opacity">
+                                                        <ArrowUp className="h-3 w-3" />
+                                                    </div>
+                                                );
+
+                                                if (isSorted) {
+                                                    sortIcon = sortConfig.direction === "asc" ? (
+                                                        <ArrowUp className="h-3 w-3 text-primary" />
+                                                    ) : (
+                                                        <ArrowDown className="h-3 w-3 text-primary" />
+                                                    );
+                                                }
+
+                                                return (
+                                                    <th
+                                                        key={col}
+                                                        onClick={() => handleSort(col)}
+                                                        className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground whitespace-nowrap cursor-pointer hover:bg-muted/40 transition-colors group/h"
+                                                    >
+                                                        <div className="flex items-center gap-1.5">
+                                                            {col}
+                                                            {sortIcon}
+                                                        </div>
+                                                    </th>
+                                                );
+                                            })}
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <AnimatePresence mode="popLayout">
-                                            {visibleRows.map(({ row, sourceIndex }, rowIdx) => (
-                                                <motion.tr
-                                                    key={`row-${sourceIndex}-${id}`}
-                                                    initial={{ opacity: 0, y: 6 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    transition={{ delay: rowIdx * 0.008, duration: 0.15 }}
-                                                    className="border-b border-border/50 hover:bg-muted/40 transition-colors group"
-                                                >
-                                                    <td className="px-4 py-2.5 text-[11px] text-muted-foreground/60 text-center font-mono tabular-nums select-none">
-                                                        {sourceIndex + 1}
-                                                    </td>
-                                                    {columns.map((col) => {
-                                                        const cellKey = `${sourceIndex}-${col}`;
-                                                        const isEditing = editingCell?.sourceIndex === sourceIndex && editingCell.column === col;
-                                                        const isSaving = savingCellKey === cellKey;
+                                            {visibleRows.map(({ payload, position }: DataTableRow, rowIdx) => {
+                                                const rowKey = `row-${position}-${id}`;
 
-                                                        return (
-                                                            <td
-                                                                key={cellKey}
-                                                                className="px-4 py-2.5 font-mono text-xs text-foreground/80 group-hover:text-foreground transition-colors max-w-60 truncate"
-                                                                onDoubleClick={() => startEditCell(sourceIndex, col, row[col])}
-                                                                title={isEditing ? undefined : safeStringify(row[col])}
-                                                            >
-                                                                {isEditing ? (
-                                                                    <Input
-                                                                        autoFocus
-                                                                        value={editingValue}
-                                                                        onChange={(e) => setEditingValue(e.target.value)}
-                                                                        onKeyDown={(e) => {
-                                                                            if (e.key === "Enter") { e.preventDefault(); commitEditCell(); }
-                                                                            if (e.key === "Escape") { e.preventDefault(); cancelEditCell(); }
-                                                                        }}
-                                                                        onBlur={commitEditCell}
-                                                                        disabled={isSaving}
-                                                                        className="h-7 text-xs font-mono py-0 px-2"
-                                                                    />
-                                                                ) : (
-                                                                    <span className="inline-flex items-center gap-1.5">
-                                                                        <span className="truncate">{safeStringify(row[col])}</span>
-                                                                        {isSaving && <Loader2 className="h-3 w-3 animate-spin shrink-0 text-muted-foreground" />}
-                                                                    </span>
-                                                                )}
-                                                            </td>
-                                                        );
-                                                    })}
-                                                </motion.tr>
-                                            ))}
+                                                return (
+                                                    <motion.tr
+                                                        key={rowKey}
+                                                        initial={{ opacity: 0, y: 6 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        transition={{ delay: rowIdx * 0.008, duration: 0.15 }}
+                                                        className="border-b border-border/50 hover:bg-muted/40 transition-colors group"
+                                                    >
+                                                        <td className="px-4 py-2.5 text-[11px] text-muted-foreground/60 text-center font-mono tabular-nums select-none">
+                                                            {position + 1}
+                                                        </td>
+                                                        {columns.map((col) => {
+                                                            const cellKey = `${position}-${col}`;
+                                                            const isEditing = editingCell?.sourceIndex === position && editingCell.column === col;
+                                                            const isSaving = savingCellKey === cellKey;
+                                                            const cellValue = payload[col];
+
+                                                            return (
+                                                                <td
+                                                                    key={cellKey}
+                                                                    className="px-4 py-2.5 font-mono text-xs text-foreground/80 group-hover:text-foreground transition-colors max-w-60 truncate"
+                                                                    onDoubleClick={() => startEditCell(position, col, cellValue)}
+                                                                    title={isEditing ? undefined : safeStringify(cellValue)}
+                                                                >
+                                                                    {isEditing ? (
+                                                                        <Input
+                                                                            autoFocus
+                                                                            value={editingValue}
+                                                                            onChange={(e) => setEditingValue(e.target.value)}
+                                                                            onKeyDown={(e) => {
+                                                                                if (e.key === "Enter") { e.preventDefault(); commitEditCell(); }
+                                                                                if (e.key === "Escape") { e.preventDefault(); cancelEditCell(); }
+                                                                            }}
+                                                                            onBlur={commitEditCell}
+                                                                            disabled={isSaving}
+                                                                            className="h-7 text-xs font-mono py-0 px-2"
+                                                                        />
+                                                                    ) : (
+                                                                        <span className="inline-flex items-center gap-1.5">
+                                                                            <span className="truncate">{safeStringify(cellValue)}</span>
+                                                                            {isSaving && <Loader2 className="h-3 w-3 animate-spin shrink-0 text-muted-foreground" />}
+                                                                        </span>
+                                                                    )}
+                                                                </td>
+                                                            );
+                                                        })}
+                                                    </motion.tr>
+                                                );
+                                            })}
                                         </AnimatePresence>
                                     </tbody>
                                 </table>
-                                <ScrollBar orientation="horizontal" />
+                                </div>
+                                <ScrollBar orientation="horizontal" className="bg-muted/30" />
                             </ScrollArea>
 
                             {filteredData.length === 0 && (
@@ -454,20 +539,15 @@ export default function DatasetPreviewPage() {
                             )}
                         </CardContent>
 
-                        <CardFooter className="px-6 py-3 border-t bg-muted/30 flex items-center justify-between gap-4">
-                            <p className="text-xs text-muted-foreground">
-                                Showing <span className="font-semibold text-foreground">{visibleRows.length.toLocaleString()}</span> of{" "}
-                                <span className="font-semibold text-foreground">{filteredData.length.toLocaleString()}</span>{" "}
-                                {searchTerm ? "filtered" : "total"} rows
-                            </p>
+                        <CardFooter className="px-6 py-3 border-t bg-muted/30 flex items-center justify-end gap-4">
                             {rowLimit !== "max" && filteredData.length > Number(rowLimit) && (
                                 <Button
-                                    variant="ghost"
+                                    variant="outline"
                                     size="sm"
-                                    className="text-xs h-7"
+                                    className="text-xs h-8 px-4"
                                     onClick={() => setRowLimit("max")}
                                 >
-                                    Show all {filteredData.length.toLocaleString()} rows
+                                    Load all {filteredData.length.toLocaleString()} rows
                                 </Button>
                             )}
                         </CardFooter>
@@ -478,3 +558,4 @@ export default function DatasetPreviewPage() {
         </TooltipProvider>
     );
 }
+
