@@ -165,14 +165,23 @@ export default function DatasetPage() {
 
 	const handleAIAnalysis = async (dataset: { id: number; file_name: string }) => {
 		setAiAnalysisLoading(dataset.id);
-		toast.info("Running AI problem analysis...");
+		// Open dialog immediately with empty content so user sees it streaming in
+		setAiAnalysisResult({ fileName: dataset.file_name, statements: "" });
+
 		try {
-			const result = await datasetApi.analyzeIssues(dataset.id);
-			setAiAnalysisResult({ fileName: result.file_name, statements: result.problem_statements });
+			await datasetApi.streamAnalyzeIssues(
+				dataset.id,
+				(token) => setAiAnalysisResult((prev) => prev ? { ...prev, statements: prev.statements + token } : null),
+				() => setAiAnalysisLoading(null),
+				(err) => {
+					console.error("AI analysis stream error", err);
+					toast.error("AI analysis failed. Make sure Ollama is running.");
+					setAiAnalysisLoading(null);
+				}
+			);
 		} catch (error) {
 			console.error("AI analysis failed", error);
 			toast.error("AI analysis failed. Make sure Ollama is running.");
-		} finally {
 			setAiAnalysisLoading(null);
 		}
 	};
@@ -685,6 +694,9 @@ export default function DatasetPage() {
 					</DialogHeader>
 					<div className="max-h-96 overflow-y-auto rounded-md bg-muted/40 p-4 text-sm whitespace-pre-wrap">
 						{aiAnalysisResult?.statements}
+						{aiAnalysisLoading !== null && (
+							<span className="inline-block w-2 h-4 ml-0.5 bg-primary animate-pulse rounded-sm" />
+						)}
 					</div>
 					<DialogFooter>
 						<Button variant="outline" onClick={() => setAiAnalysisResult(null)}>Close</Button>
