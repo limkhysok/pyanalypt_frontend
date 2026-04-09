@@ -41,7 +41,7 @@ import { Badge } from "@/components/ui/badge";
 import { motion, AnimatePresence } from "motion/react";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
-import { datasetApi } from "@/services/api";
+import { datasetApi, framingApi } from "@/services/api";
 import { Dataset, DatasetExportFormat } from "@/types/dataset";
 import { tokenManager } from "@/lib/token";
 import {
@@ -165,23 +165,23 @@ export default function DatasetPage() {
 
 	const handleAIAnalysis = async (dataset: { id: number; file_name: string }) => {
 		setAiAnalysisLoading(dataset.id);
-		// Open dialog immediately with empty content so user sees it streaming in
+		// Open dialog immediately so user sees tokens stream in
 		setAiAnalysisResult({ fileName: dataset.file_name, statements: "" });
 
 		try {
-			await datasetApi.streamAnalyzeIssues(
+			await framingApi.stream(
 				dataset.id,
 				(token) => setAiAnalysisResult((prev) => prev ? { ...prev, statements: prev.statements + token } : null),
 				() => setAiAnalysisLoading(null),
 				(err) => {
-					console.error("AI analysis stream error", err);
-					toast.error("AI analysis failed. Make sure Ollama is running.");
+					console.error("Problem Framing stream error", err);
+					toast.error("Problem Framing failed. Make sure Ollama is running.");
 					setAiAnalysisLoading(null);
 				}
 			);
 		} catch (error) {
-			console.error("AI analysis failed", error);
-			toast.error("AI analysis failed. Make sure Ollama is running.");
+			console.error("Problem Framing failed", error);
+			toast.error("Problem Framing failed. Make sure Ollama is running.");
 			setAiAnalysisLoading(null);
 		}
 	};
@@ -460,7 +460,7 @@ export default function DatasetPage() {
 													</Button>
 												</HoverCardTrigger>
 												<HoverCardContent side="top" className="w-auto px-3 py-1.5 text-xs">
-													AI Problem Finder
+													Problem Framing
 												</HoverCardContent>
 											</HoverCard>
 											<HoverCard openDelay={300} closeDelay={100}>
@@ -688,7 +688,7 @@ export default function DatasetPage() {
 				<DialogContent className="max-w-2xl">
 					<DialogHeader>
 						<DialogTitle className="flex items-center gap-2">
-							<BrainCircuit className="h-5 w-5 text-primary" /> AI Problem Finder
+							<BrainCircuit className="h-5 w-5 text-primary" /> Problem Framing
 						</DialogTitle>
 						<DialogDescription>{aiAnalysisResult?.fileName}</DialogDescription>
 					</DialogHeader>

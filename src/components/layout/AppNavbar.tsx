@@ -36,7 +36,7 @@ export function AppNavbar() {
             {/* Left */}
             <div className="flex items-center gap-4">
                 <SidebarTrigger className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all" />
-                <Separator orientation="vertical" className="h-4 w-[1px] bg-border/40" />
+                <Separator orientation="vertical" className="h-4 w-px bg-border/40" />
                 <Breadcrumb className="hidden sm:block">
                     <BreadcrumbList>
                         <BreadcrumbItem>

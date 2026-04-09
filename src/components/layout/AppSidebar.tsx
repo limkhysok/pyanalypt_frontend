@@ -11,6 +11,7 @@ import {
     Trash2,
     BarChart3,
     Lightbulb,
+    BrainCircuit,
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { cn } from "@/lib/utils";
@@ -36,6 +37,7 @@ const NAV_ITEMS = [
     { label: "Clean",     href: "/clean",     icon: Trash2           },
     { label: "Analysis",  href: "/analysis",  icon: BarChart3        },
     { label: "Insight",   href: "/insight",   icon: Lightbulb        },
+    { label: "Framing",   href: "/framing",   icon: BrainCircuit     },
 ];
 
 const FOOTER_ITEMS = [
@@ -60,7 +62,7 @@ function NavItem({
                 tooltip={{ children: label, side: "right" }}
                 className={cn(
                     "h-10 gap-3 rounded-none px-4 text-[12px] tracking-tight font-medium transition-all duration-150 relative",
-                    "group-data-[collapsible=icon]:!h-12 group-data-[collapsible=icon]:!w-full group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0",
+                    "group-data-[collapsible=icon]:h-12! group-data-[collapsible=icon]:w-full! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0",
                     isActive
                         ? "bg-sidebar-accent/80 text-sidebar-foreground border-r border-sidebar-border"
                         : "text-sidebar-foreground/50 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"
@@ -146,7 +148,7 @@ export function AppSidebar() {
                                     tooltip={{ children: label, side: "right" }}
                                     className={cn(
                                         "h-10 gap-3 rounded-none px-4 text-[12px] tracking-tight font-medium transition-all duration-150 relative",
-                                        "group-data-[collapsible=icon]:!h-12 group-data-[collapsible=icon]:!w-full group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0",
+                                        "group-data-[collapsible=icon]:h-12! group-data-[collapsible=icon]:w-full! group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0",
                                         isActive
                                             ? "bg-sidebar-accent/80 text-sidebar-foreground border-r border-sidebar-border"
                                             : "text-sidebar-foreground/50 hover:bg-sidebar-accent/50 hover:text-sidebar-foreground"

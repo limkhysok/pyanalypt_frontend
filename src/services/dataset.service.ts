@@ -1,6 +1,5 @@
 import apiClient from '@/lib/axios';
 import axios from 'axios';
-import { tokenManager } from '@/lib/token';
 import {
   Dataset,
   DatasetDetail,
@@ -192,52 +191,4 @@ export const datasetApi = {
     return response.data;
   },
 
-  /**
-   * Stream AI problem statements for a dataset using Ollama (SSE).
-   * Calls onToken for each arriving token, onDone when complete, onError on failure.
-   */
-  async streamAnalyzeIssues(
-    id: number,
-    onToken: (token: string) => void,
-    onDone: () => void,
-    onError: (err: Error) => void
-  ): Promise<void> {
-    const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
-    const url = `${API_BASE_URL}/api/v1/datasets/${id}/analyze_issues/`;
-    const token = tokenManager.getAccessToken();
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${token ?? ''}`,
-        'Content-Type': 'application/json',
-      },
-    });
-
-    if (!response.ok || !response.body) {
-      throw new Error(`AI Analysis request failed: ${response.status}`);
-    }
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-
-    try {
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const text = decoder.decode(value, { stream: true });
-        for (const line of text.split('\n')) {
-          if (!line.startsWith('data: ')) continue;
-          const data = line.slice(6);
-          if (data === '[DONE]') { onDone(); return; }
-          if (data.startsWith('[ERROR]')) { onError(new Error(data.slice(8))); return; }
-          onToken(data.replaceAll(String.raw`\n`, '\n'));
-        }
-      }
-      onDone();
-    } finally {
-      reader.releaseLock();
-    }
-  },
 };

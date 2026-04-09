@@ -44,7 +44,7 @@ export function Navbar() {
             {/* ── Single-Pill Integrated HUD ── */}
             <header
                 className={cn(
-                    "relative pointer-events-auto flex items-center justify-between px-3 h-12 transition-all duration-700 rounded-full border shadow-2xl mx-auto w-fit min-w-[320px] md:min-w-[640px]",
+                    "relative pointer-events-auto flex items-center justify-between px-3 h-12 transition-all duration-700 rounded-full border shadow-2xl mx-auto w-fit min-w-[320px] md:min-w-160",
                     scrolled
                         ? "bg-background/95 backdrop-blur-2xl border-foreground/10 shadow-foreground/5"
                         : "bg-background/60 backdrop-blur-md border-border/80 shadow-none scale-105"
@@ -138,7 +138,7 @@ export function Navbar() {
 
             {/* ── Mobile Pill Menu ── */}
             {mobileMenuOpen && (
-                <div className="md:hidden absolute top-[calc(100%+8px)] inset-x-6 z-40 bg-background/95 backdrop-blur-3xl border border-border/80 rounded-[1.5rem] p-3 flex flex-col gap-1 shadow-2xl pointer-events-auto max-w-[320px] mx-auto w-full">
+                <div className="md:hidden absolute top-[calc(100%+8px)] inset-x-6 z-40 bg-background/95 backdrop-blur-3xl border border-border/80 rounded-3xl p-3 flex flex-col gap-1 shadow-2xl pointer-events-auto max-w-[320px] mx-auto w-full">
                     <div className="flex items-center justify-between px-4 py-2 mb-2 border-b border-border/20">
                          <span className="text-[10px] font-black uppercase tracking-widest opacity-30">Menu Cluster</span>
                          <ModeToggle />

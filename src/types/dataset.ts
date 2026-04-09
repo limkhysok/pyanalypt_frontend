@@ -112,8 +112,10 @@ export interface IssueSummaryResponse {
   dataset_level_issues: number;
 }
 
-export interface AIAnalysisResponse {
-  dataset_id: number;
-  file_name: string;
-  problem_statements: string;
+export interface DatasetFrame {
+  id: number;
+  dataset: number;
+  model_used: string;
+  result: string;
+  created_at: string;
 }
