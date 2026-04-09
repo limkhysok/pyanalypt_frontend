@@ -111,3 +111,9 @@ export interface IssueSummaryResponse {
   by_column: Record<string, number>;
   dataset_level_issues: number;
 }
+
+export interface AIAnalysisResponse {
+  dataset_id: number;
+  file_name: string;
+  problem_statements: string;
+}

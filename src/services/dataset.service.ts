@@ -12,7 +12,8 @@ import {
   Issue,
   DiagnoseResponse,
   UpdateIssueRequest,
-  IssueSummaryResponse
+  IssueSummaryResponse,
+  AIAnalysisResponse
 } from '@/types/dataset';
 
 export const datasetApi = {
@@ -188,6 +189,14 @@ export const datasetApi = {
    */
   async getIssueSummary(datasetId: number): Promise<IssueSummaryResponse> {
     const response = await apiClient.get<IssueSummaryResponse>(`issues/summary/${datasetId}/`);
+    return response.data;
+  },
+
+  /**
+   * Generate AI problem statements for a dataset using Ollama.
+   */
+  async analyzeIssues(id: number): Promise<AIAnalysisResponse> {
+    const response = await apiClient.post<AIAnalysisResponse>(`datasets/${id}/analyze_issues/`, {});
     return response.data;
   },
 };

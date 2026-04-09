@@ -18,10 +18,16 @@ import {
 	Trash2,
 	MoreVertical,
 	Edit2,
+	BrainCircuit,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import {
+	HoverCard,
+	HoverCardContent,
+	HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import {
 	Dialog,
 	DialogContent,
@@ -86,6 +92,8 @@ export default function DatasetPage() {
 	const [newName, setNewName] = useState("");
 	const [exportingDatasetId, setExportingDatasetId] = useState<number | null>(null);
 	const [deleteLoading, setDeleteLoading] = useState(false);
+	const [aiAnalysisLoading, setAiAnalysisLoading] = useState<number | null>(null);
+	const [aiAnalysisResult, setAiAnalysisResult] = useState<{ fileName: string; statements: string } | null>(null);
 	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const fetchDatasets = useCallback(async () => {
@@ -154,6 +162,20 @@ export default function DatasetPage() {
 		if (selectedImportFormat === "parquet") return ".parquet,.pq";
 		return ".csv,.xlsx,.xls,.json,.parquet,.pq";
 	}, [selectedImportFormat]);
+
+	const handleAIAnalysis = async (dataset: { id: number; file_name: string }) => {
+		setAiAnalysisLoading(dataset.id);
+		toast.info("Running AI problem analysis...");
+		try {
+			const result = await datasetApi.analyzeIssues(dataset.id);
+			setAiAnalysisResult({ fileName: result.file_name, statements: result.problem_statements });
+		} catch (error) {
+			console.error("AI analysis failed", error);
+			toast.error("AI analysis failed. Make sure Ollama is running.");
+		} finally {
+			setAiAnalysisLoading(null);
+		}
+	};
 
 	const handleDiagnose = async (id: number) => {
 		try {
@@ -377,35 +399,76 @@ export default function DatasetPage() {
 									</td>
 									<td className="px-4 py-3 text-right">
 										<div className="flex items-center justify-end gap-1">
-											<Button
-												variant="ghost"
-												size="icon"
-												className="h-8 w-8"
-												onClick={() => router.push(`/datasets/${dataset.id}/preview`)}
-											>
-												<Eye className="h-4 w-4" />
-											</Button>
-											<Button
-												variant="ghost"
-												size="icon"
-												className="h-8 w-8"
-												onClick={() => handleDiagnose(dataset.id)}
-												disabled={issueLoading === dataset.id}
-											>
-												{issueLoading === dataset.id ? (
-													<Loader2 className="h-4 w-4 animate-spin" />
-												) : (
-													<Bug className="h-4 w-4" />
-												)}
-											</Button>
-											<Button
-												variant="ghost"
-												size="icon"
-												className="h-8 w-8"
-												onClick={() => router.push(`/datasets/${dataset.id}/clean`)}
-											>
-												<Sparkles className="h-4 w-4" />
-											</Button>
+											<HoverCard openDelay={300} closeDelay={100}>
+												<HoverCardTrigger asChild>
+													<Button
+														variant="ghost"
+														size="icon"
+														className="h-8 w-8"
+														onClick={() => router.push(`/datasets/${dataset.id}/preview`)}
+													>
+														<Eye className="h-4 w-4" />
+													</Button>
+												</HoverCardTrigger>
+												<HoverCardContent side="top" className="w-auto px-3 py-1.5 text-xs">
+													Preview
+												</HoverCardContent>
+											</HoverCard>
+											<HoverCard openDelay={300} closeDelay={100}>
+												<HoverCardTrigger asChild>
+													<Button
+														variant="ghost"
+														size="icon"
+														className="h-8 w-8"
+														onClick={() => handleDiagnose(dataset.id)}
+														disabled={issueLoading === dataset.id}
+													>
+														{issueLoading === dataset.id ? (
+															<Loader2 className="h-4 w-4 animate-spin" />
+														) : (
+															<Bug className="h-4 w-4" />
+														)}
+													</Button>
+												</HoverCardTrigger>
+												<HoverCardContent side="top" className="w-auto px-3 py-1.5 text-xs">
+													Run diagnosis scan
+												</HoverCardContent>
+											</HoverCard>
+											<HoverCard openDelay={300} closeDelay={100}>
+												<HoverCardTrigger asChild>
+													<Button
+														variant="ghost"
+														size="icon"
+														className="h-8 w-8"
+														onClick={() => handleAIAnalysis(dataset)}
+														disabled={aiAnalysisLoading === dataset.id}
+													>
+														{aiAnalysisLoading === dataset.id ? (
+															<Loader2 className="h-4 w-4 animate-spin" />
+														) : (
+															<BrainCircuit className="h-4 w-4" />
+														)}
+													</Button>
+												</HoverCardTrigger>
+												<HoverCardContent side="top" className="w-auto px-3 py-1.5 text-xs">
+													AI Problem Finder
+												</HoverCardContent>
+											</HoverCard>
+											<HoverCard openDelay={300} closeDelay={100}>
+												<HoverCardTrigger asChild>
+													<Button
+														variant="ghost"
+														size="icon"
+														className="h-8 w-8"
+														onClick={() => router.push(`/datasets/${dataset.id}/clean`)}
+													>
+														<Sparkles className="h-4 w-4" />
+													</Button>
+												</HoverCardTrigger>
+												<HoverCardContent side="top" className="w-auto px-3 py-1.5 text-xs">
+													Clean dataset
+												</HoverCardContent>
+											</HoverCard>
 											<DropdownMenu>
 												<DropdownMenuTrigger asChild>
 													<Button variant="ghost" size="icon" className="h-8 w-8">
@@ -608,6 +671,23 @@ export default function DatasetPage() {
 						<Button variant="destructive" onClick={() => deleteTarget && handleDelete(deleteTarget.id)} disabled={deleteLoading}>
 							{deleteLoading ? <Loader2 className="animate-spin" /> : "Delete"}
 						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+
+			<Dialog open={!!aiAnalysisResult} onOpenChange={(open) => { if (!open) setAiAnalysisResult(null); }}>
+				<DialogContent className="max-w-2xl">
+					<DialogHeader>
+						<DialogTitle className="flex items-center gap-2">
+							<BrainCircuit className="h-5 w-5 text-primary" /> AI Problem Finder
+						</DialogTitle>
+						<DialogDescription>{aiAnalysisResult?.fileName}</DialogDescription>
+					</DialogHeader>
+					<div className="max-h-96 overflow-y-auto rounded-md bg-muted/40 p-4 text-sm whitespace-pre-wrap">
+						{aiAnalysisResult?.statements}
+					</div>
+					<DialogFooter>
+						<Button variant="outline" onClick={() => setAiAnalysisResult(null)}>Close</Button>
 					</DialogFooter>
 				</DialogContent>
 			</Dialog>
