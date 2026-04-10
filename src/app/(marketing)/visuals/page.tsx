@@ -27,22 +27,23 @@ export default function VisualsPage() {
     );
 
     return (
-        <main className="min-h-screen bg-background relative selection:bg-zinc-500/10 overflow-x-hidden pt-24 pb-20">
+        <main className="min-h-screen bg-background relative selection:bg-blue-500/20 overflow-x-hidden pt-24 pb-20">
 
-            {/* Precision Blueprint Grid Backdrop */}
+            {/* Blueprint Grid Backdrop */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
 
-            {/* Monochrome Ambient Glows */}
-            <div className="fixed top-1/4 left-1/4 w-[400px] h-[400px] bg-foreground opacity-[0.015] blur-[120px] rounded-full pointer-events-none -z-10" />
-            <div className="fixed bottom-1/4 right-1/4 w-[450px] h-[450px] bg-foreground opacity-[0.02] blur-[150px] rounded-full pointer-events-none -z-10" />
+            {/* Blue Ambient Glow — top-left */}
+            <div className="fixed top-1/4 left-1/4 w-100 h-100 bg-blue-500/5 dark:bg-blue-500/10 blur-[120px] rounded-full pointer-events-none -z-10" />
+            {/* Gray Glow — bottom-right */}
+            <div className="fixed bottom-1/4 right-1/4 w-md h-md bg-foreground opacity-[0.02] blur-[150px] rounded-full pointer-events-none -z-10" />
 
             <div className="container relative z-10 mx-auto px-6 max-w-7xl py-12">
 
-                {/* ── Integrated Control HUD ── */}
+                {/* ── Control HUD ── */}
                 <div className="flex flex-col lg:flex-row items-center justify-between gap-6 pb-12">
                     <div className="flex flex-col gap-1.5">
                         <div className="flex items-center gap-2.5">
-                            <Grid3X3 size={14} className="text-foreground/60" />
+                            <Grid3X3 size={14} className="text-blue-500 dark:text-blue-400" />
                             <span className="text-[11px] font-black uppercase tracking-widest text-muted-foreground">dist/architectures.lib</span>
                         </div>
                         <h2 className="text-xl font-black tracking-tighter opacity-80 uppercase">Global Visual Library</h2>
@@ -50,10 +51,10 @@ export default function VisualsPage() {
 
                     <div className="flex flex-col md:flex-row items-center gap-4 w-full lg:w-auto">
                         <div className="relative group w-full md:w-80">
-                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/40 group-focus-within:text-foreground transition-colors" />
+                            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/40 group-focus-within:text-blue-500 dark:group-focus-within:text-blue-400 transition-colors" />
                             <Input
                                 placeholder="Search architectures..."
-                                className="pl-11 h-10 bg-background border-border/80 rounded-xl text-xs font-bold shadow-xs transition-all"
+                                className="pl-11 h-10 bg-background border-border/80 rounded-xl text-xs font-bold shadow-xs focus:border-blue-500/40 dark:focus:border-blue-400/40 transition-all"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
                             />
@@ -61,7 +62,7 @@ export default function VisualsPage() {
 
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <button className="relative group w-full md:w-56 h-10 bg-background border border-border/80 rounded-xl px-11 flex items-center justify-between cursor-pointer focus:border-foreground/30 transition-all outline-none">
+                                <button className="relative group w-full md:w-56 h-10 bg-background border border-border/80 rounded-xl px-11 flex items-center justify-between cursor-pointer focus:border-blue-500/40 dark:focus:border-blue-400/40 transition-all outline-none">
                                     <Filter className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/40 pointer-events-none" />
                                     <span className="text-[11px] font-black uppercase tracking-widest truncate">{activeScenario}</span>
                                     <ChevronDown size={12} className="absolute right-4 top-1/2 -translate-y-1/2 opacity-40" />
@@ -74,7 +75,9 @@ export default function VisualsPage() {
                                         onClick={() => setActiveScenario(scenario)}
                                         className={cn(
                                             "rounded-xl px-4 py-2.5 text-[10px] font-black uppercase tracking-widest cursor-pointer transition-all duration-200",
-                                            activeScenario === scenario ? "bg-foreground text-background" : "hover:bg-muted text-muted-foreground hover:text-foreground"
+                                            activeScenario === scenario
+                                                ? "bg-blue-600 dark:bg-blue-500 text-white"
+                                                : "hover:bg-muted text-muted-foreground hover:text-foreground"
                                         )}
                                     >
                                         {scenario}
@@ -85,7 +88,7 @@ export default function VisualsPage() {
                     </div>
                 </div>
 
-                {/* ── High-Density Chart Grid ── */}
+                {/* ── Chart Grid ── */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5">
                     {filteredCatalog.length > 0 ? (
                         filteredCatalog.map((chart) => {
@@ -93,14 +96,14 @@ export default function VisualsPage() {
                             return (
                                 <div
                                     key={chart.id}
-                                    className="group relative h-48 rounded-3xl bg-background border border-border/80 p-6 flex flex-col justify-between transition-all duration-500 hover:border-foreground/20 hover:bg-muted/20 hover:shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)] hover:-translate-y-1 overflow-hidden"
+                                    className="group relative h-48 rounded-3xl bg-background border border-border/80 p-6 flex flex-col justify-between transition-all duration-500 hover:border-blue-500/25 dark:hover:border-blue-400/25 hover:bg-blue-50/10 dark:hover:bg-blue-950/10 hover:shadow-[0_20px_40px_-15px_rgba(59,130,246,0.08)] hover:-translate-y-1 overflow-hidden"
                                 >
-                                    {/* Aesthetic Corner Glow */}
-                                    <div className="absolute top-0 right-0 w-24 h-24 bg-foreground/5 opacity-0 group-hover:opacity-100 blur-3xl transition-opacity duration-700 pointer-events-none" />
+                                    {/* Blue corner glow on hover */}
+                                    <div className="absolute top-0 right-0 w-24 h-24 bg-blue-500/8 dark:bg-blue-400/8 opacity-0 group-hover:opacity-100 blur-3xl transition-opacity duration-700 pointer-events-none" />
 
                                     <div className="space-y-4">
                                         <div className="flex items-center justify-between">
-                                            <div className="p-2.5 rounded-xl bg-muted/40 border border-border/60 text-foreground/40 group-hover:text-foreground group-hover:bg-muted/80 transition-all duration-500">
+                                            <div className="p-2.5 rounded-xl bg-muted/40 border border-border/60 text-foreground/40 group-hover:text-blue-600 dark:group-hover:text-blue-400 group-hover:bg-blue-50/50 dark:group-hover:bg-blue-950/30 group-hover:border-blue-200/60 dark:group-hover:border-blue-800/40 transition-all duration-500">
                                                 <ChartIcon size={18} />
                                             </div>
                                             <div className="flex gap-1.5">
@@ -121,12 +124,12 @@ export default function VisualsPage() {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-1.5 text-[11px] font-black text-foreground opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 uppercase tracking-widest">
+                                    <div className="flex items-center gap-1.5 text-[11px] font-black text-blue-600 dark:text-blue-400 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 uppercase tracking-widest">
                                         View Architecture <Info size={10} />
                                     </div>
 
                                     {/* Tech Ornament */}
-                                    <div className="absolute -bottom-1 -right-1 opacity-[0.03] rotate-12 group-hover:rotate-0 transition-transform duration-700 pointer-events-none">
+                                    <div className="absolute -bottom-1 -right-1 opacity-[0.03] rotate-12 group-hover:rotate-0 group-hover:opacity-[0.06] transition-all duration-700 pointer-events-none text-blue-500">
                                         <ChartIcon size={80} />
                                     </div>
                                 </div>

@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Menu, X, LogOut, LayoutDashboard, User as Rocket } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { cn } from "@/lib/utils";
@@ -28,6 +29,7 @@ const NAV_ITEMS = [
 export function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
     const [scrolled, setScrolled] = React.useState(false);
+    const pathname = usePathname();
     const { user, isAuthenticated, isLoading, logout } = useAuth();
 
     React.useEffect(() => {
@@ -62,18 +64,23 @@ export function Navbar() {
 
                 {/* ── Navigation HUD Cluster ── */}
                 <nav className="hidden md:flex items-center gap-1">
-                    {NAV_ITEMS.map((item) => (
-                        <Link
-                            key={item.label}
-                            href={item.href}
-                            className={cn(
-                                "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] transition-all duration-300",
-                                "text-muted-foreground/60 hover:text-foreground hover:bg-muted"
-                            )}
-                        >
-                            {item.label}
-                        </Link>
-                    ))}
+                    {NAV_ITEMS.map((item) => {
+                        const isActive = pathname === item.href;
+                        return (
+                            <Link
+                                key={item.label}
+                                href={item.href}
+                                className={cn(
+                                    "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] transition-all duration-300",
+                                    isActive
+                                        ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40"
+                                        : "text-muted-foreground/60 hover:text-foreground hover:bg-muted"
+                                )}
+                            >
+                                {item.label}
+                            </Link>
+                        );
+                    })}
                 </nav>
 
                 <div className="h-4 w-px bg-border/40 mx-1 hidden md:block" />
@@ -84,9 +91,9 @@ export function Navbar() {
                         <DropdownMenu modal={false}>
                             <DropdownMenuTrigger asChild>
                                 <button className="flex items-center outline-none hover:scale-105 transition-transform">
-                                    <Avatar className="h-8 w-8 border border-border/60 rounded-full">
+                                    <Avatar className="h-8 w-8 border border-border/60 hover:border-blue-500/40 dark:hover:border-blue-400/40 rounded-full transition-colors">
                                         <AvatarImage src={user?.profile_picture ?? undefined} className="grayscale" />
-                                        <AvatarFallback className="bg-muted text-foreground text-[10px] font-black uppercase">
+                                        <AvatarFallback className="bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 text-[10px] font-black uppercase">
                                             {user?.username?.substring(0, 2)}
                                         </AvatarFallback>
                                     </Avatar>
@@ -98,7 +105,7 @@ export function Navbar() {
                                     <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest opacity-40 mt-1 truncate">ID: {user?.id}</p>
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator className="bg-border/40" />
-                                <DropdownMenuItem asChild className="rounded-xl px-4 py-2.5 hover:bg-muted cursor-pointer transition-all text-[9px] font-black uppercase tracking-widest">
+                                <DropdownMenuItem asChild className="rounded-xl px-4 py-2.5 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer transition-all text-[9px] font-black uppercase tracking-widest">
                                     <Link href="/dashboard" className="flex items-center justify-between w-full">
                                         <span>DASHBOARD</span>
                                         <LayoutDashboard size={12} className="opacity-40" />
@@ -117,10 +124,10 @@ export function Navbar() {
                         </DropdownMenu>
                     ) : !isLoading && (
                         <div className="hidden md:flex items-center gap-1">
-                            <Link href="/login" className="px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:text-foreground">
+                            <Link href="/login" className="px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
                                 Login
                             </Link>
-                            <Link href="/register" className="px-4 py-1.5 bg-foreground text-background flex items-center justify-center rounded-full text-[9px] font-black uppercase tracking-widest hover:scale-105 transition-all shadow-xl shadow-foreground/5">
+                            <Link href="/register" className="px-4 py-1.5 bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center rounded-full text-[9px] font-black uppercase tracking-widest hover:bg-blue-700 dark:hover:bg-blue-400 hover:scale-105 transition-all shadow-lg shadow-blue-500/20">
                                 Start <Rocket size={10} className="ml-2" />
                             </Link>
                         </div>
@@ -143,21 +150,29 @@ export function Navbar() {
                          <span className="text-[10px] font-black uppercase tracking-widest opacity-30">Menu Cluster</span>
                          <ModeToggle />
                     </div>
-                    {NAV_ITEMS.map((item) => (
-                        <Link
-                            key={item.label}
-                            href={item.href}
-                            onClick={() => setMobileMenuOpen(false)}
-                            className="p-4 hover:bg-muted rounded-2xl text-[10px] font-black tracking-[0.2em] uppercase text-muted-foreground hover:text-foreground transition-all text-left flex items-center justify-between"
-                        >
-                            {item.label}
-                            <span className="opacity-20">/</span>
-                        </Link>
-                    ))}
+                    {NAV_ITEMS.map((item) => {
+                        const isActive = pathname === item.href;
+                        return (
+                            <Link
+                                key={item.label}
+                                href={item.href}
+                                onClick={() => setMobileMenuOpen(false)}
+                                className={cn(
+                                    "p-4 rounded-2xl text-[10px] font-black tracking-[0.2em] uppercase transition-all text-left flex items-center justify-between",
+                                    isActive
+                                        ? "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400"
+                                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                )}
+                            >
+                                {item.label}
+                                <span className={isActive ? "text-blue-400 dark:text-blue-500" : "opacity-20"}>/</span>
+                            </Link>
+                        );
+                    })}
                     {!isLoading && !isAuthenticated && (
                         <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-border/40">
-                            <Link href="/login" className="p-3 text-center text-[9px] font-black uppercase tracking-widest text-muted-foreground" onClick={() => setMobileMenuOpen(false)}>Login</Link>
-                            <Link href="/register" className="p-3 bg-foreground text-background rounded-full text-center text-[9px] font-black uppercase tracking-widest" onClick={() => setMobileMenuOpen(false)}>Join</Link>
+                            <Link href="/login" className="p-3 text-center text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors" onClick={() => setMobileMenuOpen(false)}>Login</Link>
+                            <Link href="/register" className="p-3 bg-blue-600 dark:bg-blue-500 text-white rounded-full text-center text-[9px] font-black uppercase tracking-widest hover:bg-blue-700 dark:hover:bg-blue-400 transition-colors" onClick={() => setMobileMenuOpen(false)}>Join</Link>
                         </div>
                     )}
                 </div>

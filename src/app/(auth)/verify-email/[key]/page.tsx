@@ -105,6 +105,7 @@ export default function VerifyEmailConfirm() {
 							value={resendEmail}
 							onChange={(e) => setResendEmail(e.target.value)}
 							disabled={resendStatus === "sent"}
+							className="rounded-xl bg-muted/20 border-border/40 focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:ring-0 transition-all"
 						/>
 					</div>
 
@@ -118,7 +119,7 @@ export default function VerifyEmailConfirm() {
 					)}
 
 					<Button
-						className="w-full"
+						className="w-full rounded-xl border-border/60 hover:border-blue-500/30 dark:hover:border-blue-400/30 hover:bg-muted transition-all"
 						variant="outline"
 						disabled={isResending || !resendEmail || resendStatus === "sent"}
 						onClick={handleResend}

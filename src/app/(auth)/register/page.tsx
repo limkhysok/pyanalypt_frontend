@@ -84,14 +84,14 @@ export default function Register() {
 							Email
 						</Label>
 						<div className="relative group/input">
-							<Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within/input:text-foreground transition-colors pointer-events-none z-10 opacity-40" />
+							<Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within/input:text-blue-500 dark:group-focus-within/input:text-blue-400 transition-colors pointer-events-none z-10 opacity-40" />
 							<Input
 								id="email"
 								type="email"
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
 								placeholder="name@example.com"
-								className="h-11 pl-12 rounded-xl bg-muted/20 border-border/40 focus:border-foreground/30 focus:ring-0 transition-all text-[11px] font-medium"
+								className="h-11 pl-12 rounded-xl bg-muted/20 border-border/40 focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:ring-0 transition-all text-[11px] font-medium"
 								required
 							/>
 						</div>
@@ -108,20 +108,20 @@ export default function Register() {
 							Password
 						</Label>
 						<div className="relative group/input">
-							<Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within/input:text-foreground transition-colors pointer-events-none z-10 opacity-40" />
+							<Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within/input:text-blue-500 dark:group-focus-within/input:text-blue-400 transition-colors pointer-events-none z-10 opacity-40" />
 							<Input
 								id="password"
 								type={showPassword ? "text" : "password"}
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
 								placeholder="••••••••"
-								className="h-11 pl-12 pr-12 rounded-xl bg-muted/20 border-border/40 focus:border-foreground/30 focus:ring-0 transition-all text-[11px] font-medium"
+								className="h-11 pl-12 pr-12 rounded-xl bg-muted/20 border-border/40 focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:ring-0 transition-all text-[11px] font-medium"
 								required
 							/>
 							<button
 								type="button"
 								onClick={() => setShowPassword(!showPassword)}
-								className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-all z-20"
+								className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-blue-500 dark:hover:text-blue-400 transition-all z-20"
 							>
 								{showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
 							</button>
@@ -134,7 +134,7 @@ export default function Register() {
 
 				<Button
 					disabled={isLoading}
-					className="w-full h-11 bg-foreground text-background hover:bg-foreground/90 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-500 shadow-xl shadow-foreground/5 hover:scale-[1.01] active:scale-[0.98]"
+					className="w-full h-11 bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-400 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300 shadow-xl shadow-blue-500/20 hover:scale-[1.01] active:scale-[0.98]"
 				>
 					{isLoading ? (
 						<div className="flex items-center gap-3">
@@ -150,16 +150,16 @@ export default function Register() {
 				</Button>
 
 				<div className="relative flex items-center gap-4 py-0.5">
-					<span className="h-[1px] bg-border/40 flex-1" />
+					<span className="h-px bg-border/40 flex-1" />
 					<span className="text-[8px] font-black text-muted-foreground uppercase tracking-[0.4em] opacity-30">or</span>
-					<span className="h-[1px] bg-border/40 flex-1" />
+					<span className="h-px bg-border/40 flex-1" />
 				</div>
 
 				<Button
 					variant="outline"
 					type="button"
 					disabled={isLoading}
-					className="w-full h-11 rounded-xl border-border/60 hover:bg-muted text-[10px] font-black uppercase tracking-widest transition-all hover:border-foreground/20"
+					className="w-full h-11 rounded-xl border-border/60 hover:bg-muted text-[10px] font-black uppercase tracking-widest transition-all hover:border-blue-500/30 dark:hover:border-blue-400/30"
 					onClick={() => loginWithGoogle()}
 				>
 					<svg viewBox="0 0 24 24" className="mr-3 h-4 w-4" aria-hidden="true">
@@ -173,7 +173,7 @@ export default function Register() {
 
 				<p className="text-center text-[10px] font-black text-muted-foreground mt-6 uppercase tracking-widest opacity-60 flex items-center justify-center gap-2">
 					Joined already?
-					<Link href="/login" className="text-foreground hover:underline flex items-center gap-1.5">
+					<Link href="/login" className="text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1.5">
 						Initialize Access <ArrowRight size={11} />
 					</Link>
 				</p>

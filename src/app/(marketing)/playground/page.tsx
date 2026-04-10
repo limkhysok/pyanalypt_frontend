@@ -74,7 +74,7 @@ export default function Playground() {
             tooltip: {
                 trigger: isPie ? 'item' : 'axis',
                 backgroundColor: '#09090b',
-                borderColor: 'rgba(255,255,255,0.08)',
+                borderColor: 'rgba(59,130,246,0.2)',
                 textStyle: { color: '#ffffff', fontSize: 10, fontWeight: 'bold' },
                 borderRadius: 6
             },
@@ -93,88 +93,77 @@ export default function Playground() {
             },
             yAxis: isPie ? { show: false } : {
                 type: 'value',
-                splitLine: { lineStyle: { color: 'rgba(255,255,255,0.03)' } },
+                splitLine: { lineStyle: { color: 'rgba(59,130,246,0.05)' } },
                 axisLabel: { color: '#71717a', fontSize: 9 }
             },
-            series: isPie 
-            ? [{
-                name: series[0]?.name || 'Data',
-                type: 'pie',
-                radius: ['40%', '70%'],
-                avoidLabelOverlap: false,
-                itemStyle: {
-                    borderRadius: 10,
-                    borderColor: '#09090b',
-                    borderWidth: 2
-                },
-                label: {
-                    show: false,
-                    position: 'center'
-                },
-                emphasis: {
-                    label: {
-                        show: true,
-                        fontSize: 14,
-                        fontWeight: 'bold',
-                        color: '#ffffff'
-                    }
-                },
-                labelLine: {
-                    show: false
-                },
-                data: categories.map((cat, idx) => ({
-                    value: series[0]?.data[idx] || 0,
-                    name: cat
-                })),
-                color: ['#ffffff', '#a1a1aa', '#3f3f46', '#27272a', '#18181b']
-            }]
-            : series.map((s, i) => {
-                const colors = ['#ffffff', '#a1a1aa', '#3f3f46'];
-                const itemColor = colors[i % colors.length];
-                return {
-                    name: s.name,
-                    type: chartType,
-                    data: s.data,
-                    smooth: true,
-                    itemStyle: { color: itemColor, borderRadius: chartType === 'bar' ? [3, 3, 0, 0] : 0 },
-                    ...(chartType === 'line' ? {
-                        lineStyle: { width: 2 },
-                        areaStyle: {
-                            color: {
-                                type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
-                                colorStops: [{ offset: 0, color: itemColor + '20' }, { offset: 1, color: itemColor + '00' }]
+            series: isPie
+                ? [{
+                    name: series[0]?.name || 'Data',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    avoidLabelOverlap: false,
+                    itemStyle: {
+                        borderRadius: 10,
+                        borderColor: '#09090b',
+                        borderWidth: 2
+                    },
+                    label: { show: false, position: 'center' },
+                    emphasis: {
+                        label: { show: true, fontSize: 14, fontWeight: 'bold', color: '#ffffff' }
+                    },
+                    labelLine: { show: false },
+                    data: categories.map((cat, idx) => ({
+                        value: series[0]?.data[idx] || 0,
+                        name: cat
+                    })),
+                    color: ['#3b82f6', '#60a5fa', '#a1a1aa', '#3f3f46', '#93c5fd']
+                }]
+                : series.map((s, i) => {
+                    const colors = ['#3b82f6', '#a1a1aa', '#60a5fa'];
+                    const itemColor = colors[i % colors.length];
+                    return {
+                        name: s.name,
+                        type: chartType,
+                        data: s.data,
+                        smooth: true,
+                        itemStyle: { color: itemColor, borderRadius: chartType === 'bar' ? [3, 3, 0, 0] : 0 },
+                        ...(chartType === 'line' ? {
+                            lineStyle: { width: 2 },
+                            areaStyle: {
+                                color: {
+                                    type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+                                    colorStops: [{ offset: 0, color: itemColor + '30' }, { offset: 1, color: itemColor + '00' }]
+                                }
                             }
-                        }
-                    } : {})
-                };
-            })
+                        } : {})
+                    };
+                })
         };
     }, [parsedData, chartType]);
 
     if (!mounted) return <div className="min-h-screen bg-background" />;
 
     return (
-        <main className="min-h-screen bg-background relative selection:bg-zinc-500/10 overflow-x-hidden pt-26 pb-16">
+        <main className="min-h-screen bg-background relative selection:bg-blue-500/20 overflow-x-hidden pt-26 pb-16">
 
-            {/* Precision Blueprint Grid Backdrop */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-[size:32px_32px] pointer-events-none" />
+            {/* Blueprint Grid Backdrop */}
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[32px_32px] pointer-events-none" />
 
-            {/* Monochrome Ambient Glows */}
-            <div className="fixed top-1/4 left-1/4 w-[300px] h-[300px] bg-foreground opacity-[0.015] blur-[120px] rounded-full pointer-events-none -z-10" />
-            <div className="fixed bottom-1/4 right-1/4 w-[350px] h-[350px] bg-foreground opacity-[0.02] blur-[150px] rounded-full pointer-events-none -z-10" />
+            {/* Blue Ambient Glow */}
+            <div className="fixed top-1/4 left-1/4 w-75 h-75 bg-blue-500/5 dark:bg-blue-500/10 blur-[120px] rounded-full pointer-events-none -z-10" />
+            <div className="fixed bottom-1/4 right-1/4 w-87.5 h-87.5 bg-foreground opacity-[0.02] blur-[150px] rounded-full pointer-events-none -z-10" />
 
             <div className="container relative z-10 mx-auto px-6 max-w-6xl py-12 md:py-16">
 
-                {/* ── Optimized Layout Workspace ── */}
                 <div className="grid grid-cols-1 lg:grid-cols-[1fr_2.5fr] gap-6">
-                    
-                    {/* Left: Compact Input Console */}
+
+                    {/* Left: Input Console */}
                     <div className="flex flex-col h-full">
                         <div className="group relative flex-1 rounded-2xl md:rounded-3xl bg-background border border-border shadow-[0_15px_30px_-15px_rgba(0,0,0,0.05)] overflow-hidden transition-all duration-300 flex flex-col">
                             {/* Panel Header */}
                             <div className="h-10 border-b border-border/50 bg-muted/30 flex items-center justify-between px-5 shrink-0">
                                 <div className="flex items-center gap-2">
-                                    <FileText size={12} className="text-foreground/40" />
+                                    <FileText size={12} className="text-blue-500/60 dark:text-blue-400/60" />
                                     <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">telemetry.csv</span>
                                 </div>
                                 <div className="flex items-center gap-3">
@@ -185,7 +174,7 @@ export default function Playground() {
                             <div className="p-5 space-y-6 text-left flex-1 flex flex-col">
                                 <div className="space-y-3 flex-1 flex flex-col">
                                     <textarea
-                                        className="w-full flex-1 bg-muted/10 rounded-xl p-4 text-[11px] font-mono outline-none border border-border/40 focus:border-foreground/20 focus:bg-background transition-all resize-none shadow-inner"
+                                        className="w-full flex-1 bg-muted/10 rounded-xl p-4 text-[11px] font-mono outline-none border border-border/40 focus:border-blue-500/40 dark:focus:border-blue-400/40 focus:bg-background transition-all resize-none shadow-inner"
                                         value={csvData}
                                         onChange={(e) => setCsvData(e.target.value)}
                                         spellCheck={false}
@@ -212,8 +201,8 @@ export default function Playground() {
                                                 className={cn(
                                                     "flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-200",
                                                     chartType === t.id
-                                                        ? "bg-foreground text-background border-foreground shadow-md scale-[1.02]"
-                                                        : "bg-muted/30 border-border/60 text-muted-foreground/60 hover:bg-muted"
+                                                        ? "bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500 shadow-md scale-[1.02]"
+                                                        : "bg-muted/30 border-border/60 text-muted-foreground/60 hover:bg-muted hover:text-foreground"
                                                 )}
                                             >
                                                 <t.icon size={16} />
@@ -225,8 +214,8 @@ export default function Playground() {
                             </div>
                         </div>
 
-                        {/* Minimal Privacy Note */}
-                        <div className="mt-4 px-5 py-3 rounded-xl bg-zinc-50/5 border border-border/10 backdrop-blur-sm">
+                        {/* Privacy Note */}
+                        <div className="mt-4 px-5 py-3 rounded-xl bg-blue-50/30 dark:bg-blue-950/20 border border-blue-200/30 dark:border-blue-800/30 backdrop-blur-sm">
                             <p className="text-[9px] text-muted-foreground font-medium leading-relaxed opacity-60 text-center">
                                 Local thread processing — zero data leakage.
                             </p>
@@ -241,7 +230,7 @@ export default function Playground() {
                                 <div className="flex gap-1.5">
                                     <div className="w-2.5 h-2.5 rounded-full bg-border/40 group-hover:bg-red-500/40 transition-colors" />
                                     <div className="w-2.5 h-2.5 rounded-full bg-border/40 group-hover:bg-amber-500/40 transition-colors" />
-                                    <div className="w-2.5 h-2.5 rounded-full bg-border/40 group-hover:bg-emerald-500/40 transition-colors" />
+                                    <div className="w-2.5 h-2.5 rounded-full bg-border/40 group-hover:bg-blue-500/60 transition-colors" />
                                 </div>
                                 <span className="text-[10px] font-black uppercase tracking-tight text-muted-foreground opacity-40">Live Renderer v1.02</span>
                             </div>
@@ -249,14 +238,14 @@ export default function Playground() {
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    className="h-8 rounded-lg text-[9px] font-black tracking-widest border-border/40 hover:bg-muted uppercase px-4"
+                                    className="h-8 rounded-lg text-[9px] font-black tracking-widest border-border/40 hover:bg-muted hover:border-blue-500/30 dark:hover:border-blue-400/30 uppercase px-4 transition-colors"
                                     onClick={() => handleExport('svg')}
                                 >
                                     SVG
                                 </Button>
                                 <Button
                                     size="sm"
-                                    className="h-8 rounded-lg text-[9px] font-black tracking-widest bg-foreground text-background hover:scale-105 transition-all uppercase px-4"
+                                    className="h-8 rounded-lg text-[9px] font-black tracking-widest bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-400 hover:scale-105 transition-all uppercase px-4"
                                     onClick={() => handleExport('png')}
                                 >
                                     PNG SNAPSHOT
@@ -268,16 +257,19 @@ export default function Playground() {
                             <div className="flex items-end justify-between border-b border-border/10 pb-4 shrink-0">
                                 <div className="space-y-1">
                                     <h3 className="text-lg font-black tracking-tight text-foreground/90">Growth Telemetry</h3>
-                                    <p className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-widest">Client Instance Active</p>
+                                    <p className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-widest flex items-center gap-2">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400 shadow-[0_0_6px_rgba(59,130,246,0.5)]" />
+                                        Client Instance Active
+                                    </p>
                                 </div>
                                 <div className="hidden sm:flex items-center gap-6">
                                     <div className="flex items-center gap-2 group/legend cursor-help">
-                                        <div className="w-2 h-2 rounded-full border-2 border-border/60 group-hover:border-foreground/60 transition-all" />
+                                        <div className="w-2 h-2 rounded-full border-2 border-border/60 group-hover:border-blue-400 transition-all" />
                                         <span className="text-[9px] font-black text-muted-foreground/60 group-hover:text-foreground">Projected</span>
                                     </div>
                                     <div className="flex items-center gap-2 group/legend cursor-help">
-                                        <div className="w-2 h-2 rounded-full bg-foreground/80" />
-                                        <span className="text-[9px] font-black text-foreground/80 uppercase tracking-widest">Actual</span>
+                                        <div className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400" />
+                                        <span className="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">Actual</span>
                                     </div>
                                 </div>
                             </div>
@@ -288,7 +280,7 @@ export default function Playground() {
                                     option={option}
                                     style={{ height: '300px', width: '100%' }}
                                 />
-                                <div className="absolute inset-0 pointer-events-none border border-dashed border-border/10 rounded-xl" />
+                                <div className="absolute inset-0 pointer-events-none border border-dashed border-blue-500/10 dark:border-blue-400/10 rounded-xl" />
                             </div>
                         </div>
                     </div>
