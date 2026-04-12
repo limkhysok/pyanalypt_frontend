@@ -33,11 +33,11 @@ import {
 const NAV_ITEMS = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
     { label: "Datasets",  href: "/datasets",  icon: Database         },
+    { label: "Framing",   href: "/framing",   icon: BrainCircuit     },
     { label: "Issues",    href: "/issues",    icon: AlertCircle      },
     { label: "Clean",     href: "/clean",     icon: Trash2           },
     { label: "Analysis",  href: "/analysis",  icon: BarChart3        },
     { label: "Insight",   href: "/insight",   icon: Lightbulb        },
-    { label: "Framing",   href: "/framing",   icon: BrainCircuit     },
 ];
 
 const FOOTER_ITEMS = [

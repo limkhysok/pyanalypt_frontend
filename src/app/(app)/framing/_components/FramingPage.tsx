@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useState, useCallback } from "react";
-import ReactMarkdown from "react-markdown";
+import { useEffect, useState, useCallback } from "react";
+import { motion } from "motion/react";
 import {
     BrainCircuit,
     Database,
@@ -9,11 +9,9 @@ import {
     RefreshCw,
     Sparkles,
     ChevronDown,
-    Clock,
     FileText,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
     DropdownMenu,
@@ -21,11 +19,158 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/context/auth-context";
 import { datasetApi, framingApi } from "@/services/api";
 import { Dataset, DatasetFrame } from "@/types/dataset";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+import { HistorySidebar } from "./HistorySidebar";
+import { ResultPanel } from "./ResultPanel";
+
+// ── Small utilities ───────────────────────────────────────────────────────────
+
+function DatasetTriggerLabel({
+    isLoading,
+    selected,
+}: Readonly<{
+    isLoading: boolean;
+    selected: Dataset | null;
+}>) {
+    if (isLoading) {
+        return (
+            <span className="flex items-center gap-2 text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span className="text-xs">Loading datasets…</span>
+            </span>
+        );
+    }
+    if (selected) {
+        return (
+            <span className="flex items-center gap-2 truncate">
+                <FileText className="h-4 w-4 shrink-0 text-blue-500" />
+                <span className="truncate text-sm">{selected.file_name}</span>
+            </span>
+        );
+    }
+    return (
+        <span className="flex items-center gap-2 text-muted-foreground">
+            <Database className="h-4 w-4" />
+            <span className="text-sm">Select a dataset</span>
+        </span>
+    );
+}
+
+function GenerateButton({
+    isFirstRun,
+    isStreaming,
+    onClick,
+}: Readonly<{
+    isFirstRun: boolean;
+    isStreaming: boolean;
+    onClick: () => void;
+}>) {
+    if (isStreaming) {
+        return (
+            <Button
+                disabled
+                variant={isFirstRun ? "default" : "outline"}
+                className={cn(
+                    "rounded-2xl h-10 px-5 font-black text-[10px] uppercase tracking-widest transition-all",
+                    isFirstRun
+                        ? "bg-blue-600 text-white shadow-sm shadow-blue-500/20"
+                        : "border-border/30 bg-background/60"
+                )}
+            >
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Generating…
+            </Button>
+        );
+    }
+    if (isFirstRun) {
+        return (
+            <Button
+                onClick={onClick}
+                className="rounded-2xl h-10 px-5 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] uppercase tracking-widest shadow-sm shadow-blue-500/20 transition-all"
+            >
+                <Sparkles className="mr-2 h-4 w-4" />
+                Generate
+            </Button>
+        );
+    }
+    return (
+        <Button
+            variant="outline"
+            onClick={onClick}
+            className="rounded-2xl h-10 px-5 border-border/30 bg-background/60 hover:bg-secondary/50 font-black text-[10px] uppercase tracking-widest transition-all"
+        >
+            <RefreshCw className="mr-2 h-4 w-4" />
+            Re-run
+        </Button>
+    );
+}
+
+// ── Content area (after dataset is selected) ──────────────────────────────────
+
+function FramingContent({
+    frames,
+    activeFrame,
+    isStreaming,
+    streamingText,
+    isLoadingFrames,
+    onSelectFrame,
+    onGenerate,
+}: Readonly<{
+    frames: DatasetFrame[];
+    activeFrame: DatasetFrame | null;
+    isStreaming: boolean;
+    streamingText: string;
+    isLoadingFrames: boolean;
+    onSelectFrame: (frame: DatasetFrame) => void;
+    onGenerate: () => void;
+}>) {
+    if (isLoadingFrames) {
+        return (
+            <div className="flex items-center justify-center py-32">
+                <div className="flex flex-col items-center gap-3">
+                    <div className="h-7 w-7 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+                    <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
+                        Loading frames…
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
+    const hasFrames = frames.length > 0;
+
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.15 }}
+            className="grid grid-cols-1 lg:grid-cols-4 gap-6"
+        >
+            {hasFrames && (
+                <HistorySidebar
+                    frames={frames}
+                    activeFrame={activeFrame}
+                    isStreaming={isStreaming}
+                    onSelect={onSelectFrame}
+                />
+            )}
+            <div className={hasFrames ? "lg:col-span-3" : "lg:col-span-4"}>
+                <ResultPanel
+                    isStreaming={isStreaming}
+                    streamingText={streamingText}
+                    activeFrame={activeFrame}
+                    onGenerate={onGenerate}
+                />
+            </div>
+        </motion.div>
+    );
+}
+
+// ── Page component ────────────────────────────────────────────────────────────
 
 export function FramingPage() {
     const { isAuthenticated, isLoading: authLoading } = useAuth();
@@ -39,7 +184,6 @@ export function FramingPage() {
     const [isLoadingDatasets, setIsLoadingDatasets] = useState(true);
     const [isLoadingFrames, setIsLoadingFrames] = useState(false);
 
-    // ── Fetch datasets on mount ───────────────────────────────────────────────
     const fetchDatasets = useCallback(async () => {
         setIsLoadingDatasets(true);
         try {
@@ -56,7 +200,6 @@ export function FramingPage() {
         if (!authLoading && isAuthenticated) fetchDatasets();
     }, [authLoading, isAuthenticated, fetchDatasets]);
 
-    // ── Fetch saved frames when dataset is selected ───────────────────────────
     const fetchFrames = useCallback(async (datasetId: number) => {
         setIsLoadingFrames(true);
         setActiveFrame(null);
@@ -64,7 +207,6 @@ export function FramingPage() {
         try {
             const data = await framingApi.history(datasetId);
             setFrames(data);
-            // Auto-show the latest saved frame if one exists
             if (data.length > 0) setActiveFrame(data[0]);
         } catch {
             toast.error("Failed to load saved frames.");
@@ -78,7 +220,11 @@ export function FramingPage() {
         fetchFrames(dataset.id);
     };
 
-    // ── Run / Re-run Problem Framing ─────────────────────────────────────────
+    const handleSelectFrame = (frame: DatasetFrame) => {
+        setActiveFrame(frame);
+        setStreamingText("");
+    };
+
     const runFraming = async () => {
         if (!selectedDataset || isStreaming) return;
 
@@ -91,7 +237,6 @@ export function FramingPage() {
                 selectedDataset.id,
                 (token) => setStreamingText((prev) => prev + token),
                 async () => {
-                    // Stream done — reload frames to get the saved record
                     const data = await framingApi.history(selectedDataset.id);
                     setFrames(data);
                     if (data.length > 0) setActiveFrame(data[0]);
@@ -111,72 +256,72 @@ export function FramingPage() {
         }
     };
 
-    // ── Derived state ─────────────────────────────────────────────────────────
     const hasFrames = frames.length > 0;
     const isFirstRun = !hasFrames && !isStreaming && !streamingText;
-    const displayText = isStreaming ? streamingText : activeFrame?.result ?? "";
 
-    // ── Markdown renderer config ──────────────────────────────────────────────
-    const mdComponents = {
-        h1: ({ children }: React.HTMLAttributes<HTMLHeadingElement>) => <h1 className="text-lg font-bold mt-4 mb-1">{children}</h1>,
-        h2: ({ children }: React.HTMLAttributes<HTMLHeadingElement>) => <h2 className="text-base font-bold mt-3 mb-1">{children}</h2>,
-        h3: ({ children }: React.HTMLAttributes<HTMLHeadingElement>) => <h3 className="text-sm font-semibold mt-2 mb-0.5">{children}</h3>,
-        p:  ({ children }: React.HTMLAttributes<HTMLParagraphElement>) => <p className="text-sm leading-relaxed mb-2">{children}</p>,
-        ul: ({ children }: React.HTMLAttributes<HTMLUListElement>) => <ul className="list-disc pl-5 space-y-1 mb-2 text-sm">{children}</ul>,
-        ol: ({ children }: React.HTMLAttributes<HTMLOListElement>) => <ol className="list-decimal pl-5 space-y-1 mb-2 text-sm">{children}</ol>,
-        li: ({ children }: React.HTMLAttributes<HTMLLIElement>) => <li className="leading-relaxed">{children}</li>,
-        strong: ({ children }: React.HTMLAttributes<HTMLElement>) => <strong className="font-semibold text-foreground">{children}</strong>,
-        code: ({ children }: React.HTMLAttributes<HTMLElement>) => <code className="bg-muted px-1 py-0.5 rounded text-xs font-mono">{children}</code>,
-    };
-
-    // ── Loading state ─────────────────────────────────────────────────────────
     if (authLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center">
-                <Loader2 className="h-8 w-8 text-muted-foreground animate-spin" />
+            <div className="min-h-screen flex items-center justify-center bg-background">
+                <div className="flex flex-col items-center gap-3">
+                    <div className="h-8 w-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
+                    <p className="text-sm font-bold text-muted-foreground">Loading workspace…</p>
+                </div>
             </div>
         );
     }
 
     return (
-        <main className="min-h-screen pb-20 px-6 md:px-10 bg-background">
+        <main className="min-h-screen pb-20 px-6 md:px-10 bg-background relative z-0">
+
+            {/* ── Background ─────────────────────────────────────────────── */}
+            <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+                <div className="absolute inset-0 bg-background" />
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[32px_32px]" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-200 h-80 bg-blue-500/5 blur-[100px] rounded-full" />
+            </div>
+
             <div className="max-w-7xl mx-auto space-y-8 pt-8">
 
                 {/* ── Header ─────────────────────────────────────────────── */}
-                <div className="space-y-1">
+                <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                    className="space-y-2"
+                >
+                    <div className="flex items-center gap-2">
+                        <BrainCircuit size={13} className="text-blue-500" aria-hidden="true" />
+                        <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
+                            AI Analysis
+                        </span>
+                    </div>
                     <h1 className="text-3xl md:text-4xl font-black tracking-tight leading-none">
                         Problem Framing
                     </h1>
                     <p className="text-sm text-muted-foreground font-medium">
                         AI-generated problem statements to guide your analysis.
                     </p>
-                </div>
+                </motion.div>
 
                 {/* ── Dataset selector + action buttons ──────────────────── */}
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
-
-                    {/* Dataset picker */}
+                <motion.div
+                    initial={{ opacity: 0, y: 16 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.1 }}
+                    className="flex flex-col sm:flex-row items-start sm:items-center gap-3"
+                >
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                            <Button variant="outline" className="w-full sm:w-72 justify-between" disabled={isLoadingDatasets}>
-                                {isLoadingDatasets ? (
-                                    <span className="flex items-center gap-2 text-muted-foreground">
-                                        <Loader2 className="h-4 w-4 animate-spin" /> Loading datasets...
-                                    </span>
-                                ) : selectedDataset ? (
-                                    <span className="flex items-center gap-2 truncate">
-                                        <FileText className="h-4 w-4 shrink-0 text-muted-foreground" />
-                                        <span className="truncate">{selectedDataset.file_name}</span>
-                                    </span>
-                                ) : (
-                                    <span className="flex items-center gap-2 text-muted-foreground">
-                                        <Database className="h-4 w-4" /> Select a dataset
-                                    </span>
-                                )}
+                            <Button
+                                variant="outline"
+                                className="w-full sm:w-80 justify-between rounded-2xl h-10 border-border/30 bg-background/60 hover:bg-secondary/50 font-bold transition-all"
+                                disabled={isLoadingDatasets}
+                            >
+                                <DatasetTriggerLabel isLoading={isLoadingDatasets} selected={selectedDataset} />
                                 <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground ml-2" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-72">
+                        <DropdownMenuContent className="w-80 rounded-2xl">
                             {datasets.length === 0 ? (
                                 <div className="px-3 py-4 text-sm text-muted-foreground text-center">
                                     No datasets found.
@@ -186,11 +331,11 @@ export function FramingPage() {
                                     <DropdownMenuItem
                                         key={d.id}
                                         onClick={() => handleSelectDataset(d)}
-                                        className="flex items-center gap-2"
+                                        className="flex items-center gap-2 rounded-xl"
                                     >
                                         <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
-                                        <span className="truncate">{d.file_name}</span>
-                                        <Badge variant="secondary" className="ml-auto shrink-0 text-[10px]">
+                                        <span className="truncate text-sm">{d.file_name}</span>
+                                        <Badge variant="secondary" className="ml-auto shrink-0 text-[10px] font-black">
                                             {d.file_format.toLowerCase()}
                                         </Badge>
                                     </DropdownMenuItem>
@@ -199,152 +344,44 @@ export function FramingPage() {
                         </DropdownMenuContent>
                     </DropdownMenu>
 
-                    {/* Generate / Re-run buttons */}
                     {selectedDataset && (
-                        <div className="flex items-center gap-2">
-                            {isFirstRun ? (
-                                // No frames yet — show primary Generate button
-                                <Button onClick={runFraming} disabled={isStreaming}>
-                                    {isStreaming ? (
-                                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</>
-                                    ) : (
-                                        <><Sparkles className="mr-2 h-4 w-4" /> Generate</>
-                                    )}
-                                </Button>
-                            ) : (
-                                // Frames exist — show Re-run button
-                                <Button variant="outline" onClick={runFraming} disabled={isStreaming}>
-                                    {isStreaming ? (
-                                        <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</>
-                                    ) : (
-                                        <><RefreshCw className="mr-2 h-4 w-4" /> Re-run</>
-                                    )}
-                                </Button>
-                            )}
-                        </div>
+                        <GenerateButton
+                            isFirstRun={isFirstRun}
+                            isStreaming={isStreaming}
+                            onClick={runFraming}
+                        />
                     )}
-                </div>
+                </motion.div>
 
                 {/* ── Main content area ───────────────────────────────────── */}
-                {!selectedDataset ? (
-                    // Empty state — no dataset selected
-                    <div className="flex flex-col items-center justify-center py-32 text-center border border-dashed rounded-md">
-                        <BrainCircuit className="h-12 w-12 text-muted-foreground/30 mb-4" />
-                        <h3 className="text-lg font-semibold mb-1">Select a dataset to begin</h3>
-                        <p className="text-sm text-muted-foreground max-w-sm">
-                            Choose a dataset above and click Generate. The AI will frame the key problems in your data.
-                        </p>
-                    </div>
-
-                ) : isLoadingFrames ? (
-                    <div className="flex items-center justify-center py-32">
-                        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                    </div>
-
+                {selectedDataset ? (
+                    <FramingContent
+                        frames={frames}
+                        activeFrame={activeFrame}
+                        isStreaming={isStreaming}
+                        streamingText={streamingText}
+                        isLoadingFrames={isLoadingFrames}
+                        onSelectFrame={handleSelectFrame}
+                        onGenerate={runFraming}
+                    />
                 ) : (
-                    <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-
-                        {/* ── History sidebar ─────────────────────────────── */}
-                        {hasFrames && (
-                            <div className="lg:col-span-1 space-y-2">
-                                <p className="text-xs font-black tracking-widest text-muted-foreground opacity-60 uppercase px-1">
-                                    History
-                                </p>
-                                <div className="space-y-1">
-                                    {frames.map((frame, idx) => (
-                                        <button
-                                            key={frame.id}
-                                            onClick={() => { setActiveFrame(frame); setStreamingText(""); }}
-                                            className={`w-full text-left rounded-md px-3 py-2.5 text-sm transition-colors ${
-                                                activeFrame?.id === frame.id && !isStreaming
-                                                    ? "bg-primary/10 text-primary font-medium"
-                                                    : "hover:bg-muted text-muted-foreground"
-                                            }`}
-                                        >
-                                            <div className="flex items-center gap-1.5 mb-0.5">
-                                                <Clock className="h-3 w-3 shrink-0" />
-                                                <span className="text-xs">
-                                                    {new Date(frame.created_at).toLocaleDateString()}
-                                                </span>
-                                                {idx === 0 && (
-                                                    <Badge variant="secondary" className="text-[9px] px-1 py-0 ml-auto">
-                                                        Latest
-                                                    </Badge>
-                                                )}
-                                            </div>
-                                            <div className="text-xs text-muted-foreground/70">
-                                                {new Date(frame.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                                            </div>
-                                        </button>
-                                    ))}
-                                </div>
+                    <motion.div
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                    >
+                        <div className="flex flex-col items-center justify-center py-32 text-center border border-dashed border-border/30 rounded-4xl bg-background/40 backdrop-blur-xl">
+                            <div className="w-16 h-16 rounded-3xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-5">
+                                <BrainCircuit className="h-7 w-7 text-blue-500/60" />
                             </div>
-                        )}
-
-                        {/* ── Result panel ────────────────────────────────── */}
-                        <div className={hasFrames ? "lg:col-span-3" : "lg:col-span-4"}>
-                            {isStreaming || streamingText ? (
-                                // Live streaming view
-                                <Card className="border-primary/30">
-                                    <CardHeader className="pb-3">
-                                        <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                                            <BrainCircuit className="h-4 w-4 text-primary animate-pulse" />
-                                            Generating problem statements...
-                                        </CardTitle>
-                                    </CardHeader>
-                                    <Separator />
-                                    <CardContent className="pt-4">
-                                        <div className="prose prose-sm dark:prose-invert max-w-none text-foreground">
-                                            <ReactMarkdown>{streamingText}</ReactMarkdown>
-                                            {isStreaming && (
-                                                <span className="inline-block w-2 h-4 ml-0.5 bg-primary animate-pulse rounded-sm" />
-                                            )}
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
-                            ) : activeFrame ? (
-                                // Saved frame view
-                                <Card>
-                                    <CardHeader className="pb-3">
-                                        <div className="flex items-center justify-between">
-                                            <CardTitle className="flex items-center gap-2 text-base font-semibold">
-                                                <BrainCircuit className="h-4 w-4 text-primary" />
-                                                Problem Framing
-                                            </CardTitle>
-                                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                                <Clock className="h-3 w-3" />
-                                                {new Date(activeFrame.created_at).toLocaleString()}
-                                                <Badge variant="outline" className="text-[10px]">
-                                                    {activeFrame.model_used}
-                                                </Badge>
-                                            </div>
-                                        </div>
-                                    </CardHeader>
-                                    <Separator />
-                                    <CardContent className="pt-4">
-                                        <div className="prose prose-sm dark:prose-invert max-w-none text-foreground">
-                                            <ReactMarkdown>{activeFrame.result}</ReactMarkdown>
-                                        </div>
-                                    </CardContent>
-                                </Card>
-
-                            ) : (
-                                // Dataset selected but no frames yet
-                                <div className="flex flex-col items-center justify-center py-32 text-center border border-dashed rounded-md">
-                                    <Sparkles className="h-10 w-10 text-muted-foreground/30 mb-4" />
-                                    <h3 className="text-base font-semibold mb-1">No frames yet</h3>
-                                    <p className="text-sm text-muted-foreground mb-4">
-                                        Click Generate to run the AI Problem Framing on this dataset.
-                                    </p>
-                                    <Button onClick={runFraming}>
-                                        <Sparkles className="mr-2 h-4 w-4" /> Generate
-                                    </Button>
-                                </div>
-                            )}
+                            <h3 className="text-lg font-black tracking-tight mb-1">Select a dataset to begin</h3>
+                            <p className="text-sm text-muted-foreground font-medium max-w-sm">
+                                Choose a dataset above and click Generate. The AI will frame the key problems in your data.
+                            </p>
                         </div>
-                    </div>
+                    </motion.div>
                 )}
+
             </div>
         </main>
     );
