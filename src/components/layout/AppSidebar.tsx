@@ -1,13 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import {
     LayoutDashboard,
     Database,
     AlertCircle,
     Settings,
-    User,
     Trash2,
     BarChart3,
     Lightbulb,
@@ -15,6 +15,8 @@ import {
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/auth-context";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
     Sidebar,
     SidebarContent,
@@ -30,32 +32,68 @@ import {
     SidebarSeparator,
 } from "@/components/ui/sidebar";
 
-const WORKSPACE_ITEMS = [
-    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
-    { label: "Datasets",  href: "/datasets",  icon: Database         },
-    { label: "Framing",   href: "/framing",   icon: BrainCircuit     },
-    { label: "Issues",    href: "/issues",    icon: AlertCircle      },
-    { label: "Clean",     href: "/clean",     icon: Trash2           },
-    { label: "Analysis",  href: "/analysis",  icon: BarChart3        },
-    { label: "Insight",   href: "/insight",   icon: Lightbulb        },
+type NavItemDef = {
+    label: string;
+    href: string;
+    icon: React.ElementType;
+    shortcut: string;
+    badge?: number;
+};
+
+const WORKSPACE_ITEMS: NavItemDef[] = [
+    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, shortcut: "G D" },
+    { label: "Datasets",  href: "/datasets",  icon: Database,         shortcut: "G S" },
+    { label: "Framing",   href: "/framing",   icon: BrainCircuit,     shortcut: "G F" },
+    { label: "Issues",    href: "/issues",    icon: AlertCircle,      shortcut: "G I", badge: 3 },
+    { label: "Clean",     href: "/clean",     icon: Trash2,           shortcut: "G C" },
 ];
 
-const FOOTER_ITEMS = [
-    { label: "Profile",  href: "/profile",         icon: User     },
-    { label: "Settings", href: "/profile/setting",  icon: Settings },
+const RESULTS_ITEMS: NavItemDef[] = [
+    { label: "Analysis", href: "/analysis", icon: BarChart3,  shortcut: "G A" },
+    { label: "Insight",  href: "/insight",  icon: Lightbulb,  shortcut: "G N" },
 ];
+
+/** G + key → route */
+const SHORTCUT_MAP: Record<string, string> = {
+    D: "/dashboard",
+    S: "/datasets",
+    F: "/framing",
+    I: "/issues",
+    C: "/clean",
+    A: "/analysis",
+    N: "/insight",
+};
 
 function isRouteActive(pathname: string, href: string): boolean {
     if (href === "/dashboard" || href === "/profile") return pathname === href;
     return pathname === href || pathname.startsWith(href + "/");
 }
 
+function getInitials(user: {
+    first_name?: string | null;
+    last_name?: string | null;
+    username?: string;
+    email?: string | null;
+}): string {
+    if (user.first_name && user.last_name)
+        return `${user.first_name[0]}${user.last_name[0]}`.toUpperCase();
+    if (user.first_name) return user.first_name[0].toUpperCase();
+    if (user.username)   return user.username.slice(0, 2).toUpperCase();
+    if (user.email)      return user.email[0].toUpperCase();
+    return "U";
+}
+
+// ─────────────────────────────────────────────
+// NavItem
+// ─────────────────────────────────────────────
 function NavItem({
     label,
     href,
     icon: Icon,
     pathname,
-}: Readonly<{ label: string; href: string; icon: React.ElementType; pathname: string }>) {
+    shortcut,
+    badge,
+}: Readonly<NavItemDef & { pathname: string }>) {
     const isActive = isRouteActive(pathname, href);
 
     return (
@@ -63,32 +101,58 @@ function NavItem({
             <SidebarMenuButton
                 asChild
                 isActive={isActive}
-                tooltip={{ children: label, side: "right" }}
+                tooltip={{
+                    children: (
+                        <span className="flex items-center gap-2">
+                            {label}
+                            <kbd className="rounded bg-sidebar-accent/80 px-1 py-0.5 text-[10px] font-mono text-sidebar-foreground/50">
+                                {shortcut}
+                            </kbd>
+                        </span>
+                    ),
+                    side: "right",
+                }}
                 className={cn(
-                    "h-11 gap-3 rounded-none px-4 text-[12px] tracking-tight font-semibold transition-colors duration-150 relative",
+                    "h-11 gap-3 rounded-none px-4 text-[13px] tracking-[0.04em] font-normal transition-colors duration-150 relative",
                     "group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0",
                     isActive
-                        // Active: blue text + subtle blue-tinted bg
-                        ? "bg-sidebar-active-bg text-sidebar-active"
-                        // Default: muted grey → hover: full foreground (black/white)
-                        : "text-sidebar-foreground/40 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
+                        ? "bg-sidebar-active-bg text-sidebar-active!"
+                        : "bg-transparent text-sidebar-foreground hover:bg-sidebar-accent/60"
                 )}
             >
                 <Link href={href}>
-                    <Icon
-                        className={cn(
-                            "shrink-0 size-4 transition-all duration-150",
-                            isActive
-                                ? "opacity-100 scale-110 text-sidebar-active"
-                                : "opacity-40 scale-100 group-hover/menu-button:opacity-80"
+                    {/* Icon wrapper — badge is positioned relative to this */}
+                    <span className="relative inline-flex shrink-0">
+                        <Icon
+                            className={cn(
+                                "size-3.75 transition-all duration-150",
+                                isActive
+                                    ? "scale-110 text-sidebar-active"
+                                    : "scale-100 text-sidebar-foreground"
+                            )}
+                        />
+                        {badge !== undefined && badge > 0 && (
+                            <span className="absolute -right-1.5 -top-1.5 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-destructive text-[9px] font-bold text-white leading-none">
+                                {badge > 9 ? "9+" : badge}
+                            </span>
                         )}
-                    />
+                    </span>
+
+                    {/* Label */}
                     <span className="truncate group-data-[collapsible=icon]:hidden">{label}</span>
 
+                    {/* Inline badge pill (expanded only) */}
+                    {badge !== undefined && badge > 0 && (
+                        <span className="ml-auto group-data-[collapsible=icon]:hidden rounded-full bg-destructive/10 px-1.5 py-0.5 text-[10px] font-semibold text-destructive leading-none">
+                            {badge}
+                        </span>
+                    )}
+
+                    {/* Active left-bar indicator */}
                     {isActive && (
                         <span
                             aria-hidden
-                            className="absolute left-0 top-1/2 h-5 w-0.75 -translate-y-1/2 rounded-r-full bg-sidebar-active [box-shadow:0_0_8px_color-mix(in_srgb,var(--sidebar-active)_50%,transparent)]"
+                            className="sidebar-active-indicator absolute left-0 top-1/2 h-5 w-0.75 -translate-y-1/2 rounded-r-full bg-sidebar-active"
                         />
                     )}
                 </Link>
@@ -97,42 +161,153 @@ function NavItem({
     );
 }
 
+// ─────────────────────────────────────────────
+// UserFooter — replaces plain "Profile" nav item
+// ─────────────────────────────────────────────
+function UserFooter({ pathname }: Readonly<{ pathname: string }>) {
+    const { user } = useAuth();
+    if (!user) return null;
+
+    const displayName =
+        user.full_name ||
+        [user.first_name, user.last_name].filter(Boolean).join(" ") ||
+        user.username;
+    const initials  = getInitials(user);
+    const isActive  = isRouteActive(pathname, "/profile");
+
+    return (
+        <SidebarMenuItem className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:h-11 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:items-center">
+            <SidebarMenuButton
+                asChild
+                isActive={isActive}
+                tooltip={{ children: displayName, side: "right" }}
+                className={cn(
+                    "h-11 gap-3 rounded-none px-4 text-[13px] transition-colors duration-150 relative",
+                    "group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0",
+                    isActive
+                        ? "bg-sidebar-active-bg"
+                        : "bg-transparent hover:bg-sidebar-accent/60"
+                )}
+            >
+                <Link href="/profile">
+                    <Avatar className="h-6 w-6 shrink-0">
+                        {user.profile_picture && (
+                            <AvatarImage src={user.profile_picture} alt={displayName} />
+                        )}
+                        <AvatarFallback className="bg-sidebar-active/20 text-sidebar-active text-[10px] font-semibold">
+                            {initials}
+                        </AvatarFallback>
+                    </Avatar>
+
+                    <span className="flex min-w-0 flex-col group-data-[collapsible=icon]:hidden">
+                        <span className="truncate text-[13px] font-medium leading-tight text-sidebar-foreground">
+                            {displayName}
+                        </span>
+                        {user.email && (
+                            <span className="truncate text-[11px] leading-tight text-sidebar-foreground/40">
+                                {user.email}
+                            </span>
+                        )}
+                    </span>
+
+                    {isActive && (
+                        <span
+                            aria-hidden
+                            className="sidebar-active-indicator absolute left-0 top-1/2 h-5 w-0.75 -translate-y-1/2 rounded-r-full bg-sidebar-active"
+                        />
+                    )}
+                </Link>
+            </SidebarMenuButton>
+        </SidebarMenuItem>
+    );
+}
+
+// ─────────────────────────────────────────────
+// AppSidebar
+// ─────────────────────────────────────────────
 export function AppSidebar() {
     const pathname = usePathname() ?? "";
+    const router   = useRouter();
+
+    // G + key keyboard shortcuts
+    useEffect(() => {
+        let pendingG  = false;
+        let clearTimer: ReturnType<typeof setTimeout>;
+
+        const onKeyDown = (e: KeyboardEvent) => {
+            const target = e.target as HTMLElement;
+            if (
+                ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) ||
+                target.isContentEditable
+            ) return;
+
+            const key = e.key.toUpperCase();
+
+            if (pendingG) {
+                const dest = SHORTCUT_MAP[key];
+                if (dest) {
+                    e.preventDefault();
+                    router.push(dest);
+                }
+                pendingG = false;
+                clearTimeout(clearTimer);
+            } else if (key === "G" && !e.ctrlKey && !e.metaKey && !e.altKey) {
+                pendingG = true;
+                clearTimeout(clearTimer);
+                clearTimer = setTimeout(() => { pendingG = false; }, 800);
+            }
+        };
+
+        globalThis.addEventListener("keydown", onKeyDown);
+        return () => {
+            globalThis.removeEventListener("keydown", onKeyDown);
+            clearTimeout(clearTimer);
+        };
+    }, [router]);
 
     return (
         <Sidebar collapsible="icon">
+
             {/* ── Header ── */}
-            <SidebarHeader className="h-14 border-b border-sidebar-border/60 px-4 group-data-[collapsible=icon]:px-0">
+            <SidebarHeader className="h-14 shrink-0 border-b border-sidebar-border px-4 group-data-[collapsible=icon]:px-0">
                 <Link
                     href="/dashboard"
-                    className="flex h-full items-center gap-3 group/logo overflow-hidden group-data-[collapsible=icon]:justify-center"
+                    className="flex h-full items-center gap-2.5 group/logo overflow-hidden group-data-[collapsible=icon]:justify-center"
                 >
-                    <div className="relative flex h-8 w-8 shrink-0 items-center justify-center">
-                        <Logo className="h-4 w-4 transition-transform duration-500 group-hover/logo:rotate-12" />
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center">
+                        <Logo className="h-3.5 w-3.5 transition-transform duration-500 group-hover/logo:rotate-12" />
                     </div>
-
-                    <div className="grid gap-0.5 leading-none group-data-[collapsible=icon]:hidden min-w-0">
-                        <span className="truncate text-[13px] font-bold tracking-tight text-sidebar-active">
-                            PyAnalypt
-                        </span>
-                        <span className="truncate text-[10px] font-medium tracking-tight text-sidebar-foreground/35">
-                            Data Platform
-                        </span>
-                    </div>
+                    <span className="truncate text-[14px] font-bold tracking-wide text-sidebar-active group-data-[collapsible=icon]:hidden">
+                        PyAnalypt
+                    </span>
                 </Link>
             </SidebarHeader>
 
             {/* ── Navigation ── */}
-            <SidebarContent className="px-0">
+            <SidebarContent className="px-0 py-2">
+
                 {/* Workspace group */}
-                <SidebarGroup className="px-0 py-2">
-                    <SidebarGroupLabel className="mb-2 h-auto px-4 text-[9px] font-bold uppercase tracking-[0.12em] text-sidebar-foreground/30 group-data-[collapsible=icon]:hidden">
+                <SidebarGroup className="px-0 gap-0">
+                    <SidebarGroupLabel className="h-8 px-4 text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40 group-data-[collapsible=icon]:hidden">
                         Workspace
                     </SidebarGroupLabel>
                     <SidebarGroupContent>
-                        <SidebarMenu className="gap-0">
+                        <SidebarMenu className="gap-0.5">
                             {WORKSPACE_ITEMS.map((item) => (
+                                <NavItem key={item.href} {...item} pathname={pathname} />
+                            ))}
+                        </SidebarMenu>
+                    </SidebarGroupContent>
+                </SidebarGroup>
+
+                {/* Results group */}
+                <SidebarGroup className="px-0 gap-0 mt-2">
+                    <SidebarGroupLabel className="h-8 px-4 text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40 group-data-[collapsible=icon]:hidden">
+                        Results
+                    </SidebarGroupLabel>
+                    <SidebarGroupContent>
+                        <SidebarMenu className="gap-0.5">
+                            {RESULTS_ITEMS.map((item) => (
                                 <NavItem key={item.href} {...item} pathname={pathname} />
                             ))}
                         </SidebarMenu>
@@ -142,12 +317,17 @@ export function AppSidebar() {
             </SidebarContent>
 
             {/* ── Footer ── */}
-            <SidebarFooter className="px-0 pb-2">
-                <SidebarSeparator className="mb-2 bg-sidebar-border/30 mx-4" />
-                <SidebarMenu className="gap-0">
-                    {FOOTER_ITEMS.map((item) => (
-                        <NavItem key={item.href} {...item} pathname={pathname} />
-                    ))}
+            <SidebarFooter className="px-0 pb-3">
+                <SidebarSeparator className="mb-1 bg-sidebar-border/60 mx-4" />
+                <SidebarMenu className="gap-0.5">
+                    <UserFooter pathname={pathname} />
+                    <NavItem
+                        label="Settings"
+                        href="/profile/setting"
+                        icon={Settings}
+                        shortcut="G ,"
+                        pathname={pathname}
+                    />
                 </SidebarMenu>
             </SidebarFooter>
 
