@@ -1,4 +1,4 @@
-import DatasetPage from "./DatasetPage";
+import DatasetPage from "./_components/DatasetPage";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {

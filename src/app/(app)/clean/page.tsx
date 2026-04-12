@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Sparkles, RotateCcw, PlusCircle } from "lucide-react";
 import { cleaningApi, CleaningOperation } from "@/services/cleaning.service";
 import { datasetApi } from "@/services/dataset.service";
 import { Dataset } from "@/types/dataset";
 
 export default function CleanPage() {
+    const searchParams = useSearchParams();
     const [datasets, setDatasets] = useState<Dataset[]>([]);
     const [selectedDataset, setSelectedDataset] = useState<number | null>(null);
     const [operations, setOperations] = useState<CleaningOperation[]>([]);
@@ -14,8 +16,15 @@ export default function CleanPage() {
     const [showNewOp, setShowNewOp] = useState(false);
 
     useEffect(() => {
-        datasetApi.listDatasets().then(setDatasets);
-    }, []);
+        datasetApi.listDatasets().then((data) => {
+            setDatasets(data);
+            const paramId = searchParams.get("dataset");
+            if (paramId) {
+                const id = Number(paramId);
+                if (data.some((d) => d.id === id)) setSelectedDataset(id);
+            }
+        });
+    }, [searchParams]);
 
     useEffect(() => {
         if (selectedDataset) {
