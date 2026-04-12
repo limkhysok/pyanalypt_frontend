@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut, User as UserIcon, Settings, LayoutDashboard } from "lucide-react";
+import { LogOut, User as UserIcon, Settings, LayoutDashboard, Sun, Moon, Monitor } from "lucide-react";
+import { useTheme } from "next-themes";
 import { GithubIcon } from "@/components/ui/Icons";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/ui/ModeToggle";
@@ -29,12 +30,30 @@ import {
 
 export function AppNavbar() {
     const { user, logout } = useAuth();
+    const { setTheme } = useTheme();
     const pathname = usePathname() ?? "";
 
+    const pageLabel = (() => {
+        if (pathname === "/dashboard")              return "Dashboard";
+        if (pathname === "/framing")               return "Framing";
+        if (pathname === "/issues")                return "Issues";
+        if (pathname === "/clean")                 return "Clean";
+        if (pathname === "/analysis")              return "Analysis";
+        if (pathname === "/insight")               return "Insight";
+        if (pathname === "/profile")               return "Profile";
+        if (pathname === "/profile/setting")       return "Settings";
+        if (pathname.startsWith("/datasets")) {
+            if (pathname.includes("/preview"))     return "Datasets / Preview";
+            if (pathname.includes("/clean"))       return "Datasets / Clean";
+            return "Datasets";
+        }
+        return "Dashboard";
+    })();
+
     return (
-        <header className="sticky top-0 z-50 h-14 flex items-center justify-between px-6 border-b border-border/90 bg-background">
+        <header className="sticky top-0 z-50 h-14 flex items-center justify-between px-4 sm:px-6 border-b border-border/90 bg-background">
             {/* Left */}
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
                 <SidebarTrigger className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-all" />
                 <Separator orientation="vertical" className="h-4 w-px bg-border/40" />
                 <Breadcrumb className="hidden sm:block">
@@ -47,18 +66,7 @@ export function AppNavbar() {
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
                             <BreadcrumbPage className="text-[12px] font-bold tracking-tight">
-                                {(() => {
-                                    if (pathname.includes("/datasets")) {
-                                        if (pathname.includes("/preview")) return "Datasets / Preview";
-                                        if (pathname.includes("/clean")) return "Datasets / Clean";
-                                        return "Datasets";
-                                    }
-                                    if (pathname.includes("/issues")) return "Issues";
-                                    if (pathname.includes("/clean")) return "Clean";
-                                    if (pathname.includes("/analysis")) return "Analysis";
-                                    if (pathname.includes("/insight")) return "Insight";
-                                    return "Dashboard";
-                                })()}
+                                {pageLabel}
                             </BreadcrumbPage>
                         </BreadcrumbItem>
                     </BreadcrumbList>
@@ -66,8 +74,9 @@ export function AppNavbar() {
             </div>
 
             {/* Right — actions */}
-            <div className="flex items-center gap-4">
-                <div className="flex items-center gap-3 pr-4 border-r border-border/40">
+            <div className="flex items-center gap-3 sm:gap-4">
+                {/* GitHub + theme toggle — hidden on mobile */}
+                <div className="hidden sm:flex items-center gap-3 pr-4 border-r border-border/40">
                     <Button
                         variant="ghost"
                         size="icon"
@@ -92,7 +101,8 @@ export function AppNavbar() {
                 <DropdownMenu modal={false}>
                     <DropdownMenuTrigger asChild>
                         <button className="flex items-center gap-3 group outline-none">
-                            <div className="flex flex-col items-end gap-0.5">
+                            {/* Username — hidden on mobile */}
+                            <div className="hidden sm:flex flex-col items-end gap-0.5">
                                 <span className="text-[11px] font-bold text-foreground leading-none">
                                     {user?.username}
                                 </span>
@@ -139,6 +149,37 @@ export function AppNavbar() {
                                     <Settings size={14} className="opacity-40" />
                                 </Link>
                             </DropdownMenuItem>
+                        </div>
+
+                        {/* GitHub + theme — only in dropdown on mobile/tablet */}
+                        <div className="sm:hidden">
+                            <DropdownMenuSeparator className="bg-border/40" />
+                            <div className="p-1 space-y-1">
+                                <DropdownMenuItem asChild className="rounded-xl px-4 py-3 hover:bg-muted cursor-pointer transition-all text-[11px] font-semibold">
+                                    <Link href="https://github.com/soklimkhy/pyanalypt_frontend" target="_blank" className="flex items-center justify-between w-full">
+                                        <span>Source Code</span>
+                                        <GithubIcon size={14} className="opacity-40" />
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setTheme("light")} className="rounded-xl px-4 py-3 hover:bg-muted cursor-pointer transition-all text-[11px] font-semibold">
+                                    <div className="flex items-center justify-between w-full">
+                                        <span>Light Mode</span>
+                                        <Sun size={14} className="opacity-40" />
+                                    </div>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setTheme("dark")} className="rounded-xl px-4 py-3 hover:bg-muted cursor-pointer transition-all text-[11px] font-semibold">
+                                    <div className="flex items-center justify-between w-full">
+                                        <span>Dark Mode</span>
+                                        <Moon size={14} className="opacity-40" />
+                                    </div>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setTheme("system")} className="rounded-xl px-4 py-3 hover:bg-muted cursor-pointer transition-all text-[11px] font-semibold">
+                                    <div className="flex items-center justify-between w-full">
+                                        <span>System Theme</span>
+                                        <Monitor size={14} className="opacity-40" />
+                                    </div>
+                                </DropdownMenuItem>
+                            </div>
                         </div>
 
                         <DropdownMenuSeparator className="bg-border/40" />
