@@ -27,16 +27,23 @@ import {
     BreadcrumbPage,
     BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { User } from "@/types/api";
+import { getInitials } from "@/lib/utils";
 
 // ─────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────
 
+/** First route for each breadcrumb group — used as the group link target. */
+const GROUP_HREFS: Record<string, string> = {
+    Workspace: "/dashboard",
+    Results:   "/analysis",
+    Account:   "/profile",
+};
+
 /** Returns the breadcrumb group + page label for the current route. */
 function getBreadcrumb(pathname: string): { group: string; page: string } {
     if (pathname === "/dashboard")                return { group: "Workspace", page: "Dashboard" };
-    if (pathname === "/framing")                  return { group: "Workspace", page: "Framing"   };
+    if (pathname.startsWith("/framing"))          return { group: "Workspace", page: "Framing"   };
     if (pathname === "/issues")                   return { group: "Workspace", page: "Issues"    };
     if (pathname === "/clean")                    return { group: "Workspace", page: "Clean"     };
     if (pathname.startsWith("/datasets")) {
@@ -48,16 +55,6 @@ function getBreadcrumb(pathname: string): { group: string; page: string } {
     if (pathname === "/profile")                  return { group: "Account",  page: "Profile"   };
     if (pathname === "/profile/setting")          return { group: "Account",  page: "Settings"  };
     return { group: "Workspace", page: "Dashboard" };
-}
-
-/** Derives display initials with the same priority as the sidebar. */
-function getInitials(user: User): string {
-    if (user.first_name && user.last_name)
-        return `${user.first_name[0]}${user.last_name[0]}`.toUpperCase();
-    if (user.first_name) return user.first_name[0].toUpperCase();
-    if (user.username)   return user.username.slice(0, 2).toUpperCase();
-    if (user.email)      return user.email[0].toUpperCase();
-    return "U";
 }
 
 // ─────────────────────────────────────────────
@@ -79,7 +76,7 @@ export function AppNavbar() {
     const initials = user ? getInitials(user) : "U";
 
     return (
-        <header className="sticky top-0 z-50 h-14 flex items-center justify-between px-4 sm:px-6 border-b border-border/90 bg-background">
+        <header className="sticky top-0 z-50 h-12 flex items-center justify-between px-4 sm:px-6 border-b border-border/90 bg-background">
 
             {/* ── Left: trigger + breadcrumb ── */}
             <div className="flex items-center gap-3 sm:gap-4">
@@ -90,7 +87,7 @@ export function AppNavbar() {
                     <BreadcrumbList>
                         <BreadcrumbItem>
                             <BreadcrumbLink asChild className="text-[12px] font-medium tracking-tight">
-                                <Link href="/dashboard">{group}</Link>
+                                <Link href={GROUP_HREFS[group] ?? "/dashboard"}>{group}</Link>
                             </BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />

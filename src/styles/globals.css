@@ -213,10 +213,10 @@
 
   @keyframes glow-pulse {
     0%, 100% {
-      box-shadow: 0 0 6px color-mix(in srgb, var(--sidebar-active) 40%, transparent);
+      box-shadow: 0 0 6px color-mix(in srgb, var(--sidebar-foreground) 30%, transparent);
     }
     50% {
-      box-shadow: 0 0 14px color-mix(in srgb, var(--sidebar-active) 75%, transparent);
+      box-shadow: 0 0 14px color-mix(in srgb, var(--sidebar-foreground) 55%, transparent);
     }
   }
 

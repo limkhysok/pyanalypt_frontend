@@ -14,7 +14,7 @@ import {
     BrainCircuit,
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
-import { cn } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import { useAuth } from "@/context/auth-context";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -62,25 +62,12 @@ const SHORTCUT_MAP: Record<string, string> = {
     C: "/clean",
     A: "/analysis",
     N: "/insight",
+    ",": "/profile/setting",
 };
 
 function isRouteActive(pathname: string, href: string): boolean {
     if (href === "/dashboard" || href === "/profile") return pathname === href;
     return pathname === href || pathname.startsWith(href + "/");
-}
-
-function getInitials(user: {
-    first_name?: string | null;
-    last_name?: string | null;
-    username?: string;
-    email?: string | null;
-}): string {
-    if (user.first_name && user.last_name)
-        return `${user.first_name[0]}${user.last_name[0]}`.toUpperCase();
-    if (user.first_name) return user.first_name[0].toUpperCase();
-    if (user.username)   return user.username.slice(0, 2).toUpperCase();
-    if (user.email)      return user.email[0].toUpperCase();
-    return "U";
 }
 
 // ─────────────────────────────────────────────
@@ -97,7 +84,12 @@ function NavItem({
     const isActive = isRouteActive(pathname, href);
 
     return (
-        <SidebarMenuItem className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:h-11 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:items-center">
+        <SidebarMenuItem className={cn(
+            "group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:h-11 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:items-center",
+            isActive
+                ? "group-data-[collapsible=icon]:bg-sidebar-accent"
+                : "group-data-[collapsible=icon]:hover:bg-sidebar-accent/60"
+        )}>
             <SidebarMenuButton
                 asChild
                 isActive={isActive}
@@ -113,11 +105,11 @@ function NavItem({
                     side: "right",
                 }}
                 className={cn(
-                    "h-11 gap-3 rounded-none px-4 text-[13px] tracking-[0.04em] font-normal transition-colors duration-150 relative",
+                    "h-11 gap-3 rounded-none px-4 text-[13px] tracking-[0.04em] font-medium transition-colors duration-150",
                     "group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0",
                     isActive
-                        ? "bg-sidebar-active-bg text-sidebar-active!"
-                        : "bg-transparent text-sidebar-foreground hover:bg-sidebar-accent/60"
+                        ? "bg-sidebar-accent text-sidebar-foreground"
+                        : "bg-transparent text-sidebar-foreground/70 hover:bg-sidebar-accent/60 hover:text-sidebar-foreground"
                 )}
             >
                 <Link href={href}>
@@ -127,8 +119,8 @@ function NavItem({
                             className={cn(
                                 "size-3.75 transition-all duration-150",
                                 isActive
-                                    ? "scale-110 text-sidebar-active"
-                                    : "scale-100 text-sidebar-foreground"
+                                    ? "scale-110 text-sidebar-foreground"
+                                    : "scale-100 text-sidebar-foreground/60"
                             )}
                         />
                         {badge !== undefined && badge > 0 && (
@@ -147,16 +139,16 @@ function NavItem({
                             {badge}
                         </span>
                     )}
-
-                    {/* Active left-bar indicator */}
-                    {isActive && (
-                        <span
-                            aria-hidden
-                            className="sidebar-active-indicator absolute left-0 top-1/2 h-5 w-0.75 -translate-y-1/2 rounded-r-full bg-sidebar-active"
-                        />
-                    )}
                 </Link>
             </SidebarMenuButton>
+
+            {/* Active right-bar indicator — on the li so it spans full row in both expanded and collapsed */}
+            {isActive && (
+                <span
+                    aria-hidden
+                    className="sidebar-active-indicator pointer-events-none absolute right-0 top-0 h-full w-0.5 rounded-l-full bg-sidebar-foreground"
+                />
+            )}
         </SidebarMenuItem>
     );
 }
@@ -176,16 +168,21 @@ function UserFooter({ pathname }: Readonly<{ pathname: string }>) {
     const isActive  = isRouteActive(pathname, "/profile");
 
     return (
-        <SidebarMenuItem className="group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:h-11 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:items-center">
+        <SidebarMenuItem className={cn(
+            "group-data-[collapsible=icon]:flex group-data-[collapsible=icon]:h-11 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:items-center",
+            isActive
+                ? "group-data-[collapsible=icon]:bg-sidebar-accent"
+                : "group-data-[collapsible=icon]:hover:bg-sidebar-accent/60"
+        )}>
             <SidebarMenuButton
                 asChild
                 isActive={isActive}
                 tooltip={{ children: displayName, side: "right" }}
                 className={cn(
-                    "h-11 gap-3 rounded-none px-4 text-[13px] transition-colors duration-150 relative",
+                    "h-11 gap-3 rounded-none px-4 text-[13px] transition-colors duration-150",
                     "group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0",
                     isActive
-                        ? "bg-sidebar-active-bg"
+                        ? "bg-sidebar-accent"
                         : "bg-transparent hover:bg-sidebar-accent/60"
                 )}
             >
@@ -194,7 +191,7 @@ function UserFooter({ pathname }: Readonly<{ pathname: string }>) {
                         {user.profile_picture && (
                             <AvatarImage src={user.profile_picture} alt={displayName} />
                         )}
-                        <AvatarFallback className="bg-sidebar-active/20 text-sidebar-active text-[10px] font-semibold">
+                        <AvatarFallback className="bg-sidebar-accent text-sidebar-foreground text-[10px] font-semibold">
                             {initials}
                         </AvatarFallback>
                     </Avatar>
@@ -204,20 +201,21 @@ function UserFooter({ pathname }: Readonly<{ pathname: string }>) {
                             {displayName}
                         </span>
                         {user.email && (
-                            <span className="truncate text-[11px] leading-tight text-sidebar-foreground/40">
+                            <span className="truncate text-[11px] leading-tight text-sidebar-foreground/50">
                                 {user.email}
                             </span>
                         )}
                     </span>
-
-                    {isActive && (
-                        <span
-                            aria-hidden
-                            className="sidebar-active-indicator absolute left-0 top-1/2 h-5 w-0.75 -translate-y-1/2 rounded-r-full bg-sidebar-active"
-                        />
-                    )}
                 </Link>
             </SidebarMenuButton>
+
+            {/* Active right-bar indicator — on the li so it spans full row in both expanded and collapsed */}
+            {isActive && (
+                <span
+                    aria-hidden
+                    className="sidebar-active-indicator pointer-events-none absolute right-0 top-0 h-full w-0.5 rounded-l-full bg-sidebar-foreground"
+                />
+            )}
         </SidebarMenuItem>
     );
 }
@@ -269,13 +267,13 @@ export function AppSidebar() {
         <Sidebar collapsible="icon">
 
             {/* ── Header ── */}
-            <SidebarHeader className="h-14 shrink-0 border-b border-sidebar-border px-4 group-data-[collapsible=icon]:px-0">
+            <SidebarHeader className="h-12 shrink-0 border-b border-sidebar-border px-4 group-data-[collapsible=icon]:px-0">
                 <Link
                     href="/dashboard"
                     className="flex h-full items-center gap-2.5 group/logo overflow-hidden group-data-[collapsible=icon]:justify-center"
                 >
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center">
-                        <Logo className="h-3.5 w-3.5 transition-transform duration-500 group-hover/logo:rotate-12" />
+                        <Logo className="h-5 w-5 transition-transform duration-500 group-hover/logo:rotate-12" />
                     </div>
                     <span className="truncate text-[14px] font-bold tracking-wide text-sidebar-active group-data-[collapsible=icon]:hidden">
                         PyAnalypt
@@ -284,7 +282,7 @@ export function AppSidebar() {
             </SidebarHeader>
 
             {/* ── Navigation ── */}
-            <SidebarContent className="px-0 py-2">
+            <SidebarContent>
 
                 {/* Workspace group */}
                 <SidebarGroup className="px-0 gap-0">
@@ -292,7 +290,7 @@ export function AppSidebar() {
                         Workspace
                     </SidebarGroupLabel>
                     <SidebarGroupContent>
-                        <SidebarMenu className="gap-0.5">
+                        <SidebarMenu >
                             {WORKSPACE_ITEMS.map((item) => (
                                 <NavItem key={item.href} {...item} pathname={pathname} />
                             ))}
@@ -301,12 +299,12 @@ export function AppSidebar() {
                 </SidebarGroup>
 
                 {/* Results group */}
-                <SidebarGroup className="px-0 gap-0 mt-2">
+                <SidebarGroup className="px-0 gap-0 mt-4">
                     <SidebarGroupLabel className="h-8 px-4 text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40 group-data-[collapsible=icon]:hidden">
                         Results
                     </SidebarGroupLabel>
                     <SidebarGroupContent>
-                        <SidebarMenu className="gap-0.5">
+                        <SidebarMenu >
                             {RESULTS_ITEMS.map((item) => (
                                 <NavItem key={item.href} {...item} pathname={pathname} />
                             ))}
@@ -319,7 +317,7 @@ export function AppSidebar() {
             {/* ── Footer ── */}
             <SidebarFooter className="px-0 pb-3">
                 <SidebarSeparator className="mb-1 bg-sidebar-border/60 mx-4" />
-                <SidebarMenu className="gap-0.5">
+                <SidebarMenu>
                     <UserFooter pathname={pathname} />
                     <NavItem
                         label="Settings"

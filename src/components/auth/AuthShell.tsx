@@ -22,7 +22,7 @@ export function AuthShell({ children, title, subtitle }: Readonly<AuthShellProps
             {/* Gray glow — bottom-left */}
             <div className="absolute bottom-0 left-0 w-100 h-100 bg-foreground opacity-[0.015] blur-[120px] rounded-full pointer-events-none" />
 
-            <div className="w-full max-w-[350px] relative z-10 py-10">
+            <div className="w-full max-w-87.5 relative z-10 py-10">
 
                 {/* ── Brand Unit ── */}
                 <div className="mb-6 flex flex-col items-center gap-4">
@@ -38,8 +38,8 @@ export function AuthShell({ children, title, subtitle }: Readonly<AuthShellProps
                 </div>
 
                 {/* ── Main Interface ── */}
-                <div className="relative group p-px rounded-[1.5rem] bg-border/40 overflow-hidden">
-                    <div className="relative bg-background/60 backdrop-blur-3xl p-6 pt-7 shadow-2xl shadow-foreground/[0.01]">
+                <div className="relative group p-px rounded-3xl bg-border/40 overflow-hidden">
+                    <div className="relative bg-background/60 backdrop-blur-3xl p-6 pt-7 shadow-2xl shadow-foreground/1">
 
                         {/* Technical Corners — blue tint */}
                         <div className="absolute top-0 left-0 w-3 h-3 border-t border-l border-blue-500/20 dark:border-blue-400/20" />
