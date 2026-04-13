@@ -30,7 +30,7 @@ export default function Loading() {
 
             {/* Bottom Status Indicator */}
             <div className="absolute bottom-12 flex flex-col items-center gap-2">
-                <div className="h-[1px] w-32 bg-gradient-to-r from-transparent via-border to-transparent" />
+                <div className="h-px w-32 bg-linear-to-r from-transparent via-border to-transparent" />
                 <span className="text-[9px] font-mono text-muted-foreground/40 italic">
                     PyAnalypt v1.0.4.sys // Init_Sequence
                 </span>

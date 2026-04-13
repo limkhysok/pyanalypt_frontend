@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Loader2, UserRound, Edit2, Check, X } from "lucide-react";
-import { motion, AnimatePresence } from "motion/react";
 import { Badge } from "@/components/ui/badge";
 import { User } from "@/types/api";
 
@@ -60,15 +59,8 @@ export function PersonalDetails({
                 )}
             </CardHeader>
             <CardContent className="space-y-6 pt-0">
-                <AnimatePresence mode="wait">
-                    {editing ? (
-                        <motion.div
-                            key="editing"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            className="space-y-4"
-                        >
+                {editing ? (
+                        <div className="space-y-4">
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div className="space-y-1.5">
                                     <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
@@ -131,15 +123,9 @@ export function PersonalDetails({
                                     Cancel
                                 </Button>
                             </div>
-                        </motion.div>
+                        </div>
                     ) : (
-                        <motion.div
-                            key="reading"
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -10 }}
-                            className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6"
-                        >
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
                             <div className="space-y-1">
                                 <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Full Name</p>
                                 <p className="text-[13.5px] font-semibold text-foreground">{user?.full_name || "—"}</p>
@@ -163,9 +149,8 @@ export function PersonalDetails({
                                     )}
                                 </div>
                             </div>
-                        </motion.div>
+                        </div>
                     )}
-                </AnimatePresence>
             </CardContent>
         </Card>
     );

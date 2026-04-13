@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { motion } from "motion/react";
 import { useAuth } from "@/context/auth-context";
 import { getInitials } from "@/lib/utils";
 import { ProfileHero } from "./_components/ProfileHero";
@@ -30,42 +29,23 @@ export default function ProfileLayout({ children }: Readonly<{ children: React.R
 
             <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
-                {/* Hero — visible on all profile sub-pages */}
-                <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5 }}
-                >
-                    <ProfileHero
-                        user={user}
-                        displayName={displayName}
-                        initials={initials}
-                    />
-                </motion.div>
+                <ProfileHero
+                    user={user}
+                    displayName={displayName}
+                    initials={initials}
+                />
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
-                    {/* Sidebar Navigation */}
-                    <motion.aside
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 0.5, delay: 0.1 }}
-                        className="lg:col-span-3 lg:sticky lg:top-20"
-                    >
+                    <aside className="lg:col-span-3 lg:sticky lg:top-20">
                         <div className="p-1 rounded-2xl border border-border/40 bg-background/40 backdrop-blur-md">
                             <ProfileNav />
                         </div>
-                    </motion.aside>
+                    </aside>
 
-                    {/* Page Content */}
-                    <motion.div
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.2 }}
-                        className="lg:col-span-9 space-y-8"
-                    >
+                    <div className="lg:col-span-9 space-y-8">
                         {children}
-                    </motion.div>
+                    </div>
                 </div>
             </div>
         </main>
