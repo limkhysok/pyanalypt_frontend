@@ -2,6 +2,7 @@ import apiClient from '@/lib/axios';
 import { tokenManager } from '@/lib/token';
 import {
     User,
+    Session,
     AuthResponse,
     RegisterRequest,
     RegisterResponse,
@@ -169,5 +170,39 @@ export const authApi = {
         console.log("[AuthApi] Updating user profile...");
         const response = await apiClient.patch<User>('auth/user/', data);
         return response.data;
+    },
+
+    /**
+     * Change password — requires current password and new password confirmation
+     */
+    async changePassword(data: {
+        old_password: string;
+        new_password1: string;
+        new_password2: string;
+    }): Promise<{ detail: string }> {
+        const response = await apiClient.post<{ detail: string }>('auth/password/change/', data);
+        return response.data;
+    },
+
+    /**
+     * Get all active sessions for the current user
+     */
+    async getSessions(): Promise<Session[]> {
+        const response = await apiClient.get<Session[]>('auth/sessions/');
+        return response.data;
+    },
+
+    /**
+     * Revoke a specific session by ID
+     */
+    async revokeSession(sessionId: string): Promise<void> {
+        await apiClient.delete(`auth/sessions/${sessionId}/`);
+    },
+
+    /**
+     * Revoke all sessions except the current one
+     */
+    async revokeAllOtherSessions(): Promise<void> {
+        await apiClient.delete('auth/sessions/');
     },
 };

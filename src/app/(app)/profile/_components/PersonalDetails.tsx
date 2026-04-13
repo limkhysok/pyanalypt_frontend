@@ -5,12 +5,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Loader2, User, Edit2, Check, X } from "lucide-react";
+import { Loader2, UserRound, Edit2, Check, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Badge } from "@/components/ui/badge";
+import { User } from "@/types/api";
 
 interface PersonalDetailsProps {
-    user: any;
+    user: User | null | undefined;
     editing: boolean;
     saving: boolean;
     fullName: string;
@@ -39,7 +40,7 @@ export function PersonalDetails({
             <CardHeader className="flex flex-row items-center justify-between pb-4">
                 <div className="space-y-1">
                     <CardTitle className="text-lg font-bold flex items-center gap-2">
-                        <User className="h-4 w-4 text-blue-500" />
+                        <UserRound className="h-4 w-4 text-blue-500" />
                         Personal Information
                     </CardTitle>
                     <CardDescription className="text-[12px]">
@@ -98,7 +99,7 @@ export function PersonalDetails({
                                     Email Address (Protected)
                                 </Label>
                                 <Input
-                                    value={user?.email}
+                                    value={user?.email ?? ""}
                                     disabled
                                     className="h-10 rounded-xl bg-muted/20 border-transparent opacity-60 cursor-not-allowed"
                                 />

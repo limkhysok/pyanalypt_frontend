@@ -50,6 +50,18 @@ export interface RefreshTokenResponse {
     refresh?: string;
 }
 
+export interface Session {
+    id: string;
+    device: string;
+    os: string;
+    browser: string;
+    location: string;
+    ip: string;
+    is_current: boolean;
+    login_time: string;
+    last_activity: string;
+}
+
 export interface ApiError {
     detail?: string;
     message?: string;
