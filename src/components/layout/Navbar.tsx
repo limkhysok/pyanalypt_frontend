@@ -3,9 +3,9 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, LogOut, LayoutDashboard, User as Rocket } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard, Github, User as UserIcon } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
-import { cn } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/ui/ModeToggle";
 import {
@@ -20,11 +20,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/context/auth-context";
 
 const NAV_ITEMS = [
-    { label: "Home", href: "/" },
-    { label: "Visuals", href: "/visuals" },
-    { label: "Lab", href: "/playground" },
-    { label: "Intel", href: "/about" },
+    { label: "Home",    href: "/"           },
+    { label: "Visuals", href: "/visuals"    },
+    { label: "Lab",     href: "/playground" },
+    { label: "Intel",   href: "/about"      },
 ];
+
+const GITHUB_URL = "https://github.com/pyanalypt/pyanalypt";
 
 export function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
@@ -33,26 +35,31 @@ export function Navbar() {
     const { user, isAuthenticated, isLoading, logout } = useAuth();
 
     React.useEffect(() => {
-        const handleScroll = () => {
-            setScrolled(window.scrollY > 20);
-        };
-        window.addEventListener("scroll", handleScroll);
+        const handleScroll = () => setScrolled(window.scrollY > 20);
+        window.addEventListener("scroll", handleScroll, { passive: true });
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
+
+    const displayName =
+        user?.full_name ||
+        [user?.first_name, user?.last_name].filter(Boolean).join(" ") ||
+        user?.username ||
+        "";
+    const initials = user ? getInitials(user) : "";
 
     return (
         <div className="fixed top-0 inset-x-0 z-50 flex flex-col items-center pt-8 px-6 pointer-events-none">
 
-            {/* ── Single-Pill Integrated HUD ── */}
+            {/* ── Pill HUD ── */}
             <header
                 className={cn(
-                    "relative pointer-events-auto flex items-center justify-between px-3 h-12 transition-all duration-700 rounded-full border shadow-2xl mx-auto w-fit min-w-[320px] md:min-w-160",
+                    "relative pointer-events-auto flex items-center justify-between px-3 h-12 transition-all duration-300 rounded-full border shadow-2xl mx-auto w-fit min-w-[320px] md:min-w-160",
                     scrolled
                         ? "bg-background/95 backdrop-blur-2xl border-foreground/10 shadow-foreground/5"
-                        : "bg-background/60 backdrop-blur-md border-border/80 shadow-none scale-105"
+                        : "bg-background/60 backdrop-blur-md border-border/80 shadow-none"
                 )}
             >
-                {/* ── Brand Unit (Integrated) ── */}
+                {/* Brand */}
                 <Link href="/" className="flex items-center gap-2.5 px-3 group shrink-0">
                     <Logo className="w-6 h-6 transition-all duration-500 group-hover:rotate-12 grayscale group-hover:grayscale-0" />
                     <span className="text-[12px] font-black tracking-tighter text-foreground uppercase opacity-80 hidden sm:block">
@@ -62,7 +69,7 @@ export function Navbar() {
 
                 <div className="h-4 w-px bg-border/40 mx-1 hidden md:block" />
 
-                {/* ── Navigation HUD Cluster ── */}
+                {/* Nav links */}
                 <nav className="hidden md:flex items-center gap-1">
                     {NAV_ITEMS.map((item) => {
                         const isActive = pathname === item.href;
@@ -71,7 +78,7 @@ export function Navbar() {
                                 key={item.label}
                                 href={item.href}
                                 className={cn(
-                                    "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] transition-all duration-300",
+                                    "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] transition-all duration-200",
                                     isActive
                                         ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40"
                                         : "text-muted-foreground/60 hover:text-foreground hover:bg-muted"
@@ -85,70 +92,116 @@ export function Navbar() {
 
                 <div className="h-4 w-px bg-border/40 mx-1 hidden md:block" />
 
-                {/* ── Actions Cluster ── */}
-                <div className="flex items-center gap-1.5 pl-3">
+                {/* Actions */}
+                <div className="flex items-center gap-0.5 pl-2">
+
+                    {/* GitHub */}
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground hidden sm:flex"
+                        asChild
+                    >
+                        <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                            <Github className="h-4 w-4" />
+                        </a>
+                    </Button>
+
+                    {/* Theme toggle */}
+                    <ModeToggle />
+
+                    <div className="w-px h-4 bg-border/40 mx-1 hidden sm:block" />
+
+                    {/* User / Auth */}
                     {!isLoading && isAuthenticated ? (
                         <DropdownMenu modal={false}>
                             <DropdownMenuTrigger asChild>
-                                <button className="flex items-center outline-none hover:scale-105 transition-transform">
-                                    <Avatar className="h-8 w-8 border border-border/60 hover:border-blue-500/40 dark:hover:border-blue-400/40 rounded-full transition-colors">
-                                        <AvatarImage src={user?.profile_picture ?? undefined} className="grayscale" />
-                                        <AvatarFallback className="bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 text-[10px] font-black uppercase">
-                                            {user?.username?.substring(0, 2)}
+                                <button className="flex items-center outline-none rounded-full focus-visible:ring-2 focus-visible:ring-ring">
+                                    <Avatar className="h-8 w-8 border border-border/60 hover:border-blue-500/40 dark:hover:border-blue-400/40 transition-colors">
+                                        <AvatarImage src={user?.profile_picture ?? undefined} />
+                                        <AvatarFallback className="bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 text-[10px] font-bold">
+                                            {initials}
                                         </AvatarFallback>
                                     </Avatar>
                                 </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-52 bg-background/95 backdrop-blur-2xl border border-border/80 rounded-2xl p-2 shadow-2xl mt-4" align="end">
+                            <DropdownMenuContent
+                                className="w-52 bg-background/95 backdrop-blur-2xl border border-border/80 rounded-2xl p-2 shadow-2xl mt-4"
+                                align="end"
+                            >
                                 <DropdownMenuLabel className="px-3 py-3">
-                                    <p className="text-[11px] font-black tracking-tight text-foreground">{user?.full_name || user?.username}</p>
-                                    <p className="text-[8px] font-black text-muted-foreground uppercase tracking-widest opacity-40 mt-1 truncate">ID: {user?.id}</p>
+                                    <p className="text-[12px] font-semibold text-foreground truncate">{displayName}</p>
+                                    {user?.email && (
+                                        <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{user.email}</p>
+                                    )}
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator className="bg-border/40" />
-                                <DropdownMenuItem asChild className="rounded-xl px-4 py-2.5 hover:bg-blue-50 dark:hover:bg-blue-950/40 hover:text-blue-600 dark:hover:text-blue-400 cursor-pointer transition-all text-[9px] font-black uppercase tracking-widest">
+                                <DropdownMenuItem asChild className="rounded-xl px-3 py-2 cursor-pointer text-[12px] gap-2">
                                     <Link href="/dashboard" className="flex items-center justify-between w-full">
-                                        <span>DASHBOARD</span>
-                                        <LayoutDashboard size={12} className="opacity-40" />
+                                        <span>Dashboard</span>
+                                        <LayoutDashboard size={13} className="opacity-40" />
                                     </Link>
                                 </DropdownMenuItem>
+                                <DropdownMenuItem asChild className="rounded-xl px-3 py-2 cursor-pointer text-[12px] gap-2">
+                                    <Link href="/profile" className="flex items-center justify-between w-full">
+                                        <span>Profile</span>
+                                        <UserIcon size={13} className="opacity-40" />
+                                    </Link>
+                                </DropdownMenuItem>
+                                <DropdownMenuSeparator className="bg-border/40" />
                                 <DropdownMenuItem
-                                    className="rounded-xl px-4 py-2.5 text-red-500/80 focus:text-red-500 focus:bg-red-500/5 cursor-pointer text-[9px] font-black uppercase tracking-widest"
+                                    className="rounded-xl px-3 py-2 cursor-pointer text-[12px] text-red-500/80 focus:text-red-500 focus:bg-red-500/5 gap-2"
                                     onClick={logout}
                                 >
                                     <div className="flex items-center justify-between w-full">
-                                        <span>EXIT LINK</span>
-                                        <LogOut size={12} className="opacity-40" />
+                                        <span>Sign out</span>
+                                        <LogOut size={13} className="opacity-40" />
                                     </div>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     ) : !isLoading && (
                         <div className="hidden md:flex items-center gap-1">
-                            <Link href="/login" className="px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                            <Link
+                                href="/login"
+                                className="px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                            >
                                 Login
                             </Link>
-                            <Link href="/register" className="px-4 py-1.5 bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center rounded-full text-[9px] font-black uppercase tracking-widest hover:bg-blue-700 dark:hover:bg-blue-400 hover:scale-105 transition-all shadow-lg shadow-blue-500/20">
-                                Start <Rocket size={10} className="ml-2" />
+                            <Link
+                                href="/register"
+                                className="px-4 py-1.5 bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center rounded-full text-[9px] font-black uppercase tracking-widest hover:bg-blue-700 dark:hover:bg-blue-400 hover:scale-105 transition-all shadow-lg shadow-blue-500/20"
+                            >
+                                Start <UserIcon size={10} className="ml-2" />
                             </Link>
                         </div>
                     )}
 
-                    <div className="scale-75 opacity-50 hover:opacity-100 transition-opacity hidden sm:block">
-                        <ModeToggle />
-                    </div>
-
-                    <Button variant="ghost" size="icon" className="md:hidden h-8 w-8 rounded-full hover:bg-muted" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+                    {/* Mobile menu toggle */}
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="md:hidden h-8 w-8 rounded-full hover:bg-muted ml-1"
+                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                    >
                         {mobileMenuOpen ? <X size={16} /> : <Menu size={16} />}
                     </Button>
                 </div>
             </header>
 
-            {/* ── Mobile Pill Menu ── */}
+            {/* ── Mobile menu ── */}
             {mobileMenuOpen && (
                 <div className="md:hidden absolute top-[calc(100%+8px)] inset-x-6 z-40 bg-background/95 backdrop-blur-3xl border border-border/80 rounded-3xl p-3 flex flex-col gap-1 shadow-2xl pointer-events-auto max-w-[320px] mx-auto w-full">
                     <div className="flex items-center justify-between px-4 py-2 mb-2 border-b border-border/20">
-                         <span className="text-[10px] font-black uppercase tracking-widest opacity-30">Menu Cluster</span>
-                         <ModeToggle />
+                        <span className="text-[10px] font-black uppercase tracking-widest opacity-30">Menu</span>
+                        <div className="flex items-center gap-1">
+                            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full" asChild>
+                                <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                                    <Github className="h-3.5 w-3.5" />
+                                </a>
+                            </Button>
+                            <ModeToggle />
+                        </div>
                     </div>
                     {NAV_ITEMS.map((item) => {
                         const isActive = pathname === item.href;
@@ -171,8 +224,20 @@ export function Navbar() {
                     })}
                     {!isLoading && !isAuthenticated && (
                         <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-border/40">
-                            <Link href="/login" className="p-3 text-center text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors" onClick={() => setMobileMenuOpen(false)}>Login</Link>
-                            <Link href="/register" className="p-3 bg-blue-600 dark:bg-blue-500 text-white rounded-full text-center text-[9px] font-black uppercase tracking-widest hover:bg-blue-700 dark:hover:bg-blue-400 transition-colors" onClick={() => setMobileMenuOpen(false)}>Join</Link>
+                            <Link
+                                href="/login"
+                                className="p-3 text-center text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                onClick={() => setMobileMenuOpen(false)}
+                            >
+                                Login
+                            </Link>
+                            <Link
+                                href="/register"
+                                className="p-3 bg-blue-600 dark:bg-blue-500 text-white rounded-full text-center text-[9px] font-black uppercase tracking-widest hover:bg-blue-700 dark:hover:bg-blue-400 transition-colors"
+                                onClick={() => setMobileMenuOpen(false)}
+                            >
+                                Join
+                            </Link>
                         </div>
                     )}
                 </div>

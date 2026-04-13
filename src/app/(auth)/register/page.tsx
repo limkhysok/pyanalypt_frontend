@@ -15,7 +15,7 @@ import { AuthShell } from "@/components/auth/AuthShell";
 
 export default function Register() {
 	const router = useRouter();
-	const { login: setAuthUser } = useAuth();
+	const { login: setAuthUser, refreshUser } = useAuth();
 	const [isLoading, setIsLoading] = React.useState(false);
 	const [email, setEmail] = React.useState("");
 	const [password, setPassword] = React.useState("");
@@ -51,6 +51,7 @@ export default function Register() {
 				try {
 					const response = await authApi.googleAuth(tokenResponse.access_token);
 					setAuthUser(response.user);
+					await refreshUser();
 					router.push("/dashboard");
 				} catch (err) {
 					setError(getErrorMessage(err));

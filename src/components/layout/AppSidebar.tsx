@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import {
     LayoutDashboard,
     Database,
@@ -73,7 +73,7 @@ function isRouteActive(pathname: string, href: string): boolean {
 // ─────────────────────────────────────────────
 // NavItem
 // ─────────────────────────────────────────────
-function NavItem({
+const NavItem = React.memo(function NavItem({
     label,
     href,
     icon: Icon,
@@ -151,12 +151,12 @@ function NavItem({
             )}
         </SidebarMenuItem>
     );
-}
+});
 
 // ─────────────────────────────────────────────
 // UserFooter — replaces plain "Profile" nav item
 // ─────────────────────────────────────────────
-function UserFooter({ pathname }: Readonly<{ pathname: string }>) {
+const UserFooter = React.memo(function UserFooter({ pathname }: Readonly<{ pathname: string }>) {
     const { user } = useAuth();
     if (!user) return null;
 
@@ -218,7 +218,7 @@ function UserFooter({ pathname }: Readonly<{ pathname: string }>) {
             )}
         </SidebarMenuItem>
     );
-}
+});
 
 // ─────────────────────────────────────────────
 // AppSidebar
