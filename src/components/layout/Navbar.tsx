@@ -3,7 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, LogOut, LayoutDashboard, Github, User as UserIcon } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard, User as UserIcon } from "lucide-react";
+import { GithubIcon } from "@/components/ui/Icons";
 import { Logo } from "@/components/ui/Logo";
 import { cn, getInitials } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -103,12 +104,12 @@ export function Navbar() {
                         asChild
                     >
                         <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-                            <Github className="h-4 w-4" />
+                            <GithubIcon size={15} />
                         </a>
                     </Button>
 
                     {/* Theme toggle */}
-                    <ModeToggle />
+                    <ModeToggle className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all" />
 
                     <div className="w-px h-4 bg-border/40 mx-1 hidden sm:block" />
 
@@ -197,7 +198,7 @@ export function Navbar() {
                         <div className="flex items-center gap-1">
                             <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full" asChild>
                                 <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-                                    <Github className="h-3.5 w-3.5" />
+                                    <GithubIcon size={14} />
                                 </a>
                             </Button>
                             <ModeToggle />

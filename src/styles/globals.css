@@ -154,7 +154,19 @@
   }
 
   body {
-    @apply bg-background text-foreground antialiased selection:bg-white/20 selection:text-white;
+    @apply bg-background text-foreground antialiased;
+  }
+
+  /* Text selection — light mode: blue tint bg, deep blue text */
+  ::selection {
+    background-color: color-mix(in srgb, hsl(220 90% 45%) 15%, transparent);
+    color: hsl(220 90% 18%);
+  }
+
+  /* Text selection — dark mode: blue tint bg, near-white text */
+  .dark ::selection {
+    background-color: color-mix(in srgb, hsl(217 91% 65%) 22%, transparent);
+    color: hsl(0 0% 95%);
   }
 }
 
