@@ -7,34 +7,65 @@ import { toast } from "sonner";
 import { PersonalDetails } from "./_components/PersonalDetails";
 
 export default function ProfilePage() {
-    const { user, isLoading, refreshUser } = useAuth();
+    const { user, isLoading, login } = useAuth();
 
-    const [editing, setEditing]   = useState(false);
-    const [saving, setSaving]     = useState(false);
-    const [fullName, setFullName] = useState("");
+    const [editing, setEditing]       = useState(false);
+    const [saving, setSaving]         = useState(false);
+    const [firstName, setFirstName]   = useState("");
+    const [lastName, setLastName]     = useState("");
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
+    // Seed inputs from user when user loads or edit is cancelled
     useEffect(() => {
         if (user) {
-            setFullName(user.full_name || `${user.first_name ?? ""} ${user.last_name ?? ""}`.trim());
+            setFirstName(user.first_name ?? "");
+            setLastName(user.last_name ?? "");
         }
     }, [user]);
 
+    const handleCancel = () => {
+        // Reset inputs back to current user values
+        setFirstName(user?.first_name ?? "");
+        setLastName(user?.last_name ?? "");
+        setFieldErrors({});
+        setEditing(false);
+    };
+
     const saveEdit = async () => {
-        const trimmed = fullName.trim();
-        if (!trimmed) return;
-        // Split "First Last" → first_name + last_name (only these two are writable)
-        const spaceIdx = trimmed.indexOf(" ");
-        const first_name = spaceIdx === -1 ? trimmed : trimmed.slice(0, spaceIdx);
-        const last_name  = spaceIdx === -1 ? ""       : trimmed.slice(spaceIdx + 1).trim();
+        setFieldErrors({});
+
+        // Only include fields the user actually changed — rule 1
+        const payload: { first_name?: string; last_name?: string } = {};
+        if (firstName.trim() !== (user?.first_name ?? "")) payload.first_name = firstName.trim();
+        if (lastName.trim()  !== (user?.last_name  ?? "")) payload.last_name  = lastName.trim();
+
+        if (Object.keys(payload).length === 0) {
+            setEditing(false);
+            return;
+        }
+
         setSaving(true);
         try {
-            await authApi.updateProfile({ first_name, last_name });
-            await refreshUser();
+            const updated = await authApi.updateProfile(payload);
+            // Rule 2: update local state from the response, not a refetch
+            login(updated);
             toast.success("Profile updated successfully.");
             setEditing(false);
-        } catch (error) {
-            console.error("Profile update failed", error);
-            toast.error("Failed to update profile details.");
+        } catch (error: any) {
+            const data = error?.response?.data;
+            // Rule 5: map field-level errors to their inputs
+            if (data && typeof data === "object") {
+                const errors: Record<string, string> = {};
+                if (data.first_name) errors.first_name = [data.first_name].flat()[0];
+                if (data.last_name)  errors.last_name  = [data.last_name].flat()[0];
+                if (Object.keys(errors).length > 0) {
+                    setFieldErrors(errors);
+                    return;
+                }
+                toast.error(data.detail ?? "Failed to update profile.");
+            } else {
+                toast.error("Failed to update profile.");
+            }
         } finally {
             setSaving(false);
         }
@@ -57,10 +88,13 @@ export default function ProfilePage() {
                 user={user}
                 editing={editing}
                 saving={saving}
-                fullName={fullName}
-                setFullName={setFullName}
+                firstName={firstName}
+                lastName={lastName}
+                fieldErrors={fieldErrors}
+                setFirstName={setFirstName}
+                setLastName={setLastName}
                 onEdit={() => setEditing(true)}
-                onCancel={() => setEditing(false)}
+                onCancel={handleCancel}
                 onSave={saveEdit}
             />
 
