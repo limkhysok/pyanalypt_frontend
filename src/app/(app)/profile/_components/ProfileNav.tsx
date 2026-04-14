@@ -3,13 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { User, ShieldCheck, Clock, Settings } from "lucide-react";
+import { User, ShieldCheck, Clock } from "lucide-react";
 
 const NAV_ITEMS = [
     { label: "General", href: "/profile", icon: User },
     { label: "Authentication", href: "/profile/authentication", icon: ShieldCheck },
     { label: "Active Sessions", href: "/profile/sessions", icon: Clock },
-    { label: "Settings", href: "/profile/setting", icon: Settings },
 ];
 
 export function ProfileNav() {

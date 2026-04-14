@@ -12,23 +12,23 @@ export default function ProfilePage() {
     const [editing, setEditing]   = useState(false);
     const [saving, setSaving]     = useState(false);
     const [fullName, setFullName] = useState("");
-    const [username, setUsername] = useState("");
 
     useEffect(() => {
         if (user) {
             setFullName(user.full_name || `${user.first_name ?? ""} ${user.last_name ?? ""}`.trim());
-            setUsername(user.username || "");
         }
     }, [user]);
 
     const saveEdit = async () => {
-        if (!fullName.trim() && !username.trim()) return;
+        const trimmed = fullName.trim();
+        if (!trimmed) return;
+        // Split "First Last" → first_name + last_name (only these two are writable)
+        const spaceIdx = trimmed.indexOf(" ");
+        const first_name = spaceIdx === -1 ? trimmed : trimmed.slice(0, spaceIdx);
+        const last_name  = spaceIdx === -1 ? ""       : trimmed.slice(spaceIdx + 1).trim();
         setSaving(true);
         try {
-            await authApi.updateProfile({
-                full_name: fullName.trim() || undefined,
-                username:  username.trim()  || undefined,
-            });
+            await authApi.updateProfile({ first_name, last_name });
             await refreshUser();
             toast.success("Profile updated successfully.");
             setEditing(false);
@@ -58,9 +58,7 @@ export default function ProfilePage() {
                 editing={editing}
                 saving={saving}
                 fullName={fullName}
-                username={username}
                 setFullName={setFullName}
-                setUsername={setUsername}
                 onEdit={() => setEditing(true)}
                 onCancel={() => setEditing(false)}
                 onSave={saveEdit}

@@ -14,9 +14,7 @@ interface PersonalDetailsProps {
     editing: boolean;
     saving: boolean;
     fullName: string;
-    username: string;
     setFullName: (val: string) => void;
-    setUsername: (val: string) => void;
     onEdit: () => void;
     onCancel: () => void;
     onSave: () => void;
@@ -27,9 +25,7 @@ export function PersonalDetails({
     editing,
     saving,
     fullName,
-    username,
     setFullName,
-    setUsername,
     onEdit,
     onCancel,
     onSave
@@ -61,29 +57,16 @@ export function PersonalDetails({
             <CardContent className="space-y-6 pt-0">
                 {editing ? (
                         <div className="space-y-4">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div className="space-y-1.5">
-                                    <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
-                                        Full Name
-                                    </Label>
-                                    <Input
-                                        value={fullName}
-                                        onChange={(e) => setFullName(e.target.value)}
-                                        className="h-10 rounded-xl bg-muted/40 border-transparent focus:bg-background focus:ring-1 focus:ring-blue-500/30 transition-all"
-                                        placeholder="John Doe"
-                                    />
-                                </div>
-                                <div className="space-y-1.5">
-                                    <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
-                                        Username
-                                    </Label>
-                                    <Input
-                                        value={username}
-                                        onChange={(e) => setUsername(e.target.value)}
-                                        className="h-10 rounded-xl bg-muted/40 border-transparent focus:bg-background focus:ring-1 focus:ring-blue-500/30 transition-all"
-                                        placeholder="johndoe"
-                                    />
-                                </div>
+                            <div className="space-y-1.5">
+                                <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+                                    Full Name
+                                </Label>
+                                <Input
+                                    value={fullName}
+                                    onChange={(e) => setFullName(e.target.value)}
+                                    className="h-10 rounded-xl bg-muted/40 border-transparent focus:bg-background focus:ring-1 focus:ring-blue-500/30 transition-all"
+                                    placeholder="John Doe"
+                                />
                             </div>
 
                             <div className="space-y-1.5">

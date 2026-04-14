@@ -7,11 +7,13 @@ import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, AlertCircle, Mail, Lock, ShieldCheck, ArrowRight, Eye, EyeOff } from "lucide-react";
+import { Loader2, AlertCircle, Mail, Lock, ShieldCheck, ArrowRight, Eye, EyeOff, KeyRound } from "lucide-react";
 import { useGoogleLogin } from "@react-oauth/google";
 import { authApi } from "@/services/auth.service";
 import { getErrorMessage } from "@/lib/error-handler";
 import { AuthShell } from "@/components/auth/AuthShell";
+
+type Step = "credentials" | "totp";
 
 export default function Login() {
 	const router = useRouter();
@@ -22,17 +24,55 @@ export default function Login() {
 	const [showPassword, setShowPassword] = React.useState(false);
 	const [error, setError] = React.useState<string | null>(null);
 
+	// 2FA state — totp_token lives in component state only (never localStorage)
+	const [step, setStep] = React.useState<Step>("credentials");
+	const [totpToken, setTotpToken] = React.useState("");
+	const [totpCode, setTotpCode] = React.useState("");
+
 	const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		setIsLoading(true);
 		setError(null);
 		try {
 			const response = await authApi.login({ email, password });
+
+			if ('requires_2fa' in response) {
+				// 2FA gate: store the short-lived token and switch to TOTP step
+				setTotpToken(response.totp_token);
+				setStep("totp");
+				return;
+			}
+
 			setAuthUser(response.user);
 			await refreshUser();
 			router.push("/dashboard");
 		} catch (err) {
 			setError(getErrorMessage(err));
+		} finally {
+			setIsLoading(false);
+		}
+	};
+
+	const handleTotpSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		setIsLoading(true);
+		setError(null);
+		try {
+			const response = await authApi.verify2FALogin({ totp_token: totpToken, code: totpCode });
+			setAuthUser(response.user);
+			await refreshUser();
+			router.push("/dashboard");
+		} catch (err) {
+			const msg = getErrorMessage(err);
+			// If the totp_token expired, send user back to credentials step
+			if (msg.toLowerCase().includes("expired")) {
+				setStep("credentials");
+				setTotpToken("");
+				setTotpCode("");
+				setError("Session expired. Please log in again.");
+			} else {
+				setError(msg);
+			}
 		} finally {
 			setIsLoading(false);
 		}
@@ -57,6 +97,74 @@ export default function Login() {
 		onError: () => setError("Google login failed. Please try again."),
 	});
 
+	// ── 2FA TOTP step ────────────────────────────────────────────────────────
+	if (step === "totp") {
+		return (
+			<AuthShell title="VERIFY" subtitle="TWO-FACTOR AUTH">
+				<form onSubmit={handleTotpSubmit} className="space-y-5">
+					{error && (
+						<div className="p-3 rounded-xl bg-red-500/5 text-red-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-3 border border-red-500/10 animate-in fade-in slide-in-from-top-1">
+							<AlertCircle size={14} />
+							{error}
+						</div>
+					)}
+
+					<p className="text-[11px] text-muted-foreground text-center leading-relaxed">
+						Open your authenticator app and enter the 6-digit code for <span className="font-bold text-foreground">PyAnalypt</span>.
+					</p>
+
+					<div className="space-y-2">
+						<Label htmlFor="totp" className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-60 ml-1">
+							Authentication Code
+						</Label>
+						<div className="relative group/input">
+							<KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within/input:text-blue-500 dark:group-focus-within/input:text-blue-400 transition-colors pointer-events-none z-10 opacity-40" />
+							<Input
+								id="totp"
+								type="text"
+								inputMode="numeric"
+								pattern="[0-9]{6}"
+								maxLength={6}
+								value={totpCode}
+								onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ""))}
+								placeholder="000000"
+								className="h-11 pl-12 rounded-xl bg-muted/20 border-border/40 focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:ring-0 transition-all text-[13px] font-mono font-medium tracking-[0.4em] text-center"
+								autoFocus
+								required
+							/>
+						</div>
+					</div>
+
+					<Button
+						disabled={isLoading || totpCode.length < 6}
+						className="w-full h-11 bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-400 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300 shadow-xl shadow-blue-500/20 hover:scale-[1.01] active:scale-[0.98]"
+					>
+						{isLoading ? (
+							<div className="flex items-center gap-3">
+								<Loader2 className="h-4 w-4 animate-spin" />
+								<span>VERIFYING...</span>
+							</div>
+						) : (
+							<div className="flex items-center gap-3">
+								<span>Verify</span>
+								<ShieldCheck size={16} />
+							</div>
+						)}
+					</Button>
+
+					<button
+						type="button"
+						onClick={() => { setStep("credentials"); setError(null); setTotpCode(""); }}
+						className="w-full text-center text-[10px] font-black text-muted-foreground/40 hover:text-blue-500 dark:hover:text-blue-400 transition-colors uppercase tracking-widest"
+					>
+						← Back to login
+					</button>
+				</form>
+			</AuthShell>
+		);
+	}
+
+	// ── Credentials step ─────────────────────────────────────────────────────
 	return (
 		<AuthShell
 			title="LOGIN"
@@ -101,7 +209,7 @@ export default function Login() {
 							>
 								Password
 							</Label>
-							<Link href="/about" className="text-[9px] font-black text-muted-foreground/30 hover:text-blue-500 dark:hover:text-blue-400 transition-colors uppercase tracking-widest">
+							<Link href="/forgot-password" className="text-[9px] font-black text-muted-foreground/30 hover:text-blue-500 dark:hover:text-blue-400 transition-colors uppercase tracking-widest">
 								Recover?
 							</Link>
 						</div>

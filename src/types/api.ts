@@ -21,6 +21,14 @@ export interface AuthResponse {
     user: User;
 }
 
+/** Returned by POST /auth/login/ when 2FA is required. No tokens are issued yet. */
+export interface TwoFactorLoginResponse {
+    requires_2fa: true;
+    totp_token: string;
+}
+
+export type LoginResponse = AuthResponse | TwoFactorLoginResponse;
+
 export interface RegisterRequest {
     email: string;
     password: string;
@@ -50,16 +58,36 @@ export interface RefreshTokenResponse {
     refresh?: string;
 }
 
+/** Matches GET /auth/sessions/ response shape */
 export interface Session {
-    id: string;
+    id: number;
     device: string;
-    os: string;
     browser: string;
-    location: string;
-    ip: string;
-    is_current: boolean;
-    login_time: string;
-    last_activity: string;
+    ip_address: string;
+    created_at: string;
+    last_active: string;
+}
+
+/** Returned by GET /auth/2fa/setup/ */
+export interface TwoFactorSetupResponse {
+    secret: string;
+    otpauth_uri: string;
+}
+
+export interface TwoFactorVerifyLoginRequest {
+    totp_token: string;
+    code: string;
+}
+
+export interface PasswordResetRequest {
+    email: string;
+}
+
+export interface PasswordResetConfirmRequest {
+    uid: string;
+    token: string;
+    new_password1: string;
+    new_password2: string;
 }
 
 export interface ApiError {

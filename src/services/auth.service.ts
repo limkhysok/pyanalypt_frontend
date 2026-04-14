@@ -4,11 +4,15 @@ import {
     User,
     Session,
     AuthResponse,
+    LoginResponse,
+    TwoFactorSetupResponse,
+    TwoFactorVerifyLoginRequest,
     RegisterRequest,
     RegisterResponse,
     LoginRequest,
     GoogleAuthRequest,
     RefreshTokenResponse,
+    PasswordResetConfirmRequest,
 } from '@/types/api';
 
 /**
@@ -27,21 +31,34 @@ export const authApi = {
     },
 
     /**
-     * Login with email and password
+     * Login with email and password.
+     * Returns AuthResponse (tokens + user) when 2FA is off.
+     * Returns TwoFactorLoginResponse ({ requires_2fa, totp_token }) when 2FA is on.
      */
-    async login(data: LoginRequest): Promise<AuthResponse> {
+    async login(data: LoginRequest): Promise<LoginResponse> {
         console.log("[AuthApi] Logging in user:", data.email);
-        const response = await apiClient.post<AuthResponse>('auth/login/', data);
+        const response = await apiClient.post<LoginResponse>('auth/login/', data);
         console.log("[AuthApi] Login Response:", response.data);
 
-        // Store tokens after successful login
-        if (response.data.access) {
+        // Only store tokens on a normal (non-2FA) login
+        if ('access' in response.data && response.data.access) {
             tokenManager.setTokens(response.data.access, response.data.refresh || "");
             console.log("[AuthApi] Tokens stored successfully.");
-        } else {
-            console.warn("[AuthApi] Access token missing in login response!", response.data);
         }
 
+        return response.data;
+    },
+
+    /**
+     * Complete a 2FA-gated login using the totp_token from the login response
+     * and a 6-digit code from the authenticator app.
+     */
+    async verify2FALogin(data: TwoFactorVerifyLoginRequest): Promise<AuthResponse> {
+        const response = await apiClient.post<AuthResponse>('auth/2fa/verify-login/', data);
+        if (response.data.access) {
+            tokenManager.setTokens(response.data.access, response.data.refresh || "");
+            console.log("[AuthApi] 2FA tokens stored successfully.");
+        }
         return response.data;
     },
 
@@ -56,12 +73,9 @@ export const authApi = {
         } as GoogleAuthRequest);
         console.log("[AuthApi] Google Auth Response:", response.data);
 
-        // Store tokens after successful Google auth
         if (response.data.access) {
             tokenManager.setTokens(response.data.access, response.data.refresh || "");
             console.log("[AuthApi] Tokens stored successfully.");
-        } else {
-            console.warn("[AuthApi] Access token missing in Google auth response!", response.data);
         }
 
         return response.data;
@@ -75,7 +89,6 @@ export const authApi = {
             refresh: refreshToken,
         });
 
-        // Update tokens (handle optional refresh rotation)
         const { access, refresh } = response.data;
         if (refresh) {
             tokenManager.setTokens(access, refresh);
@@ -87,11 +100,24 @@ export const authApi = {
     },
 
     /**
+     * Verify whether an access or refresh token is still valid.
+     * Returns true if valid, false if expired/invalid.
+     */
+    async verifyToken(token: string): Promise<boolean> {
+        try {
+            await apiClient.post('auth/token/verify/', { token });
+            return true;
+        } catch {
+            return false;
+        }
+    },
+
+    /**
      * Logout user (client and server side)
      */
     async logout(): Promise<void> {
         const refreshToken = tokenManager.getRefreshToken();
-        
+
         if (refreshToken) {
             try {
                 await apiClient.post('auth/logout/', { refresh: refreshToken });
@@ -103,7 +129,6 @@ export const authApi = {
 
         tokenManager.clearTokens();
 
-        // Redirect to login page
         if (globalThis.window !== undefined) {
             globalThis.window.location.href = '/login';
         }
@@ -133,17 +158,15 @@ export const authApi = {
             console.log("[AuthApi] auth/user/ Response:", response.data);
             return response.data;
         } catch (error: any) {
-            // Silently handle 401s during background fetch as the interceptor or AuthContext will manage it
             if (error.response?.status === 401) {
                 console.log("[AuthApi] auth/user/ session expired or invalid (401). State will be updated.");
             } else {
-                const errorReport = {
+                console.error("[AuthApi] auth/user/ fetch error:", {
                     status: error.response?.status,
                     data: error.response?.data,
                     message: error.message || "Unknown transport error",
-                    endpoint: error.config?.url
-                };
-                console.error("[AuthApi] auth/user/ fetch error:", errorReport);
+                    endpoint: error.config?.url,
+                });
             }
             return null;
         }
@@ -164,7 +187,8 @@ export const authApi = {
     },
 
     /**
-     * Update current user profile (Partial)
+     * Update current user profile (Partial).
+     * Only first_name, last_name, and full_name are writable.
      */
     async updateProfile(data: Partial<User>): Promise<User> {
         console.log("[AuthApi] Updating user profile...");
@@ -173,7 +197,7 @@ export const authApi = {
     },
 
     /**
-     * Change password — requires current password and new password confirmation
+     * Change password while authenticated.
      */
     async changePassword(data: {
         old_password: string;
@@ -183,6 +207,51 @@ export const authApi = {
         const response = await apiClient.post<{ detail: string }>('auth/password/change/', data);
         return response.data;
     },
+
+    /**
+     * Send a password reset link to the given email address.
+     */
+    async forgotPassword(email: string): Promise<{ detail: string }> {
+        const response = await apiClient.post<{ detail: string }>('auth/password/reset/', { email });
+        return response.data;
+    },
+
+    /**
+     * Confirm a password reset using the uid and token from the reset link.
+     */
+    async resetPasswordConfirm(data: PasswordResetConfirmRequest): Promise<{ detail: string }> {
+        const response = await apiClient.post<{ detail: string }>('auth/password/reset/confirm/', data);
+        return response.data;
+    },
+
+    // ─── 2FA ────────────────────────────────────────────────────────────────────
+
+    /**
+     * Get the TOTP secret and otpauth URI to render a QR code.
+     * Does NOT enable 2FA yet — must call enable2FA() after the user scans.
+     */
+    async setup2FA(): Promise<TwoFactorSetupResponse> {
+        const response = await apiClient.get<TwoFactorSetupResponse>('auth/2fa/setup/');
+        return response.data;
+    },
+
+    /**
+     * Activate 2FA by verifying the first code from the authenticator app.
+     */
+    async enable2FA(code: string): Promise<{ detail: string }> {
+        const response = await apiClient.post<{ detail: string }>('auth/2fa/enable/', { code });
+        return response.data;
+    },
+
+    /**
+     * Deactivate 2FA. Requires both the current password and a valid TOTP code.
+     */
+    async disable2FA(code: string, password: string): Promise<{ detail: string }> {
+        const response = await apiClient.post<{ detail: string }>('auth/2fa/disable/', { code, password });
+        return response.data;
+    },
+
+    // ─── Sessions ───────────────────────────────────────────────────────────────
 
     /**
      * Get all active sessions for the current user
@@ -195,14 +264,17 @@ export const authApi = {
     /**
      * Revoke a specific session by ID
      */
-    async revokeSession(sessionId: string): Promise<void> {
+    async revokeSession(sessionId: number): Promise<void> {
         await apiClient.delete(`auth/sessions/${sessionId}/`);
     },
 
     /**
-     * Revoke all sessions except the current one
+     * Revoke ALL sessions for the current user, including the current one.
+     * Immediately clears stored tokens.
      */
-    async revokeAllOtherSessions(): Promise<void> {
-        await apiClient.delete('auth/sessions/');
+    async revokeAllSessions(): Promise<{ detail: string }> {
+        const response = await apiClient.post<{ detail: string }>('auth/sessions/revoke-all/');
+        tokenManager.clearTokens();
+        return response.data;
     },
 };
