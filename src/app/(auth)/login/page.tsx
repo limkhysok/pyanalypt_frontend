@@ -53,8 +53,19 @@ export default function Login() {
 			}
 			setAuthUser(response.user);
 			await refreshUser();
+
+			if (response.requires_profile_completion) {
+				router.push("/complete-profile");
+				return;
+			}
+
 			router.push("/dashboard");
-		} catch (err) {
+		} catch (err: any) {
+			if (err.response?.status === 403 && err.response?.data?.requires_verification) {
+				const unverifiedEmail = err.response.data.email || email;
+				router.push(`/verify-otp?email=${encodeURIComponent(unverifiedEmail)}`);
+				return;
+			}
 			setError(getErrorMessage(err));
 			triggerShake();
 		} finally {
@@ -70,6 +81,12 @@ export default function Login() {
 			const response = await authApi.verify2FALogin({ totp_token: totpToken, code: totpCode });
 			setAuthUser(response.user);
 			await refreshUser();
+
+			if (response.requires_profile_completion) {
+				router.push("/complete-profile");
+				return;
+			}
+
 			router.push("/dashboard");
 		} catch (err) {
 			const msg = getErrorMessage(err);
@@ -102,12 +119,31 @@ export default function Login() {
 				setError(null);
 				try {
 					const response = await authApi.googleAuth(tokenResponse.access_token);
+					
+					if ('requires_2fa' in response) {
+						setTotpToken(response.totp_token);
+						setStep("totp");
+						return;
+					}
+
 					setAuthUser(response.user);
 					await refreshUser();
+
+					if (response.requires_profile_completion) {
+						router.push("/complete-profile");
+						return;
+					}
+
 					router.push("/dashboard");
-				} catch (err) {
+				} catch (err: any) {
+					if (err.response?.status === 403 && err.response?.data?.requires_verification) {
+						const unverifiedEmail = err.response.data.email || email;
+						router.push(`/verify-otp?email=${encodeURIComponent(unverifiedEmail)}`);
+						return;
+					}
 					setError(getErrorMessage(err));
 					triggerShake();
+				} finally {
 					setIsLoading(false);
 				}
 			})();

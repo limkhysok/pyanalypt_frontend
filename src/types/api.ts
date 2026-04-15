@@ -7,6 +7,7 @@ export interface User {
     first_name: string | null;
     last_name: string | null;
     full_name: string | null;
+    birthday: string | null;
     profile_picture: string | null;
     email_verified: boolean;
     is_staff?: boolean;
@@ -19,6 +20,7 @@ export interface AuthResponse {
     access: string;
     refresh: string;
     user: User;
+    requires_profile_completion?: boolean;
 }
 
 /** Returned by POST /auth/login/ when 2FA is required. No tokens are issued yet. */
@@ -27,17 +29,37 @@ export interface TwoFactorLoginResponse {
     totp_token: string;
 }
 
+/** Case C — Email Not Verified (403 Forbidden) */
+export interface UnverifiedLoginError {
+    detail: string;
+    requires_verification: true;
+    email: string;
+}
+
 export type LoginResponse = AuthResponse | TwoFactorLoginResponse;
 
 export interface RegisterRequest {
     email: string;
     password: string;
-    first_name?: string;
-    last_name?: string;
 }
 
 export interface RegisterResponse {
     detail: string;
+}
+
+export interface ResendOtpRequest {
+    email: string;
+}
+
+export interface VerifyOtpRequest {
+    email: string;
+    otp: string;
+}
+
+export interface CompleteProfileRequest {
+    username: string;
+    full_name: string;
+    birthday: string;
 }
 
 export interface LoginRequest {

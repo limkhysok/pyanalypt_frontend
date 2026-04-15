@@ -9,6 +9,8 @@ import {
     TwoFactorVerifyLoginRequest,
     RegisterRequest,
     RegisterResponse,
+    VerifyOtpRequest,
+    CompleteProfileRequest,
     LoginRequest,
     GoogleAuthRequest,
     RefreshTokenResponse,
@@ -66,14 +68,14 @@ export const authApi = {
      * Login or register using Google OAuth
      * @param accessToken - Google access token from Google Sign-In
      */
-    async googleAuth(accessToken: string): Promise<AuthResponse> {
+    async googleAuth(accessToken: string): Promise<LoginResponse> {
         console.log("[AuthApi] Authenticating with Google...");
-        const response = await apiClient.post<AuthResponse>('auth/google/', {
+        const response = await apiClient.post<LoginResponse>('auth/google/', {
             access_token: accessToken,
         } as GoogleAuthRequest);
         console.log("[AuthApi] Google Auth Response:", response.data);
 
-        if (response.data.access) {
+        if ('access' in response.data && response.data.access) {
             tokenManager.setTokens(response.data.access, response.data.refresh || "");
             console.log("[AuthApi] Tokens stored successfully.");
         }
@@ -173,17 +175,37 @@ export const authApi = {
     },
 
     /**
-     * Confirm email using the key from the verification link
+     * Resend registration OTP
      */
-    async verifyEmail(key: string): Promise<void> {
-        await apiClient.post('auth/registration/verify-email/', { key });
+    async resendOtp(email: string): Promise<{ detail: string }> {
+        console.log("[AuthApi] Resending OTP to:", email);
+        const response = await apiClient.post<{ detail: string }>('auth/registration/resend-otp/', { email });
+        return response.data;
     },
 
     /**
-     * Resend email verification link (expires after 3 days)
+     * Verify registration OTP — returns AuthResponse (tokens + user)
      */
-    async resendVerificationEmail(email: string): Promise<void> {
-        await apiClient.post('auth/registration/resend-email/', { email });
+    async verifyOtp(data: VerifyOtpRequest): Promise<AuthResponse> {
+        console.log("[AuthApi] Verifying registration OTP for:", data.email);
+        const response = await apiClient.post<AuthResponse>('auth/registration/verify-otp/', data);
+        console.log("[AuthApi] OTP Verification Response:", response.data);
+
+        if (response.data.access) {
+            tokenManager.setTokens(response.data.access, response.data.refresh || "");
+        }
+
+        return response.data;
+    },
+
+    /**
+     * Complete user profile (Step 3) — sets username, full_name, and birthday
+     */
+    async completeProfile(data: CompleteProfileRequest): Promise<{ detail: string; user: User }> {
+        console.log("[AuthApi] Completing profile for user...");
+        const response = await apiClient.post<{ detail: string; user: User }>('auth/registration/complete-profile/', data);
+        console.log("[AuthApi] Complete Profile Response:", response.data);
+        return response.data;
     },
 
     /**
