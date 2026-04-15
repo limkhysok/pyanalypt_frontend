@@ -4,18 +4,41 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "@/context/auth-context";
 import { authApi } from "@/services/auth.service";
 import { toast } from "sonner";
+import { User } from "@/types/api";
 import { PersonalDetails } from "./_components/PersonalDetails";
+
+// Returns only the fields that differ from the current user — never sends unchanged data.
+function buildPayload(
+    user: User | null | undefined,
+    firstName: string,
+    lastName: string,
+): { first_name?: string; last_name?: string } {
+    const payload: { first_name?: string; last_name?: string } = {};
+    if (firstName.trim() !== (user?.first_name ?? "")) payload.first_name = firstName.trim();
+    if (lastName.trim()  !== (user?.last_name  ?? "")) payload.last_name  = lastName.trim();
+    return payload;
+}
+
+// Extracts per-field errors from a DRF validation response.
+// Returns null when there are no field errors (e.g. a detail-only error).
+function parseFieldErrors(data: unknown): Record<string, string> | null {
+    if (!data || typeof data !== "object") return null;
+    const d = data as Record<string, unknown>;
+    const errors: Record<string, string> = {};
+    if (d.first_name) errors.first_name = [d.first_name].flat()[0] as string;
+    if (d.last_name)  errors.last_name  = [d.last_name].flat()[0] as string;
+    return Object.keys(errors).length > 0 ? errors : null;
+}
 
 export default function ProfilePage() {
     const { user, isLoading, login } = useAuth();
 
-    const [editing, setEditing]       = useState(false);
-    const [saving, setSaving]         = useState(false);
-    const [firstName, setFirstName]   = useState("");
-    const [lastName, setLastName]     = useState("");
+    const [editing, setEditing]         = useState(false);
+    const [saving, setSaving]           = useState(false);
+    const [firstName, setFirstName]     = useState("");
+    const [lastName, setLastName]       = useState("");
     const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
-    // Seed inputs from user when user loads or edit is cancelled
     useEffect(() => {
         if (user) {
             setFirstName(user.first_name ?? "");
@@ -24,7 +47,6 @@ export default function ProfilePage() {
     }, [user]);
 
     const handleCancel = () => {
-        // Reset inputs back to current user values
         setFirstName(user?.first_name ?? "");
         setLastName(user?.last_name ?? "");
         setFieldErrors({});
@@ -33,38 +55,23 @@ export default function ProfilePage() {
 
     const saveEdit = async () => {
         setFieldErrors({});
-
-        // Only include fields the user actually changed — rule 1
-        const payload: { first_name?: string; last_name?: string } = {};
-        if (firstName.trim() !== (user?.first_name ?? "")) payload.first_name = firstName.trim();
-        if (lastName.trim()  !== (user?.last_name  ?? "")) payload.last_name  = lastName.trim();
-
+        const payload = buildPayload(user, firstName, lastName);
         if (Object.keys(payload).length === 0) {
             setEditing(false);
             return;
         }
-
         setSaving(true);
         try {
             const updated = await authApi.updateProfile(payload);
-            // Rule 2: update local state from the response, not a refetch
             login(updated);
             toast.success("Profile updated successfully.");
             setEditing(false);
         } catch (error: any) {
-            const data = error?.response?.data;
-            // Rule 5: map field-level errors to their inputs
-            if (data && typeof data === "object") {
-                const errors: Record<string, string> = {};
-                if (data.first_name) errors.first_name = [data.first_name].flat()[0];
-                if (data.last_name)  errors.last_name  = [data.last_name].flat()[0];
-                if (Object.keys(errors).length > 0) {
-                    setFieldErrors(errors);
-                    return;
-                }
-                toast.error(data.detail ?? "Failed to update profile.");
+            const fieldErrs = parseFieldErrors(error?.response?.data);
+            if (fieldErrs) {
+                setFieldErrors(fieldErrs);
             } else {
-                toast.error("Failed to update profile.");
+                toast.error(error?.response?.data?.detail ?? "Failed to update profile.");
             }
         } finally {
             setSaving(false);

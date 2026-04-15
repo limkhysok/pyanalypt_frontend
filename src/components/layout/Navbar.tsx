@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, LogOut, LayoutDashboard, User as UserIcon } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard, User as UserIcon, Home, BarChart2, FlaskConical, Info, ChevronRight } from "lucide-react";
 import { GithubIcon } from "@/components/ui/Icons";
 import { Logo } from "@/components/ui/Logo";
 import { cn, getInitials } from "@/lib/utils";
@@ -21,10 +21,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/context/auth-context";
 
 const NAV_ITEMS = [
-    { label: "Home",    href: "/"           },
-    { label: "Visuals", href: "/visuals"    },
-    { label: "Lab",     href: "/playground" },
-    { label: "Intel",   href: "/about"      },
+    { label: "Home",    href: "/",          icon: Home        },
+    { label: "Visuals", href: "/visuals",   icon: BarChart2   },
+    { label: "Lab",     href: "/playground",icon: FlaskConical},
+    { label: "Intel",   href: "/about",     icon: Info        },
 ];
 
 const GITHUB_URL = "https://github.com/pyanalypt/pyanalypt";
@@ -49,12 +49,12 @@ export function Navbar() {
     const initials = user ? getInitials(user) : "";
 
     return (
-        <div className="fixed top-0 inset-x-0 z-50 flex flex-col items-center pt-8 px-6 pointer-events-none">
+        <div className="fixed top-0 inset-x-0 z-50 flex flex-col items-center pt-5 sm:pt-8 px-3 sm:px-6 pointer-events-none">
 
             {/* ── Pill HUD ── */}
             <header
                 className={cn(
-                    "relative pointer-events-auto flex items-center justify-between px-3 h-12 transition-all duration-300 rounded-full border shadow-2xl mx-auto w-fit min-w-[320px] md:min-w-160",
+                    "relative pointer-events-auto flex items-center justify-between px-3 h-12 transition-all duration-300 rounded-full border shadow-2xl w-full md:w-fit md:min-w-160",
                     scrolled
                         ? "bg-background/95 backdrop-blur-2xl border-foreground/10 shadow-foreground/5"
                         : "bg-background/60 backdrop-blur-md border-border/80 shadow-none"
@@ -192,54 +192,114 @@ export function Navbar() {
 
             {/* ── Mobile menu ── */}
             {mobileMenuOpen && (
-                <div className="md:hidden absolute top-[calc(100%+8px)] inset-x-6 z-40 bg-background/95 backdrop-blur-3xl border border-border/80 rounded-3xl p-3 flex flex-col gap-1 shadow-2xl pointer-events-auto max-w-[320px] mx-auto w-full">
-                    <div className="flex items-center justify-between px-4 py-2 mb-2 border-b border-border/20">
-                        <span className="text-[10px] font-black uppercase tracking-widest opacity-30">Menu</span>
-                        <div className="flex items-center gap-1">
+                <div className="md:hidden absolute top-[calc(100%+6px)] inset-x-3 sm:inset-x-6 z-40 bg-background/95 backdrop-blur-3xl border border-border/80 rounded-xl overflow-hidden shadow-xl pointer-events-auto animate-in fade-in slide-in-from-top-2 duration-200">
+
+                    {/* Header row */}
+                    <div className="flex items-center justify-between px-3 py-2 border-b border-border/20">
+                        <div className="flex items-center gap-2">
+                            <Logo className="w-4 h-4 grayscale" />
+                            <span className="text-xs font-semibold tracking-tight">PyAnalypt</span>
+                        </div>
+                        <div className="flex items-center gap-0.5">
                             <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full" asChild>
                                 <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
-                                    <GithubIcon size={14} />
+                                    <GithubIcon size={13} />
                                 </a>
                             </Button>
-                            <ModeToggle />
+                            <ModeToggle className="h-7 w-7" />
                         </div>
                     </div>
-                    {NAV_ITEMS.map((item) => {
-                        const isActive = pathname === item.href;
-                        return (
-                            <Link
-                                key={item.label}
-                                href={item.href}
-                                onClick={() => setMobileMenuOpen(false)}
-                                className={cn(
-                                    "p-4 rounded-2xl text-[10px] font-black tracking-[0.2em] uppercase transition-all text-left flex items-center justify-between",
-                                    isActive
-                                        ? "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400"
-                                        : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                                )}
-                            >
-                                {item.label}
-                                <span className={isActive ? "text-blue-400 dark:text-blue-500" : "opacity-20"}>/</span>
-                            </Link>
-                        );
-                    })}
-                    {!isLoading && !isAuthenticated && (
-                        <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-border/40">
-                            <Link
-                                href="/login"
-                                className="p-3 text-center text-[9px] font-black uppercase tracking-widest text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
-                                Login
-                            </Link>
-                            <Link
-                                href="/register"
-                                className="p-3 bg-blue-600 dark:bg-blue-500 text-white rounded-full text-center text-[9px] font-black uppercase tracking-widest hover:bg-blue-700 dark:hover:bg-blue-400 transition-colors"
-                                onClick={() => setMobileMenuOpen(false)}
-                            >
-                                Join
-                            </Link>
-                        </div>
+
+                    {/* Nav links */}
+                    <div className="p-1.5 space-y-0.5">
+                        {NAV_ITEMS.map((item) => {
+                            const isActive = pathname === item.href;
+                            const Icon = item.icon;
+                            return (
+                                <Link
+                                    key={item.label}
+                                    href={item.href}
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className={cn(
+                                        "flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all",
+                                        isActive
+                                            ? "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400"
+                                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                    )}
+                                >
+                                    <Icon size={13} className={cn("shrink-0", isActive ? "" : "opacity-40")} />
+                                    <span className="flex-1">{item.label}</span>
+                                    {isActive
+                                        ? <div className="w-1 h-1 rounded-full bg-blue-500 dark:bg-blue-400" />
+                                        : <ChevronRight size={12} className="opacity-20" />
+                                    }
+                                </Link>
+                            );
+                        })}
+                    </div>
+
+                    {/* Auth section */}
+                    {!isLoading && (
+                        <>
+                            <div className="h-px bg-border/30 mx-2" />
+                            {isAuthenticated ? (
+                                <div className="p-1.5 space-y-0.5">
+                                    {/* User card */}
+                                    <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-muted/40 mb-0.5">
+                                        <Avatar className="h-6 w-6 shrink-0 border border-border/60">
+                                            <AvatarImage src={user?.profile_picture ?? undefined} />
+                                            <AvatarFallback className="bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 text-[9px] font-bold">
+                                                {initials}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div className="min-w-0">
+                                            <p className="text-xs font-semibold truncate leading-tight">{displayName}</p>
+                                            {user?.email && <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>}
+                                        </div>
+                                    </div>
+                                    <Link
+                                        href="/dashboard"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
+                                    >
+                                        <span>Dashboard</span>
+                                        <LayoutDashboard size={12} className="opacity-40" />
+                                    </Link>
+                                    <Link
+                                        href="/profile"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
+                                    >
+                                        <span>Profile</span>
+                                        <UserIcon size={12} className="opacity-40" />
+                                    </Link>
+                                    <button
+                                        onClick={() => { logout(); setMobileMenuOpen(false); }}
+                                        className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-red-500/70 hover:bg-red-500/5 hover:text-red-500 transition-all"
+                                    >
+                                        <span>Sign out</span>
+                                        <LogOut size={12} className="opacity-50" />
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="p-1.5 flex flex-col gap-1">
+                                    <Link
+                                        href="/login"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className="w-full py-2 text-center text-xs font-semibold text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted transition-all"
+                                    >
+                                        Sign in
+                                    </Link>
+                                    <Link
+                                        href="/register"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className="w-full py-2 text-center text-xs font-semibold text-white bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 rounded-lg transition-all shadow-md shadow-blue-500/20"
+                                    >
+                                        Get started
+                                    </Link>
+                                </div>
+                            )}
+                        </>
                     )}
                 </div>
             )}

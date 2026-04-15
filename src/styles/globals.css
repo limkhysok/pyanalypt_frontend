@@ -75,6 +75,39 @@
       transform: translateY(0);
     }
   }
+
+  --animate-shake: shake 0.55s ease-in-out;
+  --animate-glow-drift: glow-drift 7s ease-in-out infinite;
+  --animate-slow-spin: slow-spin 6s linear infinite;
+  --animate-float-up: float-up 14s ease-in infinite;
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    15%       { transform: translateX(-6px); }
+    30%       { transform: translateX(6px); }
+    45%       { transform: translateX(-4px); }
+    60%       { transform: translateX(4px); }
+    75%       { transform: translateX(-2px); }
+    90%       { transform: translateX(2px); }
+  }
+
+  @keyframes glow-drift {
+    0%, 100% { opacity: 1;   transform: scale(1)    translate(0%,  0%); }
+    33%      { opacity: 0.7; transform: scale(1.08) translate(2%,  1%); }
+    66%      { opacity: 0.9; transform: scale(0.95) translate(-1%, 2%); }
+  }
+
+  @keyframes slow-spin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  @keyframes float-up {
+    0%   { transform: translateY(0px)    translateX(0px);  opacity: 0; }
+    8%   { opacity: 0.6; }
+    85%  { opacity: 0.3; }
+    100% { transform: translateY(-100vh) translateX(12px); opacity: 0; }
+  }
 }
 
 @plugin "tailwindcss-animate";
