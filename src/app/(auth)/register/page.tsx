@@ -7,7 +7,7 @@ import { useAuth } from "@/context/auth-context";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Loader2, AlertCircle, Mail, Lock, UserPlus, ArrowRight, Eye, EyeOff, ShieldCheck } from "lucide-react";
+import { Loader2, AlertCircle, Mail, Lock, UserPlus, ArrowRight, Eye, EyeOff } from "lucide-react";
 import { useGoogleLogin } from "@react-oauth/google";
 import { authApi } from "@/services/auth.service";
 import { getErrorMessage, formatFieldErrors } from "@/lib/error-handler";
@@ -25,8 +25,8 @@ function getPasswordStrength(pwd: string): number {
 }
 
 const strengthLabel = ["", "Weak", "Fair", "Good", "Strong", "Very strong"];
-const strengthColor = ["", "bg-red-500", "bg-orange-400", "bg-yellow-400", "bg-blue-500", "bg-green-500"];
-const strengthTextColor = ["", "text-red-500", "text-orange-400", "text-yellow-500", "text-blue-500", "text-green-500"];
+const strengthColor = ["", "bg-red-500", "bg-orange-400", "bg-yellow-400", "bg-teal-500", "bg-green-500"];
+const strengthTextColor = ["", "text-red-500", "text-orange-400", "text-yellow-500", "text-teal-500", "text-green-500"];
 
 export default function Register() {
 	const router = useRouter();
@@ -111,14 +111,14 @@ export default function Register() {
 							Email address
 						</Label>
 						<div className="relative group/input">
-							<Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within/input:text-blue-500 dark:group-focus-within/input:text-blue-400 transition-colors pointer-events-none z-10 opacity-50" />
+							<Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within/input:text-foreground/60 transition-colors pointer-events-none z-10 opacity-50" />
 							<Input
 								id="email"
 								type="email"
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
 								placeholder="name@example.com"
-								className="h-11 pl-12 rounded-xl bg-muted/20 border-border/40 focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:ring-0 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.12)] transition-all text-sm"
+								className="h-11 pl-12 rounded-xl bg-muted/20 border-border/40 focus:border-foreground/25 focus:ring-0 transition-all text-sm"
 								autoFocus
 								required
 							/>
@@ -133,20 +133,20 @@ export default function Register() {
 							Password
 						</Label>
 						<div className="relative group/input">
-							<Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within/input:text-blue-500 dark:group-focus-within/input:text-blue-400 transition-colors pointer-events-none z-10 opacity-50" />
+							<Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within/input:text-foreground/60 transition-colors pointer-events-none z-10 opacity-50" />
 							<Input
 								id="password"
 								type={showPassword ? "text" : "password"}
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
 								placeholder="••••••••"
-								className="h-11 pl-12 pr-12 rounded-xl bg-muted/20 border-border/40 focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:ring-0 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.12)] transition-all text-sm"
+								className="h-11 pl-12 pr-12 rounded-xl bg-muted/20 border-border/40 focus:border-foreground/25 focus:ring-0 transition-all text-sm"
 								required
 							/>
 							<button
 								type="button"
 								onClick={() => setShowPassword(!showPassword)}
-								className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-blue-500 dark:hover:text-blue-400 transition-all z-20"
+								className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-foreground transition-all z-20"
 							>
 								{showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
 							</button>
@@ -200,10 +200,7 @@ export default function Register() {
 						)}
 					</Button>
 
-					<div className="flex items-center justify-center gap-1.5 text-muted-foreground/30 pt-0.5">
-						<ShieldCheck size={11} />
-						<span className="text-[10px] font-medium">Secured with 256-bit encryption</span>
-					</div>
+					
 				</div>
 
 				<div className="relative flex items-center gap-3">
@@ -216,7 +213,7 @@ export default function Register() {
 					variant="outline"
 					type="button"
 					disabled={isLoading}
-					className="w-full h-11 rounded-xl border-border/60 bg-transparent hover:bg-muted/60 text-sm font-medium tracking-wide transition-all duration-200 hover:border-blue-500/25 dark:hover:border-blue-400/25"
+					className="w-full h-11 rounded-xl border-border/60 bg-transparent hover:bg-muted/60 text-sm font-medium tracking-wide transition-all duration-200 hover:border-border"
 					onClick={() => loginWithGoogle()}
 				>
 					<svg viewBox="0 0 24 24" className="mr-2.5 h-4 w-4 shrink-0" aria-hidden="true">
@@ -230,7 +227,7 @@ export default function Register() {
 
 				<p className="text-center text-sm font-medium text-muted-foreground/70 flex items-center justify-center gap-1.5">
 					Already have an account?
-					<Link href="/login" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-1">
+					<Link href="/login" className="text-foreground hover:underline font-semibold flex items-center gap-1">
 						Sign in <ArrowRight size={12} />
 					</Link>
 				</p>

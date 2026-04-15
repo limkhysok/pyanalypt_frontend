@@ -140,7 +140,7 @@ export default function Login() {
 							Authentication code
 						</Label>
 						<div className="relative group/input">
-							<KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within/input:text-blue-500 dark:group-focus-within/input:text-blue-400 transition-colors pointer-events-none z-10 opacity-50" />
+							<KeyRound className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within/input:text-foreground/60 transition-colors pointer-events-none z-10 opacity-50" />
 							<Input
 								id="totp"
 								type="text"
@@ -150,7 +150,7 @@ export default function Login() {
 								value={totpCode}
 								onChange={(e) => setTotpCode(e.target.value.replaceAll(/\D/g, ""))}
 								placeholder="000000"
-								className="h-11 pl-12 rounded-xl bg-muted/20 border-border/40 focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:ring-0 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.12)] transition-all text-[15px] font-mono font-medium tracking-[0.4em] text-center"
+								className="h-11 pl-12 rounded-xl bg-muted/20 border-border/40 focus:border-foreground/25 focus:ring-0 transition-all text-[15px] font-mono font-medium tracking-[0.4em] text-center"
 								autoFocus
 								required
 							/>
@@ -180,7 +180,7 @@ export default function Login() {
 					<button
 						type="button"
 						onClick={() => { setStep("credentials"); setError(null); setTotpCode(""); }}
-						className="w-full text-center text-xs font-medium text-muted-foreground/40 hover:text-blue-500 dark:hover:text-blue-400 transition-colors py-1"
+						className="w-full text-center text-xs font-medium text-muted-foreground/40 hover:text-foreground transition-colors py-1"
 					>
 						← Back to sign in
 					</button>
@@ -207,14 +207,14 @@ export default function Login() {
 							Email address
 						</Label>
 						<div className="relative group/input">
-							<Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within/input:text-blue-500 dark:group-focus-within/input:text-blue-400 transition-colors pointer-events-none z-10 opacity-50" />
+							<Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within/input:text-foreground/60 transition-colors pointer-events-none z-10 opacity-50" />
 							<Input
 								id="email"
 								type="email"
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
 								placeholder="name@example.com"
-								className="h-11 pl-12 rounded-xl bg-muted/20 border-border/40 focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:ring-0 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.12)] transition-all text-sm"
+								className="h-11 pl-12 rounded-xl bg-muted/20 border-border/40 focus:border-foreground/25 focus:ring-0 transition-all text-sm"
 								autoFocus
 								required
 							/>
@@ -228,26 +228,26 @@ export default function Login() {
 							</Label>
 							<Link
 								href="/forgot-password"
-								className="text-xs font-medium text-muted-foreground/45 hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+								className="text-xs font-medium text-muted-foreground/45 hover:text-foreground transition-colors"
 							>
 								Forgot password?
 							</Link>
 						</div>
 						<div className="relative group/input">
-							<Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within/input:text-blue-500 dark:group-focus-within/input:text-blue-400 transition-colors pointer-events-none z-10 opacity-50" />
+							<Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within/input:text-foreground/60 transition-colors pointer-events-none z-10 opacity-50" />
 							<Input
 								id="password"
 								type={showPassword ? "text" : "password"}
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
 								placeholder="••••••••"
-								className="h-11 pl-12 pr-12 rounded-xl bg-muted/20 border-border/40 focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:ring-0 focus:shadow-[0_0_0_3px_rgba(59,130,246,0.12)] transition-all text-sm"
+								className="h-11 pl-12 pr-12 rounded-xl bg-muted/20 border-border/40 focus:border-foreground/25 focus:ring-0 transition-all text-sm"
 								required
 							/>
 							<button
 								type="button"
 								onClick={() => setShowPassword(!showPassword)}
-								className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-blue-500 dark:hover:text-blue-400 transition-all z-20"
+								className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground/40 hover:text-foreground transition-all z-20"
 							>
 								{showPassword ? <EyeOff size={15} /> : <Eye size={15} />}
 							</button>
@@ -261,7 +261,7 @@ export default function Login() {
 							type="checkbox"
 							checked={rememberMe}
 							onChange={(e) => setRememberMe(e.target.checked)}
-							className="h-3.5 w-3.5 rounded border-border/60 accent-blue-500 cursor-pointer"
+							className="h-3.5 w-3.5 rounded border-border/60 cursor-pointer"
 						/>
 						<Label htmlFor="remember" className="text-xs font-medium text-muted-foreground/60 cursor-pointer select-none">
 							Remember me
@@ -286,11 +286,6 @@ export default function Login() {
 							</div>
 						)}
 					</Button>
-
-					<div className="flex items-center justify-center gap-1.5 text-muted-foreground/30 pt-0.5">
-						<ShieldCheck size={11} />
-						<span className="text-[10px] font-medium">Secured with 256-bit encryption</span>
-					</div>
 				</div>
 
 				<div className="relative flex items-center gap-3">
@@ -303,7 +298,7 @@ export default function Login() {
 					variant="outline"
 					type="button"
 					disabled={isLoading}
-					className="w-full h-11 rounded-xl border-border/60 bg-transparent hover:bg-muted/60 text-sm font-medium tracking-wide transition-all duration-200 hover:border-blue-500/25 dark:hover:border-blue-400/25"
+					className="w-full h-11 rounded-xl border-border/60 bg-transparent hover:bg-muted/60 text-sm font-medium tracking-wide transition-all duration-200 hover:border-border"
 					onClick={() => loginWithGoogle()}
 				>
 					<svg viewBox="0 0 24 24" className="mr-2.5 h-4 w-4 shrink-0" aria-hidden="true">
@@ -317,7 +312,7 @@ export default function Login() {
 
 				<p className="text-center text-sm font-medium text-muted-foreground/70 flex items-center justify-center gap-1.5">
 					Don&apos;t have an account?
-					<Link href="/register" className="text-blue-600 dark:text-blue-400 hover:underline font-semibold flex items-center gap-1">
+					<Link href="/register" className="text-foreground hover:underline font-semibold flex items-center gap-1">
 						Sign up <ArrowRight size={12} />
 					</Link>
 				</p>
