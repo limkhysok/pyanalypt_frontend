@@ -62,11 +62,7 @@ export function AppNavbar() {
     const pathname         = usePathname() ?? "";
     const { group, page }  = getBreadcrumb(pathname);
 
-    const displayName =
-        user?.full_name ||
-        [user?.first_name, user?.last_name].filter(Boolean).join(" ") ||
-        user?.username ||
-        "";
+    const displayName = user?.full_name || user?.username || "";
     const initials = user ? getInitials(user) : "U";
 
     return (

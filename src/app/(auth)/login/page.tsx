@@ -63,6 +63,7 @@ export default function Login() {
 		} catch (err: any) {
 			if (err.response?.status === 403 && err.response?.data?.requires_verification) {
 				const unverifiedEmail = err.response.data.email || email;
+				sessionStorage.setItem('otp_pending_email', unverifiedEmail.toLowerCase());
 				router.push(`/verify-otp?email=${encodeURIComponent(unverifiedEmail)}`);
 				return;
 			}

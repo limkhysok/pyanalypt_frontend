@@ -6,16 +6,20 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function getInitials(user: {
-    first_name?: string | null;
-    last_name?: string | null;
+    full_name?: string | null;
     username?: string;
     email?: string | null;
 }): string {
-    if (user.first_name && user.last_name)
-        return `${user.first_name[0]}${user.last_name[0]}`.toUpperCase();
-    if (user.first_name) return user.first_name[0].toUpperCase();
-    if (user.username)   return user.username.slice(0, 2).toUpperCase();
-    if (user.email)      return user.email[0].toUpperCase();
+    if (user.full_name) {
+        const parts = user.full_name.trim().split(/\s+/);
+        if (parts.length >= 2) {
+            const last = parts.at(-1) ?? parts[0];
+            return `${parts[0][0]}${last[0]}`.toUpperCase();
+        }
+        return parts[0].slice(0, 2).toUpperCase();
+    }
+    if (user.username) return user.username.slice(0, 2).toUpperCase();
+    if (user.email)    return user.email[0].toUpperCase();
     return "U";
 }
 

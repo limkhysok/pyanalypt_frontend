@@ -57,10 +57,11 @@ export default function Register() {
 		setError(null);
 		setFieldErrors({});
 		try {
-			await authApi.register({ 
-				email, 
-				password 
+			await authApi.register({
+				email,
+				password
 			});
+			sessionStorage.setItem('otp_pending_email', email.toLowerCase());
 			router.push(`/verify-otp?email=${encodeURIComponent(email)}`);
 		} catch (err) {
 			const formattedErrors = formatFieldErrors(err);

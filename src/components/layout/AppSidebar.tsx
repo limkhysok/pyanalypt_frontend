@@ -160,10 +160,7 @@ const UserFooter = React.memo(function UserFooter({ pathname }: Readonly<{ pathn
     const { user } = useAuth();
     if (!user) return null;
 
-    const displayName =
-        user.full_name ||
-        [user.first_name, user.last_name].filter(Boolean).join(" ") ||
-        user.username;
+    const displayName = user.full_name || user.username;
     const initials  = getInitials(user);
     const isActive  = isRouteActive(pathname, "/profile");
 

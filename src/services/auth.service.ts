@@ -210,7 +210,7 @@ export const authApi = {
 
     /**
      * Update current user profile (Partial).
-     * Only first_name, last_name, and full_name are writable.
+     * Only full_name and birthday are writable — all other fields are read-only.
      */
     async updateProfile(data: Partial<User>): Promise<User> {
         console.log("[AuthApi] Updating user profile...");
@@ -271,6 +271,24 @@ export const authApi = {
     async disable2FA(code: string, password: string): Promise<{ detail: string }> {
         const response = await apiClient.post<{ detail: string }>('auth/2fa/disable/', { code, password });
         return response.data;
+    },
+
+    // ─── Verify-email (allauth confirmation link flow) ───────────────────────────
+
+    /**
+     * Confirm an allauth email verification link by posting its key.
+     * Used by the /verify-email/[key] page when a user clicks the link in their inbox.
+     */
+    async verifyEmail(key: string): Promise<{ detail: string }> {
+        const response = await apiClient.post<{ detail: string }>('auth/registration/verify-email/', { key });
+        return response.data;
+    },
+
+    /**
+     * Resend an email verification link (alias of resendOtp for the verify-email page).
+     */
+    async resendVerificationEmail(email: string): Promise<{ detail: string }> {
+        return this.resendOtp(email);
     },
 
     // ─── Sessions ───────────────────────────────────────────────────────────────

@@ -221,7 +221,7 @@ export default function DashboardPage() {
 
     if (!isAuthenticated) return null;
 
-    const displayName = user?.username || user?.first_name || "there";
+    const displayName = user?.full_name || user?.username || "there";
     const today = new Date().toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
 
     return (

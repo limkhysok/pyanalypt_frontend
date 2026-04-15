@@ -1,6 +1,5 @@
 "use client";
 
-import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,16 +7,15 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Loader2, UserRound, Edit2, Check, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { User } from "@/types/api";
+import { formatDate } from "@/lib/utils";
 
 interface PersonalDetailsProps {
     user: User | null | undefined;
     editing: boolean;
     saving: boolean;
-    firstName: string;
-    lastName: string;
+    fullName: string;
     fieldErrors: Record<string, string>;
-    setFirstName: (val: string) => void;
-    setLastName: (val: string) => void;
+    setFullName: (val: string) => void;
     onEdit: () => void;
     onCancel: () => void;
     onSave: () => void;
@@ -27,11 +25,9 @@ export function PersonalDetails({
     user,
     editing,
     saving,
-    firstName,
-    lastName,
+    fullName,
     fieldErrors,
-    setFirstName,
-    setLastName,
+    setFullName,
     onEdit,
     onCancel,
     onSave,
@@ -64,45 +60,24 @@ export function PersonalDetails({
             <CardContent className="space-y-6 pt-0">
                 {editing ? (
                     <div className="space-y-5">
-                        {/* Editable: first_name + last_name */}
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <div className="space-y-1.5">
-                                <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
-                                    First Name
-                                </Label>
-                                <Input
-                                    value={firstName}
-                                    onChange={(e) => setFirstName(e.target.value)}
-                                    placeholder="John"
-                                    className={`h-10 rounded-xl bg-muted/40 border-transparent focus:bg-background focus:ring-1 transition-all ${
-                                        fieldErrors.first_name
-                                            ? "ring-1 ring-red-500/60 focus:ring-red-500/60"
-                                            : "focus:ring-blue-500/30"
-                                    }`}
-                                />
-                                {fieldErrors.first_name && (
-                                    <p className="text-[10px] text-red-500 ml-1">{fieldErrors.first_name}</p>
-                                )}
-                            </div>
-
-                            <div className="space-y-1.5">
-                                <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
-                                    Last Name
-                                </Label>
-                                <Input
-                                    value={lastName}
-                                    onChange={(e) => setLastName(e.target.value)}
-                                    placeholder="Doe"
-                                    className={`h-10 rounded-xl bg-muted/40 border-transparent focus:bg-background focus:ring-1 transition-all ${
-                                        fieldErrors.last_name
-                                            ? "ring-1 ring-red-500/60 focus:ring-red-500/60"
-                                            : "focus:ring-blue-500/30"
-                                    }`}
-                                />
-                                {fieldErrors.last_name && (
-                                    <p className="text-[10px] text-red-500 ml-1">{fieldErrors.last_name}</p>
-                                )}
-                            </div>
+                        {/* Editable: full_name */}
+                        <div className="space-y-1.5">
+                            <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground ml-1">
+                                Full Name
+                            </Label>
+                            <Input
+                                value={fullName}
+                                onChange={(e) => setFullName(e.target.value)}
+                                placeholder="John Doe"
+                                className={`h-10 rounded-xl bg-muted/40 border-transparent focus:bg-background focus:ring-1 transition-all ${
+                                    fieldErrors.full_name
+                                        ? "ring-1 ring-red-500/60 focus:ring-red-500/60"
+                                        : "focus:ring-blue-500/30"
+                                }`}
+                            />
+                            {fieldErrors.full_name && (
+                                <p className="text-[10px] text-red-500 ml-1">{fieldErrors.full_name}</p>
+                            )}
                         </div>
 
                         {/* Read-only: email */}
@@ -145,12 +120,12 @@ export function PersonalDetails({
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
                         <div className="space-y-1">
-                            <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">First Name</p>
-                            <p className="text-[13.5px] font-semibold text-foreground">{user?.first_name || "—"}</p>
+                            <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Full Name</p>
+                            <p className="text-[13.5px] font-semibold text-foreground">{user?.full_name || "—"}</p>
                         </div>
                         <div className="space-y-1">
-                            <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Last Name</p>
-                            <p className="text-[13.5px] font-semibold text-foreground">{user?.last_name || "—"}</p>
+                            <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Birthday</p>
+                            <p className="text-[13.5px] font-semibold text-foreground">{formatDate(user?.birthday) || "—"}</p>
                         </div>
                         <div className="space-y-1">
                             <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Username</p>

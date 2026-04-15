@@ -9,11 +9,7 @@ import { ProfileNav } from "./_components/ProfileNav";
 export default function ProfileLayout({ children }: Readonly<{ children: React.ReactNode }>) {
     const { user } = useAuth();
 
-    const displayName =
-        user?.full_name ||
-        `${user?.first_name ?? ""} ${user?.last_name ?? ""}`.trim() ||
-        user?.username ||
-        "User";
+    const displayName = user?.full_name || user?.username || "User";
 
     const initials = user ? getInitials(user) : "U";
 

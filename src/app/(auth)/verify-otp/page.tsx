@@ -12,22 +12,52 @@ import { getErrorMessage, formatFieldErrors } from "@/lib/error-handler";
 import { AuthShell } from "@/components/auth/AuthShell";
 import Link from "next/link";
 
+const RESEND_COOLDOWN_SECONDS = 60;
+const SESSION_KEY = "otp_pending_email";
+const RESEND_TS_KEY = "otp_resend_at";
+
 function VerifyOtpContent() {
 	const router = useRouter();
 	const searchParams = useSearchParams();
 	const { login: setAuthUser, refreshUser } = useAuth();
-	
+
 	const email = searchParams.get("email") ?? "";
-	
+
 	const [otp, setOtp] = React.useState("");
 	const [isLoading, setIsLoading] = React.useState(false);
 	const [error, setError] = React.useState<string | null>(null);
 	const [fieldErrors, setFieldErrors] = React.useState<Record<string, string>>({});
-	
+
 	const [resendLoading, setResendLoading] = React.useState(false);
 	const [resendSuccess, setResendSuccess] = React.useState(false);
-	
+	const [cooldown, setCooldown] = React.useState(0);
+
 	const formRef = React.useRef<HTMLFormElement>(null);
+
+	// ── Session gate: block direct URL access ────────────────────────────────
+	React.useEffect(() => {
+		const allowed = sessionStorage.getItem(SESSION_KEY);
+		if (!allowed || allowed !== email.toLowerCase()) {
+			router.replace("/register");
+		}
+	}, [email, router]);
+
+	// ── Restore cooldown from sessionStorage on mount ────────────────────────
+	React.useEffect(() => {
+		const ts = Number.parseInt(sessionStorage.getItem(RESEND_TS_KEY) ?? "0", 10);
+		if (ts) {
+			const elapsed = Math.floor((Date.now() - ts) / 1000);
+			const remaining = Math.max(0, RESEND_COOLDOWN_SECONDS - elapsed);
+			if (remaining > 0) setCooldown(remaining);
+		}
+	}, []);
+
+	// ── Countdown tick ───────────────────────────────────────────────────────
+	React.useEffect(() => {
+		if (cooldown <= 0) return;
+		const timer = setInterval(() => setCooldown((c) => Math.max(0, c - 1)), 1000);
+		return () => clearInterval(timer);
+	}, [cooldown]);
 
 	const triggerShake = () => {
 		const el = formRef.current;
@@ -39,12 +69,14 @@ function VerifyOtpContent() {
 	};
 
 	const handleResend = async () => {
-		if (!email || resendLoading) return;
+		if (!email || resendLoading || cooldown > 0) return;
 		setResendLoading(true);
 		setResendSuccess(false);
 		setError(null);
 		try {
 			await authApi.resendOtp(email);
+			sessionStorage.setItem(RESEND_TS_KEY, Date.now().toString());
+			setCooldown(RESEND_COOLDOWN_SECONDS);
 			setResendSuccess(true);
 			setTimeout(() => setResendSuccess(false), 5000);
 		} catch (err) {
@@ -69,6 +101,9 @@ function VerifyOtpContent() {
 
 		try {
 			const response = await authApi.verifyOtp({ email, otp });
+			// Verification succeeded — clear the session gate
+			sessionStorage.removeItem(SESSION_KEY);
+			sessionStorage.removeItem(RESEND_TS_KEY);
 			setAuthUser(response.user);
 			await refreshUser();
 			router.push("/complete-profile");
@@ -86,8 +121,8 @@ function VerifyOtpContent() {
 	};
 
 	return (
-		<AuthShell 
-			title="Verify your email" 
+		<AuthShell
+			title="Verify your email"
 			subtitle={`We've sent a 6-digit code to ${email || "your email"}`}
 		>
 			<form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
@@ -151,19 +186,25 @@ function VerifyOtpContent() {
 
 				<div className="flex flex-col gap-4 text-center">
 					<p className="text-sm text-muted-foreground">
-						Didn't receive the code?{" "}
-						<button
-							type="button"
-							disabled={resendLoading}
-							onClick={handleResend}
-							className="text-foreground hover:underline font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
-						>
-							{resendLoading ? "Sending..." : "Resend Code"}
-						</button>
+						Didn&apos;t receive the code?{" "}
+						{cooldown > 0 ? (
+							<span className="text-muted-foreground/50 font-semibold">
+								Resend in {cooldown}s
+							</span>
+						) : (
+							<button
+								type="button"
+								disabled={resendLoading}
+								onClick={handleResend}
+								className="text-foreground hover:underline font-semibold disabled:opacity-50 disabled:cursor-not-allowed"
+							>
+								{resendLoading ? "Sending..." : "Resend Code"}
+							</button>
+						)}
 					</p>
-					
-					<Link 
-						href="/register" 
+
+					<Link
+						href="/register"
 						className="inline-flex items-center justify-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
 					>
 						<ArrowLeft size={12} />

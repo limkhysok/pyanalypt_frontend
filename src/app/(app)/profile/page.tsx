@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/auth-context";
 import { authApi } from "@/services/auth.service";
 import { toast } from "sonner";
@@ -10,12 +10,10 @@ import { PersonalDetails } from "./_components/PersonalDetails";
 // Returns only the fields that differ from the current user — never sends unchanged data.
 function buildPayload(
     user: User | null | undefined,
-    firstName: string,
-    lastName: string,
-): { first_name?: string; last_name?: string } {
-    const payload: { first_name?: string; last_name?: string } = {};
-    if (firstName.trim() !== (user?.first_name ?? "")) payload.first_name = firstName.trim();
-    if (lastName.trim()  !== (user?.last_name  ?? "")) payload.last_name  = lastName.trim();
+    fullName: string,
+): { full_name?: string } {
+    const payload: { full_name?: string } = {};
+    if (fullName.trim() !== (user?.full_name ?? "")) payload.full_name = fullName.trim();
     return payload;
 }
 
@@ -25,8 +23,7 @@ function parseFieldErrors(data: unknown): Record<string, string> | null {
     if (!data || typeof data !== "object") return null;
     const d = data as Record<string, unknown>;
     const errors: Record<string, string> = {};
-    if (d.first_name) errors.first_name = [d.first_name].flat()[0] as string;
-    if (d.last_name)  errors.last_name  = [d.last_name].flat()[0] as string;
+    if (d.full_name) errors.full_name = [d.full_name].flat()[0] as string;
     return Object.keys(errors).length > 0 ? errors : null;
 }
 
@@ -35,27 +32,24 @@ export default function ProfilePage() {
 
     const [editing, setEditing]         = useState(false);
     const [saving, setSaving]           = useState(false);
-    const [firstName, setFirstName]     = useState("");
-    const [lastName, setLastName]       = useState("");
+    const [fullName, setFullName]       = useState("");
     const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {
         if (user) {
-            setFirstName(user.first_name ?? "");
-            setLastName(user.last_name ?? "");
+            setFullName(user.full_name ?? "");
         }
     }, [user]);
 
     const handleCancel = () => {
-        setFirstName(user?.first_name ?? "");
-        setLastName(user?.last_name ?? "");
+        setFullName(user?.full_name ?? "");
         setFieldErrors({});
         setEditing(false);
     };
 
     const saveEdit = async () => {
         setFieldErrors({});
-        const payload = buildPayload(user, firstName, lastName);
+        const payload = buildPayload(user, fullName);
         if (Object.keys(payload).length === 0) {
             setEditing(false);
             return;
@@ -95,11 +89,9 @@ export default function ProfilePage() {
                 user={user}
                 editing={editing}
                 saving={saving}
-                firstName={firstName}
-                lastName={lastName}
+                fullName={fullName}
                 fieldErrors={fieldErrors}
-                setFirstName={setFirstName}
-                setLastName={setLastName}
+                setFullName={setFullName}
                 onEdit={() => setEditing(true)}
                 onCancel={handleCancel}
                 onSave={saveEdit}
