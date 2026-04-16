@@ -65,7 +65,7 @@ interface DatasetTableProps {
     issueLoading: number | null;
     aiAnalysisLoading: number | null;
     exportingDatasetId: number | null;
-    onImport: () => void;
+    onFormatSelect: (format: DatasetExportFormat) => void;
     onRename: (dataset: Dataset) => void;
     onDelete: (dataset: Dataset) => void;
     onExport: (dataset: Dataset, format?: DatasetExportFormat) => void;
@@ -84,7 +84,7 @@ export function DatasetTable({
     issueLoading,
     aiAnalysisLoading,
     exportingDatasetId,
-    onImport,
+    onFormatSelect,
     onRename,
     onDelete,
     onExport,
@@ -92,6 +92,8 @@ export function DatasetTable({
     onAIAnalysis,
 }: Readonly<DatasetTableProps>) {
     const router = useRouter();
+
+    const FORMATS: DatasetExportFormat[] = ["csv", "json", "xlsx", "parquet", "sql"];
 
     // ── Loading skeleton ──────────────────────────────────────────────────────
 
@@ -119,12 +121,30 @@ export function DatasetTable({
                 <p className="text-xs text-muted-foreground max-w-xs mb-8">
                     Initialize your workspace by importing a data artifact.
                 </p>
-                <Button
-                    onClick={onImport}
-                    className="rounded-none h-9 px-6 bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-sm shadow-none transition-all border border-primary/10"
-                >
-                    <Plus className="mr-2 h-3.5 w-3.5" /> Import artifact
-                </Button>
+
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button
+                            className="rounded-none h-9 px-6 bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-sm shadow-none transition-all border border-primary/10"
+                        >
+                            <Plus className="mr-2 h-3.5 w-3.5" /> Import artifact
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="center" className="rounded-none border-border shadow-none min-w-[140px]">
+                        <div className="px-2 py-1.5 text-[11px] font-semibold text-muted-foreground border-b border-border/50 mb-1 text-center">
+                            Select source format
+                        </div>
+                        {FORMATS.map((fmt) => (
+                            <DropdownMenuItem
+                                key={fmt}
+                                className="rounded-none text-sm font-medium cursor-pointer"
+                                onClick={() => onFormatSelect(fmt)}
+                            >
+                                {fmt.toLowerCase()}
+                            </DropdownMenuItem>
+                        ))}
+                    </DropdownMenuContent>
+                </DropdownMenu>
             </div>
         );
     }
@@ -292,6 +312,7 @@ export function DatasetTable({
                                                                 <DropdownMenuItem className="rounded-none text-sm font-medium" onClick={() => onExport(dataset, "xlsx")}>xlsx</DropdownMenuItem>
                                                                 <DropdownMenuItem className="rounded-none text-sm font-medium" onClick={() => onExport(dataset, "json")}>json</DropdownMenuItem>
                                                                 <DropdownMenuItem className="rounded-none text-sm font-medium" onClick={() => onExport(dataset, "parquet")}>parquet</DropdownMenuItem>
+                                                                <DropdownMenuItem className="rounded-none text-sm font-medium" onClick={() => onExport(dataset, "sql")}>sql</DropdownMenuItem>
                                                             </DropdownMenuSubContent>
                                                         </DropdownMenuSub>
                                                         <DropdownMenuSeparator />

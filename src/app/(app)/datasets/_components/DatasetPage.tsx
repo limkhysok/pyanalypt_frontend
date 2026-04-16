@@ -21,7 +21,6 @@ import { DatasetHeader } from "./DatasetHeader";
 import { DatasetStats } from "./DatasetStats";
 import { DatasetControls } from "./DatasetControls";
 import { DatasetTable } from "./DatasetTable";
-import { ImportDialog } from "./ImportDialog";
 import { RenameDialog } from "./RenameDialog";
 import { DeleteDialog } from "./DeleteDialog";
 import { AIAnalysisDialog } from "./AIAnalysisDialog";
@@ -48,7 +47,6 @@ export default function DatasetPage() {
     const [aiAnalysisLoading, setAiAnalysisLoading]       = useState<number | null>(null);
 
     // Dialog state
-    const [isImportOpen, setIsImportOpen]                 = useState(false);
     const [selectedImportFormat, setSelectedImportFormat] = useState<DatasetExportFormat | null>(null);
     const [isRenameOpen, setIsRenameOpen]                 = useState(false);
     const [isDeleteOpen, setIsDeleteOpen]                 = useState(false);
@@ -108,14 +106,8 @@ export default function DatasetPage() {
         fileInputRef.current?.click();
     };
 
-    const openImportDialog = () => {
-        if (uploadLoading) return;
-        setIsImportOpen(true);
-    };
-
     const handleImportFormatSelect = (format: DatasetExportFormat) => {
         setSelectedImportFormat(format);
-        setIsImportOpen(false);
         globalThis.setTimeout(() => openFilePicker(format), 30);
     };
 
@@ -274,7 +266,7 @@ export default function DatasetPage() {
             <div className="max-w-7xl mx-auto space-y-5 pt-5">
 
                 {/* Header */}
-                <DatasetHeader uploadLoading={uploadLoading} onImport={openImportDialog} />
+                <DatasetHeader uploadLoading={uploadLoading} onFormatSelect={handleImportFormatSelect} />
 
                 {/* Stats */}
                 {datasets.length > 0 && (
@@ -313,7 +305,7 @@ export default function DatasetPage() {
                         issueLoading={issueLoading}
                         aiAnalysisLoading={aiAnalysisLoading}
                         exportingDatasetId={exportingDatasetId}
-                        onImport={openImportDialog}
+                        onFormatSelect={handleImportFormatSelect}
                         onRename={handleRenameOpen}
                         onDelete={handleDeleteOpen}
                         onExport={handleExport}
@@ -324,12 +316,7 @@ export default function DatasetPage() {
 
             </div>
 
-            {/* Dialogs */}
-            <ImportDialog
-                open={isImportOpen}
-                onOpenChange={setIsImportOpen}
-                onFormatSelect={handleImportFormatSelect}
-            />
+
 
             <RenameDialog
                 open={isRenameOpen}

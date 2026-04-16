@@ -3,7 +3,6 @@
 import { Database, HardDrive, Layers } from "lucide-react";
 import { motion } from "motion/react";
 import { Card, CardContent } from "@/components/ui/card";
-import { cn } from "@/lib/utils";
 import { formatFileSize } from "./_lib";
 
 interface DatasetStatsProps {

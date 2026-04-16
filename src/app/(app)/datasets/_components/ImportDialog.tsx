@@ -16,7 +16,7 @@ interface ImportDialogProps {
     onFormatSelect: (format: DatasetExportFormat) => void;
 }
 
-const FORMATS: DatasetExportFormat[] = ["csv", "xlsx", "json", "parquet"];
+const FORMATS: DatasetExportFormat[] = ["csv", "xlsx", "json", "parquet", "sql"];
 
 export function ImportDialog({ open, onOpenChange, onFormatSelect }: Readonly<ImportDialogProps>) {
     return (

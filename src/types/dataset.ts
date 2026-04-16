@@ -30,7 +30,7 @@ export interface RenameDatasetRequest {
   file_name: string;
 }
 
-export type DatasetExportFormat = 'csv' | 'json' | 'xlsx' | 'parquet';
+export type DatasetExportFormat = 'csv' | 'json' | 'xlsx' | 'parquet' | 'sql';
 
 export interface CleaningPipelineOperation {
   operation: string;

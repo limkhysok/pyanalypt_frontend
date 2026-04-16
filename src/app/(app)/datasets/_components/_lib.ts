@@ -15,6 +15,7 @@ export const FORMAT_COLORS: Record<string, string> = {
     xlsx:    "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400",
     xls:     "bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400",
     parquet: "bg-purple-500/10 text-purple-600 border-purple-500/20 dark:text-purple-400",
+    sql:     "bg-cyan-500/10 text-cyan-600 border-cyan-500/20 dark:text-cyan-400",
 };
 
 // ─────────────────────────────────────────────
@@ -73,7 +74,8 @@ export function getImportAccept(format: DatasetExportFormat | null): string {
     if (format === "xlsx")    return ".xlsx,.xls";
     if (format === "json")    return ".json";
     if (format === "parquet") return ".parquet,.pq";
-    return ".csv,.xlsx,.xls,.json,.parquet,.pq";
+    if (format === "sql")     return ".sql";
+    return ".csv,.xlsx,.xls,.json,.parquet,.pq,.sql";
 }
 
 export function normalizeExportFormat(fileFormat: string): DatasetExportFormat | undefined {
@@ -82,6 +84,7 @@ export function normalizeExportFormat(fileFormat: string): DatasetExportFormat |
     if (normalized === "json")                            return "json";
     if (normalized === "xlsx" || normalized === "xls")   return "xlsx";
     if (normalized === "parquet" || normalized === "pq") return "parquet";
+    if (normalized === "sql")                             return "sql";
     return undefined;
 }
 
