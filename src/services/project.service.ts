@@ -128,11 +128,11 @@ export const projectApi = {
     },
 
     /**
-     * Apply cleaning transformations to a dataset
+     * Apply wrangling transformations to a dataset
      */
-    async cleanDataset(datasetId: number | string, data: { pipeline: any[] }): Promise<DatasetPreview> {
-        console.log("[ProjectApi] Cleaning dataset:", datasetId);
-        const response = await apiClient.post<DatasetPreview>(`datasets/items/${datasetId}/clean/`, data);
+    async wrangleDataset(datasetId: number | string, data: { pipeline: any[] }): Promise<DatasetPreview> {
+        console.log("[ProjectApi] Wrangling dataset:", datasetId);
+        const response = await apiClient.post<DatasetPreview>(`datalab/wrangle/apply/${datasetId}/`, data);
         return response.data;
     },
 

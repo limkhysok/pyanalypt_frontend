@@ -175,8 +175,17 @@ export function IssuesPage() {
             setIsScanning(true);
             const result = await datasetApi.diagnoseDataset(Number(selectedDataset));
             setOverview(result.overview);
-            setIssuesByColumn(result.issues_by_column || {});
-            setIssues(Object.values(result.issues_by_column || {}).flat());
+            const flatIssues = result.issues || [];
+            setIssues(flatIssues);
+
+            const grouped: Record<string, Issue[]> = {};
+            for (const issue of flatIssues) {
+                const key = issue.column_name || "__dataset__";
+                if (!grouped[key]) grouped[key] = [];
+                grouped[key].push(issue);
+            }
+            setIssuesByColumn(grouped);
+
             try {
                 setSummary(await datasetApi.getIssueSummary(Number(selectedDataset)));
             } catch { setSummary(null); }

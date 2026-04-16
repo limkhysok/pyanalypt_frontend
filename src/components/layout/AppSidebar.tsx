@@ -6,7 +6,6 @@ import React, { useEffect } from "react";
 import {
     LayoutDashboard,
     Database,
-    AlertCircle,
     Settings,
     Trash2,
     BarChart3,
@@ -44,8 +43,7 @@ const WORKSPACE_ITEMS: NavItemDef[] = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, shortcut: "G D" },
     { label: "Datasets",  href: "/datasets",  icon: Database,         shortcut: "G S" },
     { label: "Framing",   href: "/framing",   icon: BrainCircuit,     shortcut: "G F" },
-    { label: "Issues",    href: "/issues",    icon: AlertCircle,      shortcut: "G I", badge: 3 },
-    { label: "Clean",     href: "/clean",     icon: Trash2,           shortcut: "G C" },
+    { label: "Wrangle",   href: "/wrangle",   icon: Trash2,           shortcut: "G C" },
 ];
 
 const RESULTS_ITEMS: NavItemDef[] = [
@@ -58,8 +56,7 @@ const SHORTCUT_MAP: Record<string, string> = {
     D: "/dashboard",
     S: "/datasets",
     F: "/framing",
-    I: "/issues",
-    C: "/clean",
+    C: "/wrangle",
     A: "/analysis",
     N: "/insight",
     ",": "/profile/setting",

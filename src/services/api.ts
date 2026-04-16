@@ -11,6 +11,7 @@ export { authApi } from './auth.service';
 export { projectApi } from './project.service';
 export { datasetApi } from './dataset.service';
 export { framingApi } from './framing.service';
+export { wranglingApi } from './wrangling.service';
 
 // Utilities
 export { tokenManager } from '@/lib/token';
@@ -40,6 +41,6 @@ export type {
     RenameDatasetRequest,
     UpdateCellResponse,
     DatasetExportFormat,
-    CleanDatasetRequest,
+    WrangleDatasetRequest,
     VisualizeDatasetRequest,
 } from '@/types/dataset';

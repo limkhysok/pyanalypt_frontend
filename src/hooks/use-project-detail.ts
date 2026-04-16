@@ -31,21 +31,21 @@ export const useProjectDetail = () => {
     const [rawDataName, setRawDataName] = React.useState("");
     const [selectedDatasetId, setSelectedDatasetId] = React.useState<number | string | null>(null);
     const [previewData, setPreviewData] = React.useState<DatasetPreview | null>(null);
-    const [cleanedPreviewData, setCleanedPreviewData] = React.useState<DatasetPreview | null>(null);
+    const [wrangledPreviewData, setWrangledPreviewData] = React.useState<DatasetPreview | null>(null);
     const [visibleColumns, setVisibleColumns] = React.useState<string[]>([]);
     const [isPreviewLoading, setIsPreviewLoading] = React.useState(false);
     const [rowCount, setRowCount] = React.useState<number>(10);
     const [activeTab, setActiveTab] = React.useState("Overview");
 
-    // Cleaning Workbench State
-    const [cleaningNACol, setCleaningNACol] = React.useState<string>("all");
-    const [cleaningNAStrategy, setCleaningNAStrategy] = React.useState<string>("fill_mean");
+    // Wrangling Workbench State
+    const [wrangleNACol, setWrangleNACol] = React.useState<string>("all");
+    const [wrangleNAStrategy, setWrangleNAStrategy] = React.useState<string>("fill_mean");
     const [isDeduplicationEnabled, setIsDeduplicationEnabled] = React.useState(false);
     const [castingCol, setCastingCol] = React.useState<string>("");
     const [castingType, setCastingType] = React.useState<string>("integer");
-    const [isCleaningActive, setIsCleaningActive] = React.useState(false);
+    const [isWranglingActive, setIsWranglingActive] = React.useState(false);
 
-    // Advanced Cleaning State
+    // Advanced Wrangling State
     const [dropCols, setDropCols] = React.useState<string[]>([]);
     const [renameMapping, setRenameMapping] = React.useState<Record<string, string>>({});
     const [trimCols, setTrimCols] = React.useState<string>("none");
@@ -163,7 +163,7 @@ export const useProjectDetail = () => {
             setSelectedDatasetId(datasetId);
             const data = await projectApi.getDatasetPreview(datasetId, rows);
             setPreviewData(data);
-            setCleanedPreviewData(null);
+            setWrangledPreviewData(null);
             setVisibleColumns(data.columns);
         } catch (err: any) {
             console.error("View preview error:", err);
@@ -189,21 +189,21 @@ export const useProjectDetail = () => {
         }
     };
 
-    const handleRunCleanup = async () => {
+    const handleRunWrangle = async () => {
         if (!selectedDatasetId) {
             toast.error("Select a dataset first.");
             return;
         }
 
-        setIsCleaningActive(true);
+        setIsWranglingActive(true);
         try {
-            const response = await projectApi.cleanDataset(selectedDatasetId, {
+            const response = await projectApi.wrangleDataset(selectedDatasetId, {
                 pipeline: [
                     { 
                         operation: 'handle_na', 
                         params: { 
-                            columns: cleaningNACol === "all" ? (previewData?.columns || []) : [cleaningNACol], 
-                            strategy: cleaningNAStrategy 
+                            columns: wrangleNACol === "all" ? (previewData?.columns || []) : [wrangleNACol], 
+                            strategy: wrangleNAStrategy 
                         } 
                     },
                     { 
@@ -220,14 +220,14 @@ export const useProjectDetail = () => {
                     }] : [])
                 ]
             });
-            setCleanedPreviewData(response);
-            toast.success("Cleaning operations completed!");
+            setWrangledPreviewData(response);
+            toast.success("Wrangling operations completed!");
             fetchProjectDetail();
         } catch (err: any) {
-            console.error("Run cleanup error:", err);
-            toast.error(err.response?.data?.error || "Cleaning failed.");
+            console.error("Run wrangle error:", err);
+            toast.error(err.response?.data?.error || "Wrangling failed.");
         } finally {
-            setIsCleaningActive(false);
+            setIsWranglingActive(false);
         }
     };
 
@@ -303,7 +303,7 @@ export const useProjectDetail = () => {
         // Selection & Preview
         selectedDatasetId,
         previewData,
-        cleanedPreviewData,
+        wrangledPreviewData,
         visibleColumns,
         setVisibleColumns,
         isPreviewLoading,
@@ -319,18 +319,18 @@ export const useProjectDetail = () => {
         rawDataName,
         setRawDataName,
         
-        // Cleaning
-        cleaningNACol,
-        setCleaningNACol,
-        cleaningNAStrategy,
-        setCleaningNAStrategy,
+        // Wrangling
+        wrangleNACol,
+        setWrangleNACol,
+        wrangleNAStrategy,
+        setWrangleNAStrategy,
         isDeduplicationEnabled,
         setIsDeduplicationEnabled,
         castingCol,
         setCastingCol,
         castingType,
         setCastingType,
-        isCleaningActive,
+        isWranglingActive,
         dropCols,
         setDropCols,
         renameMapping,
@@ -395,7 +395,7 @@ export const useProjectDetail = () => {
         handleRawDataPaste,
         handleViewPreview,
         handleDeleteDataset,
-        handleRunCleanup,
+        handleRunWrangle,
         handleTrainModel,
         handleVisualize,
         handleExport,
