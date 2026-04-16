@@ -16,6 +16,7 @@ import {
     BrainCircuit,
     Loader2,
     Plus,
+    Copy,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
@@ -69,6 +70,7 @@ interface DatasetTableProps {
     onRename: (dataset: Dataset) => void;
     onDelete: (dataset: Dataset) => void;
     onExport: (dataset: Dataset, format?: DatasetExportFormat) => void;
+    onDuplicate: (dataset: Dataset, format?: DatasetExportFormat) => void;
     onDiagnose: (id: number) => void;
     onAIAnalysis: (dataset: { id: number; file_name: string }) => void;
 }
@@ -88,6 +90,7 @@ export function DatasetTable({
     onRename,
     onDelete,
     onExport,
+    onDuplicate,
     onDiagnose,
     onAIAnalysis,
 }: Readonly<DatasetTableProps>) {
@@ -303,6 +306,20 @@ export function DatasetTable({
                                                         <DropdownMenuItem className="rounded-none text-sm font-medium" onClick={() => onRename(dataset)}>
                                                             <Edit2 className="mr-2 h-3.5 w-3.5" /> Rename
                                                         </DropdownMenuItem>
+                                                        <DropdownMenuSub>
+                                                            <DropdownMenuSubTrigger className="rounded-none text-sm font-medium">
+                                                                <Copy className="mr-2 h-3.5 w-3.5" /> Duplicate
+                                                            </DropdownMenuSubTrigger>
+                                                            <DropdownMenuSubContent className="rounded-none border-border shadow-none">
+                                                                <DropdownMenuItem className="rounded-none text-sm font-medium" onClick={() => onDuplicate(dataset)}>quick clone</DropdownMenuItem>
+                                                                <DropdownMenuSeparator />
+                                                                {FORMATS.map((fmt) => (
+                                                                    <DropdownMenuItem key={fmt} className="rounded-none text-sm font-medium" onClick={() => onDuplicate(dataset, fmt)}>
+                                                                        into {fmt}
+                                                                    </DropdownMenuItem>
+                                                                ))}
+                                                            </DropdownMenuSubContent>
+                                                        </DropdownMenuSub>
                                                         <DropdownMenuSub>
                                                             <DropdownMenuSubTrigger className="rounded-none text-sm font-medium">
                                                                 <Download className="mr-2 h-3.5 w-3.5" /> Export

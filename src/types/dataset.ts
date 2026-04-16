@@ -30,6 +30,11 @@ export interface RenameDatasetRequest {
   file_name: string;
 }
 
+export interface DuplicateDatasetRequest {
+  new_file_name?: string;
+  format?: DatasetExportFormat;
+}
+
 export type DatasetExportFormat = 'csv' | 'json' | 'xlsx' | 'parquet' | 'sql';
 
 export interface CleaningPipelineOperation {

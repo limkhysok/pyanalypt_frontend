@@ -188,7 +188,6 @@ export default function DatasetPage() {
             setDeleteLoading(false);
         }
     };
-
     const handleExport = async (dataset: Dataset, format?: DatasetExportFormat) => {
         if (exportingDatasetId === dataset.id) return;
         setExportingDatasetId(dataset.id);
@@ -196,6 +195,21 @@ export default function DatasetPage() {
             await exportDataset(dataset, format);
         } finally {
             setExportingDatasetId(null);
+        }
+    };
+
+    const handleDuplicate = async (dataset: Dataset, format?: DatasetExportFormat) => {
+        const id = toast.loading(`Duplicating ${dataset.file_name}...`);
+        try {
+            await datasetApi.duplicateDataset(dataset.id, {
+                format: format,
+                new_file_name: `${dataset.file_name.replace(/\.[^.]+$/, "")}_copy`
+            });
+            toast.success("Artifact duplicated.", { id });
+            fetchDatasets();
+        } catch (error) {
+            console.error("Duplication failed", error);
+            toast.error("Failed to duplicate artifact.", { id });
         }
     };
 
@@ -309,6 +323,7 @@ export default function DatasetPage() {
                         onRename={handleRenameOpen}
                         onDelete={handleDeleteOpen}
                         onExport={handleExport}
+                        onDuplicate={handleDuplicate}
                         onDiagnose={handleDiagnose}
                         onAIAnalysis={handleAIAnalysis}
                     />

@@ -4,6 +4,7 @@ import {
   Dataset,
   DatasetDetail,
   RenameDatasetRequest,
+  DuplicateDatasetRequest,
   CleanDatasetRequest,
   VisualizeDatasetRequest,
   UpdateCellRequest,
@@ -45,6 +46,14 @@ export const datasetApi = {
    */
   async deleteDataset(id: number): Promise<void> {
     await apiClient.delete(`datasets/${id}/`);
+  },
+  
+  /**
+   * Clone a dataset into a new record.
+   */
+  async duplicateDataset(id: number, data: DuplicateDatasetRequest): Promise<Dataset> {
+    const response = await apiClient.post<Dataset>(`datasets/${id}/duplicate/`, data);
+    return response.data;
   },
 
   /**
