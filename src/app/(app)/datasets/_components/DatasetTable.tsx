@@ -47,12 +47,9 @@ function FormatBadge({ format }: Readonly<{ format: string }>) {
     const key = format.toLowerCase();
     return (
         <span
-            className={cn(
-                "inline-flex items-center rounded-sm border px-1.5 py-0.5 text-[10px] font-semibold tracking-wide",
-                FORMAT_COLORS[key] ?? "bg-muted text-muted-foreground border-border"
-            )}
+            className="inline-flex items-center rounded-none border border-border px-1.5 py-0.5 text-[10px] font-semibold bg-muted text-muted-foreground"
         >
-            {key.toUpperCase()}
+            {key}
         </span>
     );
 }
@@ -100,10 +97,10 @@ export function DatasetTable({
 
     if (isLoading) {
         return (
-            <Card className="bg-background/60 backdrop-blur-xl border border-border/20 rounded-md overflow-hidden">
+            <Card className="bg-background border border-border/40 rounded-none shadow-none overflow-hidden">
                 <div className="p-4 space-y-2">
                     {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="h-10 bg-muted/40 animate-pulse rounded-sm" />
+                        <div key={i} className="h-10 bg-muted/40 animate-pulse rounded-none" />
                     ))}
                 </div>
             </Card>
@@ -114,19 +111,19 @@ export function DatasetTable({
 
     if (datasets.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-20 text-center border border-dashed border-border/30 rounded-md bg-background/40 backdrop-blur-xl">
-                <div className="w-12 h-12 rounded-md bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-4">
-                    <Database className="h-5 w-5 text-blue-500/60" />
+            <div className="flex flex-col items-center justify-center py-24 text-center border border-border/20 rounded-none bg-background shadow-none">
+                <div className="w-14 h-14 rounded-none border border-border/40 flex items-center justify-center mb-6 bg-muted">
+                    <Database className="h-6 w-6 text-muted-foreground/60" />
                 </div>
-                <h3 className="text-base font-semibold tracking-tight mb-1">No datasets yet</h3>
-                <p className="text-sm text-muted-foreground max-w-xs mb-4">
-                    Import your first file to start managing and analysing your data.
+                <h3 className="text-sm font-semibold mb-2">No datasets detected</h3>
+                <p className="text-xs text-muted-foreground max-w-xs mb-8">
+                    Initialize your workspace by importing a data artifact.
                 </p>
                 <Button
                     onClick={onImport}
-                    className="rounded-sm h-8 px-3 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm shadow-sm shadow-blue-500/20 transition-all"
+                    className="rounded-none h-9 px-6 bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-sm shadow-none transition-all border border-primary/10"
                 >
-                    <Plus className="mr-1.5 h-3.5 w-3.5" /> Import dataset
+                    <Plus className="mr-2 h-3.5 w-3.5" /> Import artifact
                 </Button>
             </div>
         );
@@ -135,20 +132,20 @@ export function DatasetTable({
     // ── Table ─────────────────────────────────────────────────────────────────
 
     return (
-        <Card className="bg-background/60 backdrop-blur-xl border border-border/20 rounded-md overflow-hidden">
+        <Card className="bg-background border border-border/40 rounded-none shadow-none overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="w-full text-sm text-left border-collapse">
-                    <thead className="border-b border-border/10">
+                    <thead className="border-b border-border/40 bg-muted/50">
                         <tr>
-                            <th className="px-4 py-2 w-10 text-center text-[11px] font-medium text-muted-foreground/60">#</th>
-                            <th className="px-4 py-2 text-[11px] font-medium text-muted-foreground/60">File name</th>
-                            <th className="px-4 py-2 text-[11px] font-medium text-muted-foreground/60">Format</th>
-                            <th className="px-4 py-2 text-right text-[11px] font-medium text-muted-foreground/60">Size</th>
-                            <th className="px-4 py-2 text-[11px] font-medium text-muted-foreground/60 hidden md:table-cell">Uploaded</th>
-                            <th className="px-4 py-2 text-right text-[11px] font-medium text-muted-foreground/60">Actions</th>
+                            <th className="px-4 py-3 w-10 text-center text-[11px] font-medium text-muted-foreground">#</th>
+                            <th className="px-4 py-3 text-[11px] font-medium text-muted-foreground">File name</th>
+                            <th className="px-4 py-3 text-[11px] font-medium text-muted-foreground">Format</th>
+                            <th className="px-4 py-3 text-right text-[11px] font-medium text-muted-foreground">Size</th>
+                            <th className="px-4 py-3 text-[11px] font-medium text-muted-foreground hidden md:table-cell">Uploaded</th>
+                            <th className="px-4 py-3 text-right text-[11px] font-medium text-muted-foreground">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-border/5">
+                    <tbody className="divide-y divide-border/20">
                         <AnimatePresence mode="popLayout">
                             {filteredDatasets.length > 0 ? (
                                 filteredDatasets.map((dataset, idx) => (
@@ -158,10 +155,10 @@ export function DatasetTable({
                                         animate={{ opacity: 1 }}
                                         exit={{ opacity: 0 }}
                                         transition={{ duration: 0.15 }}
-                                        className="hover:bg-secondary/30 transition-colors group"
+                                        className="hover:bg-muted/50 transition-colors group"
                                     >
                                         <td className="px-4 py-3 text-center text-[11px] text-muted-foreground/40 font-medium font-mono">
-                                            {idx + 1}
+                                            {String(idx + 1).padStart(2, '0')}
                                         </td>
 
                                         <td className="px-4 py-3">
@@ -177,19 +174,19 @@ export function DatasetTable({
                                             <FormatBadge format={dataset.file_format} />
                                         </td>
 
-                                        <td className="px-4 py-3 text-right text-xs tabular-nums font-medium text-muted-foreground">
+                                        <td className="px-4 py-3 text-right text-[11px] tabular-nums font-medium font-mono text-muted-foreground">
                                             {formatFileSize(dataset.file_size)}
                                         </td>
 
-                                        <td className="px-4 py-3 text-xs text-muted-foreground hidden md:table-cell">
+                                        <td className="px-4 py-3 text-[11px] text-muted-foreground hidden md:table-cell font-medium">
                                             <div className="flex items-center gap-1.5">
-                                                <Calendar size={12} />
+                                                <Calendar size={12} className="text-muted-foreground/50" />
                                                 {new Date(dataset.uploaded_date).toLocaleDateString()}
                                             </div>
                                         </td>
 
                                         <td className="px-4 py-3 text-right">
-                                            <div className="flex items-center justify-end gap-0.5">
+                                            <div className="flex items-center justify-end gap-1">
 
                                                 {/* Preview */}
                                                 <HoverCard openDelay={300} closeDelay={100}>
@@ -197,13 +194,13 @@ export function DatasetTable({
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"
-                                                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                                                            className="h-8 w-8 rounded-none text-muted-foreground hover:text-foreground hover:bg-muted"
                                                             onClick={() => router.push(`/datasets/${dataset.id}/preview`)}
                                                         >
                                                             <Eye className="h-3.5 w-3.5" />
                                                         </Button>
                                                     </HoverCardTrigger>
-                                                    <HoverCardContent side="top" className="w-auto px-2.5 py-1 text-xs">
+                                                    <HoverCardContent side="top" className="rounded-none w-auto px-2.5 py-1 text-xs font-medium bg-background border-border shadow-none">
                                                         Preview
                                                     </HoverCardContent>
                                                 </HoverCard>
@@ -214,7 +211,7 @@ export function DatasetTable({
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"
-                                                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                                                            className="h-8 w-8 rounded-none text-muted-foreground hover:text-foreground hover:bg-muted"
                                                             onClick={() => onDiagnose(dataset.id)}
                                                             disabled={issueLoading === dataset.id}
                                                         >
@@ -224,8 +221,8 @@ export function DatasetTable({
                                                             }
                                                         </Button>
                                                     </HoverCardTrigger>
-                                                    <HoverCardContent side="top" className="w-auto px-2.5 py-1 text-xs">
-                                                        Diagnose issues
+                                                    <HoverCardContent side="top" className="rounded-none w-auto px-2.5 py-1 text-xs font-medium bg-background border-border shadow-none">
+                                                        Diagnose
                                                     </HoverCardContent>
                                                 </HoverCard>
 
@@ -235,7 +232,7 @@ export function DatasetTable({
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"
-                                                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                                                            className="h-8 w-8 rounded-none text-muted-foreground hover:text-foreground hover:bg-muted"
                                                             onClick={() => onAIAnalysis(dataset)}
                                                             disabled={aiAnalysisLoading === dataset.id}
                                                         >
@@ -245,8 +242,8 @@ export function DatasetTable({
                                                             }
                                                         </Button>
                                                     </HoverCardTrigger>
-                                                    <HoverCardContent side="top" className="w-auto px-2.5 py-1 text-xs">
-                                                        Problem framing
+                                                    <HoverCardContent side="top" className="rounded-none w-auto px-2.5 py-1 text-xs font-medium bg-background border-border shadow-none">
+                                                        Analysis
                                                     </HoverCardContent>
                                                 </HoverCard>
 
@@ -256,14 +253,14 @@ export function DatasetTable({
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"
-                                                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                                                            className="h-8 w-8 rounded-none text-muted-foreground hover:text-foreground hover:bg-muted"
                                                             onClick={() => router.push(`/clean?dataset=${dataset.id}`)}
                                                         >
                                                             <Sparkles className="h-3.5 w-3.5" />
                                                         </Button>
                                                     </HoverCardTrigger>
-                                                    <HoverCardContent side="top" className="w-auto px-2.5 py-1 text-xs">
-                                                        Clean dataset
+                                                    <HoverCardContent side="top" className="rounded-none w-auto px-2.5 py-1 text-xs font-medium bg-background border-border shadow-none">
+                                                        Clean
                                                     </HoverCardContent>
                                                 </HoverCard>
 
@@ -273,7 +270,7 @@ export function DatasetTable({
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"
-                                                            className="h-8 w-8 text-muted-foreground hover:text-foreground"
+                                                            className="h-8 w-8 rounded-none text-muted-foreground hover:text-foreground hover:bg-muted"
                                                             disabled={exportingDatasetId === dataset.id}
                                                         >
                                                             {exportingDatasetId === dataset.id
@@ -282,24 +279,24 @@ export function DatasetTable({
                                                             }
                                                         </Button>
                                                     </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end" className="rounded-md">
-                                                        <DropdownMenuItem onClick={() => onRename(dataset)}>
+                                                    <DropdownMenuContent align="end" className="rounded-none border-border shadow-none">
+                                                        <DropdownMenuItem className="rounded-none text-sm font-medium" onClick={() => onRename(dataset)}>
                                                             <Edit2 className="mr-2 h-3.5 w-3.5" /> Rename
                                                         </DropdownMenuItem>
                                                         <DropdownMenuSub>
-                                                            <DropdownMenuSubTrigger>
+                                                            <DropdownMenuSubTrigger className="rounded-none text-sm font-medium">
                                                                 <Download className="mr-2 h-3.5 w-3.5" /> Export
                                                             </DropdownMenuSubTrigger>
-                                                            <DropdownMenuSubContent className="rounded-md">
-                                                                <DropdownMenuItem onClick={() => onExport(dataset, "csv")}>CSV</DropdownMenuItem>
-                                                                <DropdownMenuItem onClick={() => onExport(dataset, "xlsx")}>XLSX</DropdownMenuItem>
-                                                                <DropdownMenuItem onClick={() => onExport(dataset, "json")}>JSON</DropdownMenuItem>
-                                                                <DropdownMenuItem onClick={() => onExport(dataset, "parquet")}>Parquet</DropdownMenuItem>
+                                                            <DropdownMenuSubContent className="rounded-none border-border shadow-none">
+                                                                <DropdownMenuItem className="rounded-none text-sm font-medium" onClick={() => onExport(dataset, "csv")}>csv</DropdownMenuItem>
+                                                                <DropdownMenuItem className="rounded-none text-sm font-medium" onClick={() => onExport(dataset, "xlsx")}>xlsx</DropdownMenuItem>
+                                                                <DropdownMenuItem className="rounded-none text-sm font-medium" onClick={() => onExport(dataset, "json")}>json</DropdownMenuItem>
+                                                                <DropdownMenuItem className="rounded-none text-sm font-medium" onClick={() => onExport(dataset, "parquet")}>parquet</DropdownMenuItem>
                                                             </DropdownMenuSubContent>
                                                         </DropdownMenuSub>
                                                         <DropdownMenuSeparator />
                                                         <DropdownMenuItem
-                                                            className="text-destructive focus:text-destructive"
+                                                            className="rounded-none text-sm font-medium text-destructive focus:text-destructive"
                                                             onClick={() => onDelete(dataset)}
                                                         >
                                                             <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
@@ -315,14 +312,14 @@ export function DatasetTable({
                                 /* Filtered empty state */
                                 <tr>
                                     <td colSpan={6}>
-                                        <div className="py-12 flex flex-col items-center gap-2 text-center">
-                                            <div className="h-8 w-8 rounded-md bg-muted/60 border border-border/20 flex items-center justify-center">
-                                                <Search className="h-3.5 w-3.5 text-muted-foreground/40" />
+                                        <div className="py-16 flex flex-col items-center gap-4 text-center">
+                                            <div className="h-10 w-10 rounded-none bg-muted border border-border/20 flex items-center justify-center">
+                                                <Search className="h-4 w-4 text-muted-foreground/40" />
                                             </div>
                                             <div>
-                                                <p className="text-sm font-medium">No matching datasets</p>
-                                                <p className="text-xs text-muted-foreground mt-0.5">
-                                                    Try adjusting your search or format filter.
+                                                <p className="text-sm font-semibold">No matching artifacts</p>
+                                                <p className="text-xs text-muted-foreground mt-1">
+                                                    Reset filters to see more.
                                                 </p>
                                             </div>
                                         </div>

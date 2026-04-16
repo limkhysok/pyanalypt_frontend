@@ -252,9 +252,9 @@ export default function DatasetPage() {
     if (authLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background">
-                <div className="flex flex-col items-center gap-3">
-                    <div className="h-8 w-8 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
-                    <p className="text-sm font-medium text-muted-foreground">Loading workspace…</p>
+                <div className="flex flex-col items-center gap-4">
+                    <div className="h-10 w-10 border-2 border-foreground border-t-transparent animate-spin" />
+                    <p className="text-sm font-medium text-muted-foreground">Initializing workspace…</p>
                 </div>
             </div>
         );
@@ -269,7 +269,6 @@ export default function DatasetPage() {
             <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
                 <div className="absolute inset-0 bg-background" />
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[32px_32px]" />
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-200 h-80 bg-blue-500/5 blur-[100px] rounded-full" />
             </div>
 
             <div className="max-w-7xl mx-auto space-y-5 pt-5">

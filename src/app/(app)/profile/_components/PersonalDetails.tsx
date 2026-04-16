@@ -3,9 +3,9 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { CardContent } from "@/components/ui/card";
 import {
-    Loader2, UserRound, Pencil, Check, X,
+    Loader2, UserRound, Check, X,
     Mail, AtSign, Cake, ShieldCheck, ImageIcon,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -43,7 +43,7 @@ function FieldCard({ icon, label, value }: Readonly<FieldCardProps>) {
         <div className="group relative flex items-start gap-3.5 p-4 bg-muted/20 border border-border/30 hover:border-foreground/30 hover:bg-muted/30 transition-all duration-300">
             {/* Hover Indicator */}
             <div className="absolute left-0 top-0 w-[2px] h-0 bg-foreground group-hover:h-full transition-all duration-300" />
-            
+
             <div className="h-8 w-8 bg-background border border-border/40 flex items-center justify-center shrink-0 text-muted-foreground/60 mt-0.5 group-hover:text-foreground group-hover:border-foreground/40 transition-colors">
                 {icon}
             </div>
@@ -280,7 +280,7 @@ export function PersonalDetails({
                         <div className="relative group p-6 sm:p-8 border border-border/40 bg-muted/10 backdrop-blur-sm overflow-hidden">
                             {/* Decorative Corner */}
                             <div className="absolute top-0 right-0 w-16 h-16 bg-foreground/[0.02] -rotate-45 translate-x-1/2 -translate-y-1/2" />
-                            
+
                             <div className="relative flex flex-col sm:flex-row sm:items-center justify-between gap-8">
                                 <div className="flex items-center gap-8">
                                     <div className="relative h-24 w-24 border-2 border-border/60 p-1 group-hover:border-foreground/40 transition-colors duration-500">

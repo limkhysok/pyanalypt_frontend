@@ -29,35 +29,38 @@ export function RenameDialog({
 }: Readonly<RenameDialogProps>) {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="rounded-md">
+            <DialogContent className="rounded-none border-border shadow-none">
                 <DialogHeader>
-                    <DialogTitle>Rename Dataset</DialogTitle>
-                    <DialogDescription>Enter a new name for your dataset.</DialogDescription>
+                    <DialogTitle className="text-base font-semibold">Rename artifact</DialogTitle>
+                    <DialogDescription className="text-sm font-medium text-muted-foreground">
+                        Modify the unique identifier for this dataset.
+                    </DialogDescription>
                 </DialogHeader>
-                <div className="py-3 space-y-1.5">
-                    <Label htmlFor="rename-input" className="text-sm">New name</Label>
+                <div className="py-4 space-y-2">
+                    <Label htmlFor="rename-input" className="text-sm font-medium text-muted-foreground">New identifier</Label>
                     <Input
                         id="rename-input"
-                        className="rounded-sm h-8 text-sm"
+                        className="rounded-none h-10 border-border bg-background focus-visible:ring-1 focus-visible:ring-foreground transition-all shadow-none font-medium text-xs"
                         value={value}
                         onChange={(e) => onChange(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && onConfirm()}
+                        autoFocus
                     />
                 </div>
-                <DialogFooter>
+                <DialogFooter className="gap-2 sm:gap-0">
                     <Button
                         variant="outline"
-                        className="rounded-sm h-8 text-sm"
+                        className="rounded-none h-10 font-medium text-sm shadow-none flex-1 sm:flex-none"
                         onClick={() => onOpenChange(false)}
                     >
-                        Cancel
+                        Abort
                     </Button>
                     <Button
-                        className="rounded-sm h-8 text-sm"
+                        className="rounded-none h-10 bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-sm shadow-none flex-1 sm:flex-none"
                         onClick={onConfirm}
                         disabled={!value.trim()}
                     >
-                        Save
+                        Commit
                     </Button>
                 </DialogFooter>
             </DialogContent>

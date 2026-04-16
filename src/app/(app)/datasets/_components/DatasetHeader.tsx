@@ -27,12 +27,12 @@ export function DatasetHeader({ uploadLoading, onImport }: Readonly<DatasetHeade
             <Button
                 onClick={onImport}
                 disabled={uploadLoading}
-                className="rounded-sm h-8 px-3 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm shadow-sm shadow-blue-500/20 transition-all self-start sm:self-auto"
+                className="rounded-none h-8 px-4 bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-sm transition-all self-start sm:self-auto shadow-none border border-primary/10"
             >
                 {uploadLoading ? (
-                    <Loader2 className="mr-1.5 h-3.5 w-3.5 animate-spin" />
+                    <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
                 ) : (
-                    <Plus className="mr-1.5 h-3.5 w-3.5" />
+                    <Plus className="mr-2 h-3.5 w-3.5" />
                 )}
                 {uploadLoading ? "Uploading…" : "Import"}
             </Button>

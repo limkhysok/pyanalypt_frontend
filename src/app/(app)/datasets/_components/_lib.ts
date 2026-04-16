@@ -40,7 +40,7 @@ export function getUsageLabel(pct: number): string {
 }
 
 export function getFilterLabel(filterType: string): string {
-    return filterType === "all" ? "All formats" : filterType.toUpperCase();
+    return filterType === "all" ? "All formats" : filterType;
 }
 
 export function getCountLabel(isFiltering: boolean, filteredCount: number, totalCount: number): string {

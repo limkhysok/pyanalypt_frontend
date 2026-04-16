@@ -29,27 +29,29 @@ export function AIAnalysisDialog({
 }: Readonly<AIAnalysisDialogProps>) {
     return (
         <Dialog open={!!result} onOpenChange={(open) => { if (!open) onClose(); }}>
-            <DialogContent className="max-w-2xl rounded-md">
+            <DialogContent className="max-w-2xl rounded-none border-border shadow-none">
                 <DialogHeader>
-                    <DialogTitle className="flex items-center gap-2">
-                        <BrainCircuit className="h-5 w-5 text-primary" />
-                        Problem Framing
+                    <DialogTitle className="flex items-center gap-2 text-base font-semibold">
+                        <BrainCircuit className="h-4 w-4" />
+                        Analysis output
                     </DialogTitle>
-                    <DialogDescription>{result?.fileName}</DialogDescription>
+                    <DialogDescription className="text-sm font-medium text-muted-foreground truncate">
+                        Artifact: {result?.fileName}
+                    </DialogDescription>
                 </DialogHeader>
-                <div className="max-h-96 overflow-y-auto rounded-md bg-muted/40 border p-3 text-sm whitespace-pre-wrap font-mono leading-relaxed">
+                <div className="max-h-96 overflow-y-auto rounded-none border-border bg-muted/30 border p-4 text-[11px] whitespace-pre-wrap font-mono leading-relaxed selection:bg-primary selection:text-primary-foreground">
                     {result?.statements}
                     {isStreaming && (
-                        <span className="inline-block w-2 h-4 ml-0.5 bg-primary animate-pulse rounded-sm" />
+                        <span className="inline-block w-2.5 h-4 ml-1 bg-foreground animate-pulse" />
                     )}
                 </div>
                 <DialogFooter>
                     <Button
                         variant="outline"
-                        className="rounded-sm h-8 text-sm"
+                        className="rounded-none h-10 font-medium text-sm shadow-none min-w-[100px]"
                         onClick={onClose}
                     >
-                        Close
+                        Terminate
                     </Button>
                 </DialogFooter>
             </DialogContent>
