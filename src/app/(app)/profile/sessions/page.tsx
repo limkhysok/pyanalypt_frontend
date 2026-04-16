@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
     Monitor,
     Smartphone,
@@ -20,7 +20,6 @@ import { toast } from "sonner";
 import { authApi } from "@/services/auth.service";
 import { Session } from "@/types/api";
 import { formatRelative } from "@/lib/utils";
-import { useRouter } from "next/navigation";
 
 function DeviceIcon({ device }: Readonly<{ device: string }>) {
     const d = device.toLowerCase();
@@ -29,16 +28,7 @@ function DeviceIcon({ device }: Readonly<{ device: string }>) {
     return <Monitor size={22} />;
 }
 
-/** Returns the id of the most recently active session (treated as "current"). */
-function getCurrentSessionId(sessions: Session[]): number | null {
-    if (sessions.length === 0) return null;
-    return sessions.reduce((best, s) =>
-        new Date(s.last_active) > new Date(best.last_active) ? s : best
-    ).id;
-}
-
 export default function ProfileSessionsPage() {
-    const router = useRouter();
     const [sessions, setSessions]       = useState<Session[]>([]);
     const [loading, setLoading]         = useState(true);
     const [revoking, setRevoking]       = useState<number | null>(null);
@@ -58,8 +48,6 @@ export default function ProfileSessionsPage() {
 
     useEffect(() => { fetchSessions(); }, [fetchSessions]);
 
-    const currentId = getCurrentSessionId(sessions);
-
     const handleRevoke = async (id: number) => {
         setRevoking(id);
         try {
@@ -73,19 +61,23 @@ export default function ProfileSessionsPage() {
         }
     };
 
+    // Per-session DELETE for every non-current session — does NOT kill the active session.
     const handleRevokeAll = async () => {
+        const others = sessions.filter((s) => !s.is_current);
+        if (others.length === 0) return;
         setRevokingAll(true);
         try {
-            await authApi.revokeAllSessions();
-            toast.success("All sessions have been revoked. Please log in again.");
-            router.push("/login");
+            await Promise.all(others.map((s) => authApi.revokeSession(s.id)));
+            setSessions((prev) => prev.filter((s) => s.is_current));
+            toast.success("All other devices have been signed out.");
         } catch {
-            toast.error("Failed to revoke sessions.");
+            toast.error("Failed to sign out all devices.");
+        } finally {
             setRevokingAll(false);
         }
     };
 
-    const otherSessionCount = sessions.filter((s) => s.id !== currentId).length;
+    const otherSessionCount = sessions.filter((s) => !s.is_current).length;
 
     return (
         <>
@@ -100,7 +92,7 @@ export default function ProfileSessionsPage() {
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-9 w-9 rounded-xl border border-border/40"
+                        className="h-9 w-9 rounded-none border border-border/40"
                         onClick={fetchSessions}
                         disabled={loading}
                         aria-label="Refresh sessions"
@@ -112,10 +104,10 @@ export default function ProfileSessionsPage() {
                             variant="ghost"
                             onClick={handleRevokeAll}
                             disabled={revokingAll}
-                            className="h-9 px-4 text-xs font-bold text-destructive hover:bg-destructive/10 rounded-xl border border-destructive/20 transition-all"
+                            className="h-9 px-4 text-xs font-bold text-destructive hover:bg-destructive/10 rounded-none border border-destructive/20 transition-all"
                         >
                             {revokingAll ? <Loader2 size={14} className="animate-spin mr-1.5" /> : null}
-                            Logout from all devices
+                            Sign out all other devices
                         </Button>
                     )}
                 </div>
@@ -134,82 +126,79 @@ export default function ProfileSessionsPage() {
             )}
 
             {!loading && sessions.length > 0 && (
-                <div className="space-y-4">
-                    {sessions.map((session) => {
-                        const isCurrent = session.id === currentId;
-                        return (
-                            <Card
-                                key={session.id}
-                                className={`group rounded-2xl border-border/60 overflow-hidden transition-all duration-300 ${
-                                    isCurrent
-                                        ? "bg-blue-500/3 border-blue-500/20"
-                                        : "bg-background/50 backdrop-blur-xl hover:border-blue-500/20 shadow-sm"
-                                }`}
-                            >
-                                <CardContent className="p-5">
-                                    <div className="flex items-start justify-between gap-4">
-                                        <div className="flex items-start gap-4">
-                                            <div className={`h-12 w-12 rounded-xl flex items-center justify-center border transition-all ${
-                                                isCurrent
-                                                    ? "bg-blue-500/10 border-blue-500/30 text-blue-500 shadow-[0_0_15px_rgba(59,130,246,0.15)]"
-                                                    : "bg-muted/40 border-border/40 text-muted-foreground group-hover:border-blue-500/20"
-                                            }`}>
-                                                <DeviceIcon device={session.device} />
-                                            </div>
-
-                                            <div className="space-y-1">
-                                                <div className="flex items-center gap-2">
-                                                    <h3 className="text-[14px] font-bold tracking-tight">{session.device}</h3>
-                                                    {isCurrent && (
-                                                        <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-none px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest rounded-full">
-                                                            Current
-                                                        </Badge>
-                                                    )}
-                                                </div>
-
-                                                <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-muted-foreground">
-                                                    <span className="flex items-center gap-1.5 font-mono opacity-80">
-                                                        <Globe size={13} className="opacity-70" /> {session.ip_address}
-                                                    </span>
-                                                    <span className="opacity-30">•</span>
-                                                    <span className="flex items-center gap-1.5 italic">
-                                                        <Clock size={13} className="opacity-70" /> {formatRelative(session.last_active)}
-                                                    </span>
-                                                </div>
-
-                                                <div className="pt-2 flex items-center gap-2">
-                                                    <Badge variant="outline" className="text-[9px] font-bold bg-muted/20 border-border/40 uppercase px-2 py-0 rounded-md">
-                                                        {session.browser}
-                                                    </Badge>
-                                                </div>
-                                            </div>
+                <div className="space-y-3">
+                    {sessions.map((session) => (
+                        <Card
+                            key={session.id}
+                            className={`group rounded-none border-border/60 overflow-hidden transition-all duration-300 ${
+                                session.is_current
+                                    ? "bg-blue-500/3 border-blue-500/20"
+                                    : "bg-background/50 backdrop-blur-xl hover:border-blue-500/20"
+                            }`}
+                        >
+                            <CardContent className="p-5">
+                                <div className="flex items-start justify-between gap-4">
+                                    <div className="flex items-start gap-4">
+                                        <div className={`h-12 w-12 flex items-center justify-center border transition-all ${
+                                            session.is_current
+                                                ? "bg-blue-500/10 border-blue-500/30 text-blue-500"
+                                                : "bg-muted/40 border-border/40 text-muted-foreground group-hover:border-blue-500/20"
+                                        }`}>
+                                            <DeviceIcon device={session.device} />
                                         </div>
 
-                                        {!isCurrent && (
-                                            <Button
-                                                variant="ghost"
-                                                size="icon"
-                                                disabled={revoking === session.id}
-                                                onClick={() => handleRevoke(session.id)}
-                                                className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-lg shrink-0"
-                                                aria-label="Revoke session"
-                                            >
-                                                {revoking === session.id
-                                                    ? <Loader2 size={15} className="animate-spin" />
-                                                    : <Trash2 size={16} />
-                                                }
-                                            </Button>
-                                        )}
+                                        <div className="space-y-1">
+                                            <div className="flex items-center gap-2">
+                                                <h3 className="text-[14px] font-bold tracking-tight">{session.device}</h3>
+                                                {session.is_current && (
+                                                    <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-none px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest rounded-none">
+                                                        This device
+                                                    </Badge>
+                                                )}
+                                            </div>
+
+                                            <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] text-muted-foreground">
+                                                <span className="flex items-center gap-1.5 font-mono opacity-80">
+                                                    <Globe size={13} className="opacity-70" /> {session.ip_address}
+                                                </span>
+                                                <span className="opacity-30">•</span>
+                                                <span className="flex items-center gap-1.5 italic">
+                                                    <Clock size={13} className="opacity-70" /> {formatRelative(session.last_active)}
+                                                </span>
+                                            </div>
+
+                                            <div className="pt-2 flex items-center gap-2">
+                                                <Badge variant="outline" className="text-[9px] font-bold bg-muted/20 border-border/40 uppercase px-2 py-0 rounded-none">
+                                                    {session.browser}
+                                                </Badge>
+                                            </div>
+                                        </div>
                                     </div>
-                                </CardContent>
-                            </Card>
-                        );
-                    })}
+
+                                    {!session.is_current && (
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            disabled={revoking === session.id}
+                                            onClick={() => handleRevoke(session.id)}
+                                            className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10 rounded-none shrink-0"
+                                            aria-label="Revoke session"
+                                        >
+                                            {revoking === session.id
+                                                ? <Loader2 size={15} className="animate-spin" />
+                                                : <Trash2 size={16} />
+                                            }
+                                        </Button>
+                                    )}
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
                 </div>
             )}
 
-            <div className="flex items-start gap-4 p-5 rounded-2xl bg-blue-500/3 border border-blue-500/10 shadow-sm">
-                <div className="p-2.5 bg-blue-500/10 rounded-xl text-blue-500 shrink-0">
+            <div className="flex items-start gap-4 p-5 bg-blue-500/3 border border-blue-500/10">
+                <div className="p-2.5 bg-blue-500/10 text-blue-500 shrink-0">
                     <Shield size={20} />
                 </div>
                 <div className="space-y-1">

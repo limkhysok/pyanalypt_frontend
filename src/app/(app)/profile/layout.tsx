@@ -34,7 +34,7 @@ export default function ProfileLayout({ children }: Readonly<{ children: React.R
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
                     <aside className="lg:col-span-3 lg:sticky lg:top-20">
-                        <div className="p-1 rounded-2xl border border-border/40 bg-background/40 backdrop-blur-md">
+                        <div className="p-1 border border-border/40 bg-background/40 backdrop-blur-md">
                             <ProfileNav />
                         </div>
                     </aside>

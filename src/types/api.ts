@@ -86,6 +86,7 @@ export interface Session {
     ip_address: string;
     created_at: string;
     last_active: string;
+    is_current: boolean;
 }
 
 /** Returned by GET /auth/2fa/setup/ */

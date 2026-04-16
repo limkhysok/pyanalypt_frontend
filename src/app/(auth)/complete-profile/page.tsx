@@ -13,7 +13,14 @@ import { AuthShell } from "@/components/auth/AuthShell";
 
 export default function CompleteProfile() {
 	const router = useRouter();
-	const { refreshUser } = useAuth();
+	const { user, refreshUser } = useAuth();
+
+	// Redirect immediately if profile is already complete
+	React.useEffect(() => {
+		if (user?.full_name && user?.birthday) {
+			router.replace("/dashboard");
+		}
+	}, [user, router]);
 	
 	const [username, setUsername] = React.useState("");
 	const [fullName, setFullName] = React.useState("");
@@ -77,14 +84,20 @@ export default function CompleteProfile() {
 		setFieldErrors({});
 
 		try {
-			await authApi.completeProfile({ 
-				username, 
-				full_name: fullName, 
-				birthday 
+			await authApi.completeProfile({
+				username,
+				full_name: fullName,
+				birthday
 			});
 			await refreshUser();
 			router.push("/dashboard");
-		} catch (err) {
+		} catch (err: any) {
+			// Profile already complete — treat as success and redirect
+			if (err?.response?.status === 400 &&
+				err?.response?.data?.detail === "Profile has already been completed.") {
+				router.replace("/dashboard");
+				return;
+			}
 			const formattedErrors = formatFieldErrors(err);
 			if (formattedErrors) {
 				setFieldErrors(formattedErrors);

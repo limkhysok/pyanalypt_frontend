@@ -89,7 +89,16 @@ export default function Login() {
 			}
 
 			router.push("/dashboard");
-		} catch (err) {
+		} catch (err: any) {
+			// 429 and token-expired both require restarting from the login screen
+			if (err?.response?.status === 429) {
+				setStep("credentials");
+				setTotpToken("");
+				setTotpCode("");
+				setError("Too many attempts. Please try again later.");
+				triggerShake();
+				return;
+			}
 			const msg = getErrorMessage(err);
 			if (msg.toLowerCase().includes("expired")) {
 				setStep("credentials");
