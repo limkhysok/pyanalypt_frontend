@@ -29,6 +29,7 @@ import { DatasetControls } from "./DatasetControls";
 import { DatasetTable } from "./DatasetTable";
 import { DatasetLogs } from "./DatasetLogs";
 import { RenameDialog } from "./RenameDialog";
+import { DeleteDialog } from "./DeleteDialog";
 
 // ─────────────────────────────────────────────
 // DatasetPage
@@ -53,6 +54,8 @@ export default function DatasetPage() {
     // Dialog state
     const [selectedImportFormat, setSelectedImportFormat] = useState<DatasetExportFormat | null>(null);
     const [isRenameOpen, setIsRenameOpen]                 = useState(false);
+    const [isDeleteOpen, setIsDeleteOpen]                 = useState(false);
+    const [isDeleting, setIsDeleting]                     = useState(false);
     const [selectedDataset, setSelectedDataset]           = useState<Dataset | null>(null);
     const [newName, setNewName]                           = useState("");
 
@@ -177,6 +180,29 @@ export default function DatasetPage() {
         setNewName(baseName);
         setIsRenameOpen(true);
     };
+    
+    const handleRemoveOpen = (dataset: Dataset) => {
+        setSelectedDataset(dataset);
+        setIsDeleteOpen(true);
+    };
+
+    const handleRemove = async () => {
+        if (!selectedDataset) return;
+        setIsDeleting(true);
+        try {
+            await datasetApi.deleteDataset(selectedDataset.id);
+            toast.success("Artifact erased.");
+            setIsDeleteOpen(false);
+            fetchDatasets();
+            fetchLogs();
+        } catch (error) {
+            console.error("Deletion failed", error);
+            toast.error("Failed to erase artifact.");
+        } finally {
+            setIsDeleting(false);
+            setSelectedDataset(null);
+        }
+    };
 
     // ── Derived values ─────────────────────────────────────────────────────────
 
@@ -291,7 +317,9 @@ export default function DatasetPage() {
                                 onRename={handleRenameOpen}
                                 onExport={handleExport}
                                 onDuplicate={handleDuplicate}
+                                onDelete={handleRemoveOpen}
                             />
+
                         </motion.div>
                     </TabsContent>
 
@@ -308,6 +336,14 @@ export default function DatasetPage() {
                 value={newName}
                 onChange={setNewName}
                 onConfirm={handleRename}
+            />
+
+            <DeleteDialog
+                open={isDeleteOpen}
+                onOpenChange={setIsDeleteOpen}
+                fileName={selectedDataset?.file_name}
+                isLoading={isDeleting}
+                onConfirm={handleRemove}
             />
 
             {/* Hidden file input */}

@@ -11,6 +11,7 @@ import {
     Loader2,
     Plus,
     Copy,
+    Trash2,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
@@ -56,7 +57,9 @@ interface DatasetTableProps {
     onRename: (dataset: Dataset) => void;
     onExport: (dataset: Dataset, format?: DatasetExportFormat) => void;
     onDuplicate: (dataset: Dataset, format?: DatasetExportFormat) => void;
+    onDelete: (dataset: Dataset) => void;
 }
+
 
 // ─────────────────────────────────────────────
 // DatasetTable
@@ -71,6 +74,7 @@ export function DatasetTable({
     onRename,
     onExport,
     onDuplicate,
+    onDelete,
 }: Readonly<DatasetTableProps>) {
     
     const FORMATS: DatasetExportFormat[] = ["csv", "json", "xlsx", "parquet", "sql"];
@@ -233,7 +237,17 @@ export function DatasetTable({
                                                                 <DropdownMenuItem className="rounded-none text-sm font-medium" onClick={() => onExport(dataset, "sql")}>sql</DropdownMenuItem>
                                                             </DropdownMenuSubContent>
                                                         </DropdownMenuSub>
+
+                                                        <DropdownMenuSeparator />
+                                                        
+                                                        <DropdownMenuItem 
+                                                            className="rounded-none text-sm font-medium text-destructive focus:text-destructive" 
+                                                            onClick={() => onDelete(dataset)}
+                                                        >
+                                                            <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
+                                                        </DropdownMenuItem>
                                                     </DropdownMenuContent>
+
                                                 </DropdownMenu>
                                             </div>
                                         </td>

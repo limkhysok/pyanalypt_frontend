@@ -8,10 +8,6 @@ import {
     Trash2, 
     Copy, 
     Download, 
-    Monitor, 
-    Eye, 
-    Bug, 
-    BrainCircuit,
     Terminal
 } from "lucide-react";
 import { motion } from "motion/react";
@@ -28,10 +24,6 @@ const ACTION_ICONS: Record<string, any> = {
     DELETE:      Trash2,
     DUPLICATE:   Copy,
     EXPORT:      Download,
-    UPDATE_CELL: Monitor,
-    PREVIEW:     Eye,
-    DIAGNOSE:    Bug,
-    AI_ANALYSIS: BrainCircuit,
 };
 
 const ACTION_COLORS: Record<string, string> = {
@@ -40,11 +32,8 @@ const ACTION_COLORS: Record<string, string> = {
     DELETE:      "text-destructive bg-destructive/10",
     DUPLICATE:   "text-purple-500 bg-purple-500/10",
     EXPORT:      "text-amber-500 bg-amber-500/10",
-    UPDATE_CELL: "text-cyan-500 bg-cyan-500/10",
-    PREVIEW:     "text-slate-500 bg-slate-500/10",
-    DIAGNOSE:    "text-orange-500 bg-orange-500/10",
-    AI_ANALYSIS: "text-pink-500 bg-pink-500/10",
 };
+
 
 export function DatasetLogs({ logs, isLoading }: Readonly<DatasetLogsProps>) {
     if (isLoading) {
@@ -112,8 +101,12 @@ export function DatasetLogs({ logs, isLoading }: Readonly<DatasetLogsProps>) {
                                         {Object.entries(log.details).map(([key, val]) => (
                                             <div key={key} className="text-[10px] px-1.5 py-0.5 bg-muted font-mono text-muted-foreground/80 lowercase">
                                                 {key}: <span className="text-foreground/70">
-                                                    {typeof val === 'object' ? JSON.stringify(val) : String(val)}
+                                                    {typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean'
+                                                        ? String(val)
+                                                        : JSON.stringify(val)}
                                                 </span>
+
+
                                             </div>
                                         ))}
                                     </div>
