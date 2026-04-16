@@ -4,7 +4,6 @@ import {
     Dialog,
     DialogContent,
     DialogDescription,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
@@ -28,19 +27,20 @@ export function DeleteDialog({
 }: Readonly<DeleteDialogProps>) {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="rounded-none border-border shadow-none">
-                <DialogHeader>
-                    <DialogTitle className="text-base font-semibold">Purge artifact</DialogTitle>
-                    <DialogDescription className="text-sm font-medium text-muted-foreground">
-                        Are you sure you want to permanently erase{" "}
-                        <span className="font-bold text-foreground border-b border-foreground/30">{fileName}</span>?
-                        This operation is irreversible.
+            <DialogContent
+                className="max-w-[320px] rounded-none sm:rounded-none border-border shadow-none p-5 gap-4"
+                aria-describedby="delete-dialog-description"
+            >
+                <DialogHeader className="space-y-1 text-left">
+                    <DialogTitle className="text-base font-semibold text-destructive">Delete artifact</DialogTitle>
+                    <DialogDescription id="delete-dialog-description" className="text-sm font-medium text-muted-foreground">
+                        This action cannot be undone. Are you sure you want to erase <span className="font-bold text-foreground border-b border-foreground/30">{fileName}</span>?
                     </DialogDescription>
                 </DialogHeader>
-                <DialogFooter className="gap-2 sm:gap-0 mt-4">
+                <div className="flex justify-end gap-3 mt-2">
                     <Button
                         variant="outline"
-                        className="rounded-none h-10 font-medium text-sm shadow-none flex-1 sm:flex-none"
+                        className="rounded-none h-9 font-medium text-sm shadow-none px-4"
                         onClick={() => onOpenChange(false)}
                         disabled={isLoading}
                     >
@@ -48,14 +48,14 @@ export function DeleteDialog({
                     </Button>
                     <Button
                         variant="destructive"
-                        className="rounded-none h-10 font-medium text-sm shadow-none flex-1 sm:flex-none"
+                        className="rounded-none h-9 font-medium text-sm shadow-none px-4"
                         onClick={onConfirm}
                         disabled={isLoading}
                     >
                         {isLoading ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" /> : null}
-                        {isLoading ? "Purging…" : "Confirm purge"}
+                        {isLoading ? "Deleting…" : "Delete"}
                     </Button>
-                </DialogFooter>
+                </div>
             </DialogContent>
         </Dialog>
     );

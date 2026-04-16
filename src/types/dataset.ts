@@ -117,10 +117,12 @@ export interface IssueSummaryResponse {
   dataset_level_issues: number;
 }
 
-export interface DatasetFrame {
+export interface DatasetActivityLog {
   id: number;
-  dataset: number;
-  model_used: string;
-  result: string;
-  created_at: string;
+  user: number;
+  dataset: number | null;
+  dataset_name_snap: string;
+  action: 'UPLOAD' | 'RENAME' | 'DELETE' | 'DUPLICATE' | 'EXPORT' | 'UPDATE_CELL' | 'PREVIEW' | 'DIAGNOSE' | 'AI_ANALYSIS';
+  details: Record<string, any>;
+  timestamp: string;
 }

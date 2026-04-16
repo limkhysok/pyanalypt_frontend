@@ -4,8 +4,8 @@ import React, { useEffect, useState, useCallback, useMemo, useRef } from "react"
 import { motion } from "motion/react";
 import { useAuth } from "@/context/auth-context";
 import { useRouter } from "next/navigation";
-import { datasetApi, framingApi } from "@/services/api";
-import { Dataset, DatasetExportFormat } from "@/types/dataset";
+import { datasetApi } from "@/services/api";
+import { Dataset, DatasetExportFormat, DatasetActivityLog } from "@/types/dataset";
 import { toast } from "sonner";
 
 import {
@@ -17,13 +17,18 @@ import {
     getImportAccept,
     exportDataset,
 } from "./_lib";
+import {
+    Tabs,
+    TabsContent,
+    TabsList,
+    TabsTrigger,
+} from "@/components/ui/tabs";
 import { DatasetHeader } from "./DatasetHeader";
 import { DatasetStats } from "./DatasetStats";
 import { DatasetControls } from "./DatasetControls";
 import { DatasetTable } from "./DatasetTable";
+import { DatasetLogs } from "./DatasetLogs";
 import { RenameDialog } from "./RenameDialog";
-import { DeleteDialog } from "./DeleteDialog";
-import { AIAnalysisDialog } from "./AIAnalysisDialog";
 
 // ─────────────────────────────────────────────
 // DatasetPage
@@ -36,24 +41,20 @@ export default function DatasetPage() {
     // ── State ──────────────────────────────────────────────────────────────────
 
     const [datasets, setDatasets]                         = useState<Dataset[]>([]);
+    const [activityLogs, setActivityLogs]                 = useState<DatasetActivityLog[]>([]);
     const [isLoading, setIsLoading]                       = useState(true);
+    const [logsLoading, setLogsLoading]                   = useState(false);
     const [searchQuery, setSearchQuery]                   = useState("");
     const [sortBy, setSortBy]                             = useState("newest");
     const [filterType, setFilterType]                     = useState("all");
     const [uploadLoading, setUploadLoading]               = useState(false);
-    const [issueLoading, setIssueLoading]                 = useState<number | null>(null);
     const [exportingDatasetId, setExportingDatasetId]     = useState<number | null>(null);
-    const [deleteLoading, setDeleteLoading]               = useState(false);
-    const [aiAnalysisLoading, setAiAnalysisLoading]       = useState<number | null>(null);
 
     // Dialog state
     const [selectedImportFormat, setSelectedImportFormat] = useState<DatasetExportFormat | null>(null);
     const [isRenameOpen, setIsRenameOpen]                 = useState(false);
-    const [isDeleteOpen, setIsDeleteOpen]                 = useState(false);
     const [selectedDataset, setSelectedDataset]           = useState<Dataset | null>(null);
-    const [deleteTarget, setDeleteTarget]                 = useState<Dataset | null>(null);
     const [newName, setNewName]                           = useState("");
-    const [aiAnalysisResult, setAiAnalysisResult]         = useState<{ fileName: string; statements: string } | null>(null);
 
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -71,6 +72,18 @@ export default function DatasetPage() {
         }
     }, []);
 
+    const fetchLogs = useCallback(async () => {
+        setLogsLoading(true);
+        try {
+            const data = await datasetApi.listActivityLogs();
+            setActivityLogs(data);
+        } catch (error) {
+            console.error("Failed to fetch logs", error);
+        } finally {
+            setLogsLoading(false);
+        }
+    }, []);
+
     useEffect(() => {
         if (authLoading) return;
         if (!isAuthenticated) {
@@ -78,7 +91,8 @@ export default function DatasetPage() {
             return;
         }
         fetchDatasets();
-    }, [authLoading, isAuthenticated, fetchDatasets, router]);
+        fetchLogs();
+    }, [authLoading, isAuthenticated, fetchDatasets, fetchLogs, router]);
 
     // ── Upload / import ────────────────────────────────────────────────────────
 
@@ -113,54 +127,14 @@ export default function DatasetPage() {
 
     // ── Actions ────────────────────────────────────────────────────────────────
 
-    const handleDiagnose = async (id: number) => {
-        try {
-            setIssueLoading(id);
-            toast.info("Processing issue detection...");
-            await datasetApi.diagnoseDataset(id);
-            toast.success("Issue detection complete. Issues logged.");
-            router.push(`/issues?dataset=${id}`);
-        } catch (error) {
-            if (error instanceof Error && error.message.includes("Diagnose endpoint not found")) {
-                toast.warning("Issue scan endpoint is unavailable. Opening issues page.");
-                router.push("/issues");
-            } else {
-                console.error("Issue detection error:", error);
-                toast.error("Issue detection failed.");
-            }
-        } finally {
-            setIssueLoading(null);
-        }
-    };
-
-    const handleAIAnalysis = async (dataset: { id: number; file_name: string }) => {
-        setAiAnalysisLoading(dataset.id);
-        setAiAnalysisResult({ fileName: dataset.file_name, statements: "" });
-        try {
-            await framingApi.stream(
-                dataset.id,
-                (token) =>
-                    setAiAnalysisResult((prev) =>
-                        prev ? { ...prev, statements: prev.statements + token } : null
-                    ),
-                () => setAiAnalysisLoading(null),
-                (err) => {
-                    console.error("Problem Framing stream error", err);
-                    toast.error("Problem Framing failed. Make sure Ollama is running.");
-                    setAiAnalysisLoading(null);
-                }
-            );
-        } catch (error) {
-            console.error("Problem Framing failed", error);
-            toast.error("Problem Framing failed. Make sure Ollama is running.");
-            setAiAnalysisLoading(null);
-        }
-    };
-
     const handleRename = async () => {
         if (!selectedDataset || !newName.trim()) return;
+        
+        const ext = selectedDataset.file_name.split('.').pop();
+        const finalName = ext ? `${newName.trim()}.${ext}` : newName.trim();
+
         try {
-            await datasetApi.renameDataset(selectedDataset.id, { file_name: newName });
+            await datasetApi.renameDataset(selectedDataset.id, { file_name: finalName });
             toast.success("Artifact renamed.");
             setIsRenameOpen(false);
             setSelectedDataset(null);
@@ -172,22 +146,6 @@ export default function DatasetPage() {
         }
     };
 
-    const handleDelete = async () => {
-        if (!deleteTarget) return;
-        setDeleteLoading(true);
-        try {
-            await datasetApi.deleteDataset(deleteTarget.id);
-            toast.success("Dataset deleted.");
-            setIsDeleteOpen(false);
-            setDeleteTarget(null);
-            fetchDatasets();
-        } catch (error) {
-            console.error("Delete failed", error);
-            toast.error("Failed to delete dataset.");
-        } finally {
-            setDeleteLoading(false);
-        }
-    };
     const handleExport = async (dataset: Dataset, format?: DatasetExportFormat) => {
         if (exportingDatasetId === dataset.id) return;
         setExportingDatasetId(dataset.id);
@@ -213,16 +171,11 @@ export default function DatasetPage() {
         }
     };
 
-    // Table row callbacks
     const handleRenameOpen = (dataset: Dataset) => {
         setSelectedDataset(dataset);
-        setNewName(dataset.file_name);
+        const baseName = dataset.file_name.replace(/\.[^/.]+$/, "");
+        setNewName(baseName);
         setIsRenameOpen(true);
-    };
-
-    const handleDeleteOpen = (dataset: Dataset) => {
-        setDeleteTarget(dataset);
-        setIsDeleteOpen(true);
     };
 
     // ── Derived values ─────────────────────────────────────────────────────────
@@ -282,7 +235,7 @@ export default function DatasetPage() {
                 {/* Header */}
                 <DatasetHeader uploadLoading={uploadLoading} onFormatSelect={handleImportFormatSelect} />
 
-                {/* Stats */}
+                {/* Stats (Global Overview) */}
                 {datasets.length > 0 && (
                     <DatasetStats
                         total={stats.total}
@@ -294,44 +247,60 @@ export default function DatasetPage() {
                     />
                 )}
 
-                {/* Controls */}
-                <DatasetControls
-                    searchQuery={searchQuery}
-                    onSearchChange={setSearchQuery}
-                    sortBy={sortBy}
-                    onSortChange={setSortBy}
-                    filterType={filterType}
-                    onFilterChange={setFilterType}
-                    countLabel={countLabel}
-                    showCount={datasets.length > 0}
-                />
+                <Tabs defaultValue="artifacts" className="w-full">
+                    <TabsList className="rounded-none bg-muted/30 border border-border/40 p-0 h-9">
+                        <TabsTrigger
+                            value="artifacts"
+                            className="rounded-none h-full px-6 data-[state=active]:bg-background data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary transition-all text-sm font-medium"
+                        >
+                            Artifacts
+                        </TabsTrigger>
+                        <TabsTrigger
+                            value="logs"
+                            className="rounded-none h-full px-6 data-[state=active]:bg-background data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary transition-all text-sm font-medium"
+                        >
+                            System logs
+                        </TabsTrigger>
+                    </TabsList>
 
-                {/* Table */}
-                <motion.div
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.4, delay: 0.18 }}
-                >
-                    <DatasetTable
-                        datasets={datasets}
-                        filteredDatasets={filteredDatasets}
-                        isLoading={isLoading}
-                        issueLoading={issueLoading}
-                        aiAnalysisLoading={aiAnalysisLoading}
-                        exportingDatasetId={exportingDatasetId}
-                        onFormatSelect={handleImportFormatSelect}
-                        onRename={handleRenameOpen}
-                        onDelete={handleDeleteOpen}
-                        onExport={handleExport}
-                        onDuplicate={handleDuplicate}
-                        onDiagnose={handleDiagnose}
-                        onAIAnalysis={handleAIAnalysis}
-                    />
-                </motion.div>
+                    <TabsContent value="artifacts" className="space-y-5 pt-4 outline-none">
+                        {/* Controls */}
+                        <DatasetControls
+                            searchQuery={searchQuery}
+                            onSearchChange={setSearchQuery}
+                            sortBy={sortBy}
+                            onSortChange={setSortBy}
+                            filterType={filterType}
+                            onFilterChange={setFilterType}
+                            countLabel={countLabel}
+                            showCount={datasets.length > 0}
+                        />
+
+                        {/* Table */}
+                        <motion.div
+                            initial={{ opacity: 0, y: 16 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ duration: 0.4, delay: 0.18 }}
+                        >
+                            <DatasetTable
+                                datasets={datasets}
+                                filteredDatasets={filteredDatasets}
+                                isLoading={isLoading}
+                                exportingDatasetId={exportingDatasetId}
+                                onFormatSelect={handleImportFormatSelect}
+                                onRename={handleRenameOpen}
+                                onExport={handleExport}
+                                onDuplicate={handleDuplicate}
+                            />
+                        </motion.div>
+                    </TabsContent>
+
+                    <TabsContent value="logs" className="pt-4 outline-none">
+                        <DatasetLogs logs={activityLogs} isLoading={logsLoading} />
+                    </TabsContent>
+                </Tabs>
 
             </div>
-
-
 
             <RenameDialog
                 open={isRenameOpen}
@@ -339,20 +308,6 @@ export default function DatasetPage() {
                 value={newName}
                 onChange={setNewName}
                 onConfirm={handleRename}
-            />
-
-            <DeleteDialog
-                open={isDeleteOpen}
-                onOpenChange={setIsDeleteOpen}
-                fileName={deleteTarget?.file_name}
-                isLoading={deleteLoading}
-                onConfirm={handleDelete}
-            />
-
-            <AIAnalysisDialog
-                result={aiAnalysisResult}
-                isStreaming={aiAnalysisLoading !== null}
-                onClose={() => setAiAnalysisResult(null)}
             />
 
             {/* Hidden file input */}

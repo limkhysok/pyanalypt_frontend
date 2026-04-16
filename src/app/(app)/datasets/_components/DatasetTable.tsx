@@ -1,19 +1,13 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import {
     Database,
     Search,
     FileText,
     Download,
-    Eye,
-    Bug,
-    Sparkles,
     Calendar,
-    Trash2,
     MoreVertical,
     Edit2,
-    BrainCircuit,
     Loader2,
     Plus,
     Copy,
@@ -21,11 +15,6 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {
-    HoverCard,
-    HoverCardContent,
-    HoverCardTrigger,
-} from "@/components/ui/hover-card";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -37,8 +26,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Dataset, DatasetExportFormat } from "@/types/dataset";
-import { cn } from "@/lib/utils";
-import { FORMAT_COLORS, formatFileSize } from "./_lib";
+import { formatFileSize } from "./_lib";
 
 // ─────────────────────────────────────────────
 // FormatBadge
@@ -63,16 +51,11 @@ interface DatasetTableProps {
     datasets: Dataset[];
     filteredDatasets: Dataset[];
     isLoading: boolean;
-    issueLoading: number | null;
-    aiAnalysisLoading: number | null;
     exportingDatasetId: number | null;
     onFormatSelect: (format: DatasetExportFormat) => void;
     onRename: (dataset: Dataset) => void;
-    onDelete: (dataset: Dataset) => void;
     onExport: (dataset: Dataset, format?: DatasetExportFormat) => void;
     onDuplicate: (dataset: Dataset, format?: DatasetExportFormat) => void;
-    onDiagnose: (id: number) => void;
-    onAIAnalysis: (dataset: { id: number; file_name: string }) => void;
 }
 
 // ─────────────────────────────────────────────
@@ -83,19 +66,13 @@ export function DatasetTable({
     datasets,
     filteredDatasets,
     isLoading,
-    issueLoading,
-    aiAnalysisLoading,
     exportingDatasetId,
     onFormatSelect,
     onRename,
-    onDelete,
     onExport,
     onDuplicate,
-    onDiagnose,
-    onAIAnalysis,
 }: Readonly<DatasetTableProps>) {
-    const router = useRouter();
-
+    
     const FORMATS: DatasetExportFormat[] = ["csv", "json", "xlsx", "parquet", "sql"];
 
     // ── Loading skeleton ──────────────────────────────────────────────────────
@@ -210,84 +187,6 @@ export function DatasetTable({
 
                                         <td className="px-4 py-3 text-right">
                                             <div className="flex items-center justify-end gap-1">
-
-                                                {/* Preview */}
-                                                <HoverCard openDelay={300} closeDelay={100}>
-                                                    <HoverCardTrigger asChild>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-8 w-8 rounded-none text-muted-foreground hover:text-foreground hover:bg-muted"
-                                                            onClick={() => router.push(`/datasets/${dataset.id}/preview`)}
-                                                        >
-                                                            <Eye className="h-3.5 w-3.5" />
-                                                        </Button>
-                                                    </HoverCardTrigger>
-                                                    <HoverCardContent side="top" className="rounded-none w-auto px-2.5 py-1 text-xs font-medium bg-background border-border shadow-none">
-                                                        Preview
-                                                    </HoverCardContent>
-                                                </HoverCard>
-
-                                                {/* Diagnose */}
-                                                <HoverCard openDelay={300} closeDelay={100}>
-                                                    <HoverCardTrigger asChild>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-8 w-8 rounded-none text-muted-foreground hover:text-foreground hover:bg-muted"
-                                                            onClick={() => onDiagnose(dataset.id)}
-                                                            disabled={issueLoading === dataset.id}
-                                                        >
-                                                            {issueLoading === dataset.id
-                                                                ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                                                : <Bug className="h-3.5 w-3.5" />
-                                                            }
-                                                        </Button>
-                                                    </HoverCardTrigger>
-                                                    <HoverCardContent side="top" className="rounded-none w-auto px-2.5 py-1 text-xs font-medium bg-background border-border shadow-none">
-                                                        Diagnose
-                                                    </HoverCardContent>
-                                                </HoverCard>
-
-                                                {/* Problem framing */}
-                                                <HoverCard openDelay={300} closeDelay={100}>
-                                                    <HoverCardTrigger asChild>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-8 w-8 rounded-none text-muted-foreground hover:text-foreground hover:bg-muted"
-                                                            onClick={() => onAIAnalysis(dataset)}
-                                                            disabled={aiAnalysisLoading === dataset.id}
-                                                        >
-                                                            {aiAnalysisLoading === dataset.id
-                                                                ? <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                                                                : <BrainCircuit className="h-3.5 w-3.5" />
-                                                            }
-                                                        </Button>
-                                                    </HoverCardTrigger>
-                                                    <HoverCardContent side="top" className="rounded-none w-auto px-2.5 py-1 text-xs font-medium bg-background border-border shadow-none">
-                                                        Analysis
-                                                    </HoverCardContent>
-                                                </HoverCard>
-
-                                                {/* Clean */}
-                                                <HoverCard openDelay={300} closeDelay={100}>
-                                                    <HoverCardTrigger asChild>
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            className="h-8 w-8 rounded-none text-muted-foreground hover:text-foreground hover:bg-muted"
-                                                            onClick={() => router.push(`/clean?dataset=${dataset.id}`)}
-                                                        >
-                                                            <Sparkles className="h-3.5 w-3.5" />
-                                                        </Button>
-                                                    </HoverCardTrigger>
-                                                    <HoverCardContent side="top" className="rounded-none w-auto px-2.5 py-1 text-xs font-medium bg-background border-border shadow-none">
-                                                        Clean
-                                                    </HoverCardContent>
-                                                </HoverCard>
-
-                                                {/* More actions */}
                                                 <DropdownMenu>
                                                     <DropdownMenuTrigger asChild>
                                                         <Button
@@ -306,6 +205,7 @@ export function DatasetTable({
                                                         <DropdownMenuItem className="rounded-none text-sm font-medium" onClick={() => onRename(dataset)}>
                                                             <Edit2 className="mr-2 h-3.5 w-3.5" /> Rename
                                                         </DropdownMenuItem>
+
                                                         <DropdownMenuSub>
                                                             <DropdownMenuSubTrigger className="rounded-none text-sm font-medium">
                                                                 <Copy className="mr-2 h-3.5 w-3.5" /> Duplicate
@@ -320,6 +220,7 @@ export function DatasetTable({
                                                                 ))}
                                                             </DropdownMenuSubContent>
                                                         </DropdownMenuSub>
+
                                                         <DropdownMenuSub>
                                                             <DropdownMenuSubTrigger className="rounded-none text-sm font-medium">
                                                                 <Download className="mr-2 h-3.5 w-3.5" /> Export
@@ -332,16 +233,8 @@ export function DatasetTable({
                                                                 <DropdownMenuItem className="rounded-none text-sm font-medium" onClick={() => onExport(dataset, "sql")}>sql</DropdownMenuItem>
                                                             </DropdownMenuSubContent>
                                                         </DropdownMenuSub>
-                                                        <DropdownMenuSeparator />
-                                                        <DropdownMenuItem
-                                                            className="rounded-none text-sm font-medium text-destructive focus:text-destructive"
-                                                            onClick={() => onDelete(dataset)}
-                                                        >
-                                                            <Trash2 className="mr-2 h-3.5 w-3.5" /> Delete
-                                                        </DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
-
                                             </div>
                                         </td>
                                     </motion.tr>

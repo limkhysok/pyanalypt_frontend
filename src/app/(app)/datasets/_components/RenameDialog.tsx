@@ -4,7 +4,6 @@ import {
     Dialog,
     DialogContent,
     DialogDescription,
-    DialogFooter,
     DialogHeader,
     DialogTitle,
 } from "@/components/ui/dialog";
@@ -29,40 +28,44 @@ export function RenameDialog({
 }: Readonly<RenameDialogProps>) {
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="rounded-none border-border shadow-none">
-                <DialogHeader>
+            <DialogContent 
+                className="max-w-[320px] rounded-none sm:rounded-none border-border shadow-none p-5 gap-4"
+                aria-describedby={undefined}
+            >
+                <DialogHeader className="space-y-1 text-left">
                     <DialogTitle className="text-base font-semibold">Rename artifact</DialogTitle>
-                    <DialogDescription className="text-sm font-medium text-muted-foreground">
-                        Modify the unique identifier for this dataset.
+                    <DialogDescription className="sr-only">
+                        Enter a new name for the dataset.
                     </DialogDescription>
                 </DialogHeader>
-                <div className="py-4 space-y-2">
+                <div className="space-y-2">
                     <Label htmlFor="rename-input" className="text-sm font-medium text-muted-foreground">New identifier</Label>
                     <Input
                         id="rename-input"
-                        className="rounded-none h-10 border-border bg-background focus-visible:ring-1 focus-visible:ring-foreground transition-all shadow-none font-medium text-xs"
+                        className="rounded-none h-9 border-border bg-background focus-visible:ring-1 focus-visible:ring-foreground transition-all shadow-none font-medium text-sm"
                         value={value}
+                        placeholder="e.g. sales_data_v2"
                         onChange={(e) => onChange(e.target.value)}
                         onKeyDown={(e) => e.key === "Enter" && onConfirm()}
                         autoFocus
                     />
                 </div>
-                <DialogFooter className="gap-2 sm:gap-0">
+                <div className="flex justify-end gap-3">
                     <Button
                         variant="outline"
-                        className="rounded-none h-10 font-medium text-sm shadow-none flex-1 sm:flex-none"
+                        className="rounded-none h-9 font-medium text-sm shadow-none px-4"
                         onClick={() => onOpenChange(false)}
                     >
-                        Abort
+                        Cancel
                     </Button>
                     <Button
-                        className="rounded-none h-10 bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-sm shadow-none flex-1 sm:flex-none"
+                        className="rounded-none h-9 bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-sm shadow-none px-4"
                         onClick={onConfirm}
                         disabled={!value.trim()}
                     >
-                        Commit
+                        Rename
                     </Button>
-                </DialogFooter>
+                </div>
             </DialogContent>
         </Dialog>
     );

@@ -14,6 +14,7 @@ import {
   DiagnoseResponse,
   UpdateIssueRequest,
   IssueSummaryResponse,
+  DatasetActivityLog,
 } from '@/types/dataset';
 
 export const datasetApi = {
@@ -197,6 +198,16 @@ export const datasetApi = {
    */
   async getIssueSummary(datasetId: number): Promise<IssueSummaryResponse> {
     const response = await apiClient.get<IssueSummaryResponse>(`issues/summary/${datasetId}/`);
+    return response.data;
+  },
+  
+  /**
+   * List all activity logs for the current user's datasets.
+   */
+  async listActivityLogs(datasetId?: number): Promise<DatasetActivityLog[]> {
+    const response = await apiClient.get<DatasetActivityLog[]>('datasets/activity_logs/', {
+      params: datasetId ? { dataset: datasetId } : undefined,
+    });
     return response.data;
   },
 

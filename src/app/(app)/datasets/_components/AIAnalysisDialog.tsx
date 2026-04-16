@@ -29,7 +29,7 @@ export function AIAnalysisDialog({
 }: Readonly<AIAnalysisDialogProps>) {
     return (
         <Dialog open={!!result} onOpenChange={(open) => { if (!open) onClose(); }}>
-            <DialogContent className="max-w-2xl rounded-none border-border shadow-none">
+            <DialogContent className="max-w-2xl rounded-none sm:rounded-none border-border shadow-none">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2 text-base font-semibold">
                         <BrainCircuit className="h-4 w-4" />
