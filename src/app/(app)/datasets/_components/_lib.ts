@@ -142,7 +142,7 @@ async function handleExportFallback(
         if (formatMismatch) {
             toast.warning(`Converted export unavailable. Downloaded original ${dataset.file_format} file instead.`);
         } else {
-            toast.success("Export ready.");
+            toast.info("Export ready.");
         }
     } catch (fallbackError) {
         console.error("Export failed", error);
@@ -159,7 +159,7 @@ export async function exportDataset(dataset: Dataset, explicitFormat?: DatasetEx
         const fallbackName       = `${dataset.file_name.replace(/\.[^.]+$/, "")}.${fallbackExt}`;
         const downloadName       = filename ? decodeURIComponent(filename) : fallbackName;
         triggerDownload(blob, downloadName);
-        toast.success("Export ready.");
+        toast.info("Export ready.");
     } catch (error) {
         await handleExportFallback(dataset, explicitFormat, error);
     }

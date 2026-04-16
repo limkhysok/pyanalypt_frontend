@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "@/styles/globals.css";
 import { outfit } from "@/styles/fonts";
 import { Providers } from "@/context/providers";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
     title: "PyAnalypt",

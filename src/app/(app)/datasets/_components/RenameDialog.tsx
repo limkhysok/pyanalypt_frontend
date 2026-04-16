@@ -30,7 +30,6 @@ export function RenameDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent 
                 className="max-w-[320px] rounded-none sm:rounded-none border-border shadow-none p-5 gap-4"
-                aria-describedby={undefined}
             >
                 <DialogHeader className="space-y-1 text-left">
                     <DialogTitle className="text-base font-semibold">Rename artifact</DialogTitle>

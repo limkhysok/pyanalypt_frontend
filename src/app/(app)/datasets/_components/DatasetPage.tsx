@@ -137,7 +137,7 @@ export default function DatasetPage() {
 
         try {
             await datasetApi.renameDataset(selectedDataset.id, { file_name: finalName });
-            toast.success("Artifact renamed.");
+            toast.info("Artifact renamed.");
             setIsRenameOpen(false);
             setSelectedDataset(null);
             setNewName("");
@@ -165,7 +165,7 @@ export default function DatasetPage() {
                 format: format,
                 new_file_name: `${dataset.file_name.replace(/\.[^.]+$/, "")}_copy`
             });
-            toast.success("Artifact duplicated.", { id });
+            toast.info("Artifact duplicated.", { id });
             fetchDatasets();
         } catch (error) {
             console.error("Duplication failed", error);

@@ -29,11 +29,10 @@ export function DeleteDialog({
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent
                 className="max-w-[320px] rounded-none sm:rounded-none border-border shadow-none p-5 gap-4"
-                aria-describedby="delete-dialog-description"
             >
                 <DialogHeader className="space-y-1 text-left">
                     <DialogTitle className="text-base font-semibold text-destructive">Delete artifact</DialogTitle>
-                    <DialogDescription id="delete-dialog-description" className="text-sm font-medium text-muted-foreground">
+                    <DialogDescription className="text-sm font-medium text-muted-foreground">
                         This action cannot be undone. Are you sure you want to erase <span className="font-bold text-foreground border-b border-foreground/30">{fileName}</span>?
                     </DialogDescription>
                 </DialogHeader>
