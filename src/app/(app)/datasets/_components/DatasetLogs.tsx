@@ -68,45 +68,42 @@ export function DatasetLogs({ logs, isLoading }: Readonly<DatasetLogsProps>) {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.2, delay: idx * 0.03 }}
                     >
-                        <Card className="rounded-none border-border/40 shadow-none hover:bg-muted/30 transition-colors p-3">
-                            <div className="flex items-center gap-4">
-                                <div className={`h-8 w-8 shrink-0 flex items-center justify-center ${colorClass}`}>
-                                    <Icon className="h-4 w-4" />
+                        <Card className="rounded-none border-border/40 shadow-none hover:bg-muted/30 transition-colors p-4">
+                            <div className="flex items-center gap-5">
+                                <div className={`h-10 w-10 shrink-0 flex items-center justify-center ${colorClass}`}>
+                                    <Icon className="h-5 w-5" />
                                 </div>
                                 
                                 <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/60 w-24">
+                                    <div className="flex items-center gap-3">
+                                        <span className="text-xs font-bold lowercase text-muted-foreground/60 w-24">
                                             {log.action.replace("_", " ")}
                                         </span>
-                                        <span className="text-sm font-medium truncate">
+                                        <span className="text-[15px] font-bold truncate tracking-tight">
                                             {log.dataset_name_snap}
                                         </span>
                                     </div>
                                     
-                                    <div className="flex items-center gap-3 mt-1">
-                                        <div className="flex items-center gap-1 text-[11px] text-muted-foreground">
-                                            <Clock size={11} />
+                                    <div className="flex items-center gap-4 mt-1.5">
+                                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground font-medium lowercase">
+                                            <Clock size={12} />
                                             {new Date(log.timestamp).toLocaleString('en-US', {
                                                 month: 'short',
                                                 day: 'numeric',
                                                 hour: '2-digit',
                                                 minute: '2-digit',
-                                                second: '2-digit',
                                                 hour12: false
                                             })}
                                         </div>
                                         
                                         {/* Dynamic details badge */}
                                         {Object.entries(log.details).map(([key, val]) => (
-                                            <div key={key} className="text-[10px] px-1.5 py-0.5 bg-muted font-mono text-muted-foreground/80 lowercase">
-                                                {key}: <span className="text-foreground/70">
+                                            <div key={key} className="text-xs px-2 py-0.5 bg-muted font-bold text-muted-foreground/70 lowercase">
+                                                {key}: <span className="text-foreground/80">
                                                     {typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean'
                                                         ? String(val)
                                                         : JSON.stringify(val)}
                                                 </span>
-
-
                                             </div>
                                         ))}
                                     </div>

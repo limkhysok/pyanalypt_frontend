@@ -10,7 +10,6 @@ import { toast } from "sonner";
 
 import {
     STORAGE_LIMIT,
-    storageBarColor,
     getUsageLabel,
     getCountLabel,
     compareDatasets,
@@ -227,7 +226,6 @@ export default function DatasetPage() {
 
     const isFiltering       = searchQuery !== "" || filterType !== "all";
     const usagePct          = Math.min((stats.totalSize / STORAGE_LIMIT) * 100, 100);
-    const storageColorClass = storageBarColor(usagePct);
     const usageLabel        = getUsageLabel(usagePct);
     const countLabel        = getCountLabel(isFiltering, filteredDatasets.length, datasets.length);
     const importAccept = getImportAccept(selectedImportFormat);
@@ -236,10 +234,21 @@ export default function DatasetPage() {
 
     if (authLoading) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-background">
-                <div className="flex flex-col items-center gap-4">
-                    <div className="h-10 w-10 border-2 border-foreground border-t-transparent animate-spin" />
-                    <p className="text-sm font-medium text-muted-foreground">Initializing workspace…</p>
+            <div className="min-h-screen flex flex-col items-center justify-center bg-background p-6">
+                <div className="relative flex flex-col items-center gap-8">
+                    {/* Pulsing core */}
+                    <div className="relative">
+                        <div className="h-20 w-20 border-t-2 border-r-2 border-foreground rounded-full animate-spin" />
+                        <div className="absolute inset-0 h-20 w-20 border-b-2 border-l-2 border-foreground/20 rounded-full animate-[spin_2s_linear_infinite_reverse]" />
+                    </div>
+                    <div className="flex flex-col items-center gap-2 text-center">
+                        <span className="text-xs font-bold lowercase tracking-widest text-foreground/40 animate-pulse">
+                            preparing_datasets
+                        </span>
+                        <h2 className="text-base font-bold tracking-tight text-foreground/80">
+                            setting up your workspace...
+                        </h2>
+                    </div>
                 </div>
             </div>
         );
@@ -248,17 +257,17 @@ export default function DatasetPage() {
     // ── Render ─────────────────────────────────────────────────────────────────
 
     return (
-        <main className="min-h-screen pb-10 px-4 md:px-6 bg-background relative z-0">
+        <main className="min-h-screen pb-24 px-6 md:px-10 bg-background relative z-0">
 
-            {/* Background */}
+            {/* Background Grid */}
             <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
                 <div className="absolute inset-0 bg-background" />
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[32px_32px]" />
+                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808006_1px,transparent_1px),linear-gradient(to_bottom,#80808006_1px,transparent_1px)] bg-size-[44px_44px] opacity-100" />
             </div>
 
-            <div className="max-w-7xl mx-auto space-y-5 pt-5">
+            <div className="max-w-7xl mx-auto space-y-10 pt-10 md:pt-16">
 
-                {/* Header */}
+                {/* Header Section */}
                 <DatasetHeader uploadLoading={uploadLoading} onFormatSelect={handleImportFormatSelect} />
 
                 {/* Stats (Global Overview) */}
@@ -268,28 +277,27 @@ export default function DatasetPage() {
                         formats={stats.formats}
                         totalSize={stats.totalSize}
                         usagePct={usagePct}
-                        storageColorClass={storageColorClass}
                         usageLabel={usageLabel}
                     />
                 )}
 
                 <Tabs defaultValue="artifacts" className="w-full">
-                    <TabsList className="rounded-none bg-muted/30 border border-border/40 p-0 h-9">
+                    <TabsList className="rounded-none bg-muted/40 border border-border/40 p-0.5 h-12 w-full sm:w-auto">
                         <TabsTrigger
                             value="artifacts"
-                            className="rounded-none h-full px-6 data-[state=active]:bg-background data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary transition-all text-sm font-medium"
+                            className="rounded-none h-full px-10 data-[state=active]:bg-background data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground transition-all text-sm font-bold lowercase tracking-tight flex-1 sm:flex-none"
                         >
-                            Artifacts
+                            datasets
                         </TabsTrigger>
                         <TabsTrigger
                             value="logs"
-                            className="rounded-none h-full px-6 data-[state=active]:bg-background data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-primary transition-all text-sm font-medium"
+                            className="rounded-none h-full px-10 data-[state=active]:bg-background data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground transition-all text-sm font-bold lowercase tracking-tight flex-1 sm:flex-none"
                         >
-                            System logs
+                            activity logs
                         </TabsTrigger>
                     </TabsList>
 
-                    <TabsContent value="artifacts" className="space-y-5 pt-4 outline-none">
+                    <TabsContent value="artifacts" className="space-y-8 pt-8 outline-none">
                         {/* Controls */}
                         <DatasetControls
                             searchQuery={searchQuery}
@@ -302,7 +310,7 @@ export default function DatasetPage() {
                             showCount={datasets.length > 0}
                         />
 
-                        {/* Table */}
+                        {/* Table Visualization */}
                         <motion.div
                             initial={{ opacity: 0, y: 16 }}
                             animate={{ opacity: 1, y: 0 }}
@@ -319,16 +327,16 @@ export default function DatasetPage() {
                                 onDuplicate={handleDuplicate}
                                 onDelete={handleRemoveOpen}
                             />
-
                         </motion.div>
                     </TabsContent>
 
-                    <TabsContent value="logs" className="pt-4 outline-none">
+                    <TabsContent value="logs" className="pt-8 outline-none">
                         <DatasetLogs logs={activityLogs} isLoading={logsLoading} />
                     </TabsContent>
                 </Tabs>
 
             </div>
+
 
             <RenameDialog
                 open={isRenameOpen}
@@ -346,7 +354,7 @@ export default function DatasetPage() {
                 onConfirm={handleRemove}
             />
 
-            {/* Hidden file input */}
+            {/* Hidden Input Protocol */}
             <input
                 ref={fileInputRef}
                 type="file"
@@ -358,3 +366,4 @@ export default function DatasetPage() {
         </main>
     );
 }
+

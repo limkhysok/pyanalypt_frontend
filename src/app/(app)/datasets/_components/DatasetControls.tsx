@@ -42,20 +42,20 @@ export function DatasetControls({
             className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between"
         >
             {/* Search */}
-            <div className="relative w-full sm:w-72">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <div className="relative w-full sm:w-80">
+                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
                 <Input
-                    placeholder="Search datasets..."
-                    className="pl-9 rounded-none h-9 border-border bg-background hover:bg-muted transition-colors text-sm font-medium placeholder:text-muted-foreground/50 shadow-none"
+                    placeholder="search datasets..."
+                    className="pl-10 rounded-none h-11 border-border bg-background hover:bg-muted transition-colors text-[15px] font-medium placeholder:text-muted-foreground/40 shadow-none"
                     value={searchQuery}
                     onChange={(e) => onSearchChange(e.target.value)}
                 />
             </div>
 
             {/* Sort, filter, count */}
-            <div className="flex flex-wrap items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2.5">
                 {showCount && (
-                    <span className="text-[11px] font-medium text-muted-foreground hidden sm:block mr-2">
+                    <span className="text-xs font-semibold text-muted-foreground hidden sm:block mr-3 lowercase italic opacity-60">
                         {countLabel}
                     </span>
                 )}
@@ -65,18 +65,18 @@ export function DatasetControls({
                     <DropdownMenuTrigger asChild>
                         <Button
                             variant="outline"
-                            className="rounded-none h-9 px-4 border-border bg-background hover:bg-muted font-medium text-sm transition-all shadow-none"
+                            className="rounded-none h-11 px-5 border-border bg-background hover:bg-muted font-bold text-sm transition-all shadow-none lowercase"
                         >
-                            <ArrowUpDown className="mr-2 h-3.5 w-3.5" />
+                            <ArrowUpDown className="mr-2.5 h-4 w-4" />
                             {getSortLabel(sortBy)}
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="rounded-none border-border shadow-none">
+                    <DropdownMenuContent align="end" className="rounded-none border-border shadow-none min-w-[180px] p-1.5">
                         <DropdownMenuRadioGroup value={sortBy} onValueChange={onSortChange}>
-                            <DropdownMenuRadioItem className="rounded-none text-sm font-medium" value="newest">Newest first</DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem className="rounded-none text-sm font-medium" value="oldest">Oldest first</DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem className="rounded-none text-sm font-medium" value="name_asc">Name (a–z)</DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem className="rounded-none text-sm font-medium" value="name_desc">Name (z–a)</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem className="rounded-none text-sm font-semibold h-10 lowercase" value="newest">newest first</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem className="rounded-none text-sm font-semibold h-10 lowercase" value="oldest">oldest first</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem className="rounded-none text-sm font-semibold h-10 lowercase" value="name_asc">name (a–z)</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem className="rounded-none text-sm font-semibold h-10 lowercase" value="name_desc">name (z–a)</DropdownMenuRadioItem>
                         </DropdownMenuRadioGroup>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -86,19 +86,19 @@ export function DatasetControls({
                     <DropdownMenuTrigger asChild>
                         <Button
                             variant="outline"
-                            className="rounded-none h-9 px-4 border-border bg-background hover:bg-muted font-medium text-sm transition-all shadow-none"
+                            className="rounded-none h-11 px-5 border-border bg-background hover:bg-muted font-bold text-sm transition-all shadow-none lowercase"
                         >
-                            <Filter className="mr-2 h-3.5 w-3.5" />
+                            <Filter className="mr-2.5 h-4 w-4" />
                             {getFilterLabel(filterType)}
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="rounded-none border-border shadow-none">
+                    <DropdownMenuContent align="end" className="rounded-none border-border shadow-none min-w-[180px] p-1.5">
                         <DropdownMenuRadioGroup value={filterType} onValueChange={onFilterChange}>
-                            <DropdownMenuRadioItem className="rounded-none text-sm font-medium" value="all">All formats</DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem className="rounded-none text-sm font-medium" value="csv">CSV</DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem className="rounded-none text-sm font-medium" value="json">JSON</DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem className="rounded-none text-sm font-medium" value="xlsx">XLSX</DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem className="rounded-none text-sm font-medium" value="parquet">Parquet</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem className="rounded-none text-sm font-semibold h-10 lowercase" value="all">all formats</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem className="rounded-none text-sm font-semibold h-10 lowercase" value="csv">csv</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem className="rounded-none text-sm font-semibold h-10 lowercase" value="json">json</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem className="rounded-none text-sm font-semibold h-10 lowercase" value="xlsx">xlsx</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem className="rounded-none text-sm font-semibold h-10 lowercase" value="parquet">parquet</DropdownMenuRadioItem>
                         </DropdownMenuRadioGroup>
                     </DropdownMenuContent>
                 </DropdownMenu>

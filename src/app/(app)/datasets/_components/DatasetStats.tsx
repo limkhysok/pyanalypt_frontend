@@ -1,6 +1,6 @@
 "use client";
 
-import { Database, HardDrive, Layers } from "lucide-react";
+import { Package, Activity, HardDrive } from "lucide-react";
 import { motion } from "motion/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { formatFileSize } from "./_lib";
@@ -10,7 +10,6 @@ interface DatasetStatsProps {
     formats: number;
     totalSize: number;
     usagePct: number;
-    storageColorClass: string;
     usageLabel: string;
 }
 
@@ -19,7 +18,6 @@ export function DatasetStats({
     formats,
     totalSize,
     usagePct,
-    storageColorClass,
     usageLabel,
 }: Readonly<DatasetStatsProps>) {
     return (
@@ -27,55 +25,75 @@ export function DatasetStats({
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.08 }}
-            className="grid grid-cols-2 sm:grid-cols-3 gap-3"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5"
         >
-            {/* Total datasets */}
-            <Card className="bg-background border border-border/40 rounded-none shadow-none overflow-hidden order-1 transition-colors">
-                <CardContent className="p-4 flex items-center gap-3">
-                    <div className="h-9 w-9 border border-border/40 flex items-center justify-center shrink-0 bg-muted">
-                        <Database className="h-3.5 w-3.5" />
+            {/* Total files */}
+            <Card className="bg-background border border-border/40 rounded-none shadow-none overflow-hidden transition-all hover:border-border/80 group">
+                <CardContent className="p-5 flex items-center gap-5">
+                    <div className="h-11 w-11 border border-border/40 flex items-center justify-center shrink-0 bg-muted group-hover:bg-muted/80 transition-colors">
+                        <Package className="h-5 w-5 text-muted-foreground/80" strokeWidth={1.5} />
                     </div>
-                    <div>
-                        <p className="text-xl font-bold tabular-nums leading-none font-mono">{total}</p>
-                        <p className="text-[11px] font-medium text-muted-foreground mt-0.5">Total datasets</p>
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-baseline gap-2.5">
+                            <p className="text-2xl font-bold tabular-nums leading-none tracking-tight">{total}</p>
+                            <span className="text-xs font-semibold text-muted-foreground/40 lowercase">files</span>
+                        </div>
+                        <p className="text-xs font-medium text-muted-foreground mt-1.5 lowercase">Total datasets recorded</p>
                     </div>
                 </CardContent>
             </Card>
 
-            {/* Formats */}
-            <Card className="bg-background border border-border/40 rounded-none shadow-none overflow-hidden order-2 sm:order-3 transition-colors">
-                <CardContent className="p-4 flex items-center gap-3">
-                    <div className="h-9 w-9 border border-border/40 flex items-center justify-center shrink-0 bg-muted">
-                        <Layers className="h-3.5 w-3.5" />
+            {/* Diversity */}
+            <Card className="bg-background border border-border/40 rounded-none shadow-none overflow-hidden transition-all hover:border-border/80 group">
+                <CardContent className="p-5 flex items-center gap-5">
+                    <div className="h-11 w-11 border border-border/40 flex items-center justify-center shrink-0 bg-muted group-hover:bg-muted/80 transition-colors">
+                        <Activity className="h-5 w-5 text-muted-foreground/80" strokeWidth={1.5} />
                     </div>
-                    <div>
-                        <p className="text-xl font-bold tabular-nums leading-none font-mono">{formats}</p>
-                        <p className="text-[11px] font-medium text-muted-foreground mt-0.5">Formats</p>
+                    <div className="flex-1 min-w-0">
+                        <div className="flex items-baseline gap-2.5">
+                            <p className="text-2xl font-bold tabular-nums leading-none tracking-tight">{formats}</p>
+                            <span className="text-xs font-semibold text-muted-foreground/40 lowercase">formats</span>
+                        </div>
+                        <p className="text-xs font-medium text-muted-foreground mt-1.5 lowercase">File type diversity</p>
                     </div>
                 </CardContent>
             </Card>
 
             {/* Storage */}
-            <Card className="bg-background border border-border/40 rounded-none shadow-none overflow-hidden col-span-2 sm:col-span-1 order-3 sm:order-2 transition-colors">
-                <CardContent className="p-4">
-                    <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center gap-1.5">
-                            <HardDrive className="h-3.5 w-3.5" />
-                            <p className="text-[11px] font-medium text-muted-foreground">Storage</p>
+            <Card className="bg-background border border-border/40 rounded-none shadow-none overflow-hidden sm:col-span-2 lg:col-span-1 transition-all hover:border-border/80 group relative">
+                <CardContent className="p-5">
+                    <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center gap-2.5">
+                            <HardDrive className="h-4 w-4 text-muted-foreground/60" strokeWidth={1.5} />
+                            <p className="text-xs font-bold text-muted-foreground/70 lowercase">Storage usage</p>
                         </div>
-                        <p className="text-[11px] tabular-nums text-muted-foreground font-mono">
-                            {formatFileSize(totalSize)} / 2 GB
+                        <p className="text-[11px] font-bold text-muted-foreground/40 tabular-nums lowercase">
+                            {formatFileSize(totalSize)} of 2gb
                         </p>
                     </div>
-                    <div className="relative h-1 bg-muted/60 overflow-hidden">
+                    
+                    <div className="h-1.5 bg-muted/40 relative overflow-hidden">
                         <div
-                            className="absolute inset-y-0 left-0 bg-foreground transition-all duration-500"
+                            className="absolute inset-y-0 left-0 bg-foreground transition-all duration-1000 ease-out"
                             style={{ width: `${usagePct}%` }}
                         />
                     </div>
-                    <p className="text-xl font-bold tabular-nums leading-none mt-2 font-mono">{usageLabel}</p>
+                    
+                    <div className="flex items-center justify-between mt-3.5">
+                        <p className="text-2xl font-bold tabular-nums leading-none tracking-tight">{usageLabel}</p>
+                        <div className="flex gap-1">
+                            {[1, 2, 3, 4, 5].map((i) => (
+                                <div 
+                                    key={i} 
+                                    className={`h-1 w-2.5 rounded-none ${usagePct >= i * 20 ? 'bg-foreground' : 'bg-muted'}`} 
+                                />
+                            ))}
+                        </div>
+                    </div>
                 </CardContent>
             </Card>
         </motion.div>
     );
 }
+
+

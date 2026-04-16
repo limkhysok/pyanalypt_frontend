@@ -24,12 +24,14 @@ export function DatasetHeader({ uploadLoading, onFormatSelect }: Readonly<Datase
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4 }}
-            className="flex flex-col sm:flex-row sm:items-end justify-between gap-4"
+            className="flex flex-col sm:flex-row sm:items-center justify-between gap-6"
         >
-            <div className="space-y-1">
-                <h1 className="text-2xl font-bold tracking-tight leading-none">Datasets</h1>
-                <p className="text-sm text-muted-foreground">
-                    Manage and process your data artifacts.
+            <div className="space-y-1.5 min-w-0">
+                <h1 className="text-3xl md:text-4xl font-bold tracking-tight leading-none text-foreground">
+                    Datasets
+                </h1>
+                <p className="text-sm md:text-base font-medium text-muted-foreground max-w-lg leading-relaxed lowercase">
+                    manage and organize your data files in one place.
                 </p>
             </div>
 
@@ -37,24 +39,24 @@ export function DatasetHeader({ uploadLoading, onFormatSelect }: Readonly<Datase
                 <DropdownMenuTrigger asChild>
                     <Button
                         disabled={uploadLoading}
-                        className="rounded-none h-8 px-4 bg-primary hover:bg-primary/90 text-primary-foreground font-medium text-sm transition-all self-start sm:self-auto shadow-none border border-primary/10"
+                        className="rounded-none h-11 md:h-12 px-7 bg-foreground hover:bg-foreground/90 text-background font-bold text-sm tracking-normal transition-all self-start sm:self-auto shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none border border-foreground/10"
                     >
                         {uploadLoading ? (
-                            <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                            <Loader2 className="mr-2.5 h-4 w-4 animate-spin" />
                         ) : (
-                            <Plus className="mr-2 h-3.5 w-3.5" />
+                            <Plus className="mr-2.5 h-4 w-4" />
                         )}
-                        {uploadLoading ? "Uploading…" : "Import"}
+                        {uploadLoading ? "Uploading..." : "Import dataset"}
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="rounded-none border-border shadow-none min-w-[140px]">
-                    <div className="px-2 py-1.5 text-[11px] font-semibold text-muted-foreground border-b border-border/50 mb-1">
-                        Select source format
+                <DropdownMenuContent align="end" className="rounded-none border-border shadow-none min-w-[200px] p-1.5">
+                    <div className="px-3 py-2.5 text-[11px] font-bold text-muted-foreground/50 border-b border-border/50 mb-1.5 lowercase">
+                        select file format
                     </div>
                     {FORMATS.map((fmt) => (
                         <DropdownMenuItem
                             key={fmt}
-                            className="rounded-none text-sm font-medium cursor-pointer"
+                            className="rounded-none text-[13px] font-semibold h-10 cursor-pointer focus:bg-primary focus:text-primary-foreground"
                             onClick={() => onFormatSelect(fmt)}
                         >
                             {fmt.toLowerCase()}
@@ -65,3 +67,5 @@ export function DatasetHeader({ uploadLoading, onFormatSelect }: Readonly<Datase
         </motion.div>
     );
 }
+
+

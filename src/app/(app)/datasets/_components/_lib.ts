@@ -41,7 +41,7 @@ export function getUsageLabel(pct: number): string {
 }
 
 export function getFilterLabel(filterType: string): string {
-    return filterType === "all" ? "All formats" : filterType;
+    return filterType === "all" ? "all formats" : filterType.toLowerCase();
 }
 
 export function getCountLabel(isFiltering: boolean, filteredCount: number, totalCount: number): string {
@@ -51,11 +51,11 @@ export function getCountLabel(isFiltering: boolean, filteredCount: number, total
 
 export function getSortLabel(sortBy: string): string {
     switch (sortBy) {
-        case "newest":    return "Newest first";
-        case "oldest":    return "Oldest first";
-        case "name_asc":  return "Name (a–z)";
-        case "name_desc": return "Name (z–a)";
-        default:          return "Sort";
+        case "newest":    return "newest first";
+        case "oldest":    return "oldest first";
+        case "name_asc":  return "name (a–z)";
+        case "name_desc": return "name (z–a)";
+        default:          return "sort";
     }
 }
 
