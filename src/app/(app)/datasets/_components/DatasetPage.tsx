@@ -66,7 +66,7 @@ export default function DatasetPage() {
         setIsLoading(true);
         try {
             const data = await datasetApi.listDatasets();
-            setDatasets(data);
+            setDatasets(data.results);
         } catch (error) {
             console.error("Failed to fetch datasets", error);
         } finally {
@@ -78,7 +78,7 @@ export default function DatasetPage() {
         setLogsLoading(true);
         try {
             const data = await datasetApi.listActivityLogs();
-            setActivityLogs(data);
+            setActivityLogs(data.results);
         } catch (error) {
             console.error("Failed to fetch logs", error);
         } finally {

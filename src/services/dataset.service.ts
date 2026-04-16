@@ -6,14 +6,15 @@ import {
   DuplicateDatasetRequest,
   DatasetExportFormat,
   DatasetActivityLog,
+  PaginatedResponse,
 } from '@/types/dataset';
 
 export const datasetApi = {
   /**
    * Retrieves a list of all datasets owned by the authenticated user.
    */
-  async listDatasets(): Promise<Dataset[]> {
-    const response = await apiClient.get<Dataset[]>('datasets/');
+  async listDatasets(): Promise<PaginatedResponse<Dataset>> {
+    const response = await apiClient.get<PaginatedResponse<Dataset>>('datasets/');
     return response.data;
   },
 
@@ -87,9 +88,9 @@ export const datasetApi = {
   /**
    * List all activity logs for the current user's datasets.
    */
-  async listActivityLogs(datasetId?: number): Promise<DatasetActivityLog[]> {
-    const response = await apiClient.get<DatasetActivityLog[]>('datasets/activity_logs/', {
-      params: datasetId ? { dataset: datasetId } : undefined,
+  async listActivityLogs(datasetId?: number): Promise<PaginatedResponse<DatasetActivityLog>> {
+    const response = await apiClient.get<PaginatedResponse<DatasetActivityLog>>('datasets/activity_logs/', {
+      params: datasetId ? { dataset_id: datasetId } : undefined,
     });
     return response.data;
   },
