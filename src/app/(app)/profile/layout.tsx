@@ -1,46 +1,50 @@
 "use client";
 
 import * as React from "react";
-import { useAuth } from "@/context/auth-context";
-import { getInitials } from "@/lib/utils";
-import { ProfileHero } from "./_components/ProfileHero";
 import { ProfileNav } from "./_components/ProfileNav";
 
 export default function ProfileLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-    const { user } = useAuth();
-
-    const displayName = user?.full_name || user?.username || "User";
-
-    const initials = user ? getInitials(user) : "U";
-
     return (
         <main className="min-h-screen relative overflow-hidden">
-            {/* Background Aesthetics */}
+            {/* Minimal Background Grid */}
             <div className="fixed inset-0 pointer-events-none -z-10">
                 <div className="absolute inset-0 bg-background" />
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808005_1px,transparent_1px),linear-gradient(to_bottom,#80808005_1px,transparent_1px)] bg-size-[40px_40px]" />
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-blue-500/5 blur-[120px] rounded-full" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/5 blur-[120px] rounded-full" />
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-foreground/[0.02] blur-[120px] rounded-full" />
             </div>
 
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+            <div className="max-w-7xl mx-auto px-6 sm:px-8 lg:px-10 py-16">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
+                    {/* Navigation Block */}
+                    <aside className="lg:col-span-3 lg:sticky lg:top-24">
+                        <div className="space-y-6">
+                            <div className="px-1 py-2 flex items-center justify-between">
+                                <h2 className="text-[10px] font-black tracking-[0.2em] text-foreground/30">Profile Navigation</h2>
+                                <div className="h-1.5 w-1.5 rounded-full bg-emerald-500/50 animate-pulse" />
+                            </div>
+                            <div className="relative border border-border bg-background/50 backdrop-blur-sm shadow-2xl group">
+                                {/* Corner Accents */}
+                                <div className="absolute -top-[1px] -left-[1px] w-4 h-4 border-t border-l border-foreground/20 pointer-events-none" />
+                                <div className="absolute -bottom-[1px] -right-[1px] w-4 h-4 border-b border-r border-foreground/20 pointer-events-none" />
+                                <ProfileNav />
+                            </div>
 
-                <ProfileHero
-                    user={user}
-                    displayName={displayName}
-                    initials={initials}
-                />
-
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-
-                    <aside className="lg:col-span-3 lg:sticky lg:top-20">
-                        <div className="p-1 border border-border/40 bg-background/40 backdrop-blur-md">
-                            <ProfileNav />
                         </div>
                     </aside>
 
+                    {/* Content Block */}
                     <div className="lg:col-span-9 space-y-8">
-                        {children}
+                        <div className="space-y-2 pb-6 border-b border-border/40 relative">
+                            {/* Decorative Line */}
+                            <div className="absolute bottom-0 left-0 w-8 h-[2px] bg-foreground/60 -mb-[1px]" />
+                            <h1 className="text-4xl font-black tracking-tight text-foreground">Account Settings</h1>
+                            <p className="text-xs font-bold tracking-widest text-muted-foreground/40 italic">Manage your profile information and preferences</p>
+                        </div>
+                        <div className="max-w-4xl relative">
+                            {/* Content Decor */}
+                            <div className="absolute -top-4 -right-4 w-12 h-12 border-t border-r border-foreground/5 pointer-events-none hidden lg:block" />
+                            {children}
+                        </div>
                     </div>
                 </div>
             </div>
