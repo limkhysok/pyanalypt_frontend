@@ -30,8 +30,8 @@ export function DatasetHeader({ uploadLoading, onFormatSelect }: Readonly<Datase
                 <h1 className="text-3xl md:text-4xl font-bold tracking-tight leading-none text-foreground">
                     Datasets
                 </h1>
-                <p className="text-sm md:text-base font-medium text-muted-foreground max-w-lg leading-relaxed lowercase">
-                    manage and organize your data files in one place.
+                <p className="text-sm md:text-base font-medium text-muted-foreground max-w-lg leading-relaxed">
+                    To manage your data files in one place. File size limit is 25 MB.
                 </p>
             </div>
 
@@ -50,7 +50,7 @@ export function DatasetHeader({ uploadLoading, onFormatSelect }: Readonly<Datase
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="rounded-none border-border shadow-none min-w-[200px] p-1.5">
-                    <div className="px-3 py-2.5 text-[11px] font-bold text-muted-foreground/50 border-b border-border/50 mb-1.5 lowercase">
+                    <div className="px-3 py-2.5 text-[11px] font-bold text-muted-foreground/50 border-b border-border/50 mb-1.5">
                         select file format
                     </div>
                     {FORMATS.map((fmt) => (
