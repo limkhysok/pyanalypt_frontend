@@ -210,11 +210,11 @@ export const authApi = {
 
     /**
      * Update current user profile (Partial).
-     * Only full_name and birthday are writable — all other fields are read-only.
+     * Accepts both JSON (for text fields) and FormData (for file uploads).
      */
-    async updateProfile(data: Partial<User>): Promise<User> {
+    async updateProfile(data: Partial<User> | FormData): Promise<User> {
         console.log("[AuthApi] Updating user profile...");
-        const response = await apiClient.patch<User>('auth/user/', data);
+        const response = await apiClient.patch<User>("auth/user/", data);
         return response.data;
     },
 

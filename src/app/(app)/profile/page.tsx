@@ -4,30 +4,12 @@ import { useState, useEffect } from "react";
 import { useAuth } from "@/context/auth-context";
 import { authApi } from "@/services/auth.service";
 import { toast } from "sonner";
-import { User } from "@/types/api";
 import { PersonalDetails } from "./_components/PersonalDetails";
-
-// Returns only the fields that differ from the current user — never sends unchanged data.
-function buildPayload(
-    user: User | null | undefined,
-    fullName: string,
-    birthday: string,
-    username: string,
-    profilePicture: string,
-): Partial<Pick<User, "full_name" | "birthday" | "username" | "profile_picture">> {
-    const payload: Partial<Pick<User, "full_name" | "birthday" | "username" | "profile_picture">> = {};
-    if (fullName.trim() !== (user?.full_name ?? ""))           payload.full_name = fullName.trim();
-    if (birthday !== (user?.birthday ?? ""))                   payload.birthday = birthday || undefined;
-    if (username.trim() !== (user?.username ?? ""))            payload.username = username.trim();
-    const newPic = profilePicture.trim() || null;
-    if (newPic !== (user?.profile_picture ?? null))            payload.profile_picture = newPic;
-    return payload;
-}
 
 // Client-side field validators — return an error string or null.
 function validateUsername(v: string): string | null {
     if (!v) return null;
-    if (v.length < 3)   return "Username must be at least 3 characters.";
+    if (v.length < 3) return "Username must be at least 3 characters.";
     if (v.length > 150) return "Username must be at most 150 characters.";
     if (!/^[a-zA-Z0-9._-]+$/.test(v)) return "Only letters, numbers, . _ - are allowed.";
     return null;
@@ -35,7 +17,7 @@ function validateUsername(v: string): string | null {
 
 function validateFullName(v: string): string | null {
     if (!v) return null;
-    if (v.trim().length < 2)   return "Full name must be at least 2 characters.";
+    if (v.trim().length < 2) return "Full name must be at least 2 characters.";
     if (v.trim().length > 255) return "Full name must be at most 255 characters.";
     if (!/^[a-zA-Z\s\-']+$/.test(v.trim())) return "Only letters, hyphens, apostrophes, and spaces are allowed.";
     return null;
@@ -53,34 +35,63 @@ function validateBirthday(v: string): string | null {
     return null;
 }
 
-function validateProfilePicture(v: string): string | null {
-    if (!v) return null; // empty = clear
-    if (!v.startsWith("https://")) return "Profile picture URL must start with https://.";
-    return null;
-}
-
 // Extracts per-field errors from a DRF validation response.
 function parseFieldErrors(data: unknown): Record<string, string> | null {
     if (!data || typeof data !== "object") return null;
     const d = data as Record<string, unknown>;
     const errors: Record<string, string> = {};
-    if (d.full_name)       errors.full_name       = [d.full_name].flat()[0] as string;
-    if (d.birthday)        errors.birthday        = [d.birthday].flat()[0] as string;
-    if (d.username)        errors.username        = [d.username].flat()[0] as string;
+    if (d.full_name) errors.full_name = [d.full_name].flat()[0] as string;
+    if (d.birthday) errors.birthday = [d.birthday].flat()[0] as string;
+    if (d.username) errors.username = [d.username].flat()[0] as string;
     if (d.profile_picture) errors.profile_picture = [d.profile_picture].flat()[0] as string;
     return Object.keys(errors).length > 0 ? errors : null;
+}
+
+function getProfileFormData(
+    user: any,
+    fullName: string,
+    birthday: string,
+    username: string,
+    profilePicture: string,
+    profilePictureFile: File | null
+): FormData | null {
+    const formData = new FormData();
+    let hasChanges = false;
+
+    if (fullName.trim() !== (user?.full_name ?? "")) {
+        formData.append("full_name", fullName.trim());
+        hasChanges = true;
+    }
+    if (birthday !== (user?.birthday ?? "")) {
+        formData.append("birthday", birthday || "");
+        hasChanges = true;
+    }
+    if (username.trim() !== (user?.username ?? "")) {
+        formData.append("username", username.trim());
+        hasChanges = true;
+    }
+    if (profilePictureFile) {
+        formData.append("profile_picture", profilePictureFile);
+        hasChanges = true;
+    } else if (!profilePicture && user?.profile_picture) {
+        formData.append("profile_picture", "");
+        hasChanges = true;
+    }
+
+    return hasChanges ? formData : null;
 }
 
 export default function ProfilePage() {
     const { user, isLoading, login } = useAuth();
 
-    const [editing, setEditing]               = useState(false);
-    const [saving, setSaving]                 = useState(false);
-    const [fullName, setFullName]             = useState("");
-    const [birthday, setBirthday]             = useState("");
-    const [username, setUsername]             = useState("");
-    const [profilePicture, setProfilePicture] = useState("");
-    const [fieldErrors, setFieldErrors]       = useState<Record<string, string>>({});
+    const [editing, setEditing] = useState(false);
+    const [saving, setSaving] = useState(false);
+    const [fullName, setFullName] = useState("");
+    const [birthday, setBirthday] = useState("");
+    const [username, setUsername] = useState("");
+    const [profilePicture, setProfilePicture] = useState(""); // This stores the preview URL or initial URL
+    const [profilePictureFile, setProfilePictureFile] = useState<File | null>(null);
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
 
     useEffect(() => {
         if (user) {
@@ -88,6 +99,7 @@ export default function ProfilePage() {
             setBirthday(user.birthday ?? "");
             setUsername(user.username ?? "");
             setProfilePicture(user.profile_picture ?? "");
+            setProfilePictureFile(null);
         }
     }, [user]);
 
@@ -96,30 +108,45 @@ export default function ProfilePage() {
         setBirthday(user?.birthday ?? "");
         setUsername(user?.username ?? "");
         setProfilePicture(user?.profile_picture ?? "");
+        setProfilePictureFile(null);
         setFieldErrors({});
         setEditing(false);
     };
 
-    const saveEdit = async () => {
-        // Client-side validation
+    const validateFields = (): Record<string, string> | null => {
         const errs: Record<string, string> = {};
-        const usernameErr      = validateUsername(username);
-        const fullNameErr      = validateFullName(fullName);
-        const birthdayErr      = validateBirthday(birthday);
-        const profilePictureErr = validateProfilePicture(profilePicture);
-        if (usernameErr)       errs.username        = usernameErr;
-        if (fullNameErr)       errs.full_name       = fullNameErr;
-        if (birthdayErr)       errs.birthday        = birthdayErr;
-        if (profilePictureErr) errs.profile_picture = profilePictureErr;
-        if (Object.keys(errs).length > 0) { setFieldErrors(errs); return; }
+        const usernameErr = validateUsername(username);
+        const fullNameErr = validateFullName(fullName);
+        const birthdayErr = validateBirthday(birthday);
+        
+        if (usernameErr) errs.username = usernameErr;
+        if (fullNameErr) errs.full_name = fullNameErr;
+        if (birthdayErr) errs.birthday = birthdayErr;
+        
+        if (profilePictureFile && profilePictureFile.size > 2 * 1024 * 1024) {
+            errs.profile_picture = "Image must be less than 2MB.";
+        }
+
+        return Object.keys(errs).length > 0 ? errs : null;
+    };
+
+    const saveEdit = async () => {
+        const validationErrors = validateFields();
+        if (validationErrors) {
+            setFieldErrors(validationErrors);
+            return;
+        }
+
+        const formData = getProfileFormData(user, fullName, birthday, username, profilePicture, profilePictureFile);
+        if (!formData) {
+            setEditing(false);
+            return;
+        }
 
         setFieldErrors({});
-        const payload = buildPayload(user, fullName, birthday, username, profilePicture);
-        if (Object.keys(payload).length === 0) { setEditing(false); return; }
-
         setSaving(true);
         try {
-            const updated = await authApi.updateProfile(payload);
+            const updated = await authApi.updateProfile(formData);
             login(updated);
             toast.success("Profile updated successfully.");
             setEditing(false);
@@ -147,35 +174,23 @@ export default function ProfilePage() {
     }
 
     return (
-        <>
-            <PersonalDetails
-                user={user}
-                editing={editing}
-                saving={saving}
-                fullName={fullName}
-                birthday={birthday}
-                username={username}
-                profilePicture={profilePicture}
-                fieldErrors={fieldErrors}
-                setFullName={setFullName}
-                setBirthday={setBirthday}
-                setUsername={setUsername}
-                setProfilePicture={setProfilePicture}
-                onEdit={() => setEditing(true)}
-                onCancel={handleCancel}
-                onSave={saveEdit}
-            />
-
-            <div className="relative overflow-hidden p-6 border border-dashed border-border/50 bg-muted/5 flex flex-col items-center justify-center text-center gap-2">
-                <div className="absolute inset-0 bg-linear-to-br from-blue-500/3 to-transparent pointer-events-none" />
-                <div className="h-8 w-8 bg-muted/60 border border-border/40 flex items-center justify-center mb-1">
-                    <span className="text-base">🛠️</span>
-                </div>
-                <p className="text-sm font-semibold text-foreground/70">More settings coming soon</p>
-                <p className="text-xs text-muted-foreground/50 max-w-sm leading-relaxed">
-                    Advanced security controls, integrations, and notification preferences are on the way.
-                </p>
-            </div>
-        </>
+        <PersonalDetails
+            user={user}
+            editing={editing}
+            saving={saving}
+            fullName={fullName}
+            birthday={birthday}
+            username={username}
+            profilePicture={profilePicture}
+            fieldErrors={fieldErrors}
+            setFullName={setFullName}
+            setBirthday={setBirthday}
+            setUsername={setUsername}
+            setProfilePicture={setProfilePicture}
+            setProfilePictureFile={setProfilePictureFile}
+            onEdit={() => setEditing(true)}
+            onCancel={handleCancel}
+            onSave={saveEdit}
+        />
     );
 }
