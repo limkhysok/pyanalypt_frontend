@@ -7,10 +7,10 @@ import {
     LayoutDashboard,
     Database,
     Settings,
-    Trash2,
     BarChart3,
     Lightbulb,
     BrainCircuit,
+    FlaskConical,
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { cn, getInitials } from "@/lib/utils";
@@ -42,8 +42,8 @@ type NavItemDef = {
 const WORKSPACE_ITEMS: NavItemDef[] = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, shortcut: "G D" },
     { label: "Datasets",  href: "/datasets",  icon: Database,         shortcut: "G S" },
+    { label: "DataLab",   href: "/datalab",   icon: FlaskConical,     shortcut: "G L" },
     { label: "Framing",   href: "/framing",   icon: BrainCircuit,     shortcut: "G F" },
-    { label: "Wrangle",   href: "/wrangle",   icon: Trash2,           shortcut: "G C" },
 ];
 
 const RESULTS_ITEMS: NavItemDef[] = [
@@ -56,7 +56,7 @@ const SHORTCUT_MAP: Record<string, string> = {
     D: "/dashboard",
     S: "/datasets",
     F: "/framing",
-    C: "/wrangle",
+    L: "/datalab",
     A: "/analysis",
     N: "/insight",
     ",": "/profile/setting",

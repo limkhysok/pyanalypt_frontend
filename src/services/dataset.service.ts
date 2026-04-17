@@ -95,49 +95,5 @@ export const datasetApi = {
     return response.data;
   },
 
-  /**
-   * Run a Datalab diagnostic scan to detect issues.
-   */
-  async diagnoseDataset(id: number): Promise<import('@/types/dataset').DiagnoseResponse> {
-    const response = await apiClient.post(`datalab/eda/diagnose/${id}/`);
-    return response.data;
-  },
-
-  /**
-   * Get summary of issues for a dataset.
-   */
-  async getIssueSummary(id: number): Promise<import('@/types/dataset').IssueSummaryResponse> {
-    const response = await apiClient.get(`datalab/eda/summary/${id}/`);
-    return response.data;
-  },
-
-  /**
-   * List existing issues for a dataset.
-   * Note: Backend might return this as part of diagnose or a separate endpoint might be needed.
-   * For now, mapping to diagnose if list is not available, or keeping as a placeholder.
-   */
-  async listIssues(params: { dataset: number }): Promise<import('@/types/dataset').Issue[]> {
-    // If the backend has a separate list endpoint, use it. 
-    // Otherwise, we might need to use summary or diagnose.
-    const response = await apiClient.get(`datalab/eda/diagnose/${params.dataset}/`);
-    return response.data.issues || [];
-  },
-
-  /**
-   * Delete a specific issue.
-   */
-  async deleteIssue(id: number): Promise<void> {
-    await apiClient.delete(`datalab/eda/issues/${id}/`);
-  },
-
-  /**
-   * Preview a dataset's data.
-   */
-  async previewDataset(id: number, rows: number = 50): Promise<any> {
-    const response = await apiClient.get(`datasets/items/${id}/preview/`, {
-      params: { rows }
-    });
-    return response.data;
-  },
 };
 

@@ -11,7 +11,8 @@ export { authApi } from './auth.service';
 export { projectApi } from './project.service';
 export { datasetApi } from './dataset.service';
 export { framingApi } from './framing.service';
-export { wranglingApi } from './wrangling.service';
+export { datalabApi } from './datalab.service';
+export type { DataLabPreview, DataLabInspect, DataLabInspectColumn } from './datalab.service';
 
 // Utilities
 export { tokenManager } from '@/lib/token';
