@@ -26,6 +26,17 @@ export interface DataLabInspect {
   };
 }
 
+export interface CastColumnResult {
+  column: string;
+  from_dtype: string;
+  to_dtype: string;
+  status: string;
+}
+
+export interface CastResponse {
+  updated_columns: CastColumnResult[];
+}
+
 export const datalabApi = {
   async preview(datasetId: number): Promise<DataLabPreview> {
     const res = await apiClient.get<DataLabPreview>(`datalab/preview/${datasetId}/`);
@@ -34,6 +45,11 @@ export const datalabApi = {
 
   async inspect(datasetId: number): Promise<DataLabInspect> {
     const res = await apiClient.get<DataLabInspect>(`datalab/inspect/${datasetId}/`);
+    return res.data;
+  },
+
+  async cast(datasetId: number, casts: Record<string, string>): Promise<CastResponse> {
+    const res = await apiClient.post<CastResponse>(`datalab/cast/${datasetId}/`, { casts });
     return res.data;
   },
 };

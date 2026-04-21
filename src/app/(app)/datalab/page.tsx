@@ -23,10 +23,17 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { datasetApi, datalabApi } from "@/services/api";
-import type { DataLabPreview, DataLabInspect } from "@/services/api";
+import type { DataLabPreview, DataLabInspect, CastColumnResult } from "@/services/api";
 import { Dataset } from "@/types/dataset";
 import { toast } from "sonner";
 
@@ -133,10 +140,55 @@ function PreviewTab({ data }: Readonly<{ data: DataLabPreview }>) {
     );
 }
 
-function InspectTab({ data, preview }: Readonly<{ data: DataLabInspect; preview: DataLabPreview }>) {
+const CAST_TYPES = ["datetime", "numeric", "float", "integer", "string", "boolean", "category"] as const;
+
+function InspectTab({ data, preview, datasetId, onRefetchInspect }: Readonly<{
+    data: DataLabInspect;
+    preview: DataLabPreview;
+    datasetId: number;
+    onRefetchInspect: () => void;
+}>) {
+    const [pendingCasts, setPendingCasts] = React.useState<Record<string, string>>({});
+    const [casting, setCasting] = React.useState(false);
+    const [castResults, setCastResults] = React.useState<CastColumnResult[] | null>(null);
+
+    const isSql = preview.file_format.toUpperCase() === "SQL";
+    const hasPending = Object.keys(pendingCasts).length > 0;
+
+    React.useEffect(() => {
+        setPendingCasts({});
+        setCastResults(null);
+    }, [data]);
+
+    async function handleCast() {
+        setCasting(true);
+        try {
+            const result = await datalabApi.cast(datasetId, pendingCasts);
+            setCastResults(result.updated_columns);
+            const hasErrors = result.updated_columns.some((c) => c.status.startsWith("error"));
+            if (hasErrors) {
+                toast.warning("Some columns could not be cast. Check highlighted rows.");
+            } else {
+                toast.success("Columns cast successfully.");
+                setPendingCasts({});
+                onRefetchInspect();
+            }
+        } catch {
+            toast.error("Failed to cast columns.");
+        } finally {
+            setCasting(false);
+        }
+    }
+
     return (
         <div className="space-y-4">
             <DatasetMetaStrip data={preview} />
+
+            {isSql && (
+                <p className="text-[11px] text-muted-foreground border px-4 py-2 bg-muted/10">
+                    Dtype casting is not supported for SQL files.
+                </p>
+            )}
 
             {/* df.info() — column breakdown table */}
             <Card className="shadow-sm overflow-hidden">
@@ -146,51 +198,127 @@ function InspectTab({ data, preview }: Readonly<{ data: DataLabInspect; preview:
                             <Info className="h-3.5 w-3.5 text-muted-foreground" />
                             <CardTitle className="text-xs font-semibold font-mono">df.info()</CardTitle>
                         </div>
-                        <span className="text-[11px] text-muted-foreground font-mono">
-                            {formatBytes(data.info.memory_usage_bytes)} memory
-                        </span>
+                        <div className="flex items-center gap-3">
+                            {!isSql && hasPending && (
+                                <Button
+                                    size="sm"
+                                    className="h-7 text-xs rounded-none gap-1.5"
+                                    onClick={handleCast}
+                                    disabled={casting}
+                                >
+                                    {casting && <Loader2 className="h-3 w-3 animate-spin" />}
+                                    Apply Casts
+                                </Button>
+                            )}
+                            <span className="text-[11px] text-muted-foreground font-mono">
+                                {formatBytes(data.info.memory_usage_bytes)} memory
+                            </span>
+                        </div>
                     </div>
                 </CardHeader>
                 <CardContent className="p-0">
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-muted/50 border-b">
-                                <th className="px-5 py-2.5 text-[10px] font-semibold tracking-wider text-muted-foreground">Column</th>
-                                <th className="px-5 py-2.5 text-[10px] font-semibold tracking-wider text-muted-foreground">Dtype</th>
-                                <th className="px-5 py-2.5 text-[10px] font-semibold tracking-wider text-muted-foreground text-right">Non-Null</th>
-                                <th className="px-5 py-2.5 text-[10px] font-semibold tracking-wider text-muted-foreground text-right">Nulls</th>
-                                <th className="px-5 py-2.5 text-[10px] font-semibold tracking-wider text-muted-foreground text-right">Null %</th>
+                                <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Column</th>
+                                <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Dtype</th>
+                                <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground text-right uppercase">Non-Null</th>
+                                <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground text-right uppercase">Nulls</th>
+                                <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground text-right uppercase">Null %</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {data.info.columns.map((col) => (
-                                <tr key={col.column} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-                                    <td className="px-5 py-2.5 text-xs font-medium">{col.column}</td>
-                                    <td className="px-5 py-2.5">
-                                        <Badge variant="secondary" className="text-[10px] font-mono font-semibold">
-                                            {col.dtype}
-                                        </Badge>
-                                    </td>
-                                    <td className="px-5 py-2.5 text-xs tabular-nums text-right text-muted-foreground">{col.non_null_count.toLocaleString()}</td>
-                                    <td className={cn(
-                                        "px-5 py-2.5 text-xs tabular-nums text-right font-semibold",
-                                        col.null_count > 0 ? "text-red-500" : "text-muted-foreground/40"
-                                    )}>
-                                        {col.null_count.toLocaleString()}
-                                    </td>
-                                    <td className={cn(
-                                        "px-5 py-2.5 text-xs tabular-nums text-right",
-                                        col.null_pct > 0 ? "text-red-400" : "text-muted-foreground/40"
-                                    )}>
-                                        {col.null_pct.toFixed(1)}%
-                                    </td>
-                                </tr>
-                            ))}
+                            {data.info.columns.map((col) => {
+                                const result = castResults?.find((r) => r.column === col.column);
+                                const hasError = result?.status.startsWith("error");
+                                return (
+                                    <tr
+                                        key={col.column}
+                                        className={cn(
+                                            "border-b border-border/50 hover:bg-muted/30 transition-colors",
+                                            hasError && "bg-red-500/5"
+                                        )}
+                                    >
+                                        <td className="px-5 py-2.5 text-xs font-medium">{col.column}</td>
+                                        <td className="px-5 py-2">
+                                            {isSql ? (
+                                                <Badge variant="secondary" className="text-[11px] font-mono font-semibold">
+                                                    {col.dtype}
+                                                </Badge>
+                                            ) : (
+                                                <div className="flex items-center gap-2">
+                                                    <Badge variant="secondary" className="text-[11px] font-mono font-semibold shrink-0">
+                                                        {result ? result.to_dtype : col.dtype}
+                                                    </Badge>
+
+                                                    <Select
+                                                        value={pendingCasts[col.column] ?? "none"}
+                                                        onValueChange={(val) => {
+                                                            setPendingCasts((prev) => {
+                                                                if (val === "none") {
+                                                                    const next = { ...prev };
+                                                                    delete next[col.column];
+                                                                    return next;
+                                                                }
+                                                                return { ...prev, [col.column]: val };
+                                                            });
+                                                        }}
+                                                        disabled={casting}
+                                                    >
+                                                        <SelectTrigger 
+                                                            className="h-7 text-[11px] font-mono w-[120px] rounded-none border-border/60 bg-background/50 focus:ring-0 focus:ring-offset-0 transition-all hover:bg-muted/50"
+                                                        >
+                                                            <SelectValue placeholder="Cast to..." />
+                                                        </SelectTrigger>
+                                                        <SelectContent className="rounded-none border-border/60">
+                                                            <SelectItem value="none" className="text-[11px] font-mono focus:bg-primary focus:text-primary-foreground">
+                                                                none
+                                                            </SelectItem>
+                                                            {CAST_TYPES.map((t) => (
+                                                                <SelectItem 
+                                                                    key={t} 
+                                                                    value={t} 
+                                                                    className="text-[11px] font-mono focus:bg-primary focus:text-primary-foreground"
+                                                                >
+                                                                    {t}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+
+                                                    {result && (
+                                                        <span className={cn(
+                                                            "text-[10px] font-mono px-1.5 py-0.5 rounded-none border",
+                                                            hasError
+                                                                ? "bg-red-500/10 text-red-500 border-red-500/20"
+                                                                : "bg-green-500/10 text-green-600 border-green-500/20"
+                                                        )}>
+                                                            {hasError ? result.status : "Success"}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </td>
+                                        <td className="px-5 py-2.5 text-xs tabular-nums text-right text-muted-foreground">{col.non_null_count.toLocaleString()}</td>
+                                        <td className={cn(
+                                            "px-5 py-2.5 text-xs tabular-nums text-right font-semibold",
+                                            col.null_count > 0 ? "text-red-500" : "text-muted-foreground/40"
+                                        )}>
+                                            {col.null_count.toLocaleString()}
+                                        </td>
+                                        <td className={cn(
+                                            "px-5 py-2.5 text-xs tabular-nums text-right",
+                                            col.null_pct > 0 ? "text-red-400" : "text-muted-foreground/40"
+                                        )}>
+                                            {col.null_pct.toFixed(1)}%
+                                        </td>
+                                    </tr>
+                                );
+                            })}
                         </tbody>
                     </table>
                 </CardContent>
             </Card>
-
         </div>
     );
 }
@@ -255,6 +383,13 @@ function DataLabContent() {
             .finally(() => setLoadingData(false));
     }, [selectedId]);
 
+    function refetchInspect() {
+        if (!selectedId) return;
+        datalabApi.inspect(Number(selectedId))
+            .then(setInspect)
+            .catch(() => toast.error("Failed to refresh inspect data."));
+    }
+
     const selectedName = datasets.find((d) => String(d.id) === selectedId)?.file_name;
 
     return (
@@ -295,7 +430,7 @@ function DataLabContent() {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-64 rounded-none">
-                            <DropdownMenuLabel className="text-[10px] font-semibold tracking-widest text-muted-foreground">
+                            <DropdownMenuLabel className="text-[11px] font-semibold tracking-widest text-muted-foreground uppercase">
                                 Dataset
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator />
@@ -339,7 +474,7 @@ function DataLabContent() {
                             <Loader2 className="h-7 w-7 animate-spin text-muted-foreground/40" />
                         </div>
                     )}
-                    {selectedId && !loadingData && inspect && preview && <InspectTab data={inspect} preview={preview} />}
+                    {selectedId && !loadingData && inspect && preview && <InspectTab data={inspect} preview={preview} datasetId={Number(selectedId)} onRefetchInspect={refetchInspect} />}
                     {selectedId && !loadingData && !inspect && (
                         <div className="border bg-muted/5 h-105" />
                     )}
