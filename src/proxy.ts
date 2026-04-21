@@ -5,8 +5,11 @@ const PROTECTED_PREFIXES = [
     "/analysis",
     "/clean",
     "/datasets",
+    "/datalab",
+    "/framing",
     "/insight",
     "/issues",
+    "/settings",
     "/visualization",
     "/profile",
 ];

@@ -39,7 +39,7 @@ export function DatasetHeader({ uploadLoading, onFormatSelect }: Readonly<Datase
                 <DropdownMenuTrigger asChild>
                     <Button
                         disabled={uploadLoading}
-                        className="rounded-none h-11 md:h-12 px-7 bg-foreground hover:bg-foreground/90 text-background font-bold text-sm tracking-normal transition-all self-start sm:self-auto shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none border border-foreground/10"
+                        className="rounded-none h-11 md:h-12 px-7 bg-foreground hover:bg-foreground/90 text-background font-bold text-sm tracking-normal transition-all self-start sm:self-auto shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none border border-foreground/10"
                     >
                         {uploadLoading ? (
                             <Loader2 className="mr-2.5 h-4 w-4 animate-spin" />
@@ -49,7 +49,7 @@ export function DatasetHeader({ uploadLoading, onFormatSelect }: Readonly<Datase
                         {uploadLoading ? "Uploading..." : "Import dataset"}
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="rounded-none border-border shadow-none min-w-[200px] p-1.5">
+                <DropdownMenuContent align="end" className="rounded-none border-border shadow-none min-w-50 p-1.5">
                     <div className="px-3 py-2.5 text-[11px] font-bold text-muted-foreground/50 border-b border-border/50 mb-1.5">
                         select file format
                     </div>

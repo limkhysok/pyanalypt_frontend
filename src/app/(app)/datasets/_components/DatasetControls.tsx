@@ -71,7 +71,7 @@ export function DatasetControls({
                             {getSortLabel(sortBy)}
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="rounded-none border-border shadow-none min-w-[180px] p-1.5">
+                    <DropdownMenuContent align="end" className="rounded-none border-border shadow-none min-w-45 p-1.5">
                         <DropdownMenuRadioGroup value={sortBy} onValueChange={onSortChange}>
                             <DropdownMenuRadioItem className="rounded-none text-sm font-semibold h-10 lowercase" value="newest">newest first</DropdownMenuRadioItem>
                             <DropdownMenuRadioItem className="rounded-none text-sm font-semibold h-10 lowercase" value="oldest">oldest first</DropdownMenuRadioItem>
@@ -92,7 +92,7 @@ export function DatasetControls({
                             {getFilterLabel(filterType)}
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="rounded-none border-border shadow-none min-w-[180px] p-1.5">
+                    <DropdownMenuContent align="end" className="rounded-none border-border shadow-none min-w-455">
                         <DropdownMenuRadioGroup value={filterType} onValueChange={onFilterChange}>
                             <DropdownMenuRadioItem className="rounded-none text-sm font-semibold h-10 lowercase" value="all">all formats</DropdownMenuRadioItem>
                             <DropdownMenuRadioItem className="rounded-none text-sm font-semibold h-10 lowercase" value="csv">csv</DropdownMenuRadioItem>
