@@ -32,12 +32,11 @@ import { formatFileSize } from "./_lib";
 // ─────────────────────────────────────────────
 
 function FormatBadge({ format }: Readonly<{ format: string }>) {
-    const key = format.toLowerCase();
     return (
         <span
-            className="inline-flex items-center rounded-none border border-border px-2 py-1 text-[11px] font-bold lowercase tracking-wide bg-muted text-muted-foreground"
+            className="inline-flex items-center rounded-none border border-border px-2 py-1 text-[11px] font-bold tracking-wide bg-muted text-muted-foreground"
         >
-            {key}
+            {format}
         </span>
     );
 }
@@ -75,7 +74,7 @@ export function DatasetTable({
     onDelete,
 }: Readonly<DatasetTableProps>) {
 
-    
+
     const FORMATS: DatasetExportFormat[] = ["csv", "json", "xlsx", "parquet", "sql"];
 
     // ── Loading skeleton ──────────────────────────────────────────────────────
@@ -100,22 +99,22 @@ export function DatasetTable({
                 <div className="w-16 h-16 rounded-none border border-border/40 flex items-center justify-center mb-6 bg-muted">
                     <Database className="h-8 w-8 text-muted-foreground/40" strokeWidth={1} />
                 </div>
-                <h3 className="text-lg font-bold tracking-tight mb-2 lowercase text-muted-foreground/80">No datasets found</h3>
-                <p className="text-sm text-muted-foreground max-w-xs mb-8 lowercase font-medium">
-                    your workspace is currently empty. import a dataset to get started.
+                <h3 className="text-lg font-bold tracking-tight mb-2 text-muted-foreground/80">No datasets found</h3>
+                <p className="text-sm text-muted-foreground max-w-xs mb-8 font-medium">
+                    Your workspace is currently empty. Import a dataset to get started.
                 </p>
 
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button
-                            className="rounded-none h-12 px-8 bg-foreground hover:bg-foreground/90 text-background font-bold text-sm lowercase shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] active:translate-x-[2px] active:translate-y-[2px] active:shadow-none transition-all"
+                            className="rounded-none h-12 px-8 bg-foreground hover:bg-foreground/90 text-background font-bold text-sm shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none transition-all"
                         >
                             <Plus className="mr-2.5 h-4 w-4" /> Import your first dataset
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="center" className="rounded-none border-border shadow-none min-w-[180px] p-1.5">
-                        <div className="px-3 py-2 text-[11px] font-bold lowercase text-muted-foreground/40 border-b border-border/50 mb-1.5 text-center">
-                            select format
+                    <DropdownMenuContent align="center" className="rounded-none border-border shadow-none min-w-45 p-1.5">
+                        <div className="px-3 py-2 text-[11px] font-bold text-muted-foreground/40 border-b border-border/50 mb-1.5 text-center">
+                            Select format
                         </div>
                         {FORMATS.map((fmt) => (
                             <DropdownMenuItem
@@ -123,7 +122,7 @@ export function DatasetTable({
                                 className="rounded-none text-sm font-semibold h-10 cursor-pointer focus:bg-primary focus:text-primary-foreground"
                                 onClick={() => onFormatSelect(fmt)}
                             >
-                                {fmt.toLowerCase()}
+                                {fmt}
                             </DropdownMenuItem>
                         ))}
                     </DropdownMenuContent>
@@ -140,12 +139,12 @@ export function DatasetTable({
                 <table className="w-full text-xs text-left border-collapse">
                     <thead className="border-b border-border/40 bg-muted/50">
                         <tr>
-                            <th className="px-6 py-4 w-14 text-center text-xs font-bold lowercase text-muted-foreground/50">#</th>
-                            <th className="px-6 py-4 text-xs font-bold lowercase text-muted-foreground/50">File name</th>
-                            <th className="px-6 py-4 text-xs font-bold lowercase text-muted-foreground/50">Format</th>
-                            <th className="px-6 py-4 text-right text-xs font-bold lowercase text-muted-foreground/50">Size</th>
-                            <th className="px-6 py-4 text-xs font-bold lowercase text-muted-foreground/50 hidden md:table-cell text-right">Date added</th>
-                            <th className="px-6 py-4 text-right text-xs font-bold lowercase text-muted-foreground/50">Actions</th>
+                            <th className="px-6 py-4 w-14 text-center text-xs font-bold text-muted-foreground/50">#</th>
+                            <th className="px-6 py-4 text-xs font-bold text-muted-foreground/50">File name</th>
+                            <th className="px-6 py-4 text-xs font-bold text-muted-foreground/50">Format</th>
+                            <th className="px-6 py-4 text-right text-xs font-bold text-muted-foreground/50">Size</th>
+                            <th className="px-6 py-4 text-xs font-bold text-muted-foreground/50 hidden md:table-cell text-right">Date added</th>
+                            <th className="px-6 py-4 text-right text-xs font-bold text-muted-foreground/50">Actions</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-border/20">
@@ -205,20 +204,20 @@ export function DatasetTable({
                                                             }
                                                         </Button>
                                                     </DropdownMenuTrigger>
-                                                    <DropdownMenuContent align="end" className="rounded-none border-border shadow-none min-w-[200px] p-1.5">
-                                                        <DropdownMenuItem className="rounded-none text-[13px] font-semibold lowercase h-11 cursor-pointer" onClick={() => onRename(dataset)}>
-                                                            <Edit2 className="mr-3 h-4 w-4" /> rename file
+                                                    <DropdownMenuContent align="end" className="rounded-none border-border shadow-none min-w-50 p-1.5">
+                                                        <DropdownMenuItem className="rounded-none text-[13px] font-semibold h-11 cursor-pointer" onClick={() => onRename(dataset)}>
+                                                            <Edit2 className="mr-3 h-4 w-4" /> Rename file
                                                         </DropdownMenuItem>
 
                                                         <DropdownMenuSub>
-                                                            <DropdownMenuSubTrigger className="rounded-none text-[13px] font-semibold lowercase h-11 cursor-pointer">
-                                                                <Copy className="mr-3 h-4 w-4" /> duplicate dataset
+                                                            <DropdownMenuSubTrigger className="rounded-none text-[13px] font-semibold h-11 cursor-pointer">
+                                                                <Copy className="mr-3 h-4 w-4" /> Duplicate dataset
                                                             </DropdownMenuSubTrigger>
-                                                            <DropdownMenuSubContent className="rounded-none border-border shadow-none p-1.5 min-w-[160px]">
-                                                                <DropdownMenuItem className="rounded-none text-[13px] font-semibold lowercase h-10 cursor-pointer" onClick={() => onDuplicate(dataset)}>quick clone</DropdownMenuItem>
+                                                            <DropdownMenuSubContent className="rounded-none border-border shadow-none p-1.5 min-w-40">
+                                                                <DropdownMenuItem className="rounded-none text-[13px] font-semibold h-10 cursor-pointer" onClick={() => onDuplicate(dataset)}>Quick clone</DropdownMenuItem>
                                                                 <DropdownMenuSeparator className="bg-border/40" />
                                                                 {FORMATS.map((fmt) => (
-                                                                    <DropdownMenuItem key={fmt} className="rounded-none text-[13px] font-semibold h-10 cursor-pointer lowercase" onClick={() => onDuplicate(dataset, fmt)}>
+                                                                    <DropdownMenuItem key={fmt} className="rounded-none text-[13px] font-semibold h-10 cursor-pointer" onClick={() => onDuplicate(dataset, fmt)}>
                                                                         as {fmt}
                                                                     </DropdownMenuItem>
                                                                 ))}
@@ -226,12 +225,12 @@ export function DatasetTable({
                                                         </DropdownMenuSub>
 
                                                         <DropdownMenuSub>
-                                                            <DropdownMenuSubTrigger className="rounded-none text-[13px] font-semibold lowercase h-11 cursor-pointer">
-                                                                <Download className="mr-3 h-4 w-4" /> export as...
+                                                            <DropdownMenuSubTrigger className="rounded-none text-[13px] font-semibold h-11 cursor-pointer">
+                                                                <Download className="mr-3 h-4 w-4" /> Export as...
                                                             </DropdownMenuSubTrigger>
-                                                            <DropdownMenuSubContent className="rounded-none border-border shadow-none p-1.5 min-w-[160px]">
+                                                            <DropdownMenuSubContent className="rounded-none border-border shadow-none p-1.5 min-w-40">
                                                                 {FORMATS.map((fmt) => (
-                                                                    <DropdownMenuItem key={fmt} className="rounded-none text-[13px] font-semibold h-10 cursor-pointer lowercase" onClick={() => onExport(dataset, fmt)}>
+                                                                    <DropdownMenuItem key={fmt} className="rounded-none text-[13px] font-semibold h-10 cursor-pointer" onClick={() => onExport(dataset, fmt)}>
                                                                         {fmt}
                                                                     </DropdownMenuItem>
                                                                 ))}
@@ -239,12 +238,12 @@ export function DatasetTable({
                                                         </DropdownMenuSub>
 
                                                         <DropdownMenuSeparator className="bg-border/40" />
-                                                        
-                                                        <DropdownMenuItem 
-                                                            className="rounded-none text-[13px] font-semibold lowercase h-11 text-destructive focus:text-destructive focus:bg-destructive/5 cursor-pointer" 
+
+                                                        <DropdownMenuItem
+                                                            className="rounded-none text-[13px] font-semibold h-11 text-destructive focus:text-destructive focus:bg-destructive/5 cursor-pointer"
                                                             onClick={() => onDelete(dataset)}
                                                         >
-                                                            <Trash2 className="mr-3 h-4 w-4" /> delete dataset
+                                                            <Trash2 className="mr-3 h-4 w-4" /> Delete dataset
                                                         </DropdownMenuItem>
                                                     </DropdownMenuContent>
                                                 </DropdownMenu>
@@ -261,9 +260,9 @@ export function DatasetTable({
                                                 <Search className="h-5 w-5 text-muted-foreground/40" strokeWidth={1.5} />
                                             </div>
                                             <div className="space-y-1">
-                                                <p className="text-base font-bold lowercase text-muted-foreground">no matching files found</p>
-                                                <p className="text-sm text-muted-foreground/60 lowercase italic">
-                                                    try resetting your filters to see more results.
+                                                <p className="text-base font-bold text-muted-foreground">No matching files found</p>
+                                                <p className="text-sm text-muted-foreground/60 italic">
+                                                    Try resetting your filters to see more results.
                                                 </p>
                                             </div>
                                         </div>
@@ -277,4 +276,3 @@ export function DatasetTable({
         </Card>
     );
 }
-

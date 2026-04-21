@@ -8,8 +8,6 @@ import {
     Loader2,
     Table2,
     Info,
-    MemoryStick,
-
 } from "lucide-react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -50,30 +48,44 @@ function displayCell(val: unknown): string {
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
 
+function DatasetMetaStrip({ data }: Readonly<{ data: DataLabPreview }>) {
+    return (
+        <div className="flex items-center gap-3 flex-wrap">
+            <Badge variant="outline" className="text-[11px] font-semibold gap-1.5 font-mono">
+                {data.file_name}
+            </Badge>
+            <Badge variant="secondary" className="text-[11px] font-semibold gap-1.5 font-mono">
+                {data.file_format}
+            </Badge>
+            <Badge variant="secondary" className="text-[11px] font-semibold gap-1.5">
+                {data.dataset_size}
+            </Badge>
+            <Badge variant="secondary" className="text-[11px] font-semibold gap-1.5">
+                <Table2 className="h-3 w-3" />
+                {data.total_rows.toLocaleString()} rows
+            </Badge>
+            <Badge variant="secondary" className="text-[11px] font-semibold gap-1.5">
+                <Database className="h-3 w-3" />
+                {data.total_columns} columns
+            </Badge>
+        </div>
+    );
+}
+
 function PreviewTab({ data }: Readonly<{ data: DataLabPreview }>) {
     return (
         <div className="space-y-3">
-            {/* Stats row */}
-            <div className="flex items-center gap-3 flex-wrap">
-                <Badge variant="secondary" className="text-[11px] font-semibold gap-1.5">
-                    <Table2 className="h-3 w-3" />
-                    {data.total_rows.toLocaleString()} rows
-                </Badge>
-                <Badge variant="secondary" className="text-[11px] font-semibold gap-1.5">
-                    <Database className="h-3 w-3" />
-                    {data.total_columns} columns
-                </Badge>
-            </div>
+            <DatasetMetaStrip data={data} />
 
             {/* Data table */}
-            <Card className="shadow-sm overflow-hidden">
+            <Card className="shadow-sm overflow-hidden rounded-none">
                 <ScrollArea className="w-full">
                     <table className="w-full text-left border-collapse text-sm">
                         <thead>
                             <tr className="bg-muted/50 border-b">
-                                <th className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground w-12 text-center select-none">#</th>
+                                <th className="px-4 py-3 text-xs font-semibold text-muted-foreground w-12 text-center select-none">#</th>
                                 {data.columns.map((col) => (
-                                    <th key={col} className="px-4 py-3 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground whitespace-nowrap">
+                                    <th key={col} className="px-4 py-3 text-xs font-semibold text-muted-foreground whitespace-nowrap">
                                         {col}
                                     </th>
                                 ))}
@@ -103,9 +115,9 @@ function PreviewTab({ data }: Readonly<{ data: DataLabPreview }>) {
                                                         "px-4 py-2.5 text-xs font-mono whitespace-nowrap max-w-48 truncate",
                                                         isNull ? "text-muted-foreground/30 italic" : "text-foreground/80"
                                                     )}
-                                                    title={val || "null"}
+                                                    title={val || "—"}
                                                 >
-                                                    {isNull ? "null" : val}
+                                                    {isNull ? "—" : val}
                                                 </td>
                                             );
                                         })}
@@ -121,105 +133,61 @@ function PreviewTab({ data }: Readonly<{ data: DataLabPreview }>) {
     );
 }
 
-function InspectTab({ data }: Readonly<{ data: DataLabInspect }>) {
+function InspectTab({ data, preview }: Readonly<{ data: DataLabInspect; preview: DataLabPreview }>) {
     return (
         <div className="space-y-4">
+            <DatasetMetaStrip data={preview} />
 
             {/* df.info() — column breakdown table */}
             <Card className="shadow-sm overflow-hidden">
                 <CardHeader className="px-5 py-3 border-b">
-                    <div className="flex items-center gap-2">
-                        <Info className="h-3.5 w-3.5 text-muted-foreground" />
-                        <CardTitle className="text-xs font-semibold font-mono">df.info()</CardTitle>
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                            <CardTitle className="text-xs font-semibold font-mono">df.info()</CardTitle>
+                        </div>
+                        <span className="text-[11px] text-muted-foreground font-mono">
+                            {formatBytes(data.info.memory_usage_bytes)} memory
+                        </span>
                     </div>
                 </CardHeader>
                 <CardContent className="p-0">
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-muted/50 border-b">
-                                <th className="px-5 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Column</th>
-                                <th className="px-5 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Dtype</th>
-                                <th className="px-5 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground text-right">Non-Null</th>
-                                <th className="px-5 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground text-right">Nulls</th>
-                                <th className="px-5 py-2.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground text-right">Null %</th>
+                                <th className="px-5 py-2.5 text-[10px] font-semibold tracking-wider text-muted-foreground">Column</th>
+                                <th className="px-5 py-2.5 text-[10px] font-semibold tracking-wider text-muted-foreground">Dtype</th>
+                                <th className="px-5 py-2.5 text-[10px] font-semibold tracking-wider text-muted-foreground text-right">Non-Null</th>
+                                <th className="px-5 py-2.5 text-[10px] font-semibold tracking-wider text-muted-foreground text-right">Nulls</th>
+                                <th className="px-5 py-2.5 text-[10px] font-semibold tracking-wider text-muted-foreground text-right">Null %</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {data.info.columns.map((col) => {
-                                const total = col.non_null_count + col.null_count;
-                                const pct = total > 0 ? ((col.null_count / total) * 100).toFixed(1) : "0.0";
-                                return (
-                                    <tr key={col.column} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
-                                        <td className="px-5 py-2.5 text-xs font-medium">{col.column}</td>
-                                        <td className="px-5 py-2.5">
-                                            <Badge variant="secondary" className="text-[10px] font-mono font-semibold">
-                                                {col.dtype}
-                                            </Badge>
-                                        </td>
-                                        <td className="px-5 py-2.5 text-xs tabular-nums text-right text-muted-foreground">{col.non_null_count.toLocaleString()}</td>
-                                        <td className={cn(
-                                            "px-5 py-2.5 text-xs tabular-nums text-right font-semibold",
-                                            col.null_count > 0 ? "text-red-500" : "text-muted-foreground/40"
-                                        )}>
-                                            {col.null_count.toLocaleString()}
-                                        </td>
-                                        <td className={cn(
-                                            "px-5 py-2.5 text-xs tabular-nums text-right",
-                                            col.null_count > 0 ? "text-red-400" : "text-muted-foreground/40"
-                                        )}>
-                                            {pct}%
-                                        </td>
-                                    </tr>
-                                );
-                            })}
+                            {data.info.columns.map((col) => (
+                                <tr key={col.column} className="border-b border-border/50 hover:bg-muted/30 transition-colors">
+                                    <td className="px-5 py-2.5 text-xs font-medium">{col.column}</td>
+                                    <td className="px-5 py-2.5">
+                                        <Badge variant="secondary" className="text-[10px] font-mono font-semibold">
+                                            {col.dtype}
+                                        </Badge>
+                                    </td>
+                                    <td className="px-5 py-2.5 text-xs tabular-nums text-right text-muted-foreground">{col.non_null_count.toLocaleString()}</td>
+                                    <td className={cn(
+                                        "px-5 py-2.5 text-xs tabular-nums text-right font-semibold",
+                                        col.null_count > 0 ? "text-red-500" : "text-muted-foreground/40"
+                                    )}>
+                                        {col.null_count.toLocaleString()}
+                                    </td>
+                                    <td className={cn(
+                                        "px-5 py-2.5 text-xs tabular-nums text-right",
+                                        col.null_pct > 0 ? "text-red-400" : "text-muted-foreground/40"
+                                    )}>
+                                        {col.null_pct.toFixed(1)}%
+                                    </td>
+                                </tr>
+                            ))}
                         </tbody>
                     </table>
-                    {data.info.text && (
-                        <pre className="px-5 py-4 text-[11px] font-mono text-muted-foreground leading-relaxed overflow-x-auto whitespace-pre-wrap border-t bg-muted/20">
-                            {data.info.text}
-                        </pre>
-                    )}
-                </CardContent>
-            </Card>
-
-            {/* df.shape */}
-            <Card className="shadow-sm overflow-hidden">
-                <CardHeader className="px-5 py-3 border-b">
-                    <CardTitle className="text-xs font-semibold font-mono">df.shape</CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                    <div className="grid grid-cols-3 divide-x divide-border">
-                        <div className="px-5 py-4">
-                            <p className="text-2xl font-bold tabular-nums leading-none">{data.shape.rows.toLocaleString()}</p>
-                            <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-widest">Rows</p>
-                        </div>
-                        <div className="px-5 py-4">
-                            <p className="text-2xl font-bold tabular-nums leading-none">{data.shape.columns}</p>
-                            <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-widest">Columns</p>
-                        </div>
-                        <div className="px-5 py-4 flex items-center gap-2">
-                            <MemoryStick className="h-4 w-4 text-muted-foreground shrink-0" />
-                            <div>
-                                <p className="text-lg font-bold leading-none">{formatBytes(data.info.memory_usage_bytes)}</p>
-                                <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-widest">Memory</p>
-                            </div>
-                        </div>
-                    </div>
-                </CardContent>
-            </Card>
-
-            {/* df.dtypes() */}
-            <Card className="shadow-sm overflow-hidden">
-                <CardHeader className="px-5 py-3 border-b">
-                    <CardTitle className="text-xs font-semibold font-mono">df.dtypes()</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 flex flex-wrap gap-2">
-                    {Object.entries(data.dtypes).map(([col, dtype]) => (
-                        <div key={col} className="flex items-center gap-1.5 bg-muted/40 border rounded-md px-2.5 py-1">
-                            <span className="text-xs font-medium">{col}</span>
-                            <span className="text-[10px] font-mono text-muted-foreground">{dtype}</span>
-                        </div>
-                    ))}
                 </CardContent>
             </Card>
 
@@ -327,7 +295,7 @@ function DataLabContent() {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-64 rounded-none">
-                            <DropdownMenuLabel className="text-[10px] uppercase font-semibold tracking-widest text-muted-foreground">
+                            <DropdownMenuLabel className="text-[10px] font-semibold tracking-widest text-muted-foreground">
                                 Dataset
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator />
@@ -371,7 +339,7 @@ function DataLabContent() {
                             <Loader2 className="h-7 w-7 animate-spin text-muted-foreground/40" />
                         </div>
                     )}
-                    {selectedId && !loadingData && inspect && <InspectTab data={inspect} />}
+                    {selectedId && !loadingData && inspect && preview && <InspectTab data={inspect} preview={preview} />}
                     {selectedId && !loadingData && !inspect && (
                         <div className="border bg-muted/5 h-105" />
                     )}
