@@ -3,7 +3,7 @@
 import { Package, Activity, HardDrive } from "lucide-react";
 import { motion } from "motion/react";
 import { Card, CardContent } from "@/components/ui/card";
-import { formatFileSize } from "./_lib";
+import { formatFileSize } from "../_lib";
 
 interface DatasetStatsProps {
     total: number;

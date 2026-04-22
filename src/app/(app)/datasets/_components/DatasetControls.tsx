@@ -11,7 +11,7 @@ import {
     DropdownMenuRadioItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { getSortLabel, getFilterLabel } from "./_lib";
+import { getSortLabel, getFilterLabel } from "../_lib";
 
 interface DatasetControlsProps {
     searchQuery: string;

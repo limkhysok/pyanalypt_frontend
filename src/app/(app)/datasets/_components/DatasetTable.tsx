@@ -25,7 +25,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Dataset, DatasetExportFormat } from "@/types/dataset";
-import { formatFileSize } from "./_lib";
+import { formatFileSize } from "../_lib";
 
 // ─────────────────────────────────────────────
 // FormatBadge
