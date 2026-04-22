@@ -71,7 +71,7 @@ export interface DuplicateDatasetRequest {
   format?: DatasetExportFormat;
 }
 
-export type DatasetExportFormat = 'csv' | 'json' | 'xlsx' | 'parquet' | 'sql';
+export type DatasetExportFormat = 'csv' | 'json' | 'xlsx' | 'parquet';
 
 export interface DatasetActivityLog {
   id: number;

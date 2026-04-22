@@ -16,7 +16,7 @@ interface DatasetHeaderProps {
     onFormatSelect: (format: DatasetExportFormat) => void;
 }
 
-const FORMATS: DatasetExportFormat[] = ["csv", "json", "xlsx", "parquet", "sql"];
+const FORMATS: DatasetExportFormat[] = ["csv", "json", "xlsx", "parquet"];
 
 export function DatasetHeader({ uploadLoading, onFormatSelect }: Readonly<DatasetHeaderProps>) {
     return (

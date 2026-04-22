@@ -31,10 +31,22 @@ export interface CastColumnResult {
   from_dtype: string;
   to_dtype: string;
   status: string;
+  validation?: { status: string; message: string };
+}
+
+export interface CastWarning {
+  column: string;
+  warning: string;
 }
 
 export interface CastResponse {
   updated_columns: CastColumnResult[];
+}
+
+export interface CastWarningResponse {
+  detail: string;
+  warnings: CastWarning[];
+  errors: string[];
 }
 
 export const datalabApi = {
@@ -48,8 +60,10 @@ export const datalabApi = {
     return res.data;
   },
 
-  async cast(datasetId: number, casts: Record<string, string>): Promise<CastResponse> {
-    const res = await apiClient.post<CastResponse>(`datalab/cast/${datasetId}/`, { casts });
+  async cast(datasetId: number, casts: Record<string, string>, force = false): Promise<CastResponse> {
+    const body: Record<string, unknown> = { casts };
+    if (force) body.force = true;
+    const res = await apiClient.post<CastResponse>(`datalab/cast/${datasetId}/`, body);
     return res.data;
   },
 };

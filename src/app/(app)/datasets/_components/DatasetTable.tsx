@@ -75,7 +75,7 @@ export function DatasetTable({
 }: Readonly<DatasetTableProps>) {
 
 
-    const FORMATS: DatasetExportFormat[] = ["csv", "json", "xlsx", "parquet", "sql"];
+    const FORMATS: DatasetExportFormat[] = ["csv", "json", "xlsx", "parquet"];
 
     // ── Loading skeleton ──────────────────────────────────────────────────────
 

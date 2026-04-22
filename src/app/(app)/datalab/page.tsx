@@ -33,7 +33,7 @@ import {
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { datasetApi, datalabApi } from "@/services/api";
-import type { DataLabPreview, DataLabInspect, CastColumnResult } from "@/services/api";
+import type { DataLabPreview, DataLabInspect, CastColumnResult, CastWarning } from "@/services/api";
 import { Dataset } from "@/types/dataset";
 import { toast } from "sonner";
 
@@ -151,19 +151,21 @@ function InspectTab({ data, preview, datasetId, onRefetchInspect }: Readonly<{
     const [pendingCasts, setPendingCasts] = React.useState<Record<string, string>>({});
     const [casting, setCasting] = React.useState(false);
     const [castResults, setCastResults] = React.useState<CastColumnResult[] | null>(null);
+    const [castWarnings, setCastWarnings] = React.useState<CastWarning[] | null>(null);
 
-    const isSql = preview.file_format.toUpperCase() === "SQL";
     const hasPending = Object.keys(pendingCasts).length > 0;
 
     React.useEffect(() => {
         setPendingCasts({});
         setCastResults(null);
+        setCastWarnings(null);
     }, [data]);
 
-    async function handleCast() {
+    async function handleCast(force = false) {
         setCasting(true);
         try {
-            const result = await datalabApi.cast(datasetId, pendingCasts);
+            const result = await datalabApi.cast(datasetId, pendingCasts, force);
+            setCastWarnings(null);
             setCastResults(result.updated_columns);
             const hasErrors = result.updated_columns.some((c) => c.status.startsWith("error"));
             if (hasErrors) {
@@ -173,8 +175,15 @@ function InspectTab({ data, preview, datasetId, onRefetchInspect }: Readonly<{
                 setPendingCasts({});
                 onRefetchInspect();
             }
-        } catch {
-            toast.error("Failed to cast columns.");
+        } catch (err: unknown) {
+            const data = (err as { response?: { data?: { warnings?: CastWarning[]; errors?: string[] } } })?.response?.data;
+            if (data?.warnings && data.warnings.length > 0) {
+                setCastWarnings(data.warnings);
+            } else if (data?.errors && data.errors.length > 0) {
+                toast.error(data.errors.join(" "));
+            } else {
+                toast.error("Failed to cast columns.");
+            }
         } finally {
             setCasting(false);
         }
@@ -183,12 +192,6 @@ function InspectTab({ data, preview, datasetId, onRefetchInspect }: Readonly<{
     return (
         <div className="space-y-4">
             <DatasetMetaStrip data={preview} />
-
-            {isSql && (
-                <p className="text-[11px] text-muted-foreground border px-4 py-2 bg-muted/10">
-                    Dtype casting is not supported for SQL files.
-                </p>
-            )}
 
             {/* df.info() — column breakdown table */}
             <Card className="shadow-sm overflow-hidden">
@@ -199,11 +202,11 @@ function InspectTab({ data, preview, datasetId, onRefetchInspect }: Readonly<{
                             <CardTitle className="text-xs font-semibold font-mono">df.info()</CardTitle>
                         </div>
                         <div className="flex items-center gap-3">
-                            {!isSql && hasPending && (
+                            {hasPending && (
                                 <Button
                                     size="sm"
                                     className="h-7 text-xs rounded-none gap-1.5"
-                                    onClick={handleCast}
+                                    onClick={() => handleCast(false)}
                                     disabled={casting}
                                 >
                                     {casting && <Loader2 className="h-3 w-3 animate-spin" />}
@@ -216,6 +219,29 @@ function InspectTab({ data, preview, datasetId, onRefetchInspect }: Readonly<{
                         </div>
                     </div>
                 </CardHeader>
+
+                {castWarnings && (
+                    <div className="border-b border-amber-500/30 bg-amber-500/5 px-5 py-3 space-y-2">
+                        <p className="text-[11px] font-semibold text-amber-600">Conversion warnings — confirm to proceed:</p>
+                        <ul className="space-y-1">
+                            {castWarnings.map((w) => (
+                                <li key={w.column} className="text-[11px] text-muted-foreground font-mono">
+                                    <span className="font-semibold">{w.column}:</span> {w.warning}
+                                </li>
+                            ))}
+                        </ul>
+                        <div className="flex gap-2 pt-1">
+                            <Button size="sm" className="h-7 text-xs rounded-none gap-1.5" onClick={() => handleCast(true)} disabled={casting}>
+                                {casting && <Loader2 className="h-3 w-3 animate-spin" />}
+                                Confirm
+                            </Button>
+                            <Button size="sm" variant="ghost" className="h-7 text-xs rounded-none" onClick={() => setCastWarnings(null)} disabled={casting}>
+                                Cancel
+                            </Button>
+                        </div>
+                    </div>
+                )}
+
                 <CardContent className="p-0">
                     <table className="w-full text-left border-collapse">
                         <thead>
@@ -236,68 +262,62 @@ function InspectTab({ data, preview, datasetId, onRefetchInspect }: Readonly<{
                                         key={col.column}
                                         className={cn(
                                             "border-b border-border/50 hover:bg-muted/30 transition-colors",
-                                            hasError && "bg-red-500/5"
+                                            (hasError || col.null_count > 0 || col.null_pct > 0) && "bg-red-600/5"
                                         )}
                                     >
                                         <td className="px-5 py-2.5 text-xs font-medium">{col.column}</td>
                                         <td className="px-5 py-2">
-                                            {isSql ? (
-                                                <Badge variant="secondary" className="text-[11px] font-mono font-semibold">
-                                                    {col.dtype}
+                                            <div className="flex items-center gap-2">
+                                                <Badge variant="secondary" className="text-[11px] font-mono font-semibold shrink-0">
+                                                    {result ? result.to_dtype : col.dtype}
                                                 </Badge>
-                                            ) : (
-                                                <div className="flex items-center gap-2">
-                                                    <Badge variant="secondary" className="text-[11px] font-mono font-semibold shrink-0">
-                                                        {result ? result.to_dtype : col.dtype}
-                                                    </Badge>
 
-                                                    <Select
-                                                        value={pendingCasts[col.column] ?? "none"}
-                                                        onValueChange={(val) => {
-                                                            setPendingCasts((prev) => {
-                                                                if (val === "none") {
-                                                                    const next = { ...prev };
-                                                                    delete next[col.column];
-                                                                    return next;
-                                                                }
-                                                                return { ...prev, [col.column]: val };
-                                                            });
-                                                        }}
-                                                        disabled={casting}
+                                                <Select
+                                                    value={pendingCasts[col.column] ?? "none"}
+                                                    onValueChange={(val) => {
+                                                        setPendingCasts((prev) => {
+                                                            if (val === "none") {
+                                                                const next = { ...prev };
+                                                                delete next[col.column];
+                                                                return next;
+                                                            }
+                                                            return { ...prev, [col.column]: val };
+                                                        });
+                                                    }}
+                                                    disabled={casting}
+                                                >
+                                                    <SelectTrigger
+                                                        className="h-7 text-[11px] font-mono w-30 rounded-none border-border/60 bg-background/50 focus:ring-0 focus:ring-offset-0 transition-all hover:bg-muted/50"
                                                     >
-                                                        <SelectTrigger 
-                                                            className="h-7 text-[11px] font-mono w-[120px] rounded-none border-border/60 bg-background/50 focus:ring-0 focus:ring-offset-0 transition-all hover:bg-muted/50"
-                                                        >
-                                                            <SelectValue placeholder="Cast to..." />
-                                                        </SelectTrigger>
-                                                        <SelectContent className="rounded-none border-border/60">
-                                                            <SelectItem value="none" className="text-[11px] font-mono focus:bg-primary focus:text-primary-foreground">
-                                                                none
+                                                        <SelectValue placeholder="Cast to..." />
+                                                    </SelectTrigger>
+                                                    <SelectContent className="rounded-none border-border/60">
+                                                        <SelectItem value="none" className="text-[11px] font-mono focus:bg-primary focus:text-primary-foreground">
+                                                            none
+                                                        </SelectItem>
+                                                        {CAST_TYPES.map((t) => (
+                                                            <SelectItem
+                                                                key={t}
+                                                                value={t}
+                                                                className="text-[11px] font-mono focus:bg-primary focus:text-primary-foreground"
+                                                            >
+                                                                {t}
                                                             </SelectItem>
-                                                            {CAST_TYPES.map((t) => (
-                                                                <SelectItem 
-                                                                    key={t} 
-                                                                    value={t} 
-                                                                    className="text-[11px] font-mono focus:bg-primary focus:text-primary-foreground"
-                                                                >
-                                                                    {t}
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
 
-                                                    {result && (
-                                                        <span className={cn(
-                                                            "text-[10px] font-mono px-1.5 py-0.5 rounded-none border",
-                                                            hasError
-                                                                ? "bg-red-500/10 text-red-500 border-red-500/20"
-                                                                : "bg-green-500/10 text-green-600 border-green-500/20"
-                                                        )}>
-                                                            {hasError ? result.status : "Success"}
-                                                        </span>
-                                                    )}
-                                                </div>
-                                            )}
+                                                {result && (
+                                                    <span className={cn(
+                                                        "text-[10px] font-mono px-1.5 py-0.5 rounded-none border",
+                                                        hasError
+                                                            ? "bg-red-500/10 text-red-500 border-red-500/20"
+                                                            : "bg-green-500/10 text-green-600 border-green-500/20"
+                                                    )}>
+                                                        {hasError ? result.status : "Success"}
+                                                    </span>
+                                                )}
+                                            </div>
                                         </td>
                                         <td className="px-5 py-2.5 text-xs tabular-nums text-right text-muted-foreground">{col.non_null_count.toLocaleString()}</td>
                                         <td className={cn(
