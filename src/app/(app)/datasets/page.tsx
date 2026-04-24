@@ -1,5 +1,6 @@
 "use client";
 
+import { Database, Activity } from "lucide-react";
 import { motion } from "motion/react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useDatasets } from "./use-datasets";
@@ -51,84 +52,68 @@ export default function DatasetsPage() {
     } = useDatasets();
 
     return (
-        <main className="min-h-screen pb-24 px-6 md:px-10 bg-background relative z-0">
+        <main className="flex flex-col gap-6 p-8">
 
-            {/* Background Grid */}
-            <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-                <div className="absolute inset-0 bg-background" />
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808006_1px,transparent_1px),linear-gradient(to_bottom,#80808006_1px,transparent_1px)] bg-size-[44px_44px] opacity-100" />
-            </div>
+            <DatasetHeader
+                uploadLoading={uploadLoading}
+                onFormatSelect={handleImportFormatSelect}
+            />
 
-            <div className="max-w-7xl mx-auto space-y-10 pt-10 md:pt-16">
-
-                <DatasetHeader
-                    uploadLoading={uploadLoading}
-                    onFormatSelect={handleImportFormatSelect}
+            {datasets.length > 0 && (
+                <DatasetStats
+                    total={stats.total}
+                    formats={stats.formats}
+                    totalSize={stats.totalSize}
+                    usagePct={usagePct}
+                    usageLabel={usageLabel}
                 />
+            )}
 
-                {datasets.length > 0 && (
-                    <DatasetStats
-                        total={stats.total}
-                        formats={stats.formats}
-                        totalSize={stats.totalSize}
-                        usagePct={usagePct}
-                        usageLabel={usageLabel}
+            <Tabs defaultValue="artifacts" className="w-full">
+                <TabsList className="rounded-none">
+                    <TabsTrigger value="artifacts" className="gap-2 rounded-none">
+                        <Database className="h-3.5 w-3.5" /> Datasets
+                    </TabsTrigger>
+                    <TabsTrigger value="logs" className="gap-2 rounded-none">
+                        <Activity className="h-3.5 w-3.5" /> Activity Logs
+                    </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="artifacts" className="space-y-6 pt-6 outline-none">
+                    <DatasetControls
+                        searchQuery={searchQuery}
+                        onSearchChange={setSearchQuery}
+                        sortBy={sortBy}
+                        onSortChange={setSortBy}
+                        filterType={filterType}
+                        onFilterChange={setFilterType}
+                        countLabel={countLabel}
+                        showCount={datasets.length > 0}
                     />
-                )}
 
-                <Tabs defaultValue="artifacts" className="w-full">
-                    <TabsList className="rounded-none bg-muted/40 border border-border/40 p-0.5 h-12 w-full sm:w-auto">
-                        <TabsTrigger
-                            value="artifacts"
-                            className="rounded-none h-full px-10 data-[state=active]:bg-background data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground transition-all text-sm font-bold lowercase tracking-tight flex-1 sm:flex-none"
-                        >
-                            datasets
-                        </TabsTrigger>
-                        <TabsTrigger
-                            value="logs"
-                            className="rounded-none h-full px-10 data-[state=active]:bg-background data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-foreground transition-all text-sm font-bold lowercase tracking-tight flex-1 sm:flex-none"
-                        >
-                            activity logs
-                        </TabsTrigger>
-                    </TabsList>
-
-                    <TabsContent value="artifacts" className="space-y-8 pt-8 outline-none">
-                        <DatasetControls
-                            searchQuery={searchQuery}
-                            onSearchChange={setSearchQuery}
-                            sortBy={sortBy}
-                            onSortChange={setSortBy}
-                            filterType={filterType}
-                            onFilterChange={setFilterType}
-                            countLabel={countLabel}
-                            showCount={datasets.length > 0}
+                    <motion.div
+                        initial={{ opacity: 0, y: 16 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.4, delay: 0.18 }}
+                    >
+                        <DatasetTable
+                            datasets={datasets}
+                            filteredDatasets={filteredDatasets}
+                            isLoading={isLoading}
+                            exportingDatasetId={exportingDatasetId}
+                            onFormatSelect={handleImportFormatSelect}
+                            onRename={handleRenameOpen}
+                            onExport={handleExport}
+                            onDuplicate={handleDuplicate}
+                            onDelete={handleRemoveOpen}
                         />
+                    </motion.div>
+                </TabsContent>
 
-                        <motion.div
-                            initial={{ opacity: 0, y: 16 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.4, delay: 0.18 }}
-                        >
-                            <DatasetTable
-                                datasets={datasets}
-                                filteredDatasets={filteredDatasets}
-                                isLoading={isLoading}
-                                exportingDatasetId={exportingDatasetId}
-                                onFormatSelect={handleImportFormatSelect}
-                                onRename={handleRenameOpen}
-                                onExport={handleExport}
-                                onDuplicate={handleDuplicate}
-                                onDelete={handleRemoveOpen}
-                            />
-                        </motion.div>
-                    </TabsContent>
-
-                    <TabsContent value="logs" className="pt-8 outline-none">
-                        <DatasetLogs logs={activityLogs} isLoading={logsLoading} />
-                    </TabsContent>
-                </Tabs>
-
-            </div>
+                <TabsContent value="logs" className="pt-6 outline-none">
+                    <DatasetLogs logs={activityLogs} isLoading={logsLoading} />
+                </TabsContent>
+            </Tabs>
 
             <RenameDialog
                 open={isRenameOpen}

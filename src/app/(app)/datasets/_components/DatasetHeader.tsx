@@ -1,7 +1,6 @@
 "use client";
 
-import { Plus, Loader2 } from "lucide-react";
-import { motion } from "motion/react";
+import { Plus, Loader2, Database } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -20,26 +19,20 @@ const FORMATS: DatasetExportFormat[] = ["csv", "json", "xlsx", "parquet"];
 
 export function DatasetHeader({ uploadLoading, onFormatSelect }: Readonly<DatasetHeaderProps>) {
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="flex flex-col sm:flex-row sm:items-center justify-between gap-6"
-        >
-            <div className="space-y-1.5 min-w-0">
-                <h1 className="text-3xl md:text-4xl font-bold tracking-tight leading-none text-foreground">
-                    Datasets
-                </h1>
-                <p className="text-sm md:text-base font-medium text-muted-foreground max-w-lg leading-relaxed">
-                    To manage your data files in one place. File size limit is 25 MB.
-                </p>
+        <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+                <Database className="h-7 w-7 text-primary" />
+                <div>
+                    <h1 className="text-2xl font-bold tracking-tight leading-none font-mono">Datasets</h1>
+                    <p className="text-xs text-muted-foreground mt-1">Manage and organize your data files. File size limit is 25 MB.</p>
+                </div>
             </div>
 
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button
                         disabled={uploadLoading}
-                        className="rounded-none h-11 md:h-12 px-7 bg-foreground hover:bg-foreground/90 text-background font-bold text-sm tracking-normal transition-all self-start sm:self-auto shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none border border-foreground/10"
+                        className="rounded-none h-10 px-6 bg-foreground hover:bg-foreground/90 text-background font-bold text-sm tracking-normal transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none border border-foreground/10"
                     >
                         {uploadLoading ? (
                             <Loader2 className="mr-2.5 h-4 w-4 animate-spin" />
@@ -64,8 +57,6 @@ export function DatasetHeader({ uploadLoading, onFormatSelect }: Readonly<Datase
                     ))}
                 </DropdownMenuContent>
             </DropdownMenu>
-        </motion.div>
+        </div>
     );
 }
-
-
