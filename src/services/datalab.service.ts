@@ -17,6 +17,8 @@ export interface DataLabInspectColumn {
   non_null_count: number;
   null_count: number;
   null_pct: number;
+  unique_count: number;
+  is_unique: boolean;
 }
 
 export interface DataLabInspect {
@@ -49,6 +51,18 @@ export interface CastWarningResponse {
   errors: string[];
 }
 
+export interface DropDuplicatesRequest {
+  subset?: string[];
+  keep?: "first" | "last" | false;
+}
+
+export interface DropDuplicatesResponse {
+  rows_before: number;
+  rows_after: number;
+  rows_dropped: number;
+  detail?: string;
+}
+
 export const datalabApi = {
   async preview(datasetId: number): Promise<DataLabPreview> {
     const res = await apiClient.get<DataLabPreview>(`datalab/preview/${datasetId}/`);
@@ -64,6 +78,11 @@ export const datalabApi = {
     const body: Record<string, unknown> = { casts };
     if (force) body.force = true;
     const res = await apiClient.post<CastResponse>(`datalab/cast/${datasetId}/`, body);
+    return res.data;
+  },
+
+  async dropDuplicates(datasetId: number, body: DropDuplicatesRequest): Promise<DropDuplicatesResponse> {
+    const res = await apiClient.post<DropDuplicatesResponse>(`datalab/drop-duplicates/${datasetId}/`, body);
     return res.data;
   },
 };

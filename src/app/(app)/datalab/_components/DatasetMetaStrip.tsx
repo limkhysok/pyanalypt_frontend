@@ -1,29 +1,45 @@
 "use client";
 
-import { Table2, Database } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { ArrowLeftRight, ArrowUpDown } from "lucide-react";
 import type { DataLabPreview } from "@/services/api";
 
 export function DatasetMetaStrip({ data }: Readonly<{ data: DataLabPreview }>) {
     return (
-        <div className="flex items-center gap-3 flex-wrap">
-            <Badge variant="outline" className="text-[11px] font-semibold gap-1.5 font-mono">
-                {data.file_name}
-            </Badge>
-            <Badge variant="secondary" className="text-[11px] font-semibold gap-1.5 font-mono">
-                {data.file_format}
-            </Badge>
-            <Badge variant="secondary" className="text-[11px] font-semibold gap-1.5">
-                {data.dataset_size}
-            </Badge>
-            <Badge variant="secondary" className="text-[11px] font-semibold gap-1.5">
-                <Table2 className="h-3 w-3" />
-                {data.total_rows.toLocaleString()} rows
-            </Badge>
-            <Badge variant="secondary" className="text-[11px] font-semibold gap-1.5">
-                <Database className="h-3 w-3" />
-                {data.total_columns} columns
-            </Badge>
+        <div className="flex items-stretch gap-px bg-border border border-border flex-wrap">
+            <div className="bg-background px-4 py-2.5 flex flex-col gap-1 min-w-45 flex-1">
+                <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest leading-none">Dataset Name</span>
+                <span className="text-xs font-bold truncate text-foreground font-mono leading-none mt-0.5">{data.file_name}</span>
+            </div>
+
+            <div className="bg-background px-4 py-2.5 flex flex-col gap-1 min-w-25">
+                <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest leading-none">Format</span>
+                <div className="flex items-center gap-1.5 leading-none">
+                    <span className="text-xs font-bold text-foreground font-mono">{data.file_format.toUpperCase()}</span>
+                </div>
+            </div>
+
+            <div className="bg-background px-4 py-2.5 flex flex-col gap-1 min-w-25">
+                <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest leading-none">Storage</span>
+                <div className="flex items-center gap-1.5 leading-none">
+                    <span className="text-xs font-bold text-foreground font-mono">{data.dataset_size}</span>
+                </div>
+            </div>
+
+            <div className="bg-background px-4 py-2.5 flex flex-col gap-1 min-w-27.5">
+                <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest leading-none">Total Rows</span>
+                <div className="flex items-center gap-1.5 leading-none">
+                    <ArrowLeftRight className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-xs font-bold text-foreground font-mono tabular-nums">{data.total_rows.toLocaleString()}</span>
+                </div>
+            </div>
+
+            <div className="bg-background px-4 py-2.5 flex flex-col gap-1 min-w-27.5">
+                <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest leading-none">Total Columns</span>
+                <div className="flex items-center gap-1.5 leading-none">
+                    <ArrowUpDown className="h-3 w-3 text-muted-foreground" />
+                    <span className="text-xs font-bold text-foreground font-mono tabular-nums">{data.total_columns}</span>
+                </div>
+            </div>
         </div>
     );
 }

@@ -66,6 +66,17 @@ export function useDatalab() {
             .catch(() => toast.error("Failed to refresh inspect data."));
     }
 
+    function refetchAll() {
+        if (!selectedId) return;
+        const id = Number(selectedId);
+        Promise.all([datalabApi.preview(id), datalabApi.inspect(id)])
+            .then(([previewData, inspectData]) => {
+                setPreview(previewData);
+                setInspect(inspectData);
+            })
+            .catch(() => toast.error("Failed to refresh dataset."));
+    }
+
     const selectedName = datasets.find((d) => String(d.id) === selectedId)?.file_name;
 
     return {
@@ -77,6 +88,7 @@ export function useDatalab() {
         loadingDatasets,
         loadingData,
         refetchInspect,
+        refetchAll,
         selectedName,
     };
 }

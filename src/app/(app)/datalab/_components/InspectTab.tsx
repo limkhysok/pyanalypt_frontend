@@ -1,9 +1,8 @@
 "use client";
 
 import React from "react";
-import { Loader2, Info } from "lucide-react";
+import { Loader2, Info, KeyRound, Layers } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
     Select,
@@ -17,18 +16,21 @@ import { datalabApi } from "@/services/api";
 import type { DataLabPreview, DataLabInspect, CastColumnResult, CastWarning } from "@/services/api";
 import { toast } from "sonner";
 import { DatasetMetaStrip } from "./DatasetMetaStrip";
+import { DropDuplicatesDialog } from "./DropDuplicatesDialog";
 import { CAST_TYPES, formatBytes } from "../_lib";
 
-export function InspectTab({ data, preview, datasetId, onRefetchInspect }: Readonly<{
+export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefetchAll }: Readonly<{
     data: DataLabInspect;
     preview: DataLabPreview;
     datasetId: number;
     onRefetchInspect: () => void;
+    onRefetchAll: () => void;
 }>) {
     const [pendingCasts, setPendingCasts] = React.useState<Record<string, string>>({});
     const [casting, setCasting] = React.useState(false);
     const [castResults, setCastResults] = React.useState<CastColumnResult[] | null>(null);
     const [castWarnings, setCastWarnings] = React.useState<CastWarning[] | null>(null);
+    const [dropDupOpen, setDropDupOpen] = React.useState(false);
 
     const hasPending = Object.keys(pendingCasts).length > 0;
 
@@ -70,7 +72,7 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect }: Reado
         <div className="space-y-4">
             <DatasetMetaStrip data={preview} />
 
-            <Card className="shadow-sm overflow-hidden">
+            <Card className="rounded-none shadow-sm overflow-hidden">
                 <CardHeader className="px-5 py-3 border-b">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
@@ -89,6 +91,16 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect }: Reado
                                     Apply Casts
                                 </Button>
                             )}
+                            <Button
+                                size="sm"
+                                variant="outline"
+                                className="h-7 text-xs rounded-none gap-1.5"
+                                onClick={() => setDropDupOpen(true)}
+                                disabled={casting}
+                            >
+                                <Layers className="h-3 w-3" />
+                                Drop Duplicates
+                            </Button>
                             <span className="text-[11px] text-muted-foreground font-mono">
                                 {formatBytes(data.info.memory_usage_bytes)} memory
                             </span>
@@ -125,6 +137,7 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect }: Reado
                                 <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Column</th>
                                 <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Dtype</th>
                                 <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground text-right uppercase">Non-Null</th>
+                                <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground text-right uppercase">Unique</th>
                                 <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground text-right uppercase">Nulls</th>
                                 <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground text-right uppercase">Null %</th>
                             </tr>
@@ -141,12 +154,19 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect }: Reado
                                             (hasError || col.null_count > 0 || col.null_pct > 0) && "bg-red-600/5"
                                         )}
                                     >
-                                        <td className="px-5 py-2.5 text-xs font-medium">{col.column}</td>
+                                        <td className="px-5 py-2.5 text-xs font-medium">
+                                            <div className="flex items-center gap-1.5">
+                                                {col.is_unique && (
+                                                    <KeyRound className="h-3 w-3 text-amber-500 shrink-0" />
+                                                )}
+                                                {col.column}
+                                            </div>
+                                        </td>
                                         <td className="px-5 py-2">
                                             <div className="flex items-center gap-2">
-                                                <Badge variant="secondary" className="text-[11px] font-mono font-semibold shrink-0">
+                                                <div className="text-[10px] font-mono font-black border border-border px-2 py-0.5 bg-background text-foreground uppercase tracking-tighter shrink-0">
                                                     {result ? result.to_dtype : col.dtype}
-                                                </Badge>
+                                                </div>
 
                                                 <Select
                                                     value={pendingCasts[col.column] ?? "none"}
@@ -194,6 +214,7 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect }: Reado
                                             </div>
                                         </td>
                                         <td className="px-5 py-2.5 text-xs tabular-nums text-right text-muted-foreground">{col.non_null_count.toLocaleString()}</td>
+                                        <td className="px-5 py-2.5 text-xs tabular-nums text-right text-muted-foreground">{col.unique_count.toLocaleString()}</td>
                                         <td className={cn(
                                             "px-5 py-2.5 text-xs tabular-nums text-right font-semibold",
                                             col.null_count > 0 ? "text-red-500" : "text-muted-foreground/40"
@@ -213,6 +234,14 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect }: Reado
                     </table>
                 </CardContent>
             </Card>
+
+            <DropDuplicatesDialog
+                open={dropDupOpen}
+                onOpenChange={setDropDupOpen}
+                datasetId={datasetId}
+                columns={data.info.columns.map((c) => ({ column: c.column, is_unique: c.is_unique }))}
+                onSuccess={onRefetchAll}
+            />
         </div>
     );
 }

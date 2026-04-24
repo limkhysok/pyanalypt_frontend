@@ -26,6 +26,7 @@ export default function DataLabPage() {
         loadingDatasets,
         loadingData,
         refetchInspect,
+        refetchAll,
         selectedName,
     } = useDatalab();
 
@@ -106,7 +107,7 @@ export default function DataLabPage() {
                         </div>
                     )}
                     {selectedId && !loadingData && inspect && preview && (
-                        <InspectTab data={inspect} preview={preview} datasetId={Number(selectedId)} onRefetchInspect={refetchInspect} />
+                        <InspectTab data={inspect} preview={preview} datasetId={Number(selectedId)} onRefetchInspect={refetchInspect} onRefetchAll={refetchAll} />
                     )}
                     {selectedId && !loadingData && !inspect && <div className="border bg-muted/5 h-105" />}
                 </TabsContent>

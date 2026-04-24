@@ -12,7 +12,7 @@ export { projectApi } from './project.service';
 export { datasetApi } from './dataset.service';
 export { framingApi } from './framing.service';
 export { datalabApi } from './datalab.service';
-export type { DataLabPreview, DataLabInspect, DataLabInspectColumn, CastColumnResult, CastResponse, CastWarning } from './datalab.service';
+export type { DataLabPreview, DataLabInspect, DataLabInspectColumn, CastColumnResult, CastResponse, CastWarning, DropDuplicatesRequest, DropDuplicatesResponse } from './datalab.service';
 
 // Utilities
 export { tokenManager } from '@/lib/token';
