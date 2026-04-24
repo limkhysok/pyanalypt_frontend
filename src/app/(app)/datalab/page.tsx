@@ -94,7 +94,7 @@ export default function DataLabPage() {
                             <Loader2 className="h-7 w-7 animate-spin text-muted-foreground/40" />
                         </div>
                     )}
-                    {selectedId && !loadingData && preview && <PreviewTab data={preview} />}
+                    {selectedId && !loadingData && preview && <PreviewTab data={preview} datasetId={Number(selectedId)} onRefetchAll={refetchAll} />}
                     {selectedId && !loadingData && !preview && <div className="border bg-muted/5 h-105" />}
                 </TabsContent>
 

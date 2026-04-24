@@ -63,6 +63,29 @@ export interface DropDuplicatesResponse {
   detail?: string;
 }
 
+export interface RenameColumnRequest {
+  old_name: string;
+  new_name: string;
+}
+
+export interface RenameColumnResponse {
+  old_name: string;
+  new_name: string;
+  columns: string[];
+}
+
+export interface UpdateCellRequest {
+  row_index: number;
+  column: string;
+  value: unknown;
+}
+
+export interface UpdateCellResponse {
+  row_index: number;
+  column: string;
+  value: unknown;
+}
+
 export const datalabApi = {
   async preview(datasetId: number): Promise<DataLabPreview> {
     const res = await apiClient.get<DataLabPreview>(`datalab/preview/${datasetId}/`);
@@ -83,6 +106,16 @@ export const datalabApi = {
 
   async dropDuplicates(datasetId: number, body: DropDuplicatesRequest): Promise<DropDuplicatesResponse> {
     const res = await apiClient.post<DropDuplicatesResponse>(`datalab/drop-duplicates/${datasetId}/`, body);
+    return res.data;
+  },
+
+  async renameColumn(datasetId: number, body: RenameColumnRequest): Promise<RenameColumnResponse> {
+    const res = await apiClient.post<RenameColumnResponse>(`datalab/rename-column/${datasetId}/`, body);
+    return res.data;
+  },
+
+  async updateCell(datasetId: number, body: UpdateCellRequest): Promise<UpdateCellResponse> {
+    const res = await apiClient.patch<UpdateCellResponse>(`datalab/update-cell/${datasetId}/`, body);
     return res.data;
   },
 };
