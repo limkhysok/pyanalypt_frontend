@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Pencil, Loader2 } from "lucide-react";
+import { Pencil, Loader2, Search, X, SlidersHorizontal } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
@@ -35,6 +35,7 @@ function PreviewCell({ col, raw, isEditing, hasError, errorMsg, onStartEdit, onC
                 "px-4 py-2 text-xs font-mono whitespace-nowrap max-w-48",
                 !isEditing && "cursor-text",
                 hasError && "bg-destructive/5",
+                isNull && !hasError && "bg-red-600/5",
             )}
             onClick={() => { if (!isEditing) onStartEdit(); }}
         >
@@ -85,6 +86,9 @@ export function PreviewTab({ data, datasetId, onRefetchAll }: Readonly<{
     const [renamingHeader, setRenamingHeader] = React.useState<string | null>(null);
     const [editingCell, setEditingCell] = React.useState<{ rowIndex: number; col: string } | null>(null);
     const [cellError, setCellError] = React.useState<{ rowIndex: number; col: string; msg: string } | null>(null);
+    const [search, setSearch] = React.useState("");
+    const [hiddenCols, setHiddenCols] = React.useState<Set<string>>(new Set());
+    const [colPickerOpen, setColPickerOpen] = React.useState(false);
     const headerSubmittingRef = React.useRef(false);
     const cellSubmittingRef = React.useRef(false);
 
@@ -94,7 +98,35 @@ export function PreviewTab({ data, datasetId, onRefetchAll }: Readonly<{
         setEditingHeader(null);
         setEditingCell(null);
         setCellError(null);
+        setSearch("");
+        setHiddenCols(new Set());
+        setColPickerOpen(false);
     }, [data]);
+
+    const visibleColumns = React.useMemo(
+        () => columns.filter((c) => !hiddenCols.has(c)),
+        [columns, hiddenCols]
+    );
+
+    const filteredRows = React.useMemo(() => {
+        if (!search.trim()) return rows;
+        const q = search.toLowerCase();
+        return rows.filter((row) =>
+            visibleColumns.some((col) => {
+                const v = row[col];
+                if (v === null || v === undefined) return false;
+                return displayCell(v).toLowerCase().includes(q);
+            })
+        );
+    }, [rows, search, visibleColumns]);
+
+    function toggleCol(col: string) {
+        setHiddenCols((prev) => {
+            const next = new Set(prev);
+            if (next.has(col)) next.delete(col); else next.add(col);
+            return next;
+        });
+    }
 
     async function submitRename(oldName: string, newName: string) {
         const trimmed = newName.trim();
@@ -147,12 +179,101 @@ export function PreviewTab({ data, datasetId, onRefetchAll }: Readonly<{
             <DatasetMetaStrip data={data} />
 
             <Card className="shadow-sm overflow-hidden rounded-none">
+
+                {/* ── Controls bar ── */}
+                <div className="border-b px-4 py-2 flex items-center gap-2">
+                    <Search className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" />
+                    <input
+                        type="text"
+                        placeholder="Search rows…"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="flex-1 bg-transparent text-xs outline-none placeholder:text-muted-foreground/40 font-mono text-foreground"
+                    />
+                    {search && (
+                        <button
+                            type="button"
+                            onClick={() => setSearch("")}
+                            className="text-muted-foreground/40 hover:text-foreground transition-colors"
+                        >
+                            <X className="h-3.5 w-3.5" />
+                        </button>
+                    )}
+                    <div className="w-px h-4 bg-border/50 mx-1 shrink-0" />
+                    <button
+                        type="button"
+                        onClick={() => setColPickerOpen((v) => !v)}
+                        className={cn(
+                            "flex items-center gap-1.5 text-[11px] font-medium transition-colors px-2 py-1 border",
+                            colPickerOpen
+                                ? "border-primary/50 text-primary bg-primary/5"
+                                : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+                        )}
+                    >
+                        <SlidersHorizontal className="h-3 w-3" />
+                        Columns
+                        {hiddenCols.size > 0 && (
+                            <span className="bg-primary text-primary-foreground text-[10px] font-bold px-1 py-px leading-none">
+                                {hiddenCols.size}
+                            </span>
+                        )}
+                    </button>
+                </div>
+
+                {/* ── Column picker panel ── */}
+                {colPickerOpen && (
+                    <div className="border-b px-4 py-3 space-y-2 bg-muted/10">
+                        <div className="flex items-center justify-between">
+                            <span className="text-[11px] font-semibold text-muted-foreground">
+                                {visibleColumns.length} of {columns.length} columns visible
+                            </span>
+                            <div className="flex items-center gap-3">
+                                <button
+                                    type="button"
+                                    onClick={() => setHiddenCols(new Set())}
+                                    className="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+                                >
+                                    Show all
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setHiddenCols(new Set(columns))}
+                                    className="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+                                >
+                                    Hide all
+                                </button>
+                            </div>
+                        </div>
+                        <div className="flex flex-wrap gap-1.5 max-h-28 overflow-y-auto">
+                            {columns.map((col) => {
+                                const hidden = hiddenCols.has(col);
+                                return (
+                                    <button
+                                        key={col}
+                                        type="button"
+                                        onClick={() => toggleCol(col)}
+                                        className={cn(
+                                            "px-2 py-0.5 text-[11px] font-mono border transition-colors",
+                                            hidden
+                                                ? "border-border/40 text-muted-foreground/40 bg-transparent"
+                                                : "border-primary/40 text-primary bg-primary/5"
+                                        )}
+                                    >
+                                        {col}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
+
+                {/* ── Table ── */}
                 <ScrollArea className="w-full">
                     <table className="w-full text-left border-collapse text-sm">
                         <thead>
                             <tr className="bg-muted/50 border-b">
                                 <th className="px-4 py-3 text-xs font-semibold text-muted-foreground w-12 text-center select-none">#</th>
-                                {columns.map((col) => (
+                                {visibleColumns.map((col) => (
                                     <th key={col} className="px-4 py-3 text-xs font-semibold text-muted-foreground whitespace-nowrap group/th min-w-28">
                                         {editingHeader === col ? (
                                             <input
@@ -204,14 +325,14 @@ export function PreviewTab({ data, datasetId, onRefetchAll }: Readonly<{
                             </tr>
                         </thead>
                         <tbody>
-                            {rows.length === 0 ? (
+                            {filteredRows.length === 0 ? (
                                 <tr>
-                                    <td colSpan={columns.length + 1} className="px-4 py-12 text-center text-xs text-muted-foreground italic">
-                                        No rows available.
+                                    <td colSpan={visibleColumns.length + 1} className="px-4 py-12 text-center text-xs text-muted-foreground italic">
+                                        {search.trim() ? `No rows match "${search}"` : "No rows available."}
                                     </td>
                                 </tr>
                             ) : (
-                                rows.map((row, rowIndex) => (
+                                filteredRows.map((row, rowIndex) => (
                                     <tr
                                         key={`${rowIndex}_${displayCell(row[columns[0]])}`}
                                         className="border-b border-border/50 hover:bg-muted/20 transition-colors"
@@ -219,7 +340,7 @@ export function PreviewTab({ data, datasetId, onRefetchAll }: Readonly<{
                                         <td className="px-4 py-2.5 text-[11px] text-muted-foreground/50 text-center font-mono select-none tabular-nums">
                                             {rowIndex + 1}
                                         </td>
-                                        {columns.map((col) => {
+                                        {visibleColumns.map((col) => {
                                             const isEditing = editingCell?.rowIndex === rowIndex && editingCell?.col === col;
                                             const hasError = cellError?.rowIndex === rowIndex && cellError?.col === col;
                                             return (
@@ -244,6 +365,22 @@ export function PreviewTab({ data, datasetId, onRefetchAll }: Readonly<{
                     </table>
                     <ScrollBar orientation="horizontal" />
                 </ScrollArea>
+
+                {/* ── Row count strip ── */}
+                <div className="border-t px-4 py-1.5 flex items-center gap-3 bg-muted/10">
+                    <span className="text-[11px] text-muted-foreground font-mono">
+                        {search.trim()
+                            ? `${filteredRows.length} matching of ${rows.length} loaded rows`
+                            : `Showing ${rows.length.toLocaleString()} of ${data.total_rows.toLocaleString()} total rows`
+                        }
+                    </span>
+                    {hiddenCols.size > 0 && (
+                        <span className="text-[11px] text-muted-foreground font-mono">
+                            · {visibleColumns.length} of {columns.length} columns visible
+                        </span>
+                    )}
+                </div>
+
             </Card>
         </div>
     );
