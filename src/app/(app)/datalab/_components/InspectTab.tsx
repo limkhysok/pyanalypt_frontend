@@ -1,7 +1,10 @@
 "use client";
 
 import React from "react";
-import { Loader2, Info, KeyRound, Layers } from "lucide-react";
+import {
+    Loader2, Info, KeyRound, Layers,
+    ChevronUp, ChevronDown, ChevronsUpDown, Search, X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -19,6 +22,8 @@ import { DatasetMetaStrip } from "./DatasetMetaStrip";
 import { DropDuplicatesDialog } from "./DropDuplicatesDialog";
 import { CAST_TYPES, formatBytes } from "../_lib";
 
+type SortKey = "column" | "non_null_count" | "unique_count" | "null_count" | "null_pct";
+
 export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefetchAll }: Readonly<{
     data: DataLabInspect;
     preview: DataLabPreview;
@@ -31,6 +36,9 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
     const [castResults, setCastResults] = React.useState<CastColumnResult[] | null>(null);
     const [castWarnings, setCastWarnings] = React.useState<CastWarning[] | null>(null);
     const [dropDupOpen, setDropDupOpen] = React.useState(false);
+    const [search, setSearch] = React.useState("");
+    const [sortKey, setSortKey] = React.useState<SortKey | null>(null);
+    const [sortDir, setSortDir] = React.useState<"asc" | "desc">("asc");
 
     const hasPending = Object.keys(pendingCasts).length > 0;
 
@@ -38,7 +46,45 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
         setPendingCasts({});
         setCastResults(null);
         setCastWarnings(null);
+        setSearch("");
+        setSortKey(null);
+        setSortDir("asc");
     }, [data]);
+
+    function toggleSort(key: SortKey) {
+        if (sortKey !== key) {
+            setSortKey(key);
+            setSortDir("asc");
+        } else if (sortDir === "asc") {
+            setSortDir("desc");
+        } else {
+            setSortKey(null);
+        }
+    }
+
+    const visibleColumns = React.useMemo(() => {
+        let cols = data.info.columns;
+        if (search.trim()) {
+            const q = search.toLowerCase();
+            cols = cols.filter((c) => c.column.toLowerCase().includes(q));
+        }
+        if (!sortKey) return cols;
+        return [...cols].sort((a, b) => {
+            const av = a[sortKey];
+            const bv = b[sortKey];
+            const cmp = typeof av === "string"
+                ? av.localeCompare(bv as string)
+                : (av as number) - (bv as number);
+            return sortDir === "asc" ? cmp : -cmp;
+        });
+    }, [data.info.columns, search, sortKey, sortDir]);
+
+    function SortIcon({ col }: Readonly<{ col: SortKey }>) {
+        if (sortKey !== col) return <ChevronsUpDown className="h-3 w-3 opacity-30" />;
+        return sortDir === "asc"
+            ? <ChevronUp className="h-3 w-3" />
+            : <ChevronDown className="h-3 w-3" />;
+    }
 
     async function handleCast(force = false) {
         setCasting(true);
@@ -98,6 +144,32 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                     </div>
                 </CardHeader>
 
+                {/* Search bar */}
+                <div className="border-b px-5 py-2 flex items-center gap-2">
+                    <Search className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" />
+                    <input
+                        type="text"
+                        placeholder="Filter columns…"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="flex-1 bg-transparent text-xs outline-none placeholder:text-muted-foreground/40 font-mono text-foreground"
+                    />
+                    {search && (
+                        <button
+                            type="button"
+                            onClick={() => setSearch("")}
+                            className="text-muted-foreground/40 hover:text-foreground transition-colors"
+                        >
+                            <X className="h-3.5 w-3.5" />
+                        </button>
+                    )}
+                    {search && (
+                        <span className="text-[11px] text-muted-foreground font-mono shrink-0">
+                            {visibleColumns.length} / {data.info.columns.length}
+                        </span>
+                    )}
+                </div>
+
                 {castWarnings && (
                     <div className="border-b border-amber-500/30 bg-amber-500/5 px-5 py-3 space-y-2">
                         <p className="text-[11px] font-semibold text-amber-600">Conversion warnings — confirm to proceed:</p>
@@ -124,16 +196,60 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-muted/50 border-b">
-                                <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground">Column</th>
-                                <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground">Dtype</th>
-                                <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground text-right">Non-Null</th>
-                                <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground text-right">Unique</th>
-                                <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground text-right">Nulls</th>
-                                <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground text-right">Null %</th>
+                                <th
+                                    className="px-5 py-2.5 text-[11px] font-semibold text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors"
+                                    onClick={() => toggleSort("column")}
+                                >
+                                    <span className="inline-flex items-center gap-1">
+                                        Column <SortIcon col="column" />
+                                    </span>
+                                </th>
+                                <th className="px-5 py-2.5 text-[11px] font-semibold text-muted-foreground">
+                                    Dtype
+                                </th>
+                                <th
+                                    className="px-5 py-2.5 text-[11px] font-semibold text-muted-foreground text-right cursor-pointer select-none hover:text-foreground transition-colors"
+                                    onClick={() => toggleSort("non_null_count")}
+                                >
+                                    <span className="inline-flex items-center justify-end gap-1 w-full">
+                                        Non-Null <SortIcon col="non_null_count" />
+                                    </span>
+                                </th>
+                                <th
+                                    className="px-5 py-2.5 text-[11px] font-semibold text-muted-foreground text-right cursor-pointer select-none hover:text-foreground transition-colors"
+                                    onClick={() => toggleSort("unique_count")}
+                                >
+                                    <span className="inline-flex items-center justify-end gap-1 w-full">
+                                        Unique <SortIcon col="unique_count" />
+                                    </span>
+                                </th>
+                                <th
+                                    className="px-5 py-2.5 text-[11px] font-semibold text-muted-foreground text-right cursor-pointer select-none hover:text-foreground transition-colors"
+                                    onClick={() => toggleSort("null_count")}
+                                >
+                                    <span className="inline-flex items-center justify-end gap-1 w-full">
+                                        Nulls <SortIcon col="null_count" />
+                                    </span>
+                                </th>
+                                <th
+                                    className="px-5 py-2.5 text-[11px] font-semibold text-muted-foreground text-right cursor-pointer select-none hover:text-foreground transition-colors"
+                                    onClick={() => toggleSort("null_pct")}
+                                >
+                                    <span className="inline-flex items-center justify-end gap-1 w-full">
+                                        Null % <SortIcon col="null_pct" />
+                                    </span>
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
-                            {data.info.columns.map((col) => {
+                            {visibleColumns.length === 0 && (
+                                <tr>
+                                    <td colSpan={6} className="px-5 py-6 text-xs text-center text-muted-foreground">
+                                        No columns match &ldquo;{search}&rdquo;
+                                    </td>
+                                </tr>
+                            )}
+                            {visibleColumns.map((col) => {
                                 const result = castResults?.find((r) => r.column === col.column);
                                 const hasError = result?.status.startsWith("error");
                                 return (
@@ -211,11 +327,21 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                                         )}>
                                             {col.null_count.toLocaleString()}
                                         </td>
-                                        <td className={cn(
-                                            "px-5 py-2.5 text-xs tabular-nums text-right",
-                                            col.null_pct > 0 ? "text-red-400" : "text-muted-foreground/40"
-                                        )}>
-                                            {col.null_pct.toFixed(1)}%
+                                        <td className="px-5 py-2.5">
+                                            <div className="flex items-center justify-end gap-2">
+                                                <div className="w-14 h-1.5 bg-border/40 overflow-hidden shrink-0">
+                                                    <div
+                                                        className={cn("h-full transition-all", col.null_pct > 0 ? "bg-red-400" : "")}
+                                                        style={{ width: `${Math.min(col.null_pct, 100)}%` }}
+                                                    />
+                                                </div>
+                                                <span className={cn(
+                                                    "text-xs tabular-nums w-10 text-right shrink-0",
+                                                    col.null_pct > 0 ? "text-red-400" : "text-muted-foreground/40"
+                                                )}>
+                                                    {col.null_pct.toFixed(1)}%
+                                                </span>
+                                            </div>
                                         </td>
                                     </tr>
                                 );

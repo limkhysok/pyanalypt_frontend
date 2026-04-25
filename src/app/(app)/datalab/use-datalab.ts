@@ -14,6 +14,7 @@ export function useDatalab() {
 
     const [datasets, setDatasets] = React.useState<Dataset[]>([]);
     const [selectedId, setSelectedId] = React.useState<string>(searchParams.get("dataset") ?? "");
+    const [activeTab, setActiveTab] = React.useState<string>(searchParams.get("tab") ?? "preview");
     const [preview, setPreview] = React.useState<DataLabPreview | null>(null);
     const [inspect, setInspect] = React.useState<DataLabInspect | null>(null);
     const [loadingDatasets, setLoadingDatasets] = React.useState(true);
@@ -26,8 +27,13 @@ export function useDatalab() {
         } else {
             params.delete("dataset");
         }
+        if (activeTab && activeTab !== "preview") {
+            params.set("tab", activeTab);
+        } else {
+            params.delete("tab");
+        }
         router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    }, [selectedId]);
+    }, [selectedId, activeTab]);
 
     React.useEffect(() => {
         datasetApi.listDatasets()
@@ -83,6 +89,8 @@ export function useDatalab() {
         datasets,
         selectedId,
         setSelectedId,
+        activeTab,
+        setActiveTab,
         preview,
         inspect,
         loadingDatasets,
