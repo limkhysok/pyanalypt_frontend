@@ -89,6 +89,64 @@ export interface UpdateCellResponse {
   value: unknown;
 }
 
+export interface ReplaceValuesRequest {
+  replacements: Record<string, string | number | null>;
+  columns?: string[];
+}
+
+export interface ReplaceValuesResponse {
+  replacements: Record<string, string | number | null>;
+  columns_affected: string[];
+  cells_replaced: number;
+  detail?: string;
+}
+
+export interface DropNullsRowsRequest {
+  axis: "rows";
+  how?: "any" | "all";
+  subset?: string[];
+}
+
+export interface DropNullsColumnsRequest {
+  axis: "columns";
+  thresh_pct: number;
+}
+
+export type DropNullsRequest = DropNullsRowsRequest | DropNullsColumnsRequest;
+
+export interface DropNullsRowsResponse {
+  axis: "rows";
+  rows_before: number;
+  rows_after: number;
+  rows_dropped: number;
+  detail?: string;
+}
+
+export interface DropNullsColumnsResponse {
+  axis: "columns";
+  columns_before: number;
+  columns_after: number;
+  columns_dropped: string[];
+  detail?: string;
+}
+
+export type DropNullsResponse = DropNullsRowsResponse | DropNullsColumnsResponse;
+
+export type FillNullsStrategy = "constant" | "mean" | "median" | "mode" | "ffill" | "bfill";
+
+export interface FillNullsRequest {
+  strategy: FillNullsStrategy;
+  value?: string | number;
+  columns?: string[];
+}
+
+export interface FillNullsResponse {
+  strategy: string;
+  cells_filled: number;
+  skipped_columns: string[];
+  detail?: string;
+}
+
 export const datalabApi = {
   async preview(datasetId: number): Promise<DataLabPreview> {
     const res = await apiClient.get<DataLabPreview>(`datalab/preview/${datasetId}/`);
@@ -119,6 +177,21 @@ export const datalabApi = {
 
   async updateCell(datasetId: number, body: UpdateCellRequest): Promise<UpdateCellResponse> {
     const res = await apiClient.patch<UpdateCellResponse>(`datalab/update-cell/${datasetId}/`, body);
+    return res.data;
+  },
+
+  async replaceValues(datasetId: number, body: ReplaceValuesRequest): Promise<ReplaceValuesResponse> {
+    const res = await apiClient.post<ReplaceValuesResponse>(`datalab/replace-values/${datasetId}/`, body);
+    return res.data;
+  },
+
+  async dropNulls(datasetId: number, body: DropNullsRequest): Promise<DropNullsResponse> {
+    const res = await apiClient.post<DropNullsResponse>(`datalab/drop-nulls/${datasetId}/`, body);
+    return res.data;
+  },
+
+  async fillNulls(datasetId: number, body: FillNullsRequest): Promise<FillNullsResponse> {
+    const res = await apiClient.post<FillNullsResponse>(`datalab/fill-nulls/${datasetId}/`, body);
     return res.data;
   },
 };

@@ -2,7 +2,7 @@
 
 import React from "react";
 import {
-    Loader2, Info, KeyRound, Layers,
+    Loader2, Info, KeyRound, Layers, Eraser,
     ChevronUp, ChevronDown, ChevronsUpDown, Search, X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -20,6 +20,7 @@ import type { DataLabPreview, DataLabInspect, CastColumnResult, CastWarning } fr
 import { toast } from "sonner";
 import { DatasetMetaStrip } from "./DatasetMetaStrip";
 import { DropDuplicatesDialog } from "./DropDuplicatesDialog";
+import { NullHandlingDialog } from "./NullHandlingDialog";
 import { CAST_TYPES, formatBytes } from "../_lib";
 
 type SortKey = "column" | "non_null_count" | "unique_count" | "null_count" | "null_pct";
@@ -36,6 +37,7 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
     const [castResults, setCastResults] = React.useState<CastColumnResult[] | null>(null);
     const [castWarnings, setCastWarnings] = React.useState<CastWarning[] | null>(null);
     const [dropDupOpen, setDropDupOpen] = React.useState(false);
+    const [nullHandlingOpen, setNullHandlingOpen] = React.useState(false);
     const [search, setSearch] = React.useState("");
     const [sortKey, setSortKey] = React.useState<SortKey | null>(null);
     const [sortDir, setSortDir] = React.useState<"asc" | "desc">("asc");
@@ -74,17 +76,11 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
             const bv = b[sortKey];
             const cmp = typeof av === "string"
                 ? av.localeCompare(bv as string)
-                : (av as number) - (bv as number);
+                : av - (bv as number);
             return sortDir === "asc" ? cmp : -cmp;
         });
     }, [data.info.columns, search, sortKey, sortDir]);
 
-    function SortIcon({ col }: Readonly<{ col: SortKey }>) {
-        if (sortKey !== col) return <ChevronsUpDown className="h-3 w-3 opacity-30" />;
-        return sortDir === "asc"
-            ? <ChevronUp className="h-3 w-3" />
-            : <ChevronDown className="h-3 w-3" />;
-    }
 
     async function handleCast(force = false) {
         setCasting(true);
@@ -201,7 +197,7 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                                     onClick={() => toggleSort("column")}
                                 >
                                     <span className="inline-flex items-center gap-1">
-                                        Column <SortIcon col="column" />
+                                        Column <SortIcon col="column" activeKey={sortKey} dir={sortDir} />
                                     </span>
                                 </th>
                                 <th className="px-5 py-2.5 text-[11px] font-semibold text-muted-foreground">
@@ -212,7 +208,7 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                                     onClick={() => toggleSort("non_null_count")}
                                 >
                                     <span className="inline-flex items-center justify-end gap-1 w-full">
-                                        Non-Null <SortIcon col="non_null_count" />
+                                        Non-Null <SortIcon col="non_null_count" activeKey={sortKey} dir={sortDir} />
                                     </span>
                                 </th>
                                 <th
@@ -220,7 +216,7 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                                     onClick={() => toggleSort("unique_count")}
                                 >
                                     <span className="inline-flex items-center justify-end gap-1 w-full">
-                                        Unique <SortIcon col="unique_count" />
+                                        Unique <SortIcon col="unique_count" activeKey={sortKey} dir={sortDir} />
                                     </span>
                                 </th>
                                 <th
@@ -228,7 +224,7 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                                     onClick={() => toggleSort("null_count")}
                                 >
                                     <span className="inline-flex items-center justify-end gap-1 w-full">
-                                        Nulls <SortIcon col="null_count" />
+                                        Nulls <SortIcon col="null_count" activeKey={sortKey} dir={sortDir} />
                                     </span>
                                 </th>
                                 <th
@@ -236,7 +232,7 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                                     onClick={() => toggleSort("null_pct")}
                                 >
                                     <span className="inline-flex items-center justify-end gap-1 w-full">
-                                        Null % <SortIcon col="null_pct" />
+                                        Null % <SortIcon col="null_pct" activeKey={sortKey} dir={sortDir} />
                                     </span>
                                 </th>
                             </tr>
@@ -361,6 +357,16 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                     <Layers className="h-3 w-3" />
                     Drop Duplicates
                 </Button>
+
+                <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs rounded-none gap-1.5 border-primary/30 bg-primary/5 hover:bg-primary/10 text-primary"
+                    onClick={() => setNullHandlingOpen(true)}
+                >
+                    <Eraser className="h-3 w-3" />
+                    Handle Nulls
+                </Button>
             </div>
 
             <DropDuplicatesDialog
@@ -370,6 +376,22 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                 columns={data.info.columns.map((c) => ({ column: c.column, is_unique: c.is_unique }))}
                 onSuccess={onRefetchAll}
             />
+
+            <NullHandlingDialog
+                open={nullHandlingOpen}
+                onOpenChange={setNullHandlingOpen}
+                datasetId={datasetId}
+                columns={data.info.columns}
+                onRefetchInspect={onRefetchInspect}
+                onRefetchAll={onRefetchAll}
+            />
         </div>
     );
+}
+
+function SortIcon({ col, activeKey, dir }: Readonly<{ col: SortKey; activeKey: SortKey | null; dir: "asc" | "desc" }>) {
+    if (activeKey !== col) return <ChevronsUpDown className="h-3 w-3 opacity-30" />;
+    return dir === "asc"
+        ? <ChevronUp className="h-3 w-3" />
+        : <ChevronDown className="h-3 w-3" />;
 }

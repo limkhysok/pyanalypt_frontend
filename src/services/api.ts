@@ -12,7 +12,26 @@ export { projectApi } from './project.service';
 export { datasetApi } from './dataset.service';
 export { framingApi } from './framing.service';
 export { datalabApi } from './datalab.service';
-export type { DataLabPreview, DataLabInspect, DataLabInspectColumn, CastColumnResult, CastResponse, CastWarning, DropDuplicatesMode, DropDuplicatesRequest, DropDuplicatesResponse, RenameColumnRequest, RenameColumnResponse } from './datalab.service';
+export type { 
+  DataLabPreview, 
+  DataLabInspect, 
+  DataLabInspectColumn, 
+  CastColumnResult, 
+  CastResponse, 
+  CastWarning, 
+  DropDuplicatesMode, 
+  DropDuplicatesRequest, 
+  DropDuplicatesResponse, 
+  RenameColumnRequest, 
+  RenameColumnResponse,
+  ReplaceValuesRequest,
+  ReplaceValuesResponse,
+  DropNullsRequest,
+  DropNullsResponse,
+  FillNullsRequest,
+  FillNullsResponse,
+  FillNullsStrategy
+} from './datalab.service';
 
 // Utilities
 export { tokenManager } from '@/lib/token';
