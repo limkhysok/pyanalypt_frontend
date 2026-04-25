@@ -91,16 +91,6 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                                     Apply Casts
                                 </Button>
                             )}
-                            <Button
-                                size="sm"
-                                variant="outline"
-                                className="h-7 text-xs rounded-none gap-1.5"
-                                onClick={() => setDropDupOpen(true)}
-                                disabled={casting}
-                            >
-                                <Layers className="h-3 w-3" />
-                                Drop Duplicates
-                            </Button>
                             <span className="text-[11px] text-muted-foreground font-mono">
                                 {formatBytes(data.info.memory_usage_bytes)} memory
                             </span>
@@ -134,12 +124,12 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                     <table className="w-full text-left border-collapse">
                         <thead>
                             <tr className="bg-muted/50 border-b">
-                                <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Column</th>
-                                <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">Dtype</th>
-                                <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground text-right uppercase">Non-Null</th>
-                                <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground text-right uppercase">Unique</th>
-                                <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground text-right uppercase">Nulls</th>
-                                <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground text-right uppercase">Null %</th>
+                                <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground">Column</th>
+                                <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground">Dtype</th>
+                                <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground text-right">Non-Null</th>
+                                <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground text-right">Unique</th>
+                                <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground text-right">Nulls</th>
+                                <th className="px-5 py-2.5 text-[11px] font-semibold tracking-wider text-muted-foreground text-right">Null %</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -164,7 +154,7 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                                         </td>
                                         <td className="px-5 py-2">
                                             <div className="flex items-center gap-2">
-                                                <div className="text-[10px] font-mono font-black border border-border px-2 py-0.5 bg-background text-foreground uppercase tracking-tighter shrink-0">
+                                                <div className="text-[10px] font-mono font-black border border-border px-2 py-0.5 bg-background text-foreground tracking-tighter shrink-0">
                                                     {result ? result.to_dtype : col.dtype}
                                                 </div>
 
@@ -186,14 +176,14 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                                                         <SelectValue placeholder="Cast to..." />
                                                     </SelectTrigger>
                                                     <SelectContent className="rounded-none border-border/60">
-                                                        <SelectItem value="none" className="text-[11px] font-mono focus:bg-primary focus:text-primary-foreground">
+                                                        <SelectItem value="none" className="text-[11px] font-mono rounded-none focus:bg-primary focus:text-primary-foreground">
                                                             none
                                                         </SelectItem>
                                                         {CAST_TYPES.map((t) => (
                                                             <SelectItem
                                                                 key={t}
                                                                 value={t}
-                                                                className="text-[11px] font-mono focus:bg-primary focus:text-primary-foreground"
+                                                                className="text-[11px] font-mono rounded-none focus:bg-primary focus:text-primary-foreground"
                                                             >
                                                                 {t}
                                                             </SelectItem>
@@ -234,6 +224,18 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                     </table>
                 </CardContent>
             </Card>
+
+            <div className="flex items-center gap-2 flex-wrap">
+                <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-xs rounded-none gap-1.5"
+                    onClick={() => setDropDupOpen(true)}
+                >
+                    <Layers className="h-3 w-3" />
+                    Drop Duplicates
+                </Button>
+            </div>
 
             <DropDuplicatesDialog
                 open={dropDupOpen}

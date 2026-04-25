@@ -51,9 +51,12 @@ export interface CastWarningResponse {
   errors: string[];
 }
 
+export type DropDuplicatesMode = "all_first" | "all_last" | "subset_keep" | "drop_all";
+
 export interface DropDuplicatesRequest {
+  mode: DropDuplicatesMode;
   subset?: string[];
-  keep?: "first" | "last" | false;
+  keep?: "first" | "last";
 }
 
 export interface DropDuplicatesResponse {

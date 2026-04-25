@@ -21,6 +21,7 @@ import {
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
 import { datalabApi } from "@/services/api";
+import type { DropDuplicatesMode } from "@/services/api";
 import { toast } from "sonner";
 
 interface Column {
@@ -28,7 +29,12 @@ interface Column {
     is_unique: boolean;
 }
 
-type KeepValue = "first" | "last" | "none";
+const MODES: { value: DropDuplicatesMode; label: string; description: string }[] = [
+    { value: "all_first", label: "Remove duplicates — keep first", description: "Keep the first occurrence of each duplicate row." },
+    { value: "all_last", label: "Remove duplicates — keep last", description: "Keep the last occurrence of each duplicate row." },
+    { value: "subset_keep", label: "Remove duplicates by column — keep first/last", description: "Check for duplicates within selected columns only." },
+    { value: "drop_all", label: "Drop all copies of any duplicate", description: "Remove every copy of any duplicated row — no survivors." },
+];
 
 export function DropDuplicatesDialog({ open, onOpenChange, datasetId, columns, onSuccess }: Readonly<{
     open: boolean;
@@ -37,9 +43,14 @@ export function DropDuplicatesDialog({ open, onOpenChange, datasetId, columns, o
     columns: Column[];
     onSuccess: () => void;
 }>) {
+    const [mode, setMode] = React.useState<DropDuplicatesMode>("all_first");
     const [subset, setSubset] = React.useState<string[]>([]);
-    const [keep, setKeep] = React.useState<KeepValue>("first");
+    const [keep, setKeep] = React.useState<"first" | "last">("first");
     const [loading, setLoading] = React.useState(false);
+
+    const showColumnPicker = mode === "subset_keep" || mode === "drop_all";
+    const showKeepSelector = mode === "subset_keep";
+    const submitDisabled = loading || (mode === "subset_keep" && subset.length === 0);
 
     function toggleColumn(col: string) {
         setSubset((prev) =>
@@ -49,6 +60,7 @@ export function DropDuplicatesDialog({ open, onOpenChange, datasetId, columns, o
 
     function handleClose() {
         if (loading) return;
+        setMode("all_first");
         setSubset([]);
         setKeep("first");
         onOpenChange(false);
@@ -57,15 +69,18 @@ export function DropDuplicatesDialog({ open, onOpenChange, datasetId, columns, o
     async function handleConfirm() {
         setLoading(true);
         try {
-            const body: { subset?: string[]; keep?: "first" | "last" | false } = {};
-            if (subset.length > 0) body.subset = subset;
-            if (keep === "last") body.keep = "last";
-            if (keep === "none") body.keep = false;
+            const body: Parameters<typeof datalabApi.dropDuplicates>[1] = { mode };
+            if ((mode === "subset_keep" || mode === "drop_all") && subset.length > 0) {
+                body.subset = subset;
+            }
+            if (mode === "subset_keep") {
+                body.keep = keep;
+            }
 
             const result = await datalabApi.dropDuplicates(datasetId, body);
 
             if (result.rows_dropped === 0) {
-                toast.info("No duplicate rows found.");
+                toast.info(result.detail ?? "No duplicate rows found.");
                 handleClose();
             } else {
                 toast.success(
@@ -100,74 +115,121 @@ export function DropDuplicatesDialog({ open, onOpenChange, datasetId, columns, o
                 </div>
 
                 <div className="space-y-4">
-                    {/* Subset */}
+                    {/* Mode selector */}
                     <div className="space-y-1.5">
-                        <p className="text-xs font-semibold">
-                            Subset{" "}
-                            <span className="text-muted-foreground font-normal">— leave empty to check all columns</span>
-                        </p>
-                        <ScrollArea className="h-44 border border-border/50">
-                            <div className="p-1">
-                                {columns.map((col) => {
-                                    const selected = subset.includes(col.column);
-                                    return (
-                                        <button
-                                            key={col.column}
-                                            type="button"
-                                            onClick={() => toggleColumn(col.column)}
-                                            className={cn(
-                                                "w-full flex items-center gap-2.5 px-3 py-1.5 text-xs font-mono text-left transition-colors",
-                                                selected
-                                                    ? "bg-primary text-primary-foreground"
-                                                    : "hover:bg-muted/60 text-foreground"
-                                            )}
-                                        >
+                        <p className="text-xs font-semibold">Strategy</p>
+                        <div className="border border-border/50 divide-y divide-border/50">
+                            {MODES.map((m) => {
+                                const selected = mode === m.value;
+                                return (
+                                    <button
+                                        key={m.value}
+                                        type="button"
+                                        onClick={() => {
+                                            setMode(m.value);
+                                            setSubset([]);
+                                        }}
+                                        className={cn(
+                                            "w-full flex items-start gap-3 px-3 py-2.5 text-left transition-colors",
+                                            selected
+                                                ? "bg-primary text-primary-foreground"
+                                                : "hover:bg-muted/60 text-foreground"
+                                        )}
+                                    >
+                                        <span className={cn(
+                                            "mt-0.5 h-3.5 w-3.5 rounded-none border shrink-0 flex items-center justify-center",
+                                            selected ? "border-primary-foreground/50" : "border-border"
+                                        )}>
+                                            {selected && <span className="block h-1.5 w-1.5 bg-primary-foreground" />}
+                                        </span>
+                                        <span className="space-y-0.5">
+                                            <span className="block text-xs font-medium">{m.label}</span>
                                             <span className={cn(
-                                                "h-3.5 w-3.5 border shrink-0 flex items-center justify-center",
-                                                selected ? "border-primary-foreground/50" : "border-border"
+                                                "block text-[11px]",
+                                                selected ? "text-primary-foreground/70" : "text-muted-foreground"
                                             )}>
-                                                {selected && <span className="block h-1.5 w-1.5 bg-primary-foreground" />}
+                                                {m.description}
                                             </span>
-                                            <span className="flex-1 truncate">{col.column}</span>
-                                            {col.is_unique && (
-                                                <KeyRound className={cn(
-                                                    "h-3 w-3 shrink-0",
-                                                    selected ? "text-primary-foreground/70" : "text-amber-500"
-                                                )} />
-                                            )}
-                                        </button>
-                                    );
-                                })}
-                            </div>
-                        </ScrollArea>
-                        {subset.length > 0 && (
-                            <p className="text-[11px] text-muted-foreground">
-                                {subset.length} column{subset.length === 1 ? "" : "s"} selected
-                            </p>
-                        )}
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                        </div>
                     </div>
 
-                    {/* Keep */}
-                    <div className="space-y-1.5">
-                        <p className="text-xs font-semibold">Keep</p>
-                        <Select value={keep} onValueChange={(v) => setKeep(v as KeepValue)}>
-                            <SelectTrigger className="rounded-none h-8 text-xs">
-                                <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent className="rounded-none">
-                                <SelectItem value="first" className="text-xs">first — keep first occurrence (default)</SelectItem>
-                                <SelectItem value="last" className="text-xs">last — keep last occurrence</SelectItem>
-                                <SelectItem value="none" className="text-xs">false — drop all copies</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
+                    {/* Column picker */}
+                    {showColumnPicker && (
+                        <div className="space-y-1.5">
+                            <p className="text-xs font-semibold">
+                                Columns{" "}
+                                <span className="text-muted-foreground font-normal">
+                                    {mode === "subset_keep" ? "— required" : "— optional, leave empty to check all"}
+                                </span>
+                            </p>
+                            <ScrollArea className="h-40 border border-border/50">
+                                <div className="p-1">
+                                    {columns.map((col) => {
+                                        const selected = subset.includes(col.column);
+                                        return (
+                                            <button
+                                                key={col.column}
+                                                type="button"
+                                                onClick={() => toggleColumn(col.column)}
+                                                className={cn(
+                                                    "w-full flex items-center gap-2.5 px-3 py-1.5 text-xs font-mono text-left transition-colors",
+                                                    selected
+                                                        ? "bg-primary text-primary-foreground"
+                                                        : "hover:bg-muted/60 text-foreground"
+                                                )}
+                                            >
+                                                <span className={cn(
+                                                    "h-3.5 w-3.5 border shrink-0 flex items-center justify-center",
+                                                    selected ? "border-primary-foreground/50" : "border-border"
+                                                )}>
+                                                    {selected && <span className="block h-1.5 w-1.5 bg-primary-foreground" />}
+                                                </span>
+                                                <span className="flex-1 truncate">{col.column}</span>
+                                                {col.is_unique && (
+                                                    <KeyRound className={cn(
+                                                        "h-3 w-3 shrink-0",
+                                                        selected ? "text-primary-foreground/70" : "text-amber-500"
+                                                    )} />
+                                                )}
+                                            </button>
+                                        );
+                                    })}
+                                </div>
+                            </ScrollArea>
+                            {subset.length > 0 && (
+                                <p className="text-[11px] text-muted-foreground">
+                                    {subset.length} column{subset.length === 1 ? "" : "s"} selected
+                                </p>
+                            )}
+                        </div>
+                    )}
+
+                    {/* Keep selector */}
+                    {showKeepSelector && (
+                        <div className="space-y-1.5">
+                            <p className="text-xs font-semibold">Keep</p>
+                            <Select value={keep} onValueChange={(v) => setKeep(v as "first" | "last")}>
+                                <SelectTrigger className="rounded-none h-8 text-xs">
+                                    <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent className="rounded-none">
+                                    <SelectItem value="first" className="text-xs rounded-none">first — keep first occurrence</SelectItem>
+                                    <SelectItem value="last" className="text-xs rounded-none">last — keep last occurrence</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
                 </div>
 
                 <DialogFooter className="gap-2">
                     <Button variant="ghost" size="sm" className="rounded-none text-xs h-8" onClick={handleClose} disabled={loading}>
                         Cancel
                     </Button>
-                    <Button size="sm" className="rounded-none text-xs h-8 gap-1.5" onClick={handleConfirm} disabled={loading}>
+                    <Button size="sm" className="rounded-none text-xs h-8 gap-1.5" onClick={handleConfirm} disabled={submitDisabled}>
                         {loading && <Loader2 className="h-3 w-3 animate-spin" />}
                         Drop Duplicates
                     </Button>

@@ -4,7 +4,7 @@ A modern data analysis and visualization platform built with **Next.js**, **Type
 
 ## Tech Stack
 
-- **Framework:** Next.js 15 (App Router)
+- **Framework:** Next.js 16 (App Router)
 - **Language:** TypeScript
 - **Styling:** Tailwind CSS + shadcn/ui
 - **Auth:** JWT + Google OAuth2 (via dj-rest-auth)
