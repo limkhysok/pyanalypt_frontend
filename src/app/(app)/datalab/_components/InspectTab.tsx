@@ -3,7 +3,7 @@
 import React from "react";
 import {
     Loader2, Info, KeyRound, Layers, Eraser,
-    ChevronUp, ChevronDown, ChevronsUpDown, Search, X,
+    ChevronUp, ChevronDown, ChevronsUpDown, Search, X, ShieldCheck
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { DatasetMetaStrip } from "./DatasetMetaStrip";
 import { DropDuplicatesDialog } from "./DropDuplicatesDialog";
 import { NullHandlingDialog } from "./NullHandlingDialog";
+import { ValidateFormulaDialog } from "./ValidateFormulaDialog";
 import { CAST_TYPES, formatBytes } from "../_lib";
 
 type SortKey = "column" | "non_null_count" | "unique_count" | "null_count" | "null_pct";
@@ -38,6 +39,7 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
     const [castWarnings, setCastWarnings] = React.useState<CastWarning[] | null>(null);
     const [dropDupOpen, setDropDupOpen] = React.useState(false);
     const [nullHandlingOpen, setNullHandlingOpen] = React.useState(false);
+    const [auditOpen, setAuditOpen] = React.useState(false);
     const [search, setSearch] = React.useState("");
     const [sortKey, setSortKey] = React.useState<SortKey | null>(null);
     const [sortDir, setSortDir] = React.useState<"asc" | "desc">("asc");
@@ -367,6 +369,16 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                     <Eraser className="h-3 w-3" />
                     Handle Nulls
                 </Button>
+
+                <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-sm rounded-none gap-1.5 border-green-600/30 bg-green-600/5 hover:bg-green-600/10 text-green-700"
+                    onClick={() => setAuditOpen(true)}
+                >
+                    <ShieldCheck className="h-3 w-3" />
+                    Formula Audit
+                </Button>
             </div>
 
             <DropDuplicatesDialog
@@ -384,6 +396,13 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                 columns={data.info.columns}
                 onRefetchInspect={onRefetchInspect}
                 onRefetchAll={onRefetchAll}
+            />
+
+            <ValidateFormulaDialog
+                open={auditOpen}
+                onOpenChange={setAuditOpen}
+                datasetId={datasetId}
+                columns={data.info.columns}
             />
         </div>
     );

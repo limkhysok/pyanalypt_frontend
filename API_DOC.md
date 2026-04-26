@@ -770,13 +770,15 @@ All endpoints below are under `/api/v1/datalab/`.
 | 1 | `GET` | `/datalab/preview/{dataset_id}/` | Render dataset as a data table |
 | 2 | `GET` | `/datalab/inspect/{dataset_id}/` | Return per-column dtype, null counts, null %, and memory usage |
 | 3 | `GET` | `/datalab/describe/{dataset_id}/` | Return descriptive statistics for all columns (`df.describe()`) |
-| 4 | `POST` | `/datalab/cast/{dataset_id}/` | Cast one or more columns to a new dtype and persist the change |
-| 5 | `POST` | `/datalab/drop-duplicates/{dataset_id}/` | Remove duplicate rows and persist the cleaned dataset |
-| 6 | `POST` | `/datalab/rename-column/{dataset_id}/` | Rename a column header and persist the change |
-| 7 | `PATCH` | `/datalab/update-cell/{dataset_id}/` | Edit a single cell value with dtype validation |
-| 8 | `POST` | `/datalab/replace-values/{dataset_id}/` | Replace sentinel/garbage values with NaN or another value |
-| 9 | `POST` | `/datalab/drop-nulls/{dataset_id}/` | Drop rows or columns containing null values |
-| 10 | `POST` | `/datalab/fill-nulls/{dataset_id}/` | Fill null values using a chosen imputation strategy |
+| 4 | `POST` | `/datalab/fill-derived/{dataset_id}/` | Fill nulls in a column by deriving values from two other columns using arithmetic |
+| 5 | `POST` | `/datalab/validate-formula/{dataset_id}/` | Check whether a column's values match a formula across two operand columns |
+| 6 | `POST` | `/datalab/cast/{dataset_id}/` | Cast one or more columns to a new dtype and persist the change |
+| 7 | `POST` | `/datalab/drop-duplicates/{dataset_id}/` | Remove duplicate rows and persist the cleaned dataset |
+| 8 | `POST` | `/datalab/rename-column/{dataset_id}/` | Rename a column header and persist the change |
+| 9 | `PATCH` | `/datalab/update-cell/{dataset_id}/` | Edit a single cell value with dtype validation |
+| 10 | `POST` | `/datalab/replace-values/{dataset_id}/` | Replace sentinel/garbage values with NaN or another value |
+| 11 | `POST` | `/datalab/drop-nulls/{dataset_id}/` | Drop rows or columns containing null values |
+| 12 | `POST` | `/datalab/fill-nulls/{dataset_id}/` | Fill null values using a chosen imputation strategy |
 
 ---
 
@@ -923,7 +925,177 @@ Returns descriptive statistics for every column using pandas `df.describe(includ
 
 ---
 
-### 4. Cast Column Dtypes
+### 4. Fill Derived Values
+
+Fill null values in a target column by computing them from two other columns using arithmetic. Only fills rows where the target is null **and** both operand columns have non-null values (and a non-zero denominator for `divide`).
+
+- **Endpoint**: `POST /datalab/fill-derived/{dataset_id}/`
+- **Auth Required**: Yes
+
+#### Request Body
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `target` | string | Yes | Column whose nulls should be filled |
+| `formula` | string | Yes | Arithmetic operation: `"divide"`, `"multiply"`, `"add"`, `"subtract"` |
+| `operand_a` | string | Yes | Left-hand column in the formula |
+| `operand_b` | string | Yes | Right-hand column in the formula |
+
+The fill value is computed as: `target = operand_a <formula> operand_b`
+
+**Fill missing `Unit_Price` from `Total_Price ÷ Quantity`:**
+```json
+{
+  "target": "Unit_Price",
+  "formula": "divide",
+  "operand_a": "Total_Price",
+  "operand_b": "Quantity"
+}
+```
+
+**Fill missing `Quantity` from `Total_Price ÷ Unit_Price` (rounded to integer):**
+```json
+{
+  "target": "Quantity",
+  "formula": "divide",
+  "operand_a": "Total_Price",
+  "operand_b": "Unit_Price"
+}
+```
+
+**Fill missing `Total_Price` from `Quantity × Unit_Price`:**
+```json
+{
+  "target": "Total_Price",
+  "formula": "multiply",
+  "operand_a": "Quantity",
+  "operand_b": "Unit_Price"
+}
+```
+
+#### Responses
+
+- **Response (200)** — nulls filled:
+```json
+{
+  "target": "Unit_Price",
+  "formula": "divide",
+  "operand_a": "Total_Price",
+  "operand_b": "Quantity",
+  "cells_filled": 23
+}
+```
+
+- **Response (200)** — nothing to fill (no file write occurs):
+```json
+{
+  "target": "Unit_Price",
+  "formula": "divide",
+  "operand_a": "Total_Price",
+  "operand_b": "Quantity",
+  "cells_filled": 0,
+  "detail": "No null values in 'Unit_Price' with complete operand data."
+}
+```
+
+- **Response (400)** — missing fields:
+```json
+{ "detail": "'target', 'formula', 'operand_a', and 'operand_b' are all required." }
+```
+- **Response (400)** — invalid formula:
+```json
+{ "detail": "Invalid 'formula'. Choose one of: ['divide', 'multiply', 'add', 'subtract']" }
+```
+- **Response (400)** — non-numeric operand columns:
+```json
+{ "detail": "Operand columns must be numeric: ['Quantity']" }
+```
+
+> If `target` is an integer-typed column, derived values are automatically rounded and cast to `Int64`.
+> Rows where `operand_b = 0` are skipped when `formula` is `"divide"` — they remain null.
+> Run `fill_derived` **before** `fill_nulls` — this fills the recoverable nulls first; use `fill_nulls` for the rest.
+
+---
+
+### 5. Validate Formula
+
+Check whether a column's values are mathematically consistent with a formula across two other columns. Read-only — does not modify the dataset. Use this after `fill_derived` to verify correctness, or as a data quality check on raw uploads.
+
+- **Endpoint**: `POST /datalab/validate-formula/{dataset_id}/`
+- **Auth Required**: Yes
+
+#### Request Body
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| `result_column` | string | Yes | Column that should equal `operand_a <formula> operand_b` |
+| `formula` | string | Yes | `"divide"`, `"multiply"`, `"add"`, `"subtract"` |
+| `operand_a` | string | Yes | Left-hand operand column |
+| `operand_b` | string | Yes | Right-hand operand column |
+| `tolerance` | number | No | Acceptable absolute difference. Defaults to `0.01` (1 cent) |
+
+**Check that `Total_Price ≈ Quantity × Unit_Price` within 1 cent:**
+```json
+{
+  "result_column": "Total_Price",
+  "formula": "multiply",
+  "operand_a": "Quantity",
+  "operand_b": "Unit_Price",
+  "tolerance": 0.01
+}
+```
+
+#### Responses
+
+- **Response (200)** — validation complete:
+```json
+{
+  "result_column": "Total_Price",
+  "formula": "multiply",
+  "operand_a": "Quantity",
+  "operand_b": "Unit_Price",
+  "tolerance": 0.01,
+  "total_rows": 1000,
+  "checked_rows": 950,
+  "error_rows": 12,
+  "error_pct": 1.3,
+  "sample_errors": [
+    {
+      "row_index": 42,
+      "Quantity": 3,
+      "Unit_Price": 15.99,
+      "Total_Price": 50.00,
+      "calculated": 47.97,
+      "diff": 2.03
+    }
+  ]
+}
+```
+
+- **Response (200)** — no checkable rows (all null or zero denominator):
+```json
+{
+  "result_column": "Total_Price",
+  "formula": "multiply",
+  "operand_a": "Quantity",
+  "operand_b": "Unit_Price",
+  "tolerance": 0.01,
+  "total_rows": 1000,
+  "checked_rows": 0,
+  "error_rows": 0,
+  "error_pct": 0.0,
+  "sample_errors": []
+}
+```
+
+> `checked_rows` — rows where all three columns are non-null (and denominator ≠ 0 for `divide`). Rows with any null are excluded from the check.
+> `sample_errors` — up to 5 example rows where the difference exceeds tolerance. Use `row_index` to locate them in the preview table.
+> `error_pct` — percentage of checked rows that failed. `0.0` means the dataset is fully consistent within tolerance.
+> This endpoint never writes to disk — safe to call freely.
+
+---
+
+### 6. Cast Column Dtypes
 
 Cast one or more columns to a new dtype. The change is persisted back to the dataset file on disk. Use this after `inspect` reveals columns with wrong types (e.g. `Date` as `object` instead of `datetime64`).
 
@@ -977,7 +1149,7 @@ Cast one or more columns to a new dtype. The change is persisted back to the dat
 ```
 ---
 
-### 5. Drop Duplicate Rows
+### 7. Drop Duplicate Rows
 
 Remove duplicate rows from the dataset and persist the result to disk. Choose a `mode` to control which rows are compared and which are kept.
 
@@ -1076,7 +1248,7 @@ Remove duplicate rows from the dataset and persist the result to disk. Choose a 
 
 ---
 
-### 6. Rename Column Header
+### 8. Rename Column Header
 
 Rename a single column header and persist the change to disk. If the column had a stored dtype cast, the cast is automatically migrated to the new name.
 
@@ -1121,7 +1293,7 @@ Rename a single column header and persist the change to disk. If the column had 
 
 ---
 
-### 7. Update Cell Value
+### 9. Update Cell Value
 
 Edit a single cell at a specific row and column. The value is coerced to match the column's existing dtype — if it can't be converted, a `400` is returned before anything is written to disk.
 
@@ -1181,7 +1353,7 @@ Edit a single cell at a specific row and column. The value is coerced to match t
 
 ---
 
-### 8. Replace Values
+### 10. Replace Values
 
 Replace specific sentinel or garbage values (e.g. `"N/A"`, `"-"`, `"?"`) with `null` (NaN) or any other value, across all columns or a targeted subset.
 
@@ -1256,7 +1428,7 @@ Replace specific sentinel or garbage values (e.g. `"N/A"`, `"-"`, `"?"`) with `n
 
 ---
 
-### 9. Drop Nulls
+### 11. Drop Nulls
 
 Drop rows or entire columns that contain null values. Covers two axes in one endpoint.
 
@@ -1341,7 +1513,7 @@ Drop rows or entire columns that contain null values. Covers two axes in one end
 
 ---
 
-### 10. Fill Nulls
+### 12. Fill Nulls
 
 Fill missing (NaN) values using a chosen imputation strategy. Apply to all columns or a targeted subset.
 

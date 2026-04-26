@@ -34,7 +34,12 @@ export type {
   DropNullsResponse,
   FillNullsRequest,
   FillNullsResponse,
-  FillNullsStrategy
+  FillNullsStrategy,
+  ArithmeticFormula,
+  FillDerivedRequest,
+  FillDerivedResponse,
+  ValidateFormulaRequest,
+  ValidateFormulaResponse
 } from './datalab.service';
 
 // Utilities

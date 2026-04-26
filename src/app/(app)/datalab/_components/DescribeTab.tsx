@@ -60,7 +60,7 @@ export function DescribeTab({ data, preview }: Readonly<{
                             <CardTitle className="text-[15px] font-semibold font-mono">df.describe()</CardTitle>
                         </div>
                         <span className="text-[13px] text-muted-foreground font-mono">
-                            {totalColumns} column{totalColumns !== 1 ? "s" : ""}
+                            {totalColumns} column{totalColumns === 1 ? "" : "s"}
                         </span>
                     </div>
                 </CardHeader>

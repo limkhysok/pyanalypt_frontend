@@ -10,6 +10,7 @@ import {
     PaintBucket,
     ChevronRight,
     ChevronLeft,
+    Calculator,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,12 +24,19 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { datalabApi } from "@/services/api";
-import type { DataLabInspectColumn, FillNullsStrategy } from "@/services/api";
+import type { DataLabInspectColumn, FillNullsStrategy, ArithmeticFormula } from "@/services/api";
 import { toast } from "sonner";
 
-type Step = "replace" | "drop" | "fill";
+type Step = "replace" | "derive" | "drop" | "fill";
 
 const STRATEGIES: { value: FillNullsStrategy; label: string; notes: string }[] = [
     { value: "median", label: "Fill with median", notes: "Best for numeric — robust to outliers" },
@@ -66,12 +74,18 @@ export function NullHandlingDialog({
     const [newKey, setNewKey] = React.useState("");
     const [replaceValue, setReplaceValue] = React.useState("");
 
-    // ── Step 2: Drop Nulls State ──
+    // ── Step 2: Derive Values State ──
+    const [deriveTarget, setDeriveTarget] = React.useState("");
+    const [deriveFormula, setDeriveFormula] = React.useState<ArithmeticFormula>("add");
+    const [deriveOpA, setDeriveOpA] = React.useState("");
+    const [deriveOpB, setDeriveOpB] = React.useState("");
+
+    // ── Step 3: Drop Nulls State ──
     const [dropAxis, setDropAxis] = React.useState<"rows" | "columns">("rows");
     const [dropHow, setDropHow] = React.useState<"any" | "all">("any");
     const [threshPct, setThreshPct] = React.useState(70);
 
-    // ── Step 3: Fill Nulls State ──
+    // ── Step 4: Fill Nulls State ──
     const [fillStrategy, setFillStrategy] = React.useState<FillNullsStrategy>("median");
     const [fillValue, setFillValue] = React.useState("");
 
@@ -128,6 +142,35 @@ export function NullHandlingDialog({
             setSelectedCols([]); // Reset selection for next step
         } catch (err: any) {
             toast.error(err.response?.data?.detail ?? "Failed to replace values.");
+        } finally {
+            setLoading(false);
+        }
+    }
+
+    async function handleDerive() {
+        if (!deriveTarget || !deriveOpA || !deriveOpB) {
+            toast.error("Please select target and both operand columns.");
+            return;
+        }
+        setLoading(true);
+        try {
+            const res = await datalabApi.fillDerived(datasetId, {
+                target: deriveTarget,
+                formula: deriveFormula,
+                operand_a: deriveOpA,
+                operand_b: deriveOpB,
+            });
+
+            if (res.cells_filled === 0) {
+                toast.info("No null values found to fill with this formula.");
+            } else {
+                toast.success(`Filled ${res.cells_filled} null values in '${res.target}'.`);
+                onRefetchInspect();
+            }
+            setStep("drop");
+            setSelectedCols([]);
+        } catch (err: any) {
+            toast.error(err.response?.data?.detail ?? "Failed to derive values.");
         } finally {
             setLoading(false);
         }
@@ -217,6 +260,13 @@ export function NullHandlingDialog({
                             onClick={() => setStep("replace")}
                         />
                         <StepButton 
+                            id="derive" 
+                            label="Derive Values" 
+                            active={step === "derive"} 
+                            icon={<Calculator className="h-3.5 w-3.5" />} 
+                            onClick={() => setStep("derive")}
+                        />
+                        <StepButton 
                             id="drop" 
                             label="Drop Nulls" 
                             active={step === "drop"} 
@@ -243,11 +293,13 @@ export function NullHandlingDialog({
                         <DialogHeader className="p-6 pb-4">
                             <DialogTitle className="text-sm font-bold flex items-center gap-2">
                                 {step === "replace" && "Step 1: Replace Sentinel Values"}
-                                {step === "drop" && "Step 2: Drop Null Rows/Columns"}
-                                {step === "fill" && "Step 3: Fill Remaining Nulls"}
+                                {step === "derive" && "Step 2: Derive Missing Values"}
+                                {step === "drop" && "Step 3: Drop Null Rows/Columns"}
+                                {step === "fill" && "Step 4: Fill Remaining Nulls"}
                             </DialogTitle>
                             <DialogDescription className="text-[13px]">
                                 {step === "replace" && "Convert 'N/A', '-', or other strings into real nulls (NaN)."}
+                                {step === "derive" && "Use arithmetic to recover nulls from other columns (e.g. Price = Qty * Unit)."}
                                 {step === "drop" && "Remove data that is too empty to be useful."}
                                 {step === "fill" && "Impute missing values using a statistical strategy."}
                             </DialogDescription>
@@ -302,146 +354,50 @@ export function NullHandlingDialog({
                                 </div>
                             )}
 
+                            {step === "derive" && (
+                                <DeriveStep 
+                                    columns={columns}
+                                    deriveTarget={deriveTarget}
+                                    setDeriveTarget={setDeriveTarget}
+                                    deriveOpA={deriveOpA}
+                                    setDeriveOpA={setDeriveOpA}
+                                    deriveOpB={deriveOpB}
+                                    setDeriveOpB={setDeriveOpB}
+                                    deriveFormula={deriveFormula}
+                                    setDeriveFormula={setDeriveFormula}
+                                />
+                            )}
+
                             {step === "drop" && (
-                                <div className="space-y-6">
-                                    <div className="flex gap-1 p-1 bg-muted/50 border border-border/40 w-fit">
-                                        <Button 
-                                            variant={dropAxis === "rows" ? "secondary" : "ghost"} 
-                                            size="sm" 
-                                            className="h-7 text-[13px] rounded-none px-4"
-                                            onClick={() => setDropAxis("rows")}
-                                        >
-                                            Drop Rows
-                                        </Button>
-                                        <Button 
-                                            variant={dropAxis === "columns" ? "secondary" : "ghost"} 
-                                            size="sm" 
-                                            className="h-7 text-[13px] rounded-none px-4"
-                                            onClick={() => setDropAxis("columns")}
-                                        >
-                                            Drop Columns
-                                        </Button>
-                                    </div>
-
-                                    {dropAxis === "rows" ? (
-                                        <div className="space-y-6">
-                                            <div className="space-y-3">
-                                                <Label className="text-sm font-semibold">Condition</Label>
-                                                <div className="grid grid-cols-2 gap-2">
-                                                    <button 
-                                                        onClick={() => setDropHow("any")}
-                                                        className={cn(
-                                                            "p-3 border text-left transition-all rounded-none",
-                                                            dropHow === "any" ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border hover:bg-muted/30"
-                                                        )}
-                                                    >
-                                                        <p className="text-sm font-bold tracking-tight">Any Null</p>
-                                                        <p className="text-[13px] text-muted-foreground mt-1">Drop row if at least one selected column is null.</p>
-                                                    </button>
-                                                    <button 
-                                                        onClick={() => setDropHow("all")}
-                                                        className={cn(
-                                                            "p-3 border text-left transition-all rounded-none",
-                                                            dropHow === "all" ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border hover:bg-muted/30"
-                                                        )}
-                                                    >
-                                                        <p className="text-sm font-bold tracking-tight">All Null</p>
-                                                        <p className="text-[13px] text-muted-foreground mt-1">Drop row only if all selected columns are null.</p>
-                                                    </button>
-                                                </div>
-                                            </div>
-
-                                            <ColumnPicker 
-                                                label="Check only these columns (optional)"
-                                                columns={filteredCols} 
-                                                selected={selectedCols} 
-                                                onToggle={toggleColumn} 
-                                                search={colSearch} 
-                                                onSearchChange={setColSearch} 
-                                            />
-                                        </div>
-                                    ) : (
-                                        <div className="space-y-6">
-                                            <div className="space-y-3">
-                                                <div className="flex justify-between items-center">
-                                                    <Label className="text-sm font-semibold">Null Threshold</Label>
-                                                    <span className="text-sm font-mono font-bold text-primary">{threshPct}%</span>
-                                                </div>
-                                                <Input 
-                                                    type="range"
-                                                    min="0"
-                                                    max="100"
-                                                    value={threshPct}
-                                                    onChange={(e) => setThreshPct(Number.parseInt(e.target.value))}
-                                                    className="h-4 accent-primary cursor-pointer border-none p-0"
-                                                />
-                                                <p className="text-[13px] text-muted-foreground italic">
-                                                    Drop columns where more than {threshPct}% of values are null.
-                                                </p>
-                                            </div>
-
-                                            <div className="space-y-3">
-                                                <Label className="text-sm font-semibold">Drop Preview</Label>
-                                                <div className="border border-border/40 p-3 min-h-20 bg-muted/10">
-                                                    {columnsToDropPreview.length > 0 ? (
-                                                        <div className="flex flex-wrap gap-1.5">
-                                                            {columnsToDropPreview.map(c => (
-                                                                <Badge key={c} variant="destructive" className="rounded-none text-[13px] py-0 h-5 font-mono bg-red-500/10 text-red-600 border-red-500/20 hover:bg-red-500/20">
-                                                                    {c}
-                                                                </Badge>
-                                                            ))}
-                                                        </div>
-                                                    ) : (
-                                                        <p className="text-[13px] text-muted-foreground text-center py-4 italic">No columns match the current threshold.</p>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
+                                <DropStep 
+                                    dropAxis={dropAxis}
+                                    setDropAxis={setDropAxis}
+                                    dropHow={dropHow}
+                                    setDropHow={setDropHow}
+                                    threshPct={threshPct}
+                                    setThreshPct={setThreshPct}
+                                    columns={columns}
+                                    filteredCols={filteredCols}
+                                    selectedCols={selectedCols}
+                                    toggleColumn={toggleColumn}
+                                    colSearch={colSearch}
+                                    setColSearch={setColSearch}
+                                    columnsToDropPreview={columnsToDropPreview}
+                                />
                             )}
 
                             {step === "fill" && (
-                                <div className="space-y-6">
-                                    <div className="space-y-3">
-                                        <Label className="text-sm font-semibold">Strategy</Label>
-                                        <div className="grid grid-cols-2 gap-2">
-                                            {STRATEGIES.map((s) => (
-                                                <button 
-                                                    key={s.value}
-                                                    onClick={() => setFillStrategy(s.value)}
-                                                    className={cn(
-                                                        "p-3 border text-left transition-all rounded-none",
-                                                        fillStrategy === s.value ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border hover:bg-muted/30"
-                                                    )}
-                                                >
-                                                    <p className="text-sm font-bold tracking-tight">{s.label}</p>
-                                                    <p className="text-[13px] text-muted-foreground mt-1 leading-tight">{s.notes}</p>
-                                                </button>
-                                            ))}
-                                        </div>
-                                    </div>
-
-                                    {fillStrategy === "constant" && (
-                                        <div className="space-y-3">
-                                            <Label className="text-sm font-semibold">Constant Value</Label>
-                                            <Input 
-                                                value={fillValue}
-                                                onChange={(e) => setFillValue(e.target.value)}
-                                                placeholder="e.g. Unknown, 0, false"
-                                                className="h-8 text-sm rounded-none font-mono"
-                                            />
-                                        </div>
-                                    )}
-
-                                    <ColumnPicker 
-                                        columns={filteredCols} 
-                                        selected={selectedCols} 
-                                        onToggle={toggleColumn} 
-                                        search={colSearch} 
-                                        onSearchChange={setColSearch} 
-                                    />
-                                </div>
+                                <FillStep 
+                                    fillStrategy={fillStrategy}
+                                    setFillStrategy={setFillStrategy}
+                                    fillValue={fillValue}
+                                    setFillValue={setFillValue}
+                                    filteredCols={filteredCols}
+                                    selectedCols={selectedCols}
+                                    toggleColumn={toggleColumn}
+                                    colSearch={colSearch}
+                                    setColSearch={setColSearch}
+                                />
                             )}
                         </div>
 
@@ -454,7 +410,8 @@ export function NullHandlingDialog({
                                         className="h-8 text-sm rounded-none gap-1.5"
                                         onClick={() => {
                                             if (step === "fill") setStep("drop");
-                                            else if (step === "drop") setStep("replace");
+                                            else if (step === "drop") setStep("derive");
+                                            else if (step === "derive") setStep("replace");
                                         }}
                                         disabled={loading}
                                     >
@@ -468,7 +425,8 @@ export function NullHandlingDialog({
                                         size="sm" 
                                         className="h-8 text-sm rounded-none"
                                         onClick={() => {
-                                            if (step === "replace") setStep("drop");
+                                            if (step === "replace") setStep("derive");
+                                            else if (step === "derive") setStep("drop");
                                             else if (step === "drop") setStep("fill");
                                         }}
                                         disabled={loading}
@@ -483,6 +441,7 @@ export function NullHandlingDialog({
                                 className="h-8 text-sm rounded-none gap-1.5 min-w-32"
                                 onClick={() => {
                                     if (step === "replace") handleReplace();
+                                    if (step === "derive") handleDerive();
                                     if (step === "drop") handleDrop();
                                     if (step === "fill") handleFill();
                                 }}
@@ -490,6 +449,7 @@ export function NullHandlingDialog({
                             >
                                 {loading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
                                 {step === "replace" && "Apply & Next"}
+                                {step === "derive" && "Derive & Next"}
                                 {step === "drop" && "Drop & Next"}
                                 {step === "fill" && "Finish & Fill"}
                                 {!loading && <ChevronRight className="h-3.5 w-3.5" />}
@@ -499,6 +459,282 @@ export function NullHandlingDialog({
                 </div>
             </DialogContent>
         </Dialog>
+    );
+}
+function DeriveStep({ 
+    columns, deriveTarget, setDeriveTarget, deriveOpA, setDeriveOpA, deriveOpB, setDeriveOpB, deriveFormula, setDeriveFormula 
+}: Readonly<{
+    columns: DataLabInspectColumn[],
+    deriveTarget: string,
+    setDeriveTarget: (s: string) => void,
+    deriveOpA: string,
+    setDeriveOpA: (s: string) => void,
+    deriveOpB: string,
+    setDeriveOpB: (s: string) => void,
+    deriveFormula: ArithmeticFormula,
+    setDeriveFormula: (f: ArithmeticFormula) => void
+}>) {
+    let symbol = "";
+    switch (deriveFormula) {
+        case "add": symbol = "+"; break;
+        case "subtract": symbol = "−"; break;
+        case "multiply": symbol = "×"; break;
+        case "divide": symbol = "÷"; break;
+    }
+    
+    return (
+        <div className="space-y-6">
+            <div className="grid grid-cols-1 gap-6">
+                <div className="space-y-3">
+                    <Label className="text-sm font-semibold">Target Column (to fill)</Label>
+                    <Select value={deriveTarget} onValueChange={setDeriveTarget}>
+                        <SelectTrigger className="h-9 rounded-none font-mono text-[13px]">
+                            <SelectValue placeholder="Select target column..." />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-none">
+                            {columns.map(c => (
+                                <SelectItem key={c.column} value={c.column} className="font-mono rounded-none text-[13px]">
+                                    {c.column} {c.null_count > 0 && `(${c.null_count} nulls)`}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <div className="flex items-end gap-3">
+                    <div className="flex-1 space-y-3">
+                        <Label className="text-sm font-semibold">Operand A</Label>
+                        <Select value={deriveOpA} onValueChange={setDeriveOpA}>
+                            <SelectTrigger className="h-9 rounded-none font-mono text-[13px]">
+                                <SelectValue placeholder="Select column..." />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-none">
+                                {columns.filter(c => c.dtype.includes("int") || c.dtype.includes("float")).map(c => (
+                                    <SelectItem key={c.column} value={c.column} className="font-mono rounded-none text-[13px]">
+                                        {c.column}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="w-24 space-y-3">
+                        <Label className="text-sm font-semibold text-center">Formula</Label>
+                        <Select value={deriveFormula} onValueChange={(v) => setDeriveFormula(v as ArithmeticFormula)}>
+                            <SelectTrigger className="h-9 rounded-none font-mono text-center text-[13px]">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-none min-w-[60px]">
+                                <SelectItem value="add" className="rounded-none font-bold text-center">+</SelectItem>
+                                <SelectItem value="subtract" className="rounded-none font-bold text-center">−</SelectItem>
+                                <SelectItem value="multiply" className="rounded-none font-bold text-center">×</SelectItem>
+                                <SelectItem value="divide" className="rounded-none font-bold text-center">÷</SelectItem>
+                            </SelectContent>
+                        </Select>
+                    </div>
+
+                    <div className="flex-1 space-y-3">
+                        <Label className="text-sm font-semibold">Operand B</Label>
+                        <Select value={deriveOpB} onValueChange={setDeriveOpB}>
+                            <SelectTrigger className="h-9 rounded-none font-mono text-[13px]">
+                                <SelectValue placeholder="Select column..." />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-none">
+                                {columns.filter(c => c.dtype.includes("int") || c.dtype.includes("float")).map(c => (
+                                    <SelectItem key={c.column} value={c.column} className="font-mono rounded-none text-[13px]">
+                                        {c.column}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                </div>
+
+                <div className="p-4 bg-muted/20 border border-dashed border-border/60">
+                    <p className="text-[13px] text-muted-foreground leading-relaxed italic">
+                        Rows where <span className="font-bold text-foreground font-mono">{deriveTarget || "target"}</span> is null will be computed as:
+                        <br />
+                        <span className="font-bold text-primary font-mono ml-2">
+                            {deriveOpA || "op_a"} {symbol} {deriveOpB || "op_b"}
+                        </span>
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+}
+
+function DropStep({
+    dropAxis, setDropAxis, dropHow, setDropHow, threshPct, setThreshPct, columns, filteredCols, selectedCols, toggleColumn, colSearch, setColSearch, columnsToDropPreview
+}: Readonly<{
+    dropAxis: "rows" | "columns",
+    setDropAxis: (s: "rows" | "columns") => void,
+    dropHow: "any" | "all",
+    setDropHow: (s: "any" | "all") => void,
+    threshPct: number,
+    setThreshPct: (n: number) => void,
+    columns: DataLabInspectColumn[],
+    filteredCols: DataLabInspectColumn[],
+    selectedCols: string[],
+    toggleColumn: (s: string) => void,
+    colSearch: string,
+    setColSearch: (s: string) => void,
+    columnsToDropPreview: string[]
+}>) {
+    return (
+        <div className="space-y-6">
+            <div className="flex gap-1 p-1 bg-muted/50 border border-border/40 w-fit">
+                <Button 
+                    variant={dropAxis === "rows" ? "secondary" : "ghost"} 
+                    size="sm" 
+                    className="h-7 text-[13px] rounded-none px-4"
+                    onClick={() => setDropAxis("rows")}
+                >
+                    Drop Rows
+                </Button>
+                <Button 
+                    variant={dropAxis === "columns" ? "secondary" : "ghost"} 
+                    size="sm" 
+                    className="h-7 text-[13px] rounded-none px-4"
+                    onClick={() => setDropAxis("columns")}
+                >
+                    Drop Columns
+                </Button>
+            </div>
+
+            {dropAxis === "rows" ? (
+                <div className="space-y-6">
+                    <div className="space-y-3">
+                        <Label className="text-sm font-semibold">Condition</Label>
+                        <div className="grid grid-cols-2 gap-2">
+                            <button 
+                                onClick={() => setDropHow("any")}
+                                className={cn(
+                                    "p-3 border text-left transition-all rounded-none",
+                                    dropHow === "any" ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border hover:bg-muted/30"
+                                )}
+                            >
+                                <p className="text-sm font-bold tracking-tight">Any Null</p>
+                                <p className="text-[13px] text-muted-foreground mt-1">Drop row if at least one selected column is null.</p>
+                            </button>
+                            <button 
+                                onClick={() => setDropHow("all")}
+                                className={cn(
+                                    "p-3 border text-left transition-all rounded-none",
+                                    dropHow === "all" ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border hover:bg-muted/30"
+                                )}
+                            >
+                                <p className="text-sm font-bold tracking-tight">All Null</p>
+                                <p className="text-[13px] text-muted-foreground mt-1">Drop row only if all selected columns are null.</p>
+                            </button>
+                        </div>
+                    </div>
+
+                    <ColumnPicker 
+                        label="Check only these columns (optional)"
+                        columns={filteredCols} 
+                        selected={selectedCols} 
+                        onToggle={toggleColumn} 
+                        search={colSearch} 
+                        onSearchChange={setColSearch} 
+                    />
+                </div>
+            ) : (
+                <div className="space-y-6">
+                    <div className="space-y-3">
+                        <div className="flex justify-between items-center">
+                            <Label className="text-sm font-semibold">Null Threshold</Label>
+                            <span className="text-sm font-mono font-bold text-primary">{threshPct}%</span>
+                        </div>
+                        <Input 
+                            type="range"
+                            min="0"
+                            max="100"
+                            value={threshPct}
+                            onChange={(e) => setThreshPct(Number.parseInt(e.target.value))}
+                            className="h-4 accent-primary cursor-pointer border-none p-0"
+                        />
+                        <p className="text-[13px] text-muted-foreground italic">
+                            Drop columns where more than {threshPct}% of values are null.
+                        </p>
+                    </div>
+
+                    <div className="space-y-3">
+                        <Label className="text-sm font-semibold">Drop Preview</Label>
+                        <div className="border border-border/40 p-3 min-h-20 bg-muted/10">
+                            {columnsToDropPreview.length > 0 ? (
+                                <div className="flex flex-wrap gap-1.5">
+                                    {columnsToDropPreview.map(c => (
+                                        <Badge key={c} variant="destructive" className="rounded-none text-[13px] py-0 h-5 font-mono bg-red-500/10 text-red-600 border-red-500/20 hover:bg-red-500/20">
+                                            {c}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-[13px] text-muted-foreground text-center py-4 italic">No columns match the current threshold.</p>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+function FillStep({
+    fillStrategy, setFillStrategy, fillValue, setFillValue, filteredCols, selectedCols, toggleColumn, colSearch, setColSearch
+}: Readonly<{
+    fillStrategy: FillNullsStrategy,
+    setFillStrategy: (s: FillNullsStrategy) => void,
+    fillValue: string,
+    setFillValue: (s: string) => void,
+    filteredCols: DataLabInspectColumn[],
+    selectedCols: string[],
+    toggleColumn: (s: string) => void,
+    colSearch: string,
+    setColSearch: (s: string) => void
+}>) {
+    return (
+        <div className="space-y-6">
+            <div className="space-y-3">
+                <Label className="text-sm font-semibold">Strategy</Label>
+                <div className="grid grid-cols-2 gap-2">
+                    {STRATEGIES.map((s) => (
+                        <button 
+                            key={s.value}
+                            onClick={() => setFillStrategy(s.value)}
+                            className={cn(
+                                "p-3 border text-left transition-all rounded-none",
+                                fillStrategy === s.value ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border hover:bg-muted/30"
+                            )}
+                        >
+                            <p className="text-sm font-bold tracking-tight">{s.label}</p>
+                            <p className="text-[13px] text-muted-foreground mt-1 leading-tight">{s.notes}</p>
+                        </button>
+                    ))}
+                </div>
+            </div>
+
+            {fillStrategy === "constant" && (
+                <div className="space-y-3">
+                    <Label className="text-sm font-semibold">Constant Value</Label>
+                    <Input 
+                        value={fillValue}
+                        onChange={(e) => setFillValue(e.target.value)}
+                        placeholder="e.g. Unknown, 0, false"
+                        className="h-8 text-sm rounded-none font-mono"
+                    />
+                </div>
+            )}
+
+            <ColumnPicker 
+                columns={filteredCols} 
+                selected={selectedCols} 
+                onToggle={toggleColumn} 
+                search={colSearch} 
+                onSearchChange={setColSearch} 
+            />
+        </div>
     );
 }
 

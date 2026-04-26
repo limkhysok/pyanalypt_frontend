@@ -148,6 +148,52 @@ export interface FillNullsResponse {
   detail?: string;
 }
 
+export type ArithmeticFormula = "divide" | "multiply" | "add" | "subtract";
+
+export interface FillDerivedRequest {
+  target: string;
+  formula: ArithmeticFormula;
+  operand_a: string;
+  operand_b: string;
+}
+
+export interface FillDerivedResponse {
+  target: string;
+  formula: ArithmeticFormula;
+  operand_a: string;
+  operand_b: string;
+  cells_filled: number;
+  detail?: string;
+}
+
+export interface ValidateFormulaRequest {
+  result_column: string;
+  formula: ArithmeticFormula;
+  operand_a: string;
+  operand_b: string;
+  tolerance?: number;
+}
+
+export interface FormulaErrorSample {
+  row_index: number;
+  calculated: number;
+  diff: number;
+  [key: string]: unknown;
+}
+
+export interface ValidateFormulaResponse {
+  result_column: string;
+  formula: ArithmeticFormula;
+  operand_a: string;
+  operand_b: string;
+  tolerance: number;
+  total_rows: number;
+  checked_rows: number;
+  error_rows: number;
+  error_pct: number;
+  sample_errors: FormulaErrorSample[];
+}
+
 export interface DataLabDescribeNumericStats {
   count?: number;
   mean?: number;
@@ -175,7 +221,7 @@ export interface DataLabDescribe {
 export const datalabApi = {
   async preview(datasetId: number, limit = 100): Promise<DataLabPreview> {
     const res = await apiClient.get<DataLabPreview>(`datalab/preview/${datasetId}/`, {
-      params: limit !== 100 ? { limit } : undefined,
+      params: limit === 100 ? undefined : { limit },
     });
     return res.data;
   },
@@ -224,6 +270,16 @@ export const datalabApi = {
 
   async describe(datasetId: number): Promise<DataLabDescribe> {
     const res = await apiClient.get<DataLabDescribe>(`datalab/describe/${datasetId}/`);
+    return res.data;
+  },
+
+  async fillDerived(datasetId: number, body: FillDerivedRequest): Promise<FillDerivedResponse> {
+    const res = await apiClient.post<FillDerivedResponse>(`datalab/fill-derived/${datasetId}/`, body);
+    return res.data;
+  },
+
+  async validateFormula(datasetId: number, body: ValidateFormulaRequest): Promise<ValidateFormulaResponse> {
+    const res = await apiClient.post<ValidateFormulaResponse>(`datalab/validate-formula/${datasetId}/`, body);
     return res.data;
   },
 };
