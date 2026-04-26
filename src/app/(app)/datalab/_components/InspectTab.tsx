@@ -266,7 +266,7 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                                         </td>
                                         <td className="px-5 py-2">
                                             <div className="flex items-center gap-2">
-                                                <div className="text-[10px] font-mono font-black border border-border px-2 py-0.5 bg-background text-foreground tracking-tighter shrink-0">
+                                                <div className="text-[11px] font-mono font-black border border-border px-2 py-0.5 bg-background text-foreground tracking-tighter shrink-0">
                                                     {result ? result.to_dtype : col.dtype}
                                                 </div>
 
@@ -305,7 +305,7 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
 
                                                 {result && (
                                                     <span className={cn(
-                                                        "text-[10px] font-mono px-1.5 py-0.5 rounded-none border",
+                                                        "text-[11px] font-mono px-1.5 py-0.5 rounded-none border",
                                                         hasError
                                                             ? "bg-red-500/10 text-red-500 border-red-500/20"
                                                             : "bg-green-500/10 text-green-600 border-green-500/20"

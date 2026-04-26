@@ -33,7 +33,7 @@ export default function DataLabPage() {
         refetchInspect,
         refetchAll,
         selectedName,
-        setPage,
+        setLimit,
     } = useDatalab();
 
     const [isPending, startTransition] = React.useTransition();
@@ -116,7 +116,7 @@ export default function DataLabPage() {
                     <>
                         <TabsContent value="preview">
                             {preview
-                                ? <PreviewTab data={preview} datasetId={Number(selectedId)} onRefetchAll={refetchAll} onPageChange={setPage} />
+                                ? <PreviewTab data={preview} datasetId={Number(selectedId)} onRefetchAll={refetchAll} onLimitChange={setLimit} />
                                 : <div className="border bg-muted/5 h-105" />
                             }
                         </TabsContent>

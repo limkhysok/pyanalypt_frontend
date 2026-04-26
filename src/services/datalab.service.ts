@@ -7,9 +7,7 @@ export interface DataLabPreview {
   dataset_size: string;
   total_rows: number;
   total_columns: number;
-  total_pages: number;
-  page: number;
-  page_size: number;
+  limit: number;
   columns: string[];
   rows: Record<string, unknown>[];
 }
@@ -151,9 +149,9 @@ export interface FillNullsResponse {
 }
 
 export const datalabApi = {
-  async preview(datasetId: number, page = 1): Promise<DataLabPreview> {
+  async preview(datasetId: number, limit = 100): Promise<DataLabPreview> {
     const res = await apiClient.get<DataLabPreview>(`datalab/preview/${datasetId}/`, {
-      params: { page, page_size: 100 },
+      params: limit !== 100 ? { limit } : undefined,
     });
     return res.data;
   },

@@ -1,9 +1,16 @@
 "use client";
 
 import React from "react";
-import { Pencil, Loader2, Search, X, SlidersHorizontal, ChevronLeft, ChevronRight } from "lucide-react";
+import { Pencil, Loader2, Search, X, SlidersHorizontal, ChevronDown, Rows3 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuRadioGroup,
+    DropdownMenuRadioItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { datalabApi } from "@/services/api";
 import type { DataLabPreview } from "@/services/api";
@@ -75,11 +82,18 @@ function PreviewCell({ col, raw, isEditing, hasError, errorMsg, onStartEdit, onC
     );
 }
 
-export function PreviewTab({ data, datasetId, onRefetchAll, onPageChange }: Readonly<{
+const LIMIT_OPTIONS = [
+    { label: "100", value: 100 },
+    { label: "200", value: 200 },
+    { label: "500", value: 500 },
+    { label: "All", value: 0 },
+] as const;
+
+export function PreviewTab({ data, datasetId, onRefetchAll, onLimitChange }: Readonly<{
     data: DataLabPreview;
     datasetId: number;
     onRefetchAll: () => void;
-    onPageChange: (page: number) => void;
+    onLimitChange: (limit: number) => void;
 }>) {
     const [columns, setColumns] = React.useState(data.columns);
     const [rows, setRows] = React.useState(data.rows);
@@ -153,7 +167,7 @@ export function PreviewTab({ data, datasetId, onRefetchAll, onPageChange }: Read
 
         const value: unknown = rawInput === "" ? null : rawInput;
         const snapshot = rows;
-        const absoluteRowIndex = (data.page - 1) * data.page_size + rowIndex;
+        const absoluteRowIndex = rowIndex;
 
         setCellError(null);
         setRows(prev => prev.map((r, i) => i === rowIndex ? { ...r, [col]: value } : r));
@@ -215,11 +229,41 @@ export function PreviewTab({ data, datasetId, onRefetchAll, onPageChange }: Read
                         <SlidersHorizontal className="h-3 w-3" />
                         Columns
                         {hiddenCols.size > 0 && (
-                            <span className="bg-primary text-primary-foreground text-[10px] font-bold px-1 py-px leading-none">
+                            <span className="bg-primary text-primary-foreground text-[11px] font-bold px-1 py-px leading-none">
                                 {hiddenCols.size}
                             </span>
                         )}
                     </button>
+                    <div className="w-px h-4 bg-border/50 mx-1 shrink-0" />
+                    {/* Limit dropdown */}
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <button
+                                type="button"
+                                className="flex items-center gap-1.5 text-[11px] font-medium transition-colors px-2 py-1 border border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+                            >
+                                <Rows3 className="h-3 w-3" />
+                                {data.limit === 0 ? "All" : data.limit} rows
+                                <ChevronDown className="h-3 w-3 opacity-60" />
+                            </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-36 rounded-none">
+                            <DropdownMenuRadioGroup
+                                value={String(data.limit)}
+                                onValueChange={(v) => onLimitChange(Number(v))}
+                            >
+                                {LIMIT_OPTIONS.map((opt) => (
+                                    <DropdownMenuRadioItem
+                                        key={opt.value}
+                                        value={String(opt.value)}
+                                        className="text-xs rounded-none cursor-pointer"
+                                    >
+                                        {opt.label === "All" ? "All rows" : `${opt.label} rows`}
+                                    </DropdownMenuRadioItem>
+                                ))}
+                            </DropdownMenuRadioGroup>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
 
                 {/* ── Column picker panel ── */}
@@ -340,7 +384,7 @@ export function PreviewTab({ data, datasetId, onRefetchAll, onPageChange }: Read
                                         className="border-b border-border/50 hover:bg-muted/20 transition-colors"
                                     >
                                         <td className="px-4 py-2.5 text-[11px] text-muted-foreground/50 text-center font-mono select-none tabular-nums">
-                                            {(data.page - 1) * data.page_size + rowIndex + 1}
+                                            {rowIndex + 1}
                                         </td>
                                         {visibleColumns.map((col) => {
                                             const isEditing = editingCell?.rowIndex === rowIndex && editingCell?.col === col;
@@ -368,37 +412,14 @@ export function PreviewTab({ data, datasetId, onRefetchAll, onPageChange }: Read
                     <ScrollBar orientation="horizontal" />
                 </ScrollArea>
 
-                {/* ── Row count strip + pagination ── */}
+                {/* ── Row count strip ── */}
                 <div className="border-t px-4 py-1.5 flex items-center gap-3 bg-muted/10">
-                    {/* Pagination */}
-                    <div className="flex items-center gap-0.5">
-                        <button
-                            type="button"
-                            disabled={data.page <= 1}
-                            onClick={() => onPageChange(data.page - 1)}
-                            className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                        >
-                            <ChevronLeft className="h-3.5 w-3.5" />
-                        </button>
-                        <span className="text-[11px] font-mono text-muted-foreground px-1.5">
-                            {data.page} / {data.total_pages}
-                        </span>
-                        <button
-                            type="button"
-                            disabled={data.page >= data.total_pages}
-                            onClick={() => onPageChange(data.page + 1)}
-                            className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                        >
-                            <ChevronRight className="h-3.5 w-3.5" />
-                        </button>
-                    </div>
-
-                    <div className="w-px h-3 bg-border/50 shrink-0" />
-
                     <span className="text-[11px] text-muted-foreground font-mono">
                         {search.trim()
                             ? `${filteredRows.length} matching of ${rows.length} loaded rows`
-                            : `Rows ${((data.page - 1) * data.page_size + 1).toLocaleString()}–${Math.min(data.page * data.page_size, data.total_rows).toLocaleString()} of ${data.total_rows.toLocaleString()}`
+                            : data.limit === 0 || data.rows.length >= data.total_rows
+                                ? `${data.total_rows.toLocaleString()} rows`
+                                : `Showing ${data.rows.length.toLocaleString()} of ${data.total_rows.toLocaleString()} rows`
                         }
                     </span>
                     {hiddenCols.size > 0 && (

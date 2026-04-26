@@ -19,10 +19,10 @@ export function useDatalab() {
     const [inspect, setInspect] = React.useState<DataLabInspect | null>(null);
     const [loadingDatasets, setLoadingDatasets] = React.useState(true);
     const [loadingData, setLoadingData] = React.useState(false);
-    const [page, setPage] = React.useState(1);
+    const [limit, setLimit] = React.useState(100);
 
     function handleSetSelectedId(id: string) {
-        setPage(1);
+        setLimit(100);
         setSelectedId(id);
     }
 
@@ -56,11 +56,11 @@ export function useDatalab() {
         const id = Number(selectedId);
         setPreview(null);
         setLoadingData(true);
-        datalabApi.preview(id, page)
+        datalabApi.preview(id, limit)
             .then(setPreview)
             .catch(() => toast.error("Failed to load dataset."))
             .finally(() => setLoadingData(false));
-    }, [selectedId, page]);
+    }, [selectedId, limit]);
 
     React.useEffect(() => {
         if (!selectedId) return;
@@ -80,7 +80,7 @@ export function useDatalab() {
     function refetchAll() {
         if (!selectedId) return;
         const id = Number(selectedId);
-        Promise.all([datalabApi.preview(id, page), datalabApi.inspect(id)])
+        Promise.all([datalabApi.preview(id, limit), datalabApi.inspect(id)])
             .then(([previewData, inspectData]) => {
                 setPreview(previewData);
                 setInspect(inspectData);
@@ -103,7 +103,7 @@ export function useDatalab() {
         refetchInspect,
         refetchAll,
         selectedName,
-        page,
-        setPage,
+        limit,
+        setLimit,
     };
 }
