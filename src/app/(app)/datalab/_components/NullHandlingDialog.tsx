@@ -207,7 +207,7 @@ export function NullHandlingDialog({
                     {/* ── Sidebar Stepper ── */}
                     <div className="w-48 bg-muted/30 border-r border-border/60 p-4 flex flex-col gap-1">
                         <div className="mb-4">
-                            <h3 className="text-[11px] font-bold tracking-wider text-muted-foreground">Pipeline</h3>
+                            <h3 className="text-[13px] font-bold tracking-wider text-muted-foreground">Pipeline</h3>
                         </div>
                         <StepButton 
                             id="replace" 
@@ -232,7 +232,7 @@ export function NullHandlingDialog({
                         />
 
                         <div className="mt-auto pt-4 border-t border-border/40">
-                            <p className="text-[11px] text-muted-foreground leading-tight italic">
+                            <p className="text-[13px] text-muted-foreground leading-tight italic">
                                 Recommended order: Replace dirty strings → Drop heavily empty rows/cols → Fill remaining nulls.
                             </p>
                         </div>
@@ -246,7 +246,7 @@ export function NullHandlingDialog({
                                 {step === "drop" && "Step 2: Drop Null Rows/Columns"}
                                 {step === "fill" && "Step 3: Fill Remaining Nulls"}
                             </DialogTitle>
-                            <DialogDescription className="text-[11px]">
+                            <DialogDescription className="text-[13px]">
                                 {step === "replace" && "Convert 'N/A', '-', or other strings into real nulls (NaN)."}
                                 {step === "drop" && "Remove data that is too empty to be useful."}
                                 {step === "fill" && "Impute missing values using a statistical strategy."}
@@ -257,10 +257,10 @@ export function NullHandlingDialog({
                             {step === "replace" && (
                                 <div className="space-y-6">
                                     <div className="space-y-3">
-                                        <Label className="text-xs font-semibold">Values to find</Label>
+                                        <Label className="text-sm font-semibold">Values to find</Label>
                                         <div className="flex flex-wrap gap-1.5 p-2 border bg-muted/10 min-h-10">
                                             {replaceKeys.map((k) => (
-                                                <Badge key={k} variant="secondary" className="rounded-none text-[11px] py-0 h-5 gap-1 pr-1 font-mono">
+                                                <Badge key={k} variant="secondary" className="rounded-none text-[13px] py-0 h-5 gap-1 pr-1 font-mono">
                                                     {k}
                                                     <button onClick={() => removeReplaceKey(k)} className="hover:text-destructive transition-colors">
                                                         <X className="h-3 w-3" />
@@ -272,22 +272,22 @@ export function NullHandlingDialog({
                                                 onChange={(e) => setNewKey(e.target.value)}
                                                 onKeyDown={(e) => e.key === "Enter" && addReplaceKey()}
                                                 placeholder="Add value..."
-                                                className="bg-transparent border-none outline-none text-[11px] font-mono flex-1 min-w-20"
+                                                className="bg-transparent border-none outline-none text-[13px] font-mono flex-1 min-w-20"
                                             />
                                         </div>
                                     </div>
 
                                     <div className="space-y-3">
-                                        <Label className="text-xs font-semibold">Replace with</Label>
+                                        <Label className="text-sm font-semibold">Replace with</Label>
                                         <div className="flex items-center gap-3">
                                             <Input 
                                                 value={replaceValue}
                                                 onChange={(e) => setReplaceValue(e.target.value)}
                                                 placeholder="null (NaN)"
-                                                className="h-8 text-xs rounded-none font-mono"
+                                                className="h-8 text-sm rounded-none font-mono"
                                             />
                                             {replaceValue === "" && (
-                                                <span className="text-[11px] text-muted-foreground italic shrink-0">Empty = Null</span>
+                                                <span className="text-[13px] text-muted-foreground italic shrink-0">Empty = Null</span>
                                             )}
                                         </div>
                                     </div>
@@ -308,7 +308,7 @@ export function NullHandlingDialog({
                                         <Button 
                                             variant={dropAxis === "rows" ? "secondary" : "ghost"} 
                                             size="sm" 
-                                            className="h-7 text-[11px] rounded-none px-4"
+                                            className="h-7 text-[13px] rounded-none px-4"
                                             onClick={() => setDropAxis("rows")}
                                         >
                                             Drop Rows
@@ -316,7 +316,7 @@ export function NullHandlingDialog({
                                         <Button 
                                             variant={dropAxis === "columns" ? "secondary" : "ghost"} 
                                             size="sm" 
-                                            className="h-7 text-[11px] rounded-none px-4"
+                                            className="h-7 text-[13px] rounded-none px-4"
                                             onClick={() => setDropAxis("columns")}
                                         >
                                             Drop Columns
@@ -326,7 +326,7 @@ export function NullHandlingDialog({
                                     {dropAxis === "rows" ? (
                                         <div className="space-y-6">
                                             <div className="space-y-3">
-                                                <Label className="text-xs font-semibold">Condition</Label>
+                                                <Label className="text-sm font-semibold">Condition</Label>
                                                 <div className="grid grid-cols-2 gap-2">
                                                     <button 
                                                         onClick={() => setDropHow("any")}
@@ -335,8 +335,8 @@ export function NullHandlingDialog({
                                                             dropHow === "any" ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border hover:bg-muted/30"
                                                         )}
                                                     >
-                                                        <p className="text-xs font-bold tracking-tight">Any Null</p>
-                                                        <p className="text-[11px] text-muted-foreground mt-1">Drop row if at least one selected column is null.</p>
+                                                        <p className="text-sm font-bold tracking-tight">Any Null</p>
+                                                        <p className="text-[13px] text-muted-foreground mt-1">Drop row if at least one selected column is null.</p>
                                                     </button>
                                                     <button 
                                                         onClick={() => setDropHow("all")}
@@ -345,8 +345,8 @@ export function NullHandlingDialog({
                                                             dropHow === "all" ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border hover:bg-muted/30"
                                                         )}
                                                     >
-                                                        <p className="text-xs font-bold tracking-tight">All Null</p>
-                                                        <p className="text-[11px] text-muted-foreground mt-1">Drop row only if all selected columns are null.</p>
+                                                        <p className="text-sm font-bold tracking-tight">All Null</p>
+                                                        <p className="text-[13px] text-muted-foreground mt-1">Drop row only if all selected columns are null.</p>
                                                     </button>
                                                 </div>
                                             </div>
@@ -364,8 +364,8 @@ export function NullHandlingDialog({
                                         <div className="space-y-6">
                                             <div className="space-y-3">
                                                 <div className="flex justify-between items-center">
-                                                    <Label className="text-xs font-semibold">Null Threshold</Label>
-                                                    <span className="text-xs font-mono font-bold text-primary">{threshPct}%</span>
+                                                    <Label className="text-sm font-semibold">Null Threshold</Label>
+                                                    <span className="text-sm font-mono font-bold text-primary">{threshPct}%</span>
                                                 </div>
                                                 <Input 
                                                     type="range"
@@ -375,24 +375,24 @@ export function NullHandlingDialog({
                                                     onChange={(e) => setThreshPct(Number.parseInt(e.target.value))}
                                                     className="h-4 accent-primary cursor-pointer border-none p-0"
                                                 />
-                                                <p className="text-[11px] text-muted-foreground italic">
+                                                <p className="text-[13px] text-muted-foreground italic">
                                                     Drop columns where more than {threshPct}% of values are null.
                                                 </p>
                                             </div>
 
                                             <div className="space-y-3">
-                                                <Label className="text-xs font-semibold">Drop Preview</Label>
+                                                <Label className="text-sm font-semibold">Drop Preview</Label>
                                                 <div className="border border-border/40 p-3 min-h-20 bg-muted/10">
                                                     {columnsToDropPreview.length > 0 ? (
                                                         <div className="flex flex-wrap gap-1.5">
                                                             {columnsToDropPreview.map(c => (
-                                                                <Badge key={c} variant="destructive" className="rounded-none text-[11px] py-0 h-5 font-mono bg-red-500/10 text-red-600 border-red-500/20 hover:bg-red-500/20">
+                                                                <Badge key={c} variant="destructive" className="rounded-none text-[13px] py-0 h-5 font-mono bg-red-500/10 text-red-600 border-red-500/20 hover:bg-red-500/20">
                                                                     {c}
                                                                 </Badge>
                                                             ))}
                                                         </div>
                                                     ) : (
-                                                        <p className="text-[11px] text-muted-foreground text-center py-4 italic">No columns match the current threshold.</p>
+                                                        <p className="text-[13px] text-muted-foreground text-center py-4 italic">No columns match the current threshold.</p>
                                                     )}
                                                 </div>
                                             </div>
@@ -404,7 +404,7 @@ export function NullHandlingDialog({
                             {step === "fill" && (
                                 <div className="space-y-6">
                                     <div className="space-y-3">
-                                        <Label className="text-xs font-semibold">Strategy</Label>
+                                        <Label className="text-sm font-semibold">Strategy</Label>
                                         <div className="grid grid-cols-2 gap-2">
                                             {STRATEGIES.map((s) => (
                                                 <button 
@@ -415,8 +415,8 @@ export function NullHandlingDialog({
                                                         fillStrategy === s.value ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border hover:bg-muted/30"
                                                     )}
                                                 >
-                                                    <p className="text-xs font-bold tracking-tight">{s.label}</p>
-                                                    <p className="text-[11px] text-muted-foreground mt-1 leading-tight">{s.notes}</p>
+                                                    <p className="text-sm font-bold tracking-tight">{s.label}</p>
+                                                    <p className="text-[13px] text-muted-foreground mt-1 leading-tight">{s.notes}</p>
                                                 </button>
                                             ))}
                                         </div>
@@ -424,12 +424,12 @@ export function NullHandlingDialog({
 
                                     {fillStrategy === "constant" && (
                                         <div className="space-y-3">
-                                            <Label className="text-xs font-semibold">Constant Value</Label>
+                                            <Label className="text-sm font-semibold">Constant Value</Label>
                                             <Input 
                                                 value={fillValue}
                                                 onChange={(e) => setFillValue(e.target.value)}
                                                 placeholder="e.g. Unknown, 0, false"
-                                                className="h-8 text-xs rounded-none font-mono"
+                                                className="h-8 text-sm rounded-none font-mono"
                                             />
                                         </div>
                                     )}
@@ -451,7 +451,7 @@ export function NullHandlingDialog({
                                     <Button 
                                         variant="outline" 
                                         size="sm" 
-                                        className="h-8 text-xs rounded-none gap-1.5"
+                                        className="h-8 text-sm rounded-none gap-1.5"
                                         onClick={() => {
                                             if (step === "fill") setStep("drop");
                                             else if (step === "drop") setStep("replace");
@@ -466,7 +466,7 @@ export function NullHandlingDialog({
                                     <Button 
                                         variant="ghost" 
                                         size="sm" 
-                                        className="h-8 text-xs rounded-none"
+                                        className="h-8 text-sm rounded-none"
                                         onClick={() => {
                                             if (step === "replace") setStep("drop");
                                             else if (step === "drop") setStep("fill");
@@ -480,7 +480,7 @@ export function NullHandlingDialog({
 
                             <Button 
                                 size="sm" 
-                                className="h-8 text-xs rounded-none gap-1.5 min-w-32"
+                                className="h-8 text-sm rounded-none gap-1.5 min-w-32"
                                 onClick={() => {
                                     if (step === "replace") handleReplace();
                                     if (step === "drop") handleDrop();
@@ -519,7 +519,7 @@ function StepButton({ id, label, active, icon, onClick }: Readonly<{ id: string,
             )}>
                 {icon}
             </span>
-            <span className="text-[11px] leading-tight flex-1">{label}</span>
+            <span className="text-[13px] leading-tight flex-1">{label}</span>
             {active && <ChevronRight className="h-3 w-3 opacity-50" />}
         </button>
     );
@@ -543,8 +543,8 @@ function ColumnPicker({
     return (
         <div className="space-y-3">
             <div className="flex items-center justify-between">
-                <Label className="text-xs font-semibold">{label}</Label>
-                <span className="text-[11px] text-muted-foreground italic">
+                <Label className="text-sm font-semibold">{label}</Label>
+                <span className="text-[13px] text-muted-foreground italic">
                     {selected.length > 0 ? `${selected.length} selected` : "All columns targeted"}
                 </span>
             </div>
@@ -556,13 +556,13 @@ function ColumnPicker({
                         value={search}
                         onChange={(e) => onSearchChange(e.target.value)}
                         placeholder="Search columns..."
-                        className="bg-transparent border-none outline-none text-[11px] font-mono flex-1"
+                        className="bg-transparent border-none outline-none text-[13px] font-mono flex-1"
                     />
                 </div>
                 <ScrollArea className="h-36">
                     <div className="p-1 grid grid-cols-1 gap-0.5">
                         {columns.length === 0 && (
-                            <p className="text-[11px] text-muted-foreground text-center py-8">No columns found.</p>
+                            <p className="text-[13px] text-muted-foreground text-center py-8">No columns found.</p>
                         )}
                         {columns.map((col) => {
                             const isSelected = selected.includes(col.column);
@@ -582,13 +582,13 @@ function ColumnPicker({
                                         {isSelected && <div className="h-1.5 w-1.5 bg-primary-foreground rounded-full" />}
                                     </div>
                                     <span className={cn(
-                                        "text-[11px] font-mono truncate flex-1",
+                                        "text-[13px] font-mono truncate flex-1",
                                         isSelected ? "text-primary font-bold" : "text-foreground"
                                     )}>
                                         {col.column}
                                     </span>
                                     {col.null_count > 0 && (
-                                        <span className="text-[11px] text-red-500 font-mono bg-red-500/5 px-1 border border-red-500/10">
+                                        <span className="text-[13px] text-red-500 font-mono bg-red-500/5 px-1 border border-red-500/10">
                                             {col.null_count} nulls
                                         </span>
                                     )}
@@ -601,7 +601,7 @@ function ColumnPicker({
                     <div className="px-3 py-1.5 border-t border-border/40 bg-muted/5 flex justify-end">
                         <button 
                             onClick={() => {}} // This should be a clear all, need to pass it
-                            className="text-[11px] text-muted-foreground hover:text-foreground tracking-widest font-bold"
+                            className="text-[13px] text-muted-foreground hover:text-foreground font-bold"
                         >
                             {/* Clear All - will implement if needed */}
                         </button>

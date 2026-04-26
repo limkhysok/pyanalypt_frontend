@@ -148,6 +148,30 @@ export interface FillNullsResponse {
   detail?: string;
 }
 
+export interface DataLabDescribeNumericStats {
+  count?: number;
+  mean?: number;
+  std?: number;
+  min?: number;
+  "25%"?: number;
+  "50%"?: number;
+  "75%"?: number;
+  max?: number;
+}
+
+export interface DataLabDescribeCategoricalStats {
+  count?: number;
+  unique?: number;
+  top?: string | number;
+  freq?: number;
+}
+
+export type DataLabDescribeColumnStats = DataLabDescribeNumericStats | DataLabDescribeCategoricalStats;
+
+export interface DataLabDescribe {
+  columns: Record<string, DataLabDescribeColumnStats>;
+}
+
 export const datalabApi = {
   async preview(datasetId: number, limit = 100): Promise<DataLabPreview> {
     const res = await apiClient.get<DataLabPreview>(`datalab/preview/${datasetId}/`, {
@@ -195,6 +219,11 @@ export const datalabApi = {
 
   async fillNulls(datasetId: number, body: FillNullsRequest): Promise<FillNullsResponse> {
     const res = await apiClient.post<FillNullsResponse>(`datalab/fill-nulls/${datasetId}/`, body);
+    return res.data;
+  },
+
+  async describe(datasetId: number): Promise<DataLabDescribe> {
+    const res = await apiClient.get<DataLabDescribe>(`datalab/describe/${datasetId}/`);
     return res.data;
   },
 };

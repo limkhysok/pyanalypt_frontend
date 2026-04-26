@@ -102,14 +102,14 @@ export function DropDuplicatesDialog({ open, onOpenChange, datasetId, columns, o
             <DialogContent className="rounded-none max-w-md gap-4">
                 <DialogHeader>
                     <DialogTitle className="text-sm font-bold">Drop Duplicates</DialogTitle>
-                    <DialogDescription className="text-xs text-muted-foreground">
+                    <DialogDescription className="text-sm text-muted-foreground">
                         Configure which duplicate rows to remove from this dataset.
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="flex items-start gap-2 px-3 py-2.5 border border-amber-500/30 bg-amber-500/5">
                     <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0 text-amber-600" />
-                    <p className="text-[11px] font-medium leading-relaxed text-amber-700 dark:text-amber-400">
+                    <p className="text-[13px] font-medium leading-relaxed text-amber-700 dark:text-amber-400">
                         This will permanently remove duplicate rows from your dataset file on disk. This action cannot be undone.
                     </p>
                 </div>
@@ -117,7 +117,7 @@ export function DropDuplicatesDialog({ open, onOpenChange, datasetId, columns, o
                 <div className="space-y-4">
                     {/* Mode selector */}
                     <div className="space-y-1.5">
-                        <p className="text-xs font-semibold">Strategy</p>
+                        <p className="text-sm font-semibold">Strategy</p>
                         <div className="border border-border/50 divide-y divide-border/50">
                             {MODES.map((m) => {
                                 const selected = mode === m.value;
@@ -143,9 +143,9 @@ export function DropDuplicatesDialog({ open, onOpenChange, datasetId, columns, o
                                             {selected && <span className="block h-1.5 w-1.5 bg-primary-foreground" />}
                                         </span>
                                         <span className="space-y-0.5">
-                                            <span className="block text-xs font-medium">{m.label}</span>
+                                            <span className="block text-sm font-medium">{m.label}</span>
                                             <span className={cn(
-                                                "block text-[11px]",
+                                                "block text-[13px]",
                                                 selected ? "text-primary-foreground/70" : "text-muted-foreground"
                                             )}>
                                                 {m.description}
@@ -160,7 +160,7 @@ export function DropDuplicatesDialog({ open, onOpenChange, datasetId, columns, o
                     {/* Column picker */}
                     {showColumnPicker && (
                         <div className="space-y-1.5">
-                            <p className="text-xs font-semibold">
+                            <p className="text-sm font-semibold">
                                 Columns{" "}
                                 <span className="text-muted-foreground font-normal">
                                     {mode === "subset_keep" ? "— required" : "— optional, leave empty to check all"}
@@ -176,7 +176,7 @@ export function DropDuplicatesDialog({ open, onOpenChange, datasetId, columns, o
                                                 type="button"
                                                 onClick={() => toggleColumn(col.column)}
                                                 className={cn(
-                                                    "w-full flex items-center gap-2.5 px-3 py-1.5 text-xs font-mono text-left transition-colors",
+                                                    "w-full flex items-center gap-2.5 px-3 py-1.5 text-sm font-mono text-left transition-colors",
                                                     selected
                                                         ? "bg-primary text-primary-foreground"
                                                         : "hover:bg-muted/60 text-foreground"
@@ -201,7 +201,7 @@ export function DropDuplicatesDialog({ open, onOpenChange, datasetId, columns, o
                                 </div>
                             </ScrollArea>
                             {subset.length > 0 && (
-                                <p className="text-[11px] text-muted-foreground">
+                                <p className="text-[13px] text-muted-foreground">
                                     {subset.length} column{subset.length === 1 ? "" : "s"} selected
                                 </p>
                             )}
@@ -211,14 +211,14 @@ export function DropDuplicatesDialog({ open, onOpenChange, datasetId, columns, o
                     {/* Keep selector */}
                     {showKeepSelector && (
                         <div className="space-y-1.5">
-                            <p className="text-xs font-semibold">Keep</p>
+                            <p className="text-sm font-semibold">Keep</p>
                             <Select value={keep} onValueChange={(v) => setKeep(v as "first" | "last")}>
-                                <SelectTrigger className="rounded-none h-8 text-xs">
+                                <SelectTrigger className="rounded-none h-8 text-sm">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent className="rounded-none">
-                                    <SelectItem value="first" className="text-xs rounded-none">first — keep first occurrence</SelectItem>
-                                    <SelectItem value="last" className="text-xs rounded-none">last — keep last occurrence</SelectItem>
+                                    <SelectItem value="first" className="text-sm rounded-none">first — keep first occurrence</SelectItem>
+                                    <SelectItem value="last" className="text-sm rounded-none">last — keep last occurrence</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -226,10 +226,10 @@ export function DropDuplicatesDialog({ open, onOpenChange, datasetId, columns, o
                 </div>
 
                 <DialogFooter className="gap-2">
-                    <Button variant="ghost" size="sm" className="rounded-none text-xs h-8" onClick={handleClose} disabled={loading}>
+                    <Button variant="ghost" size="sm" className="rounded-none text-sm h-8" onClick={handleClose} disabled={loading}>
                         Cancel
                     </Button>
-                    <Button size="sm" className="rounded-none text-xs h-8 gap-1.5" onClick={handleConfirm} disabled={submitDisabled}>
+                    <Button size="sm" className="rounded-none text-sm h-8 gap-1.5" onClick={handleConfirm} disabled={submitDisabled}>
                         {loading && <Loader2 className="h-3 w-3 animate-spin" />}
                         Drop Duplicates
                     </Button>

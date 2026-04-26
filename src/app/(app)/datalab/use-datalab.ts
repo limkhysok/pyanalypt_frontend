@@ -3,7 +3,7 @@
 import React from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { datasetApi, datalabApi } from "@/services/api";
-import type { DataLabPreview, DataLabInspect } from "@/services/api";
+import type { DataLabPreview, DataLabInspect, DataLabDescribe } from "@/services/api";
 import { Dataset } from "@/types/dataset";
 import { toast } from "sonner";
 
@@ -17,6 +17,7 @@ export function useDatalab() {
     const [activeTab, setActiveTab] = React.useState<string>(searchParams.get("tab") ?? "preview");
     const [preview, setPreview] = React.useState<DataLabPreview | null>(null);
     const [inspect, setInspect] = React.useState<DataLabInspect | null>(null);
+    const [describe, setDescribe] = React.useState<DataLabDescribe | null>(null);
     const [loadingDatasets, setLoadingDatasets] = React.useState(true);
     const [loadingData, setLoadingData] = React.useState(false);
     const [limit, setLimit] = React.useState(100);
@@ -70,6 +71,14 @@ export function useDatalab() {
             .catch(() => toast.error("Failed to load dataset."));
     }, [selectedId]);
 
+    React.useEffect(() => {
+        if (!selectedId) return;
+        setDescribe(null);
+        datalabApi.describe(Number(selectedId))
+            .then(setDescribe)
+            .catch(() => toast.error("Failed to load describe data."));
+    }, [selectedId]);
+
     function refetchInspect() {
         if (!selectedId) return;
         datalabApi.inspect(Number(selectedId))
@@ -77,13 +86,21 @@ export function useDatalab() {
             .catch(() => toast.error("Failed to refresh inspect data."));
     }
 
+    function refetchDescribe() {
+        if (!selectedId) return;
+        datalabApi.describe(Number(selectedId))
+            .then(setDescribe)
+            .catch(() => toast.error("Failed to refresh describe data."));
+    }
+
     function refetchAll() {
         if (!selectedId) return;
         const id = Number(selectedId);
-        Promise.all([datalabApi.preview(id, limit), datalabApi.inspect(id)])
-            .then(([previewData, inspectData]) => {
+        Promise.all([datalabApi.preview(id, limit), datalabApi.inspect(id), datalabApi.describe(id)])
+            .then(([previewData, inspectData, describeData]) => {
                 setPreview(previewData);
                 setInspect(inspectData);
+                setDescribe(describeData);
             })
             .catch(() => toast.error("Failed to refresh dataset."));
     }
@@ -98,9 +115,11 @@ export function useDatalab() {
         setActiveTab,
         preview,
         inspect,
+        describe,
         loadingDatasets,
         loadingData,
         refetchInspect,
+        refetchDescribe,
         refetchAll,
         selectedName,
         limit,

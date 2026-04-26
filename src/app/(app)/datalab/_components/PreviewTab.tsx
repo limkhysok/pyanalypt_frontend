@@ -61,7 +61,7 @@ function PreviewCell({
     return (
         <td
             className={cn(
-                "px-4 py-2 text-xs font-mono whitespace-nowrap max-w-48 transition-colors",
+                "px-4 py-2 text-sm font-mono whitespace-nowrap max-w-48 transition-colors",
                 !isEditing && "cursor-text",
                 hasError && "bg-destructive/5",
                 isNull && !hasError && !isSelected && "bg-red-600/5",
@@ -74,7 +74,7 @@ function PreviewCell({
                 <input
                     autoFocus
                     defaultValue={isNull ? "" : val}
-                    className="bg-background border border-primary px-2 py-0.5 text-xs font-mono text-foreground outline-none w-full min-w-20 rounded-none"
+                    className="bg-background border border-primary px-2 py-0.5 text-sm font-mono text-foreground outline-none w-full min-w-20 rounded-none"
                     onKeyDown={(e) => {
                         if (e.key === "Tab") {
                             e.preventDefault();
@@ -126,7 +126,7 @@ function ColStatsTooltip({ col, info, children }: Readonly<{
                     className="rounded-none p-0 border border-border shadow-md min-w-44"
                 >
                     <div className="px-3 py-2 border-b bg-muted/30">
-                        <p className="text-[11px] font-semibold font-mono">{col}</p>
+                        <p className="text-[13px] font-semibold font-mono">{col}</p>
                     </div>
                     <div className="px-3 py-2 space-y-1">
                         <StatRow label="dtype" value={info.dtype} mono />
@@ -147,8 +147,8 @@ function ColStatsTooltip({ col, info, children }: Readonly<{
 function StatRow({ label, value, mono, accent }: Readonly<{ label: string; value: string; mono?: boolean; accent?: boolean }>) {
     return (
         <div className="flex items-center justify-between gap-4">
-            <span className="text-[11px] text-muted-foreground">{label}</span>
-            <span className={cn("text-[11px]", mono && "font-mono", accent ? "text-red-400 font-semibold" : "text-foreground")}>
+            <span className="text-[13px] text-muted-foreground">{label}</span>
+            <span className={cn("text-[13px]", mono && "font-mono", accent ? "text-red-400 font-semibold" : "text-foreground")}>
                 {value}
             </span>
         </div>
@@ -392,7 +392,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                         placeholder="Search rows…"
                         value={search}
                         onChange={(e) => setSearch(e.target.value)}
-                        className="flex-1 bg-transparent text-xs outline-none placeholder:text-muted-foreground/40 font-mono text-foreground"
+                        className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/40 font-mono text-foreground"
                     />
                     {search && (
                         <button
@@ -408,7 +408,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                         type="button"
                         onClick={() => setColPickerOpen((v) => !v)}
                         className={cn(
-                            "flex items-center gap-1.5 text-[11px] font-medium transition-colors px-2 py-1 border",
+                            "flex items-center gap-1.5 text-[13px] font-medium transition-colors px-2 py-1 border",
                             colPickerOpen
                                 ? "border-primary/50 text-primary bg-primary/5"
                                 : "border-transparent text-muted-foreground hover:text-foreground hover:border-border"
@@ -417,7 +417,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                         <SlidersHorizontal className="h-3 w-3" />
                         Columns
                         {hiddenCols.size > 0 && (
-                            <span className="bg-primary text-primary-foreground text-[11px] font-bold px-1 py-px leading-none">
+                            <span className="bg-primary text-primary-foreground text-[13px] font-bold px-1 py-px">
                                 {hiddenCols.size}
                             </span>
                         )}
@@ -427,7 +427,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                         <DropdownMenuTrigger asChild>
                             <button
                                 type="button"
-                                className="flex items-center gap-1.5 text-[11px] font-medium transition-colors px-2 py-1 border border-transparent text-muted-foreground hover:text-foreground hover:border-border"
+                                className="flex items-center gap-1.5 text-[13px] font-medium transition-colors px-2 py-1 border border-transparent text-muted-foreground hover:text-foreground hover:border-border"
                             >
                                 <Rows3 className="h-3 w-3" />
                                 {data.limit === 0 ? "All" : data.limit} rows
@@ -443,7 +443,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                                     <DropdownMenuRadioItem
                                         key={opt.value}
                                         value={String(opt.value)}
-                                        className="text-xs rounded-none cursor-pointer"
+                                        className="text-sm rounded-none cursor-pointer"
                                     >
                                         {opt.label === "All" ? "All rows" : `${opt.label} rows`}
                                     </DropdownMenuRadioItem>
@@ -457,21 +457,21 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                 {colPickerOpen && (
                     <div className="border-b px-4 py-3 space-y-2 bg-muted/10">
                         <div className="flex items-center justify-between">
-                            <span className="text-[11px] font-semibold text-muted-foreground">
+                            <span className="text-[13px] font-semibold text-muted-foreground">
                                 {visibleColumns.length} of {columns.length} columns visible
                             </span>
                             <div className="flex items-center gap-3">
                                 <button
                                     type="button"
                                     onClick={() => setHiddenCols(new Set())}
-                                    className="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+                                    className="text-[13px] text-muted-foreground hover:text-foreground transition-colors"
                                 >
                                     Show all
                                 </button>
                                 <button
                                     type="button"
                                     onClick={() => setHiddenCols(new Set(columns))}
-                                    className="text-[11px] text-muted-foreground hover:text-foreground transition-colors"
+                                    className="text-[13px] text-muted-foreground hover:text-foreground transition-colors"
                                 >
                                     Hide all
                                 </button>
@@ -486,7 +486,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                                         type="button"
                                         onClick={() => toggleCol(col)}
                                         className={cn(
-                                            "px-2 py-0.5 text-[11px] font-mono border transition-colors",
+                                            "px-2 py-0.5 text-[13px] font-mono border transition-colors",
                                             hidden
                                                 ? "border-border/40 text-muted-foreground/40 bg-transparent"
                                                 : "border-primary/40 text-primary bg-primary/5"
@@ -503,16 +503,16 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                 {/* ── Selection action bar ── */}
                 {hasSelection && (
                     <div className="border-b px-4 py-1.5 flex items-center gap-3 bg-primary/5">
-                        <span className="text-[11px] font-mono text-primary">
+                        <span className="text-[13px] font-mono text-primary">
                             {selectedRows.size > 0
                                 ? `${selectedRows.size} row${selectedRows.size > 1 ? "s" : ""} selected`
                                 : `${selectedCols.size} column${selectedCols.size > 1 ? "s" : ""} selected`}
                         </span>
-                        <span className="text-muted-foreground/40 text-[11px]">·</span>
+                        <span className="text-muted-foreground/40 text-[13px]">·</span>
                         <button
                             type="button"
                             onClick={copyToClipboard}
-                            className="flex items-center gap-1 text-[11px] font-medium text-primary hover:text-primary/70 transition-colors"
+                            className="flex items-center gap-1 text-[13px] font-medium text-primary hover:text-primary/70 transition-colors"
                         >
                             {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
                             {copied ? "Copied!" : "Copy as TSV"}
@@ -520,7 +520,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                         <button
                             type="button"
                             onClick={clearSelection}
-                            className="text-[11px] text-muted-foreground hover:text-foreground transition-colors ml-auto"
+                            className="text-[13px] text-muted-foreground hover:text-foreground transition-colors ml-auto"
                         >
                             Clear
                         </button>
@@ -539,7 +539,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                                         key={i}
                                         onClick={(e) => handleColClick(col, i, e)}
                                         className={cn(
-                                            "px-4 py-1 text-[10px] font-semibold text-center select-none tracking-wider whitespace-nowrap cursor-pointer transition-colors",
+                                            "px-4 py-1 text-[13px] font-semibold text-center select-none tracking-wider whitespace-nowrap cursor-pointer transition-colors",
                                             selectedCols.has(col)
                                                 ? "bg-primary text-primary-foreground"
                                                 : "bg-muted text-muted-foreground/50 hover:text-muted-foreground hover:bg-muted/80"
@@ -551,7 +551,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                             </tr>
                             {/* Column name row */}
                             <tr className="border-b">
-                                <th className="bg-muted px-4 py-3 text-xs font-semibold text-muted-foreground w-12 text-center select-none">#</th>
+                                <th className="bg-muted px-4 py-3 text-sm font-semibold text-muted-foreground w-12 text-center select-none">#</th>
                                 {visibleColumns.map((col) => {
                                     const colInfo = inspectMap[col];
                                     const isColSel = selectedCols.has(col);
@@ -559,7 +559,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                                         <th
                                             key={col}
                                             className={cn(
-                                                "bg-muted px-4 py-3 text-xs font-semibold text-muted-foreground whitespace-nowrap group/th min-w-28 transition-colors",
+                                                "bg-muted px-4 py-3 text-sm font-semibold text-muted-foreground whitespace-nowrap group/th min-w-28 transition-colors",
                                                 isColSel && "bg-primary/10 border-b-2 border-primary"
                                             )}
                                         >
@@ -567,7 +567,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                                                 <input
                                                     autoFocus
                                                     defaultValue={col}
-                                                    className="bg-background border border-primary px-2 py-0.5 text-xs font-semibold text-foreground outline-none w-full min-w-24 rounded-none"
+                                                    className="bg-background border border-primary px-2 py-0.5 text-sm font-semibold text-foreground outline-none w-full min-w-24 rounded-none"
                                                     onKeyDown={(e) => {
                                                         if (e.key === "Enter") {
                                                             e.preventDefault();
@@ -628,7 +628,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                         <tbody>
                             {filteredRows.length === 0 ? (
                                 <tr>
-                                    <td colSpan={visibleColumns.length + 1} className="px-4 py-12 text-center text-xs text-muted-foreground italic">
+                                    <td colSpan={visibleColumns.length + 1} className="px-4 py-12 text-center text-sm text-muted-foreground italic">
                                         {search.trim() ? `No rows match "${search}"` : "No rows available."}
                                     </td>
                                 </tr>
@@ -646,7 +646,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                                             <td
                                                 onClick={(e) => handleRowClick(rowIndex, e)}
                                                 className={cn(
-                                                    "px-4 py-2.5 text-[11px] text-center font-mono select-none tabular-nums cursor-pointer transition-colors",
+                                                    "px-4 py-2.5 text-[13px] text-center font-mono select-none tabular-nums cursor-pointer transition-colors",
                                                     isRowSel
                                                         ? "bg-primary/25 text-primary font-semibold"
                                                         : "text-muted-foreground/50 hover:bg-muted/40"
@@ -688,7 +688,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
 
                 {/* ── Row count strip ── */}
                 <div className="border-t px-4 py-1.5 flex items-center gap-3 bg-muted/10">
-                    <span className="text-[11px] text-muted-foreground font-mono">
+                    <span className="text-[13px] text-muted-foreground font-mono">
                         {search.trim()
                             ? `${filteredRows.length} matching of ${rows.length} loaded rows`
                             : data.limit === 0 || data.rows.length >= data.total_rows
@@ -697,7 +697,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                         }
                     </span>
                     {hiddenCols.size > 0 && (
-                        <span className="text-[11px] text-muted-foreground font-mono">
+                        <span className="text-[13px] text-muted-foreground font-mono">
                             · {visibleColumns.length} of {columns.length} columns visible
                         </span>
                     )}

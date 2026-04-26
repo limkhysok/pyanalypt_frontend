@@ -12,17 +12,21 @@ export { projectApi } from './project.service';
 export { datasetApi } from './dataset.service';
 export { framingApi } from './framing.service';
 export { datalabApi } from './datalab.service';
-export type { 
-  DataLabPreview, 
-  DataLabInspect, 
-  DataLabInspectColumn, 
-  CastColumnResult, 
-  CastResponse, 
-  CastWarning, 
-  DropDuplicatesMode, 
-  DropDuplicatesRequest, 
-  DropDuplicatesResponse, 
-  RenameColumnRequest, 
+export type {
+  DataLabPreview,
+  DataLabInspect,
+  DataLabInspectColumn,
+  DataLabDescribe,
+  DataLabDescribeNumericStats,
+  DataLabDescribeCategoricalStats,
+  DataLabDescribeColumnStats,
+  CastColumnResult,
+  CastResponse,
+  CastWarning,
+  DropDuplicatesMode,
+  DropDuplicatesRequest,
+  DropDuplicatesResponse,
+  RenameColumnRequest,
   RenameColumnResponse,
   ReplaceValuesRequest,
   ReplaceValuesResponse,
