@@ -203,11 +203,11 @@ export function NullHandlingDialog({
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="rounded-none max-w-2xl p-0 gap-0 overflow-hidden border-border/60">
-                <div className="flex h-[550px]">
+                <div className="flex h-137.5">
                     {/* ── Sidebar Stepper ── */}
                     <div className="w-48 bg-muted/30 border-r border-border/60 p-4 flex flex-col gap-1">
                         <div className="mb-4">
-                            <h3 className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Pipeline</h3>
+                            <h3 className="text-[11px] font-bold tracking-wider text-muted-foreground">Pipeline</h3>
                         </div>
                         <StepButton 
                             id="replace" 
@@ -335,7 +335,7 @@ export function NullHandlingDialog({
                                                             dropHow === "any" ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border hover:bg-muted/30"
                                                         )}
                                                     >
-                                                        <p className="text-xs font-bold uppercase tracking-tight">Any Null</p>
+                                                        <p className="text-xs font-bold tracking-tight">Any Null</p>
                                                         <p className="text-[10px] text-muted-foreground mt-1">Drop row if at least one selected column is null.</p>
                                                     </button>
                                                     <button 
@@ -345,7 +345,7 @@ export function NullHandlingDialog({
                                                             dropHow === "all" ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border hover:bg-muted/30"
                                                         )}
                                                     >
-                                                        <p className="text-xs font-bold uppercase tracking-tight">All Null</p>
+                                                        <p className="text-xs font-bold tracking-tight">All Null</p>
                                                         <p className="text-[10px] text-muted-foreground mt-1">Drop row only if all selected columns are null.</p>
                                                     </button>
                                                 </div>
@@ -415,7 +415,7 @@ export function NullHandlingDialog({
                                                         fillStrategy === s.value ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border hover:bg-muted/30"
                                                     )}
                                                 >
-                                                    <p className="text-xs font-bold uppercase tracking-tight">{s.label}</p>
+                                                    <p className="text-xs font-bold tracking-tight">{s.label}</p>
                                                     <p className="text-[10px] text-muted-foreground mt-1 leading-tight">{s.notes}</p>
                                                 </button>
                                             ))}
@@ -601,7 +601,7 @@ function ColumnPicker({
                     <div className="px-3 py-1.5 border-t border-border/40 bg-muted/5 flex justify-end">
                         <button 
                             onClick={() => {}} // This should be a clear all, need to pass it
-                            className="text-[9px] text-muted-foreground hover:text-foreground uppercase tracking-widest font-bold"
+                            className="text-[9px] text-muted-foreground hover:text-foreground tracking-widest font-bold"
                         >
                             {/* Clear All - will implement if needed */}
                         </button>

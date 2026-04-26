@@ -33,6 +33,7 @@ export default function DataLabPage() {
         refetchInspect,
         refetchAll,
         selectedName,
+        setPage,
     } = useDatalab();
 
     const [isPending, startTransition] = React.useTransition();
@@ -84,7 +85,7 @@ export default function DataLabPage() {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end" className="w-64 rounded-none">
-                            <DropdownMenuLabel className="text-[11px] font-semibold tracking-widest text-muted-foreground uppercase">
+                            <DropdownMenuLabel className="text-[11px] font-semibold tracking-widest text-muted-foreground">
                                 Dataset
                             </DropdownMenuLabel>
                             <DropdownMenuSeparator />
@@ -115,7 +116,7 @@ export default function DataLabPage() {
                     <>
                         <TabsContent value="preview">
                             {preview
-                                ? <PreviewTab data={preview} datasetId={Number(selectedId)} onRefetchAll={refetchAll} />
+                                ? <PreviewTab data={preview} datasetId={Number(selectedId)} onRefetchAll={refetchAll} onPageChange={setPage} />
                                 : <div className="border bg-muted/5 h-105" />
                             }
                         </TabsContent>

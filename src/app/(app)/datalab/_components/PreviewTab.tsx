@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Pencil, Loader2, Search, X, SlidersHorizontal } from "lucide-react";
+import { Pencil, Loader2, Search, X, SlidersHorizontal, ChevronLeft, ChevronRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
@@ -75,10 +75,11 @@ function PreviewCell({ col, raw, isEditing, hasError, errorMsg, onStartEdit, onC
     );
 }
 
-export function PreviewTab({ data, datasetId, onRefetchAll }: Readonly<{
+export function PreviewTab({ data, datasetId, onRefetchAll, onPageChange }: Readonly<{
     data: DataLabPreview;
     datasetId: number;
     onRefetchAll: () => void;
+    onPageChange: (page: number) => void;
 }>) {
     const [columns, setColumns] = React.useState(data.columns);
     const [rows, setRows] = React.useState(data.rows);
@@ -152,12 +153,13 @@ export function PreviewTab({ data, datasetId, onRefetchAll }: Readonly<{
 
         const value: unknown = rawInput === "" ? null : rawInput;
         const snapshot = rows;
+        const absoluteRowIndex = (data.page - 1) * data.page_size + rowIndex;
 
         setCellError(null);
         setRows(prev => prev.map((r, i) => i === rowIndex ? { ...r, [col]: value } : r));
 
         try {
-            const res = await datalabApi.updateCell(datasetId, { row_index: rowIndex, column: col, value });
+            const res = await datalabApi.updateCell(datasetId, { row_index: absoluteRowIndex, column: col, value });
             setRows(prev => prev.map((r, i) => i === rowIndex ? { ...r, [col]: res.value } : r));
             onRefetchAll();
         } catch (err: unknown) {
@@ -338,7 +340,7 @@ export function PreviewTab({ data, datasetId, onRefetchAll }: Readonly<{
                                         className="border-b border-border/50 hover:bg-muted/20 transition-colors"
                                     >
                                         <td className="px-4 py-2.5 text-[11px] text-muted-foreground/50 text-center font-mono select-none tabular-nums">
-                                            {rowIndex + 1}
+                                            {(data.page - 1) * data.page_size + rowIndex + 1}
                                         </td>
                                         {visibleColumns.map((col) => {
                                             const isEditing = editingCell?.rowIndex === rowIndex && editingCell?.col === col;
@@ -366,12 +368,37 @@ export function PreviewTab({ data, datasetId, onRefetchAll }: Readonly<{
                     <ScrollBar orientation="horizontal" />
                 </ScrollArea>
 
-                {/* ── Row count strip ── */}
+                {/* ── Row count strip + pagination ── */}
                 <div className="border-t px-4 py-1.5 flex items-center gap-3 bg-muted/10">
+                    {/* Pagination */}
+                    <div className="flex items-center gap-0.5">
+                        <button
+                            type="button"
+                            disabled={data.page <= 1}
+                            onClick={() => onPageChange(data.page - 1)}
+                            className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        >
+                            <ChevronLeft className="h-3.5 w-3.5" />
+                        </button>
+                        <span className="text-[11px] font-mono text-muted-foreground px-1.5">
+                            {data.page} / {data.total_pages}
+                        </span>
+                        <button
+                            type="button"
+                            disabled={data.page >= data.total_pages}
+                            onClick={() => onPageChange(data.page + 1)}
+                            className="p-1 text-muted-foreground hover:text-foreground disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        >
+                            <ChevronRight className="h-3.5 w-3.5" />
+                        </button>
+                    </div>
+
+                    <div className="w-px h-3 bg-border/50 shrink-0" />
+
                     <span className="text-[11px] text-muted-foreground font-mono">
                         {search.trim()
                             ? `${filteredRows.length} matching of ${rows.length} loaded rows`
-                            : `Showing ${rows.length.toLocaleString()} of ${data.total_rows.toLocaleString()} total rows`
+                            : `Rows ${((data.page - 1) * data.page_size + 1).toLocaleString()}–${Math.min(data.page * data.page_size, data.total_rows).toLocaleString()} of ${data.total_rows.toLocaleString()}`
                         }
                     </span>
                     {hiddenCols.size > 0 && (

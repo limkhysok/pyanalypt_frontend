@@ -19,6 +19,12 @@ export function useDatalab() {
     const [inspect, setInspect] = React.useState<DataLabInspect | null>(null);
     const [loadingDatasets, setLoadingDatasets] = React.useState(true);
     const [loadingData, setLoadingData] = React.useState(false);
+    const [page, setPage] = React.useState(1);
+
+    function handleSetSelectedId(id: string) {
+        setPage(1);
+        setSelectedId(id);
+    }
 
     React.useEffect(() => {
         const params = new URLSearchParams(searchParams.toString());
@@ -48,21 +54,20 @@ export function useDatalab() {
     React.useEffect(() => {
         if (!selectedId) return;
         const id = Number(selectedId);
-
         setPreview(null);
-        setInspect(null);
         setLoadingData(true);
-
-        Promise.all([
-            datalabApi.preview(id),
-            datalabApi.inspect(id),
-        ])
-            .then(([previewData, inspectData]) => {
-                setPreview(previewData);
-                setInspect(inspectData);
-            })
+        datalabApi.preview(id, page)
+            .then(setPreview)
             .catch(() => toast.error("Failed to load dataset."))
             .finally(() => setLoadingData(false));
+    }, [selectedId, page]);
+
+    React.useEffect(() => {
+        if (!selectedId) return;
+        setInspect(null);
+        datalabApi.inspect(Number(selectedId))
+            .then(setInspect)
+            .catch(() => toast.error("Failed to load dataset."));
     }, [selectedId]);
 
     function refetchInspect() {
@@ -75,7 +80,7 @@ export function useDatalab() {
     function refetchAll() {
         if (!selectedId) return;
         const id = Number(selectedId);
-        Promise.all([datalabApi.preview(id), datalabApi.inspect(id)])
+        Promise.all([datalabApi.preview(id, page), datalabApi.inspect(id)])
             .then(([previewData, inspectData]) => {
                 setPreview(previewData);
                 setInspect(inspectData);
@@ -88,7 +93,7 @@ export function useDatalab() {
     return {
         datasets,
         selectedId,
-        setSelectedId,
+        setSelectedId: handleSetSelectedId,
         activeTab,
         setActiveTab,
         preview,
@@ -98,5 +103,7 @@ export function useDatalab() {
         refetchInspect,
         refetchAll,
         selectedName,
+        page,
+        setPage,
     };
 }
