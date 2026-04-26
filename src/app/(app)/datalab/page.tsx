@@ -116,7 +116,7 @@ export default function DataLabPage() {
                     <>
                         <TabsContent value="preview">
                             {preview
-                                ? <PreviewTab data={preview} datasetId={Number(selectedId)} onRefetchAll={refetchAll} onLimitChange={setLimit} />
+                                ? <PreviewTab data={preview} datasetId={Number(selectedId)} inspect={inspect ?? undefined} onRefetchAll={refetchAll} onLimitChange={setLimit} />
                                 : <div className="border bg-muted/5 h-105" />
                             }
                         </TabsContent>
