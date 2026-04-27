@@ -524,7 +524,7 @@ function DeriveStep({
                             <SelectTrigger className="h-9 rounded-none font-mono text-center text-[13px]">
                                 <SelectValue />
                             </SelectTrigger>
-                            <SelectContent className="rounded-none min-w-[60px]">
+                            <SelectContent className="rounded-none min-w-15">
                                 <SelectItem value="add" className="rounded-none font-bold text-center">+</SelectItem>
                                 <SelectItem value="subtract" className="rounded-none font-bold text-center">−</SelectItem>
                                 <SelectItem value="multiply" className="rounded-none font-bold text-center">×</SelectItem>

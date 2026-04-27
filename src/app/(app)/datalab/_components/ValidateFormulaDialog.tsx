@@ -143,7 +143,7 @@ export function ValidateFormulaDialog({
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="flex flex-col h-[580px]">
+                <div className="flex flex-col h-145">
                     <div className="p-6 space-y-6 border-b">
                         <div className="grid grid-cols-3 gap-4 items-end">
                             <div className="space-y-2">
@@ -189,7 +189,7 @@ export function ValidateFormulaDialog({
                                         <SelectTrigger className="h-9 rounded-none font-mono text-center text-[13px]">
                                             <SelectValue />
                                         </SelectTrigger>
-                                        <SelectContent className="rounded-none min-w-[60px]">
+                                        <SelectContent className="rounded-none min-w-15">
                                             <SelectItem value="add" className="rounded-none font-bold text-center">+</SelectItem>
                                             <SelectItem value="subtract" className="rounded-none font-bold text-center">−</SelectItem>
                                             <SelectItem value="multiply" className="rounded-none font-bold text-center">×</SelectItem>
