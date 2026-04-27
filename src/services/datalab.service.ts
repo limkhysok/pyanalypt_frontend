@@ -194,6 +194,24 @@ export interface ValidateFormulaResponse {
   sample_errors: FormulaErrorSample[];
 }
 
+export interface FixFormulaRequest {
+  target: string;
+  formula: ArithmeticFormula;
+  operand_a: string;
+  operand_b: string;
+  tolerance?: number;
+}
+
+export interface FixFormulaResponse {
+  target: string;
+  formula: ArithmeticFormula;
+  operand_a: string;
+  operand_b: string;
+  tolerance: number;
+  cells_fixed: number;
+  detail?: string;
+}
+
 export interface DataLabDescribeNumericStats {
   count?: number;
   mean?: number;
@@ -280,6 +298,11 @@ export const datalabApi = {
 
   async validateFormula(datasetId: number, body: ValidateFormulaRequest): Promise<ValidateFormulaResponse> {
     const res = await apiClient.post<ValidateFormulaResponse>(`datalab/validate-formula/${datasetId}/`, body);
+    return res.data;
+  },
+
+  async fixFormula(datasetId: number, body: FixFormulaRequest): Promise<FixFormulaResponse> {
+    const res = await apiClient.post<FixFormulaResponse>(`datalab/fix-formula/${datasetId}/`, body);
     return res.data;
   },
 };

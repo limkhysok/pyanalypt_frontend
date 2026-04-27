@@ -39,7 +39,10 @@ export type {
   FillDerivedRequest,
   FillDerivedResponse,
   ValidateFormulaRequest,
-  ValidateFormulaResponse
+  ValidateFormulaResponse,
+  FixFormulaRequest,
+  FixFormulaResponse,
+  FormulaErrorSample,
 } from './datalab.service';
 
 // Utilities

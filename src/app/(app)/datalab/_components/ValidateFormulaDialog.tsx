@@ -6,6 +6,7 @@ import {
     Calculator,
     CheckCircle2,
     AlertCircle,
+    Wrench,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -27,7 +28,7 @@ import {
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
 import { datalabApi } from "@/services/api";
-import type { DataLabInspectColumn, ArithmeticFormula, ValidateFormulaResponse } from "@/services/api";
+import type { DataLabInspectColumn, ArithmeticFormula, ValidateFormulaResponse, FixFormulaRequest } from "@/services/api";
 import { toast } from "sonner";
 
 export function ValidateFormulaDialog({
@@ -35,21 +36,31 @@ export function ValidateFormulaDialog({
     onOpenChange,
     datasetId,
     columns,
+    onSuccess,
 }: Readonly<{
     open: boolean;
     onOpenChange: (open: boolean) => void;
     datasetId: number;
     columns: DataLabInspectColumn[];
+    onSuccess?: () => void;
 }>) {
     const [loading, setLoading] = React.useState(false);
     const [result, setResult] = React.useState<ValidateFormulaResponse | null>(null);
 
-    // Form State
+    // Form state
     const [resCol, setResCol] = React.useState("");
     const [formula, setFormula] = React.useState<ArithmeticFormula>("multiply");
     const [opA, setOpA] = React.useState("");
     const [opB, setOpB] = React.useState("");
     const [tolerance, setTolerance] = React.useState("0.01");
+
+    // Fix state
+    const [fixTarget, setFixTarget] = React.useState("");
+    const [fixLoading, setFixLoading] = React.useState(false);
+
+    React.useEffect(() => {
+        if (result) setFixTarget(result.result_column);
+    }, [result]);
 
     async function handleValidate() {
         if (!resCol || !opA || !opB) {
@@ -79,6 +90,46 @@ export function ValidateFormulaDialog({
         }
     }
 
+    async function handleFix() {
+        if (!fixTarget || !result) return;
+        setFixLoading(true);
+        try {
+            const params = buildFixParams(result, fixTarget);
+            const fixRes = await datalabApi.fixFormula(datasetId, {
+                ...params,
+                tolerance: Number.parseFloat(tolerance) || 0.01,
+            });
+
+            if (fixRes.cells_fixed === 0) {
+                toast.info(fixRes.detail ?? "No inconsistent rows found to fix.");
+            } else {
+                toast.success(`Fixed ${fixRes.cells_fixed} cells in ${fixRes.target}.`);
+                onSuccess?.();
+            }
+
+            // Re-run validate to confirm
+            const recheck = await datalabApi.validateFormula(datasetId, {
+                result_column: resCol,
+                formula,
+                operand_a: opA,
+                operand_b: opB,
+                tolerance: Number.parseFloat(tolerance) || 0.01,
+            });
+            setResult(recheck);
+            if (recheck.error_rows === 0) {
+                toast.success("Re-audit passed. All inconsistencies resolved.");
+            } else {
+                toast.warning(`${recheck.error_rows} rows still inconsistent after fix.`);
+            }
+        } catch (err: any) {
+            toast.error(err.response?.data?.detail ?? "Failed to fix formula.");
+        } finally {
+            setFixLoading(false);
+        }
+    }
+
+    const numericCols = columns.filter(c => c.dtype.includes("int") || c.dtype.includes("float"));
+
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="rounded-none max-w-3xl p-0 gap-0 overflow-hidden border-border/60">
@@ -88,11 +139,11 @@ export function ValidateFormulaDialog({
                         <DialogTitle className="text-sm font-bold">Data Quality Audit: Formula Consistency</DialogTitle>
                     </div>
                     <DialogDescription className="text-[13px]">
-                        Verify if a column's values are mathematically consistent with others. (Read-only)
+                        Verify if a column's values are mathematically consistent with others — then fix any rows that don't add up.
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="flex flex-col h-[500px]">
+                <div className="flex flex-col h-[580px]">
                     <div className="p-6 space-y-6 border-b">
                         <div className="grid grid-cols-3 gap-4 items-end">
                             <div className="space-y-2">
@@ -123,7 +174,7 @@ export function ValidateFormulaDialog({
                                             <SelectValue placeholder="Select..." />
                                         </SelectTrigger>
                                         <SelectContent className="rounded-none">
-                                            {columns.filter(c => c.dtype.includes("int") || c.dtype.includes("float")).map(c => (
+                                            {numericCols.map(c => (
                                                 <SelectItem key={c.column} value={c.column} className="font-mono rounded-none text-[13px]">
                                                     {c.column}
                                                 </SelectItem>
@@ -154,7 +205,7 @@ export function ValidateFormulaDialog({
                                             <SelectValue placeholder="Select..." />
                                         </SelectTrigger>
                                         <SelectContent className="rounded-none">
-                                            {columns.filter(c => c.dtype.includes("int") || c.dtype.includes("float")).map(c => (
+                                            {numericCols.map(c => (
                                                 <SelectItem key={c.column} value={c.column} className="font-mono rounded-none text-[13px]">
                                                     {c.column}
                                                 </SelectItem>
@@ -271,7 +322,7 @@ export function ValidateFormulaDialog({
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        {result.sample_errors.map((err, i) => (
+                                                        {result.sample_errors.map((err) => (
                                                             <tr key={err.row_index} className="border-b last:border-0 hover:bg-muted/30 transition-colors">
                                                                 <td className="px-3 py-2 font-mono text-muted-foreground">{err.row_index}</td>
                                                                 <td className="px-3 py-2 font-mono">{(err[result.operand_a] as number)?.toLocaleString()}</td>
@@ -287,7 +338,63 @@ export function ValidateFormulaDialog({
                                                     </tbody>
                                                 </table>
                                             </div>
-                                            <p className="text-[12px] text-muted-foreground italic italic">Showing up to 10 sample errors.</p>
+                                            <p className="text-[12px] text-muted-foreground italic">Showing up to 10 sample errors.</p>
+                                        </div>
+                                    )}
+
+                                    {/* Fix Section — only shown when errors exist */}
+                                    {result.error_rows > 0 && (
+                                        <div className="border border-amber-500/30 bg-amber-500/5 p-4 space-y-4">
+                                            <div className="flex items-center gap-2">
+                                                <Wrench className="h-4 w-4 text-amber-600" />
+                                                <span className="text-sm font-bold uppercase tracking-tight text-amber-700 dark:text-amber-400">Fix Inconsistencies</span>
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label className="text-[12px] font-bold uppercase tracking-wider text-muted-foreground">
+                                                    Which column has the wrong values?
+                                                </Label>
+                                                <div className="flex gap-2 flex-wrap">
+                                                    {[result.result_column, result.operand_a, result.operand_b].map(col => (
+                                                        <button
+                                                            key={col}
+                                                            type="button"
+                                                            onClick={() => setFixTarget(col)}
+                                                            className={cn(
+                                                                "px-3 py-1.5 border font-mono text-[13px] transition-colors",
+                                                                fixTarget === col
+                                                                    ? "border-amber-500 bg-amber-500/15 text-amber-700 dark:text-amber-300 font-bold"
+                                                                    : "border-border/60 hover:border-amber-400/60 text-muted-foreground"
+                                                            )}
+                                                        >
+                                                            {col}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                                <p className="text-[12px] text-muted-foreground italic">
+                                                    The selected column's bad values will be overwritten. The other two are treated as the source of truth.
+                                                </p>
+                                            </div>
+
+                                            <div className="flex items-center gap-3">
+                                                <Button
+                                                    onClick={handleFix}
+                                                    disabled={fixLoading || !fixTarget}
+                                                    size="sm"
+                                                    className="h-8 rounded-none px-4 font-bold bg-amber-600 hover:bg-amber-700 text-white"
+                                                >
+                                                    {fixLoading
+                                                        ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" />
+                                                        : <Wrench className="h-3.5 w-3.5 mr-2" />
+                                                    }
+                                                    Fix {result.error_rows} rows
+                                                </Button>
+                                                {fixLoading && (
+                                                    <span className="text-[12px] text-muted-foreground animate-pulse font-mono uppercase tracking-widest">
+                                                        Applying fix...
+                                                    </span>
+                                                )}
+                                            </div>
                                         </div>
                                     )}
                                 </div>
@@ -324,4 +431,42 @@ function FormulaSymbol({ formula }: Readonly<{ formula: ArithmeticFormula }>) {
         case "divide": return " / ";
         default: return " ";
     }
+}
+
+function buildFixParams(
+    validateResult: ValidateFormulaResponse,
+    badColumn: string
+): Omit<FixFormulaRequest, "tolerance"> {
+    const { result_column, formula, operand_a, operand_b } = validateResult;
+
+    if (badColumn === result_column) {
+        return { target: result_column, formula, operand_a, operand_b };
+    }
+
+    if (badColumn === operand_a) {
+        // result = A OP B  →  A = ?
+        const inverse: Record<ArithmeticFormula, ArithmeticFormula> = {
+            divide: "multiply",   // result = A/B  → A = result*B
+            multiply: "divide",   // result = A*B  → A = result/B
+            add: "subtract",      // result = A+B  → A = result−B
+            subtract: "add",      // result = A−B  → A = result+B
+        };
+        return { target: operand_a, formula: inverse[formula], operand_a: result_column, operand_b };
+    }
+
+    // badColumn === operand_b: result = A OP B  →  B = ?
+    if (formula === "divide") {
+        // result = A/B  → B = A/result
+        return { target: operand_b, formula: "divide", operand_a, operand_b: result_column };
+    }
+    if (formula === "multiply") {
+        // result = A*B  → B = result/A
+        return { target: operand_b, formula: "divide", operand_a: result_column, operand_b: operand_a };
+    }
+    if (formula === "add") {
+        // result = A+B  → B = result−A
+        return { target: operand_b, formula: "subtract", operand_a: result_column, operand_b: operand_a };
+    }
+    // subtract: result = A−B  → B = A−result
+    return { target: operand_b, formula: "subtract", operand_a, operand_b: result_column };
 }

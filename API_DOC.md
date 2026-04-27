@@ -772,13 +772,14 @@ All endpoints below are under `/api/v1/datalab/`.
 | 3 | `GET` | `/datalab/describe/{dataset_id}/` | Return descriptive statistics for all columns (`df.describe()`) |
 | 4 | `POST` | `/datalab/fill-derived/{dataset_id}/` | Fill nulls in a column by deriving values from two other columns using arithmetic |
 | 5 | `POST` | `/datalab/validate-formula/{dataset_id}/` | Check whether a column's values match a formula across two operand columns |
-| 6 | `POST` | `/datalab/cast/{dataset_id}/` | Cast one or more columns to a new dtype and persist the change |
-| 7 | `POST` | `/datalab/drop-duplicates/{dataset_id}/` | Remove duplicate rows and persist the cleaned dataset |
-| 8 | `POST` | `/datalab/rename-column/{dataset_id}/` | Rename a column header and persist the change |
-| 9 | `PATCH` | `/datalab/update-cell/{dataset_id}/` | Edit a single cell value with dtype validation |
-| 10 | `POST` | `/datalab/replace-values/{dataset_id}/` | Replace sentinel/garbage values with NaN or another value |
-| 11 | `POST` | `/datalab/drop-nulls/{dataset_id}/` | Drop rows or columns containing null values |
-| 12 | `POST` | `/datalab/fill-nulls/{dataset_id}/` | Fill null values using a chosen imputation strategy |
+| 6 | `POST` | `/datalab/fix-formula/{dataset_id}/` | Overwrite inconsistent values in a column by recomputing from trusted columns |
+| 7 | `POST` | `/datalab/cast/{dataset_id}/` | Cast one or more columns to a new dtype and persist the change |
+| 8 | `POST` | `/datalab/drop-duplicates/{dataset_id}/` | Remove duplicate rows and persist the cleaned dataset |
+| 9 | `POST` | `/datalab/rename-column/{dataset_id}/` | Rename a column header and persist the change |
+| 10 | `PATCH` | `/datalab/update-cell/{dataset_id}/` | Edit a single cell value with dtype validation |
+| 11 | `POST` | `/datalab/replace-values/{dataset_id}/` | Replace sentinel/garbage values with NaN or another value |
+| 12 | `POST` | `/datalab/drop-nulls/{dataset_id}/` | Drop rows or columns containing null values |
+| 13 | `POST` | `/datalab/fill-nulls/{dataset_id}/` | Fill null values using a chosen imputation strategy |
 
 ---
 
@@ -1095,7 +1096,78 @@ Check whether a column's values are mathematically consistent with a formula acr
 
 ---
 
-### 6. Cast Column Dtypes
+### 6. Fix Formula Inconsistencies
+
+Overwrite values in a target column for rows where the math doesn't add up — replacing the wrong value with one recomputed from trusted operand columns. Unlike `fill-derived` which only fills nulls, this overwrites **existing non-null values** that are mathematically inconsistent.
+
+Use this after `validate-formula` detects errors. The typical pattern is: **trust two columns, recompute the third.**
+
+- **Endpoint**: `POST /datalab/fix-formula/{dataset_id}/`
+- **Auth Required**: Yes
+
+#### Request Body
+
+| Field | Type | Required | Default | Description |
+|---|---|---|---|---|
+| `target` | string | Yes | — | Column whose wrong values should be overwritten |
+| `formula` | string | Yes | — | `"divide"`, `"multiply"`, `"add"`, `"subtract"` |
+| `operand_a` | string | Yes | — | Trusted left-hand column |
+| `operand_b` | string | Yes | — | Trusted right-hand column |
+| `tolerance` | number | No | `0.01` | Rows within this threshold are considered correct and left untouched |
+
+The fix is applied as: `target = operand_a <formula> operand_b` — but **only for rows** where the current `target` value differs from the formula result by more than `tolerance`.
+
+**Fix `Unit_Price` by trusting `Total_Price` and `Quantity`:**
+```json
+{
+  "target": "Unit_Price",
+  "formula": "divide",
+  "operand_a": "Total_Price",
+  "operand_b": "Quantity",
+  "tolerance": 0.01
+}
+```
+
+#### Responses
+
+- **Response (200)** — inconsistencies fixed:
+```json
+{
+  "target": "Unit_Price",
+  "formula": "divide",
+  "operand_a": "Total_Price",
+  "operand_b": "Quantity",
+  "tolerance": 0.01,
+  "cells_fixed": 14
+}
+```
+
+- **Response (200)** — no inconsistencies found (no file write occurs):
+```json
+{
+  "target": "Unit_Price",
+  "formula": "divide",
+  "operand_a": "Total_Price",
+  "operand_b": "Quantity",
+  "tolerance": 0.01,
+  "cells_fixed": 0,
+  "detail": "No inconsistent rows found within the given tolerance."
+}
+```
+
+- **Response (400)** — non-numeric columns:
+```json
+{ "detail": "All three columns must be numeric: ['Unit_Price']" }
+```
+
+> This only touches rows where all three columns are non-null and (for `divide`) `operand_b != 0`.
+> Rows that are already consistent within `tolerance` are left unchanged.
+> Integer-typed target columns are auto-rounded after recomputation.
+> After fixing, run `validate-formula` again with the same params to confirm `error_rows === 0`.
+
+---
+
+### 7. Cast Column Dtypes
 
 Cast one or more columns to a new dtype. The change is persisted back to the dataset file on disk. Use this after `inspect` reveals columns with wrong types (e.g. `Date` as `object` instead of `datetime64`).
 
@@ -1149,7 +1221,7 @@ Cast one or more columns to a new dtype. The change is persisted back to the dat
 ```
 ---
 
-### 7. Drop Duplicate Rows
+### 8. Drop Duplicate Rows
 
 Remove duplicate rows from the dataset and persist the result to disk. Choose a `mode` to control which rows are compared and which are kept.
 
@@ -1248,7 +1320,7 @@ Remove duplicate rows from the dataset and persist the result to disk. Choose a 
 
 ---
 
-### 8. Rename Column Header
+### 9. Rename Column Header
 
 Rename a single column header and persist the change to disk. If the column had a stored dtype cast, the cast is automatically migrated to the new name.
 
@@ -1293,7 +1365,7 @@ Rename a single column header and persist the change to disk. If the column had 
 
 ---
 
-### 9. Update Cell Value
+### 10. Update Cell Value
 
 Edit a single cell at a specific row and column. The value is coerced to match the column's existing dtype — if it can't be converted, a `400` is returned before anything is written to disk.
 
@@ -1353,7 +1425,7 @@ Edit a single cell at a specific row and column. The value is coerced to match t
 
 ---
 
-### 10. Replace Values
+### 11. Replace Values
 
 Replace specific sentinel or garbage values (e.g. `"N/A"`, `"-"`, `"?"`) with `null` (NaN) or any other value, across all columns or a targeted subset.
 
@@ -1428,7 +1500,7 @@ Replace specific sentinel or garbage values (e.g. `"N/A"`, `"-"`, `"?"`) with `n
 
 ---
 
-### 11. Drop Nulls
+### 12. Drop Nulls
 
 Drop rows or entire columns that contain null values. Covers two axes in one endpoint.
 
@@ -1513,7 +1585,7 @@ Drop rows or entire columns that contain null values. Covers two axes in one end
 
 ---
 
-### 12. Fill Nulls
+### 13. Fill Nulls
 
 Fill missing (NaN) values using a chosen imputation strategy. Apply to all columns or a targeted subset.
 

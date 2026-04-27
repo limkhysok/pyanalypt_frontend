@@ -403,6 +403,7 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                 onOpenChange={setAuditOpen}
                 datasetId={datasetId}
                 columns={data.info.columns}
+                onSuccess={onRefetchAll}
             />
         </div>
     );
