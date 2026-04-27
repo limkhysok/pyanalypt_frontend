@@ -43,6 +43,19 @@ export type {
   FixFormulaRequest,
   FixFormulaResponse,
   FormulaErrorSample,
+  OutlierColumnStats,
+  DetectOutliersResponse,
+  TrimOutliersRequest,
+  TrimOutliersResponse,
+  ImputeOutliersStrategy,
+  ImputeOutliersRequest,
+  ImputeOutliersResponse,
+  CapOutliersRequest,
+  CapOutliersResponse,
+  TransformFunction,
+  TransformColumnRequest,
+  TransformColumnSkipped,
+  TransformColumnResponse,
 } from './datalab.service';
 
 // Utilities

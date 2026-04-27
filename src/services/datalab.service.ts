@@ -236,6 +236,92 @@ export interface DataLabDescribe {
   columns: Record<string, DataLabDescribeColumnStats>;
 }
 
+export interface OutlierColumnStats {
+  outlier_count: number;
+  outlier_pct: number;
+  lower_bound: number;
+  upper_bound: number;
+  min: number;
+  max: number;
+  mean: number;
+  median: number;
+  sample_outliers: Array<Record<string, unknown>>;
+}
+
+export interface DetectOutliersResponse {
+  dataset_id: number;
+  method: "iqr" | "zscore";
+  threshold: number;
+  columns: Record<string, OutlierColumnStats>;
+}
+
+export interface TrimOutliersRequest {
+  columns: string[];
+  method: "iqr" | "zscore";
+  threshold: number;
+}
+
+export interface TrimOutliersResponse {
+  columns: string[];
+  method: string;
+  threshold: number;
+  rows_before: number;
+  rows_after: number;
+  rows_dropped: number;
+  detail?: string;
+}
+
+export type ImputeOutliersStrategy = "median" | "mean" | "mode";
+
+export interface ImputeOutliersRequest {
+  columns: string[];
+  method: "iqr" | "zscore";
+  threshold: number;
+  strategy: ImputeOutliersStrategy;
+}
+
+export interface ImputeOutliersResponse {
+  columns: string[];
+  method: string;
+  threshold: number;
+  strategy: string;
+  cells_imputed: number;
+  detail?: string;
+}
+
+export interface CapOutliersRequest {
+  columns: string[];
+  lower_pct: number;
+  upper_pct: number;
+}
+
+export interface CapOutliersResponse {
+  columns: string[];
+  lower_pct: number;
+  upper_pct: number;
+  cells_capped: number;
+  detail?: string;
+}
+
+export type TransformFunction = "log" | "sqrt" | "cbrt";
+
+export interface TransformColumnRequest {
+  columns: string[];
+  function: TransformFunction;
+}
+
+export interface TransformColumnSkipped {
+  column: string;
+  reason: string;
+}
+
+export interface TransformColumnResponse {
+  function: string;
+  transformed_columns: string[];
+  skipped_columns: TransformColumnSkipped[];
+  detail?: string;
+}
+
 export const datalabApi = {
   async preview(datasetId: number, limit = 100): Promise<DataLabPreview> {
     const res = await apiClient.get<DataLabPreview>(`datalab/preview/${datasetId}/`, {
@@ -303,6 +389,31 @@ export const datalabApi = {
 
   async fixFormula(datasetId: number, body: FixFormulaRequest): Promise<FixFormulaResponse> {
     const res = await apiClient.post<FixFormulaResponse>(`datalab/fix-formula/${datasetId}/`, body);
+    return res.data;
+  },
+
+  async detectOutliers(datasetId: number, params: { columns: string; method?: string; threshold?: number }): Promise<DetectOutliersResponse> {
+    const res = await apiClient.get<DetectOutliersResponse>(`datalab/detect-outliers/${datasetId}/`, { params });
+    return res.data;
+  },
+
+  async trimOutliers(datasetId: number, body: TrimOutliersRequest): Promise<TrimOutliersResponse> {
+    const res = await apiClient.post<TrimOutliersResponse>(`datalab/trim-outliers/${datasetId}/`, body);
+    return res.data;
+  },
+
+  async imputeOutliers(datasetId: number, body: ImputeOutliersRequest): Promise<ImputeOutliersResponse> {
+    const res = await apiClient.post<ImputeOutliersResponse>(`datalab/impute-outliers/${datasetId}/`, body);
+    return res.data;
+  },
+
+  async capOutliers(datasetId: number, body: CapOutliersRequest): Promise<CapOutliersResponse> {
+    const res = await apiClient.post<CapOutliersResponse>(`datalab/cap-outliers/${datasetId}/`, body);
+    return res.data;
+  },
+
+  async transformColumn(datasetId: number, body: TransformColumnRequest): Promise<TransformColumnResponse> {
+    const res = await apiClient.post<TransformColumnResponse>(`datalab/transform-column/${datasetId}/`, body);
     return res.data;
   },
 };

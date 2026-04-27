@@ -3,7 +3,7 @@
 import React from "react";
 import {
     Loader2, Info, KeyRound, Layers, Eraser,
-    ChevronUp, ChevronDown, ChevronsUpDown, Search, X, ShieldCheck
+    ChevronUp, ChevronDown, ChevronsUpDown, Search, X, ShieldCheck, Activity
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,6 +22,7 @@ import { DatasetMetaStrip } from "./DatasetMetaStrip";
 import { DropDuplicatesDialog } from "./DropDuplicatesDialog";
 import { NullHandlingDialog } from "./NullHandlingDialog";
 import { ValidateFormulaDialog } from "./ValidateFormulaDialog";
+import { OutlierDialog } from "./OutlierDialog";
 import { CAST_TYPES, formatBytes } from "../_lib";
 
 type SortKey = "column" | "non_null_count" | "unique_count" | "null_count" | "null_pct";
@@ -40,6 +41,7 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
     const [dropDupOpen, setDropDupOpen] = React.useState(false);
     const [nullHandlingOpen, setNullHandlingOpen] = React.useState(false);
     const [auditOpen, setAuditOpen] = React.useState(false);
+    const [outlierOpen, setOutlierOpen] = React.useState(false);
     const [search, setSearch] = React.useState("");
     const [sortKey, setSortKey] = React.useState<SortKey | null>(null);
     const [sortDir, setSortDir] = React.useState<"asc" | "desc">("asc");
@@ -379,6 +381,16 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                     <ShieldCheck className="h-3 w-3" />
                     Formula Audit
                 </Button>
+
+                <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-sm rounded-none gap-1.5 border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 text-amber-700"
+                    onClick={() => setOutlierOpen(true)}
+                >
+                    <Activity className="h-3 w-3" />
+                    Handle Outliers
+                </Button>
             </div>
 
             <DropDuplicatesDialog
@@ -404,6 +416,14 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                 datasetId={datasetId}
                 columns={data.info.columns}
                 onSuccess={onRefetchAll}
+            />
+
+            <OutlierDialog
+                open={outlierOpen}
+                onOpenChange={setOutlierOpen}
+                datasetId={datasetId}
+                columns={data.info.columns}
+                onRefetchAll={onRefetchAll}
             />
         </div>
     );
