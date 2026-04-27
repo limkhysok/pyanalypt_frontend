@@ -1,14 +1,25 @@
 "use client";
 
 import { DatasetActivityLog } from "@/types/dataset";
-import { 
-    Clock, 
-    Upload, 
-    Edit2, 
-    Trash2, 
-    Copy, 
-    Download, 
-    Terminal
+import {
+    Clock,
+    Upload,
+    Edit2,
+    Trash2,
+    Copy,
+    Download,
+    Terminal,
+    Layers,
+    Filter,
+    RefreshCw,
+    Minus,
+    Plus,
+    Calculator,
+    Wrench,
+    Scissors,
+    BarChart2,
+    ArrowUpDown,
+    Zap,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { Card } from "@/components/ui/card";
@@ -19,20 +30,81 @@ interface DatasetLogsProps {
 }
 
 const ACTION_ICONS: Record<string, any> = {
-    UPLOAD:      Upload,
-    RENAME:      Edit2,
-    DELETE:      Trash2,
-    DUPLICATE:   Copy,
-    EXPORT:      Download,
+    UPLOAD:           Upload,
+    RENAME:           Edit2,
+    DELETE:           Trash2,
+    DUPLICATE:        Copy,
+    EXPORT:           Download,
+    CAST:             Layers,
+    RENAME_COLUMN:    Edit2,
+    DROP_DUPLICATES:  Filter,
+    REPLACE_VALUES:   RefreshCw,
+    DROP_NULLS:       Minus,
+    FILL_NULLS:       Plus,
+    FILL_DERIVED:     Calculator,
+    FIX_FORMULA:      Wrench,
+    TRIM_OUTLIERS:    Scissors,
+    IMPUTE_OUTLIERS:  BarChart2,
+    CAP_OUTLIERS:     ArrowUpDown,
+    TRANSFORM_COLUMN: Zap,
 };
 
 const ACTION_COLORS: Record<string, string> = {
-    UPLOAD:      "text-emerald-500 bg-emerald-500/10",
-    RENAME:      "text-blue-500 bg-blue-500/10",
-    DELETE:      "text-destructive bg-destructive/10",
-    DUPLICATE:   "text-purple-500 bg-purple-500/10",
-    EXPORT:      "text-amber-500 bg-amber-500/10",
+    UPLOAD:           "text-emerald-500 bg-emerald-500/10",
+    RENAME:           "text-blue-500 bg-blue-500/10",
+    DELETE:           "text-destructive bg-destructive/10",
+    DUPLICATE:        "text-purple-500 bg-purple-500/10",
+    EXPORT:           "text-amber-500 bg-amber-500/10",
+    CAST:             "text-blue-500 bg-blue-500/10",
+    RENAME_COLUMN:    "text-blue-500 bg-blue-500/10",
+    DROP_DUPLICATES:  "text-orange-500 bg-orange-500/10",
+    REPLACE_VALUES:   "text-cyan-500 bg-cyan-500/10",
+    DROP_NULLS:       "text-orange-500 bg-orange-500/10",
+    FILL_NULLS:       "text-teal-500 bg-teal-500/10",
+    FILL_DERIVED:     "text-teal-500 bg-teal-500/10",
+    FIX_FORMULA:      "text-purple-500 bg-purple-500/10",
+    TRIM_OUTLIERS:    "text-amber-500 bg-amber-500/10",
+    IMPUTE_OUTLIERS:  "text-amber-500 bg-amber-500/10",
+    CAP_OUTLIERS:     "text-amber-500 bg-amber-500/10",
+    TRANSFORM_COLUMN: "text-purple-500 bg-purple-500/10",
 };
+
+const ACTION_LABELS: Record<string, string> = {
+    UPLOAD:           "Upload",
+    RENAME:           "Rename",
+    DELETE:           "Delete",
+    DUPLICATE:        "Duplicate",
+    EXPORT:           "Export",
+    CAST:             "Cast Columns",
+    RENAME_COLUMN:    "Rename Column",
+    DROP_DUPLICATES:  "Drop Duplicates",
+    REPLACE_VALUES:   "Replace Values",
+    DROP_NULLS:       "Drop Nulls",
+    FILL_NULLS:       "Fill Nulls",
+    FILL_DERIVED:     "Fill Derived",
+    FIX_FORMULA:      "Fix Formula",
+    TRIM_OUTLIERS:    "Trim Outliers",
+    IMPUTE_OUTLIERS:  "Impute Outliers",
+    CAP_OUTLIERS:     "Cap Outliers",
+    TRANSFORM_COLUMN: "Transform Column",
+};
+
+function summarizeDetails(action: string, details: Record<string, any>): string | null {
+    if (!details || Object.keys(details).length === 0) return null;
+    if ("cells_filled" in details) {
+        const strategy = details.strategy ? ` using ${details.strategy} strategy` : "";
+        return `Filled ${details.cells_filled} cells${strategy}`;
+    }
+    if ("rows_dropped" in details) return `Dropped ${details.rows_dropped} rows`;
+    if ("columns_dropped" in details) return `Dropped ${details.columns_dropped} columns`;
+    if ("rows_before" in details && "rows_after" in details) {
+        return `${details.rows_before - details.rows_after} duplicates removed`;
+    }
+    if ("column" in details && "to_dtype" in details) return `Cast '${details.column}' → ${details.to_dtype}`;
+    if ("old_name" in details && "new_name" in details) return `'${details.old_name}' → '${details.new_name}'`;
+    if ("column" in details && "outliers_treated" in details) return `Treated ${details.outliers_treated} outliers in '${details.column}'`;
+    return null;
+}
 
 
 export function DatasetLogs({ logs, isLoading }: Readonly<DatasetLogsProps>) {
@@ -76,8 +148,8 @@ export function DatasetLogs({ logs, isLoading }: Readonly<DatasetLogsProps>) {
                                 
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center gap-3">
-                                        <span className="text-xs font-bold lowercase text-muted-foreground/60 w-24">
-                                            {log.action.replace("_", " ")}
+                                        <span className="text-xs font-bold text-muted-foreground/60 w-28 shrink-0">
+                                            {ACTION_LABELS[log.action] ?? log.action.replaceAll("_", " ")}
                                         </span>
                                         <span className="text-[15px] font-bold truncate tracking-tight">
                                             {log.dataset_name_snap}
@@ -96,16 +168,21 @@ export function DatasetLogs({ logs, isLoading }: Readonly<DatasetLogsProps>) {
                                             })}
                                         </div>
                                         
-                                        {/* Dynamic details badge */}
-                                        {Object.entries(log.details).map(([key, val]) => (
-                                            <div key={key} className="text-xs px-2 py-0.5 bg-muted font-bold text-muted-foreground/70 lowercase">
-                                                {key}: <span className="text-foreground/80">
-                                                    {typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean'
-                                                        ? String(val)
-                                                        : JSON.stringify(val)}
-                                                </span>
-                                            </div>
-                                        ))}
+                                        {/* Details summary */}
+                                        {(() => {
+                                            const summary = summarizeDetails(log.action, log.details);
+                                            return summary
+                                                ? <span className="text-xs text-muted-foreground/70 font-medium">{summary}</span>
+                                                : Object.entries(log.details).map(([key, val]) => (
+                                                    <div key={key} className="text-xs px-2 py-0.5 bg-muted font-bold text-muted-foreground/70">
+                                                        {key}: <span className="text-foreground/80">
+                                                            {typeof val === 'string' || typeof val === 'number' || typeof val === 'boolean'
+                                                                ? String(val)
+                                                                : JSON.stringify(val)}
+                                                        </span>
+                                                    </div>
+                                                ));
+                                        })()}
                                     </div>
                                 </div>
                             </div>

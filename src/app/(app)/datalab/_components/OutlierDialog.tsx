@@ -36,6 +36,7 @@ import type {
     TransformFunction,
 } from "@/services/api";
 import { toast } from "sonner";
+import { displayCell } from "../_lib";
 
 type Step = "detect" | "trim" | "impute" | "cap" | "transform";
 type Method = "iqr" | "zscore";
@@ -125,8 +126,8 @@ export function OutlierDialog({
     // ── Handlers ──
     async function handleDetect() {
         if (detectCols.length === 0) { toast.error("Select at least one column."); return; }
-        const threshold = parseFloat(detectThreshold);
-        if (isNaN(threshold) || threshold <= 0) { toast.error("Threshold must be a positive number."); return; }
+        const threshold = Number.parseFloat(detectThreshold);
+        if (Number.isNaN(threshold) || threshold <= 0) { toast.error("Threshold must be a positive number."); return; }
         setLoading(true);
         try {
             const res = await datalabApi.detectOutliers(datasetId, {
@@ -144,8 +145,8 @@ export function OutlierDialog({
 
     async function handleTrim() {
         if (trimCols.length === 0) { toast.error("Select at least one column."); return; }
-        const threshold = parseFloat(trimThreshold);
-        if (isNaN(threshold) || threshold <= 0) { toast.error("Threshold must be a positive number."); return; }
+        const threshold = Number.parseFloat(trimThreshold);
+        if (Number.isNaN(threshold) || threshold <= 0) { toast.error("Threshold must be a positive number."); return; }
         setLoading(true);
         try {
             const res = await datalabApi.trimOutliers(datasetId, { columns: trimCols, method: trimMethod, threshold });
@@ -165,8 +166,8 @@ export function OutlierDialog({
 
     async function handleImpute() {
         if (imputeCols.length === 0) { toast.error("Select at least one column."); return; }
-        const threshold = parseFloat(imputeThreshold);
-        if (isNaN(threshold) || threshold <= 0) { toast.error("Threshold must be a positive number."); return; }
+        const threshold = Number.parseFloat(imputeThreshold);
+        if (Number.isNaN(threshold) || threshold <= 0) { toast.error("Threshold must be a positive number."); return; }
         setLoading(true);
         try {
             const res = await datalabApi.imputeOutliers(datasetId, {
@@ -244,21 +245,21 @@ export function OutlierDialog({
     const fTransform = numericCols.filter((c) => c.column.toLowerCase().includes(transformSearch.toLowerCase()));
 
     const STEP_META: Record<Step, { title: string; desc: string }> = {
-        detect: { title: "Detect Outliers", desc: "Audit numeric columns for outliers. No data is changed." },
-        trim: { title: "Trim — Delete Outlier Rows", desc: "Remove rows where any selected column contains an outlier. Irreversible — run Detect first to preview." },
-        impute: { title: "Impute — Replace Outlier Values", desc: "Replace outlier values in-place with a statistical aggregate. Rows are kept." },
-        cap: { title: "Cap — Winsorize to Percentile Bounds", desc: "Clamp extreme values to percentile fences. No rows are deleted." },
-        transform: { title: "Transform — Apply Log / Sqrt / Cbrt", desc: "Reduce skew with a mathematical transformation. Affects all values, not just outliers." },
+        detect:    { title: "Find Outliers",        desc: "Scan numeric columns to see where outliers are. No changes are made." },
+        trim:      { title: "Remove Outlier Rows",  desc: "Delete rows that contain outlier values. Cannot be undone — run Detect first to preview." },
+        impute:    { title: "Replace Outlier Values", desc: "Swap outlier values with the column median, mean, or mode. Rows are kept." },
+        cap:       { title: "Cap Extreme Values",   desc: "Clamp values that are too high or too low to a percentile boundary. No rows are removed." },
+        transform: { title: "Reduce Skew",          desc: "Apply a math function (log, sqrt, cbrt) to compress a skewed column. Affects all values." },
     };
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent className="rounded-none max-w-3xl p-0 gap-0 overflow-hidden border-border/60">
-                <div className="flex h-[550px]">
+                <div className="flex h-137.5">
                     {/* ── Sidebar ── */}
                     <div className="w-48 bg-muted/30 border-r border-border/60 p-4 flex flex-col gap-1 shrink-0">
                         <div className="mb-4">
-                            <h3 className="text-[13px] font-bold tracking-wider text-muted-foreground">Outlier Tools</h3>
+                            <h3 className="text-[13px] font-bold tracking-wider text-muted-foreground">Tools</h3>
                         </div>
                         <StepButton id="detect" label="Detect" icon={<Activity className="h-3.5 w-3.5" />} active={step === "detect"} done={!!detectResults} onClick={() => setStep("detect")} />
                         <StepButton id="trim" label="Trim Rows" icon={<Scissors className="h-3.5 w-3.5" />} active={step === "trim"} done={!!trimResult} onClick={() => setStep("trim")} />
@@ -267,7 +268,7 @@ export function OutlierDialog({
                         <StepButton id="transform" label="Transform" icon={<TrendingUp className="h-3.5 w-3.5" />} active={step === "transform"} done={!!transformResult} onClick={() => setStep("transform")} />
                         <div className="mt-auto pt-4 border-t border-border/40">
                             <p className="text-[13px] text-muted-foreground leading-tight italic">
-                                Detect first — then apply a treatment to each flagged column.
+                                Scan first, then apply a fix to the columns that need it.
                             </p>
                         </div>
                     </div>
@@ -525,10 +526,12 @@ function OutlierCard({ column, stats }: Readonly<{ column: string; stats: Outlie
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {stats.sample_outliers.slice(0, 3).map((row, i) => (
-                                        <tr key={i} className="border-b border-amber-500/10 last:border-0">
+                                    {stats.sample_outliers.slice(0, 3).map((row) => (
+                                        <tr key={row.row_index as number} className="border-b border-amber-500/10 last:border-0">
                                             <td className="px-2 py-0.5 text-muted-foreground font-mono">{String(row.row_index)}</td>
-                                            <td className="px-2 py-0.5 text-right font-mono font-bold text-amber-600">{String(row[column] ?? "")}</td>
+                                            <td className="px-2 py-0.5 text-right font-mono font-bold text-amber-600">
+                                                {displayCell(row[column])}
+                                            </td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -568,7 +571,7 @@ function TrimStep({
             ) : (
                 <div className="flex items-start gap-2 p-3 border border-amber-500/30 bg-amber-500/5 text-amber-700">
                     <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0" />
-                    <p className="text-[13px]">Rows containing outlier values in any selected column will be permanently deleted. This cannot be undone.</p>
+                    <p className="text-[13px]">Rows with outlier values in any selected column will be permanently deleted. This cannot be undone.</p>
                 </div>
             )}
             <MethodThreshold
@@ -591,9 +594,9 @@ function TrimStep({
 // ── Impute Step ──────────────────────────────────────────────────────────────
 
 const IMPUTE_STRATEGIES: { value: ImputeOutliersStrategy; label: string; note: string }[] = [
-    { value: "median", label: "Median", note: "Default — robust to extreme values" },
-    { value: "mean", label: "Mean", note: "Symmetric distributions only" },
-    { value: "mode", label: "Mode", note: "Discrete or count columns" },
+    { value: "median", label: "Median",         note: "Middle value — good default, ignores extremes" },
+    { value: "mean",   label: "Average (mean)", note: "Works well when data is evenly spread" },
+    { value: "mode",   label: "Most common",    note: "Best for whole numbers or categories" },
 ];
 
 function ImputeStep({
@@ -622,7 +625,7 @@ function ImputeStep({
                 </ResultBanner>
             )}
             <div className="space-y-2">
-                <Label className="text-sm font-semibold">Replacement Strategy</Label>
+                <Label className="text-sm font-semibold">Replace outliers with</Label>
                 <div className="grid grid-cols-3 gap-2">
                     {IMPUTE_STRATEGIES.map((s) => (
                         <button
@@ -693,7 +696,7 @@ function CapStep({
                         min="0"
                         max={String(upperPct - 1)}
                         value={lowerPct}
-                        onChange={(e) => onLowerPctChange(parseInt(e.target.value))}
+                        onChange={(e) => onLowerPctChange(Number.parseInt(e.target.value))}
                         className="h-4 accent-primary cursor-pointer border-none p-0"
                     />
                 </div>
@@ -707,12 +710,12 @@ function CapStep({
                         min={String(lowerPct + 1)}
                         max="100"
                         value={upperPct}
-                        onChange={(e) => onUpperPctChange(parseInt(e.target.value))}
+                        onChange={(e) => onUpperPctChange(Number.parseInt(e.target.value))}
                         className="h-4 accent-primary cursor-pointer border-none p-0"
                     />
                 </div>
                 <p className="text-[13px] text-muted-foreground italic">
-                    Values below the {lowerPct}th percentile and above the {upperPct}th percentile will be clamped to those bounds.
+                    Values below the {lowerPct}th or above the {upperPct}th percentile will be clipped to that boundary.
                 </p>
             </div>
             <NumericColumnPicker
@@ -758,7 +761,7 @@ function TransformStep({
                     )}
                     {result.skipped_columns.length > 0 && (
                         <div className="border border-amber-500/30 bg-amber-500/5 p-3 space-y-1.5">
-                            <p className="text-[13px] font-semibold text-amber-700">Skipped — constraint not met:</p>
+                            <p className="text-[13px] font-semibold text-amber-700">Could not apply — reason:</p>
                             {result.skipped_columns.map((s) => (
                                 <p key={s.column} className="text-[13px] text-muted-foreground font-mono">
                                     <span className="font-bold text-foreground">{s.column}</span>: {s.reason}
@@ -813,7 +816,7 @@ function MethodThreshold({
     return (
         <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-                <Label className="text-sm font-semibold">Detection Method</Label>
+                <Label className="text-sm font-semibold">Method</Label>
                 <div className="flex gap-1 p-1 bg-muted/50 border border-border/40">
                     <Button
                         variant={method === "iqr" ? "secondary" : "ghost"}
@@ -834,8 +837,8 @@ function MethodThreshold({
                 </div>
                 <p className="text-[13px] text-muted-foreground italic">
                     {method === "iqr"
-                        ? "Fence multiplier — 1.5 standard, 3.0 for extreme outliers"
-                        : "Std deviations from mean — 2 or 3 standard"}
+                        ? "Use 1.5 for typical outliers, 3.0 for only the most extreme"
+                        : "Use 2 or 3 — higher means fewer values flagged"}
                 </p>
             </div>
             <div className="space-y-2">
@@ -848,7 +851,7 @@ function MethodThreshold({
                     onChange={(e) => onThresholdChange(e.target.value)}
                     className="h-9 text-sm rounded-none font-mono"
                 />
-                <p className="text-[13px] text-muted-foreground italic">Lower = more sensitive</p>
+                <p className="text-[13px] text-muted-foreground italic">Lower value = more values flagged as outliers</p>
             </div>
         </div>
     );

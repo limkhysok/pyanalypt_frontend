@@ -39,12 +39,12 @@ import { toast } from "sonner";
 type Step = "replace" | "derive" | "drop" | "fill";
 
 const STRATEGIES: { value: FillNullsStrategy; label: string; notes: string }[] = [
-    { value: "median", label: "Fill with median", notes: "Best for numeric — robust to outliers" },
-    { value: "mean", label: "Fill with mean", notes: "Numeric only — sensitive to outliers" },
-    { value: "mode", label: "Fill with most frequent value", notes: "Works on any dtype" },
-    { value: "constant", label: "Fill with custom value", notes: "Shows extra input for value" },
-    { value: "ffill", label: "Forward fill", notes: "For time-ordered data — uses previous row" },
-    { value: "bfill", label: "Backward fill", notes: "For time-ordered data — uses next row" },
+    { value: "median", label: "Median",            notes: "Middle value — good default for numbers" },
+    { value: "mean",   label: "Average (mean)",    notes: "Sum divided by count — sensitive to extremes" },
+    { value: "mode",   label: "Most common value", notes: "Works on any column type" },
+    { value: "constant", label: "Custom value",    notes: "You type the value to use" },
+    { value: "ffill",  label: "Copy from above",   notes: "Uses the value from the previous row" },
+    { value: "bfill",  label: "Copy from below",   notes: "Uses the value from the next row" },
 ];
 
 export function NullHandlingDialog({
@@ -250,40 +250,36 @@ export function NullHandlingDialog({
                     {/* ── Sidebar Stepper ── */}
                     <div className="w-48 bg-muted/30 border-r border-border/60 p-4 flex flex-col gap-1">
                         <div className="mb-4">
-                            <h3 className="text-[13px] font-bold tracking-wider text-muted-foreground">Pipeline</h3>
+                            <h3 className="text-[13px] font-bold tracking-wider text-muted-foreground">Steps</h3>
                         </div>
-                        <StepButton 
-                            id="replace" 
-                            label="Replace Values" 
-                            active={step === "replace"} 
-                            icon={<Eraser className="h-3.5 w-3.5" />} 
+                        <StepButton
+                            label="Fix Bad Values"
+                            active={step === "replace"}
+                            icon={<Eraser className="h-3.5 w-3.5" />}
                             onClick={() => setStep("replace")}
                         />
-                        <StepButton 
-                            id="derive" 
-                            label="Derive Values" 
-                            active={step === "derive"} 
-                            icon={<Calculator className="h-3.5 w-3.5" />} 
+                        <StepButton
+                            label="Fill from Formula"
+                            active={step === "derive"}
+                            icon={<Calculator className="h-3.5 w-3.5" />}
                             onClick={() => setStep("derive")}
                         />
-                        <StepButton 
-                            id="drop" 
-                            label="Drop Nulls" 
-                            active={step === "drop"} 
-                            icon={<Trash2 className="h-3.5 w-3.5" />} 
+                        <StepButton
+                            label="Remove Empty"
+                            active={step === "drop"}
+                            icon={<Trash2 className="h-3.5 w-3.5" />}
                             onClick={() => setStep("drop")}
                         />
-                        <StepButton 
-                            id="fill" 
-                            label="Fill Nulls" 
-                            active={step === "fill"} 
-                            icon={<PaintBucket className="h-3.5 w-3.5" />} 
+                        <StepButton
+                            label="Fill Gaps"
+                            active={step === "fill"}
+                            icon={<PaintBucket className="h-3.5 w-3.5" />}
                             onClick={() => setStep("fill")}
                         />
 
                         <div className="mt-auto pt-4 border-t border-border/40">
                             <p className="text-[13px] text-muted-foreground leading-tight italic">
-                                Recommended order: Replace dirty strings → Drop heavily empty rows/cols → Fill remaining nulls.
+                                Tip: Fix bad strings first, then remove heavily empty rows, then fill what's left.
                             </p>
                         </div>
                     </div>
@@ -292,16 +288,16 @@ export function NullHandlingDialog({
                     <div className="flex-1 flex flex-col bg-background">
                         <DialogHeader className="p-6 pb-4">
                             <DialogTitle className="text-sm font-bold flex items-center gap-2">
-                                {step === "replace" && "Step 1: Replace Sentinel Values"}
-                                {step === "derive" && "Step 2: Derive Missing Values"}
-                                {step === "drop" && "Step 3: Drop Null Rows/Columns"}
-                                {step === "fill" && "Step 4: Fill Remaining Nulls"}
+                                {step === "replace" && "Step 1 — Fix Bad Values"}
+                                {step === "derive" && "Step 2 — Fill from Formula"}
+                                {step === "drop" && "Step 3 — Remove Empty Data"}
+                                {step === "fill" && "Step 4 — Fill Empty Cells"}
                             </DialogTitle>
                             <DialogDescription className="text-[13px]">
-                                {step === "replace" && "Convert 'N/A', '-', or other strings into real nulls (NaN)."}
-                                {step === "derive" && "Use arithmetic to recover nulls from other columns (e.g. Price = Qty * Unit)."}
-                                {step === "drop" && "Remove data that is too empty to be useful."}
-                                {step === "fill" && "Impute missing values using a statistical strategy."}
+                                {step === "replace" && "Replace placeholder text like 'N/A', '-', or '?' with a real empty value."}
+                                {step === "derive" && "Calculate missing values from other columns — e.g. Total = Qty × Price."}
+                                {step === "drop" && "Delete rows or columns that are too empty to be useful."}
+                                {step === "fill" && "Replace empty cells with a calculated or fixed value."}
                             </DialogDescription>
                         </DialogHeader>
 
@@ -309,7 +305,7 @@ export function NullHandlingDialog({
                             {step === "replace" && (
                                 <div className="space-y-6">
                                     <div className="space-y-3">
-                                        <Label className="text-sm font-semibold">Values to find</Label>
+                                        <Label className="text-sm font-semibold">Text to replace</Label>
                                         <div className="flex flex-wrap gap-1.5 p-2 border bg-muted/10 min-h-10">
                                             {replaceKeys.map((k) => (
                                                 <Badge key={k} variant="secondary" className="rounded-none text-[13px] py-0 h-5 gap-1 pr-1 font-mono">
@@ -339,7 +335,7 @@ export function NullHandlingDialog({
                                                 className="h-8 text-sm rounded-none font-mono"
                                             />
                                             {replaceValue === "" && (
-                                                <span className="text-[13px] text-muted-foreground italic shrink-0">Empty = Null</span>
+                                                <span className="text-[13px] text-muted-foreground italic shrink-0">Leave blank → empty cell</span>
                                             )}
                                         </div>
                                     </div>
@@ -369,14 +365,13 @@ export function NullHandlingDialog({
                             )}
 
                             {step === "drop" && (
-                                <DropStep 
+                                <DropStep
                                     dropAxis={dropAxis}
                                     setDropAxis={setDropAxis}
                                     dropHow={dropHow}
                                     setDropHow={setDropHow}
                                     threshPct={threshPct}
                                     setThreshPct={setThreshPct}
-                                    columns={columns}
                                     filteredCols={filteredCols}
                                     selectedCols={selectedCols}
                                     toggleColumn={toggleColumn}
@@ -445,13 +440,16 @@ export function NullHandlingDialog({
                                     if (step === "drop") handleDrop();
                                     if (step === "fill") handleFill();
                                 }}
-                                disabled={loading || (step === "fill" && fillStrategy === "constant" && !fillValue)}
+                                disabled={loading
+                                    || (step === "fill" && fillStrategy === "constant" && !fillValue)
+                                    || (step === "derive" && deriveTarget !== "" && !columns.some(c => c.column === deriveTarget && (c.dtype.includes("int") || c.dtype.includes("float"))))
+                                }
                             >
                                 {loading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-                                {step === "replace" && "Apply & Next"}
-                                {step === "derive" && "Derive & Next"}
-                                {step === "drop" && "Drop & Next"}
-                                {step === "fill" && "Finish & Fill"}
+                                {step === "replace" && "Apply & Continue"}
+                                {step === "derive" && "Apply & Continue"}
+                                {step === "drop" && "Remove & Continue"}
+                                {step === "fill" && "Fill & Finish"}
                                 {!loading && <ChevronRight className="h-3.5 w-3.5" />}
                             </Button>
                         </div>
@@ -486,13 +484,13 @@ function DeriveStep({
         <div className="space-y-6">
             <div className="grid grid-cols-1 gap-6">
                 <div className="space-y-3">
-                    <Label className="text-sm font-semibold">Target Column (to fill)</Label>
+                    <Label className="text-sm font-semibold">Column to fill</Label>
                     <Select value={deriveTarget} onValueChange={setDeriveTarget}>
                         <SelectTrigger className="h-9 rounded-none font-mono text-[13px]">
                             <SelectValue placeholder="Select target column..." />
                         </SelectTrigger>
                         <SelectContent className="rounded-none">
-                            {columns.map(c => (
+                            {columns.filter(c => c.dtype.includes("int") || c.dtype.includes("float")).map(c => (
                                 <SelectItem key={c.column} value={c.column} className="font-mono rounded-none text-[13px]">
                                     {c.column} {c.null_count > 0 && `(${c.null_count} nulls)`}
                                 </SelectItem>
@@ -503,7 +501,7 @@ function DeriveStep({
 
                 <div className="flex items-end gap-3">
                     <div className="flex-1 space-y-3">
-                        <Label className="text-sm font-semibold">Operand A</Label>
+                        <Label className="text-sm font-semibold">Column A</Label>
                         <Select value={deriveOpA} onValueChange={setDeriveOpA}>
                             <SelectTrigger className="h-9 rounded-none font-mono text-[13px]">
                                 <SelectValue placeholder="Select column..." />
@@ -519,7 +517,7 @@ function DeriveStep({
                     </div>
 
                     <div className="w-24 space-y-3">
-                        <Label className="text-sm font-semibold text-center">Formula</Label>
+                        <Label className="text-sm font-semibold text-center">Operation</Label>
                         <Select value={deriveFormula} onValueChange={(v) => setDeriveFormula(v as ArithmeticFormula)}>
                             <SelectTrigger className="h-9 rounded-none font-mono text-center text-[13px]">
                                 <SelectValue />
@@ -534,7 +532,7 @@ function DeriveStep({
                     </div>
 
                     <div className="flex-1 space-y-3">
-                        <Label className="text-sm font-semibold">Operand B</Label>
+                        <Label className="text-sm font-semibold">Column B</Label>
                         <Select value={deriveOpB} onValueChange={setDeriveOpB}>
                             <SelectTrigger className="h-9 rounded-none font-mono text-[13px]">
                                 <SelectValue placeholder="Select column..." />
@@ -552,10 +550,10 @@ function DeriveStep({
 
                 <div className="p-4 bg-muted/20 border border-dashed border-border/60">
                     <p className="text-[13px] text-muted-foreground leading-relaxed italic">
-                        Rows where <span className="font-bold text-foreground font-mono">{deriveTarget || "target"}</span> is null will be computed as:
+                        Empty cells in <span className="font-bold text-foreground font-mono">{deriveTarget || "column to fill"}</span> will be set to:
                         <br />
                         <span className="font-bold text-primary font-mono ml-2">
-                            {deriveOpA || "op_a"} {symbol} {deriveOpB || "op_b"}
+                            {deriveOpA || "Column A"} {symbol} {deriveOpB || "Column B"}
                         </span>
                     </p>
                 </div>
@@ -565,7 +563,7 @@ function DeriveStep({
 }
 
 function DropStep({
-    dropAxis, setDropAxis, dropHow, setDropHow, threshPct, setThreshPct, columns, filteredCols, selectedCols, toggleColumn, colSearch, setColSearch, columnsToDropPreview
+    dropAxis, setDropAxis, dropHow, setDropHow, threshPct, setThreshPct, filteredCols, selectedCols, toggleColumn, colSearch, setColSearch, columnsToDropPreview
 }: Readonly<{
     dropAxis: "rows" | "columns",
     setDropAxis: (s: "rows" | "columns") => void,
@@ -573,7 +571,6 @@ function DropStep({
     setDropHow: (s: "any" | "all") => void,
     threshPct: number,
     setThreshPct: (n: number) => void,
-    columns: DataLabInspectColumn[],
     filteredCols: DataLabInspectColumn[],
     selectedCols: string[],
     toggleColumn: (s: string) => void,
@@ -605,27 +602,27 @@ function DropStep({
             {dropAxis === "rows" ? (
                 <div className="space-y-6">
                     <div className="space-y-3">
-                        <Label className="text-sm font-semibold">Condition</Label>
+                        <Label className="text-sm font-semibold">Remove a row when...</Label>
                         <div className="grid grid-cols-2 gap-2">
-                            <button 
+                            <button
                                 onClick={() => setDropHow("any")}
                                 className={cn(
                                     "p-3 border text-left transition-all rounded-none",
                                     dropHow === "any" ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border hover:bg-muted/30"
                                 )}
                             >
-                                <p className="text-sm font-bold tracking-tight">Any Null</p>
-                                <p className="text-[13px] text-muted-foreground mt-1">Drop row if at least one selected column is null.</p>
+                                <p className="text-sm font-bold tracking-tight">Any column is empty</p>
+                                <p className="text-[13px] text-muted-foreground mt-1">Remove the row if at least one of the selected columns is empty.</p>
                             </button>
-                            <button 
+                            <button
                                 onClick={() => setDropHow("all")}
                                 className={cn(
                                     "p-3 border text-left transition-all rounded-none",
                                     dropHow === "all" ? "border-primary bg-primary/5 ring-1 ring-primary" : "border-border hover:bg-muted/30"
                                 )}
                             >
-                                <p className="text-sm font-bold tracking-tight">All Null</p>
-                                <p className="text-[13px] text-muted-foreground mt-1">Drop row only if all selected columns are null.</p>
+                                <p className="text-sm font-bold tracking-tight">All columns are empty</p>
+                                <p className="text-[13px] text-muted-foreground mt-1">Remove the row only if every selected column is empty.</p>
                             </button>
                         </div>
                     </div>
@@ -643,10 +640,10 @@ function DropStep({
                 <div className="space-y-6">
                     <div className="space-y-3">
                         <div className="flex justify-between items-center">
-                            <Label className="text-sm font-semibold">Null Threshold</Label>
+                            <Label className="text-sm font-semibold">How empty is too empty?</Label>
                             <span className="text-sm font-mono font-bold text-primary">{threshPct}%</span>
                         </div>
-                        <Input 
+                        <Input
                             type="range"
                             min="0"
                             max="100"
@@ -655,12 +652,12 @@ function DropStep({
                             className="h-4 accent-primary cursor-pointer border-none p-0"
                         />
                         <p className="text-[13px] text-muted-foreground italic">
-                            Drop columns where more than {threshPct}% of values are null.
+                            Remove any column where more than {threshPct}% of its values are empty.
                         </p>
                     </div>
 
                     <div className="space-y-3">
-                        <Label className="text-sm font-semibold">Drop Preview</Label>
+                        <Label className="text-sm font-semibold">Columns that will be removed</Label>
                         <div className="border border-border/40 p-3 min-h-20 bg-muted/10">
                             {columnsToDropPreview.length > 0 ? (
                                 <div className="flex flex-wrap gap-1.5">
@@ -738,7 +735,7 @@ function FillStep({
     );
 }
 
-function StepButton({ id, label, active, icon, onClick }: Readonly<{ id: string, label: string, active: boolean, icon: React.ReactNode, onClick: () => void }>) {
+function StepButton({ label, active, icon, onClick }: Readonly<{ label: string, active: boolean, icon: React.ReactNode, onClick: () => void }>) {
     return (
         <button
             onClick={onClick}

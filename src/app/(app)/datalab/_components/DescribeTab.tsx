@@ -34,9 +34,9 @@ export function DescribeTab({ data, preview }: Readonly<{
         const cat: Record<string, DataLabDescribeCategoricalStats> = {};
         for (const [col, stats] of Object.entries(data.columns)) {
             if ("mean" in stats || "std" in stats || "min" in stats || "max" in stats) {
-                num[col] = stats as DataLabDescribeNumericStats;
+                num[col] = stats;
             } else {
-                cat[col] = stats as DataLabDescribeCategoricalStats;
+                cat[col] = stats;
             }
         }
         return { numericCols: num, categoricalCols: cat };
@@ -119,7 +119,7 @@ export function DescribeTab({ data, preview }: Readonly<{
                                                 </td>
                                                 {numericNames.map((col) => (
                                                     <td key={col} className="px-5 py-2.5 text-[15px] tabular-nums text-right text-foreground/80 whitespace-nowrap">
-                                                        {fmtNum(numericCols[col][stat as keyof DataLabDescribeNumericStats] as number | undefined)}
+                                                        {fmtNum(numericCols[col][stat as keyof DataLabDescribeNumericStats])}
                                                     </td>
                                                 ))}
                                             </tr>

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Loader2, AlertTriangle, KeyRound } from "lucide-react";
+import { Loader2, AlertTriangle, KeyRound, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     Dialog,
@@ -30,10 +30,10 @@ interface Column {
 }
 
 const MODES: { value: DropDuplicatesMode; label: string; description: string }[] = [
-    { value: "all_first", label: "Remove duplicates — keep first", description: "Keep the first occurrence of each duplicate row." },
-    { value: "all_last", label: "Remove duplicates — keep last", description: "Keep the last occurrence of each duplicate row." },
-    { value: "subset_keep", label: "Remove duplicates by column — keep first/last", description: "Check for duplicates within selected columns only." },
-    { value: "drop_all", label: "Drop all copies of any duplicate", description: "Remove every copy of any duplicated row — no survivors." },
+    { value: "all_first",   label: "Keep first match",         description: "If a row appears more than once, keep the first one and remove the rest." },
+    { value: "all_last",    label: "Keep last match",          description: "If a row appears more than once, keep the last one and remove the rest." },
+    { value: "subset_keep", label: "Match by specific columns", description: "Two rows count as duplicates only when the selected columns match." },
+    { value: "drop_all",    label: "Remove all copies",        description: "If any row is repeated, delete every copy — nothing is kept." },
 ];
 
 export function DropDuplicatesDialog({ open, onOpenChange, datasetId, columns, onSuccess }: Readonly<{
@@ -91,7 +91,7 @@ export function DropDuplicatesDialog({ open, onOpenChange, datasetId, columns, o
             }
         } catch (err: unknown) {
             const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
-            toast.error(detail ?? "Failed to drop duplicates.");
+            toast.error(detail ?? "Could not remove duplicates. Please try again.");
         } finally {
             setLoading(false);
         }
@@ -101,23 +101,25 @@ export function DropDuplicatesDialog({ open, onOpenChange, datasetId, columns, o
         <Dialog open={open} onOpenChange={handleClose}>
             <DialogContent className="rounded-none max-w-md gap-4">
                 <DialogHeader>
-                    <DialogTitle className="text-sm font-bold">Drop Duplicates</DialogTitle>
+                    <div className="flex items-center gap-2 mb-0.5">
+                        <Copy className="h-4 w-4 text-muted-foreground" />
+                        <DialogTitle className="text-sm font-bold">Remove Duplicate Rows</DialogTitle>
+                    </div>
                     <DialogDescription className="text-sm text-muted-foreground">
-                        Configure which duplicate rows to remove from this dataset.
+                        Choose how to handle rows that appear more than once.
                     </DialogDescription>
                 </DialogHeader>
 
                 <div className="flex items-start gap-2 px-3 py-2.5 border border-amber-500/30 bg-amber-500/5">
                     <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0 text-amber-600" />
                     <p className="text-[13px] font-medium leading-relaxed text-amber-700 dark:text-amber-400">
-                        This will permanently remove duplicate rows from your dataset file on disk. This action cannot be undone.
+                        Removed rows cannot be recovered. Make sure you have a backup if needed.
                     </p>
                 </div>
 
                 <div className="space-y-4">
-                    {/* Mode selector */}
                     <div className="space-y-1.5">
-                        <p className="text-sm font-semibold">Strategy</p>
+                        <p className="text-sm font-semibold">What should happen to duplicates?</p>
                         <div className="border border-border/50 divide-y divide-border/50">
                             {MODES.map((m) => {
                                 const selected = mode === m.value;
@@ -143,7 +145,7 @@ export function DropDuplicatesDialog({ open, onOpenChange, datasetId, columns, o
                                             {selected && <span className="block h-1.5 w-1.5 bg-primary-foreground" />}
                                         </span>
                                         <span className="space-y-0.5">
-                                            <span className="block text-sm font-medium">{m.label}</span>
+                                            <span className="block text-sm font-semibold">{m.label}</span>
                                             <span className={cn(
                                                 "block text-[13px]",
                                                 selected ? "text-primary-foreground/70" : "text-muted-foreground"
@@ -157,13 +159,12 @@ export function DropDuplicatesDialog({ open, onOpenChange, datasetId, columns, o
                         </div>
                     </div>
 
-                    {/* Column picker */}
                     {showColumnPicker && (
                         <div className="space-y-1.5">
                             <p className="text-sm font-semibold">
-                                Columns{" "}
+                                Which columns to check{" "}
                                 <span className="text-muted-foreground font-normal">
-                                    {mode === "subset_keep" ? "— required" : "— optional, leave empty to check all"}
+                                    {mode === "subset_keep" ? "(required)" : "(optional — leave empty to check all)"}
                                 </span>
                             </p>
                             <ScrollArea className="h-40 border border-border/50">
@@ -208,17 +209,16 @@ export function DropDuplicatesDialog({ open, onOpenChange, datasetId, columns, o
                         </div>
                     )}
 
-                    {/* Keep selector */}
                     {showKeepSelector && (
                         <div className="space-y-1.5">
-                            <p className="text-sm font-semibold">Keep</p>
+                            <p className="text-sm font-semibold">Which copy to keep?</p>
                             <Select value={keep} onValueChange={(v) => setKeep(v as "first" | "last")}>
                                 <SelectTrigger className="rounded-none h-8 text-sm">
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent className="rounded-none">
-                                    <SelectItem value="first" className="text-sm rounded-none">first — keep first occurrence</SelectItem>
-                                    <SelectItem value="last" className="text-sm rounded-none">last — keep last occurrence</SelectItem>
+                                    <SelectItem value="first" className="text-sm rounded-none">First — keep the earliest row</SelectItem>
+                                    <SelectItem value="last" className="text-sm rounded-none">Last — keep the most recent row</SelectItem>
                                 </SelectContent>
                             </Select>
                         </div>
@@ -231,7 +231,7 @@ export function DropDuplicatesDialog({ open, onOpenChange, datasetId, columns, o
                     </Button>
                     <Button size="sm" className="rounded-none text-sm h-8 gap-1.5" onClick={handleConfirm} disabled={submitDisabled}>
                         {loading && <Loader2 className="h-3 w-3 animate-spin" />}
-                        Drop Duplicates
+                        Remove Duplicates
                     </Button>
                 </DialogFooter>
             </DialogContent>

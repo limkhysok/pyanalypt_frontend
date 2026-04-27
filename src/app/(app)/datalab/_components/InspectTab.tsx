@@ -5,6 +5,7 @@ import {
     Loader2, Info, KeyRound, Layers, Eraser,
     ChevronUp, ChevronDown, ChevronsUpDown, Search, X, ShieldCheck, Activity
 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -93,12 +94,17 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
             setCastWarnings(null);
             setCastResults(result.updated_columns);
             const hasErrors = result.updated_columns.some((c) => c.status.startsWith("error"));
+            const hasWarnings = result.updated_columns.some((c) => c.status === "warning");
             if (hasErrors) {
                 toast.warning("Some columns could not be cast. Check highlighted rows.");
+            } else if (hasWarnings) {
+                toast.warning("Cast completed with warnings — null values may have become literal 'nan' strings.");
+                setPendingCasts({});
+                onRefetchAll();
             } else {
                 toast.success("Columns cast successfully.");
                 setPendingCasts({});
-                onRefetchInspect();
+                onRefetchAll();
             }
         } catch (err: unknown) {
             const errData = (err as { response?: { data?: { warnings?: CastWarning[]; errors?: string[] } } })?.response?.data;
@@ -252,6 +258,18 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                             {visibleColumns.map((col) => {
                                 const result = castResults?.find((r) => r.column === col.column);
                                 const hasError = result?.status.startsWith("error");
+                                const hasWarning = result?.status === "warning";
+
+                                let statusClassName = "bg-green-500/10 text-green-600 border-green-500/20";
+                                let statusLabel = "Success";
+
+                                if (hasError) {
+                                    statusClassName = "bg-red-500/10 text-red-500 border-red-500/20";
+                                    statusLabel = result?.status ?? "Error";
+                                } else if (hasWarning) {
+                                    statusClassName = "bg-amber-500/10 text-amber-600 border-amber-500/20";
+                                    statusLabel = "Warning";
+                                }
                                 return (
                                     <tr
                                         key={col.column}
@@ -263,7 +281,14 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                                         <td className="px-5 py-2.5 text-sm font-medium">
                                             <div className="flex items-center gap-1.5">
                                                 {col.is_unique && (
-                                                    <KeyRound className="h-3 w-3 text-amber-500 shrink-0" />
+                                                    <TooltipProvider delayDuration={200}>
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <KeyRound className="h-3 w-3 text-amber-500 shrink-0 cursor-help" />
+                                                            </TooltipTrigger>
+                                                            <TooltipContent>All non-null values are unique</TooltipContent>
+                                                        </Tooltip>
+                                                    </TooltipProvider>
                                                 )}
                                                 {col.column}
                                             </div>
@@ -308,14 +333,21 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                                                 </Select>
 
                                                 {result && (
-                                                    <span className={cn(
-                                                        "text-[13px] font-mono px-1.5 py-0.5 rounded-none border",
-                                                        hasError
-                                                            ? "bg-red-500/10 text-red-500 border-red-500/20"
-                                                            : "bg-green-500/10 text-green-600 border-green-500/20"
-                                                    )}>
-                                                        {hasError ? result.status : "Success"}
-                                                    </span>
+                                                    <TooltipProvider delayDuration={200}>
+                                                        <Tooltip>
+                                                            <TooltipTrigger asChild>
+                                                                <span className={cn(
+                                                                    "text-[13px] font-mono px-1.5 py-0.5 rounded-none border cursor-default",
+                                                                    statusClassName
+                                                                )}>
+                                                                    {statusLabel}
+                                                                </span>
+                                                            </TooltipTrigger>
+                                                            {(hasWarning || hasError) && result.validation?.message && (
+                                                                <TooltipContent>{result.validation.message}</TooltipContent>
+                                                            )}
+                                                        </Tooltip>
+                                                    </TooltipProvider>
                                                 )}
                                             </div>
                                         </td>

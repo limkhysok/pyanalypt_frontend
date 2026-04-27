@@ -78,7 +78,10 @@ export interface DatasetActivityLog {
   user: number;
   dataset: number | null;
   dataset_name_snap: string;
-  action: 'UPLOAD' | 'RENAME' | 'DELETE' | 'DUPLICATE' | 'EXPORT';
+  action: 'UPLOAD' | 'RENAME' | 'DELETE' | 'DUPLICATE' | 'EXPORT'
+    | 'CAST' | 'RENAME_COLUMN' | 'DROP_DUPLICATES' | 'REPLACE_VALUES'
+    | 'DROP_NULLS' | 'FILL_NULLS' | 'FILL_DERIVED' | 'FIX_FORMULA'
+    | 'TRIM_OUTLIERS' | 'IMPUTE_OUTLIERS' | 'CAP_OUTLIERS' | 'TRANSFORM_COLUMN';
   details: Record<string, any>;
   timestamp: string;
 }

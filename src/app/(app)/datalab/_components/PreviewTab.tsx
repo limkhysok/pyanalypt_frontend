@@ -2,11 +2,12 @@
 
 import React from "react";
 import {
-    Pencil, Loader2, Search, X, SlidersHorizontal,
+    Search, X, SlidersHorizontal,
     ChevronDown, Rows3, Copy, Check,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -14,18 +15,15 @@ import {
     DropdownMenuRadioItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-    Tooltip,
-    TooltipContent,
-    TooltipProvider,
-    TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { datalabApi } from "@/services/api";
 import type { DataLabPreview, DataLabInspect, DataLabInspectColumn } from "@/services/api";
 import { toast } from "sonner";
 import { DatasetMetaStrip } from "./DatasetMetaStrip";
 import { displayCell } from "../_lib";
+import { CellEditor } from "./CellEditor";
+import { CellDisplay } from "./CellDisplay";
+import { HeaderContent } from "./HeaderContent";
 
 function PreviewCell({
     col, raw, isEditing, hasError, errorMsg,
@@ -54,112 +52,59 @@ function PreviewCell({
     const isSelected = isRowSelected || isColSelected;
     const isCross = isRowSelected && isColSelected;
 
-    let textClass = "text-foreground/80";
-    if (hasError) textClass = "text-destructive";
-    else if (isNull && !isSelected) textClass = "text-muted-foreground/30 italic";
+    let textStyle = "text-foreground/80";
+    let bgClass = "";
+
+    if (hasError) {
+        textStyle = "text-destructive";
+        bgClass = "bg-destructive/5";
+    } else if (isNull && !isSelected) {
+        textStyle = "text-muted-foreground/30 italic";
+        bgClass = "bg-red-600/5";
+    } else if (isCross) {
+        bgClass = "bg-primary/20";
+    } else if (isSelected) {
+        bgClass = "bg-primary/10";
+    }
 
     return (
         <td
             className={cn(
                 "px-4 py-2 text-sm font-mono whitespace-nowrap max-w-48 transition-colors",
                 !isEditing && "cursor-text",
-                hasError && "bg-destructive/5",
-                isNull && !hasError && !isSelected && "bg-red-600/5",
-                isCross && !hasError && "bg-primary/20",
-                !isCross && isSelected && !hasError && "bg-primary/10",
+                bgClass
             )}
-            onClick={() => { if (!isEditing) { onClearSelection(); onStartEdit(); } }}
+            onClick={isEditing ? undefined : () => { onClearSelection(); onStartEdit(); }}
         >
             {isEditing ? (
-                <input
-                    autoFocus
-                    defaultValue={isNull ? "" : val}
-                    className="bg-background border border-primary px-2 py-0.5 text-sm font-mono text-foreground outline-none w-full min-w-20 rounded-none"
-                    onKeyDown={(e) => {
-                        if (e.key === "Tab") {
-                            e.preventDefault();
-                            cellSubmittingRef.current = true;
-                            onCommit(e.currentTarget.value);
-                            onMoveRight();
-                        } else if (e.key === "Enter") {
-                            e.preventDefault();
-                            cellSubmittingRef.current = true;
-                            onCommit(e.currentTarget.value);
-                            onMoveDown();
-                        } else if (e.key === "Escape") {
-                            cellSubmittingRef.current = true;
-                            onCancel();
-                        }
-                    }}
-                    onBlur={(e) => {
-                        if (cellSubmittingRef.current) {
-                            cellSubmittingRef.current = false;
-                            return;
-                        }
-                        onCommit(e.target.value);
-                    }}
+                <CellEditor
+                    initialValue={isNull ? "" : val}
+                    onCommit={onCommit}
+                    onCancel={onCancel}
+                    onMoveRight={onMoveRight}
+                    onMoveDown={onMoveDown}
+                    cellSubmittingRef={cellSubmittingRef}
                 />
             ) : (
-                <span
-                    className={cn("block truncate", textClass)}
-                    title={hasError ? errorMsg : (val || "—")}
-                >
-                    {isNull ? "—" : val}
-                </span>
+                <CellDisplay
+                    val={val}
+                    isNull={isNull}
+                    hasError={hasError}
+                    errorMsg={errorMsg}
+                    textStyle={textStyle}
+                />
             )}
         </td>
     );
 }
 
-function ColStatsTooltip({ col, info, children }: Readonly<{
-    col: string;
-    info: DataLabInspectColumn;
-    children: React.ReactNode;
-}>) {
-    return (
-        <TooltipProvider delayDuration={400}>
-            <Tooltip>
-                <TooltipTrigger asChild>{children as React.ReactElement}</TooltipTrigger>
-                <TooltipContent
-                    side="bottom"
-                    align="start"
-                    className="rounded-none p-0 border border-border shadow-md min-w-44"
-                >
-                    <div className="px-3 py-2 border-b bg-muted/30">
-                        <p className="text-[13px] font-semibold font-mono">{col}</p>
-                    </div>
-                    <div className="px-3 py-2 space-y-1">
-                        <StatRow label="dtype" value={info.dtype} mono />
-                        <StatRow label="non-null" value={info.non_null_count.toLocaleString()} />
-                        <StatRow label="unique" value={info.unique_count.toLocaleString()} />
-                        <StatRow
-                            label="null %"
-                            value={`${info.null_pct.toFixed(1)}%`}
-                            accent={info.null_pct > 0}
-                        />
-                    </div>
-                </TooltipContent>
-            </Tooltip>
-        </TooltipProvider>
-    );
-}
 
-function StatRow({ label, value, mono, accent }: Readonly<{ label: string; value: string; mono?: boolean; accent?: boolean }>) {
-    return (
-        <div className="flex items-center justify-between gap-4">
-            <span className="text-[13px] text-muted-foreground">{label}</span>
-            <span className={cn("text-[13px]", mono && "font-mono", accent ? "text-red-400 font-semibold" : "text-foreground")}>
-                {value}
-            </span>
-        </div>
-    );
-}
 
 function toExcelCol(n: number): string {
     let s = "";
     while (n > 0) {
         n--;
-        s = String.fromCharCode(65 + (n % 26)) + s;
+        s = String.fromCodePoint(65 + (n % 26)) + s;
         n = Math.floor(n / 26);
     }
     return s;
@@ -169,7 +114,8 @@ const LIMIT_OPTIONS = [
     { label: "100", value: 100 },
     { label: "200", value: 200 },
     { label: "500", value: 500 },
-    { label: "All", value: 0 },
+    { label: "1,000", value: 1000 },
+    { label: "10,000 (max)", value: 10000 },
 ] as const;
 
 export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChange }: Readonly<{
@@ -193,7 +139,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
     const [anchorRow, setAnchorRow] = React.useState<number | null>(null);
     const [anchorColIdx, setAnchorColIdx] = React.useState<number | null>(null);
     const [copied, setCopied] = React.useState(false);
-    const headerSubmittingRef = React.useRef(false);
+
     const cellSubmittingRef = React.useRef(false);
 
     React.useEffect(() => {
@@ -322,11 +268,9 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                 nextColIdx = 0;
                 nextRow = rowIndex + 1;
             } else return;
-        } else {
-            if (rowIndex < filteredRows.length - 1) {
-                nextRow = rowIndex + 1;
-            } else return;
-        }
+        } else if (rowIndex < filteredRows.length - 1) {
+            nextRow = rowIndex + 1;
+        } else return;
         setEditingCell({ rowIndex: nextRow, col: visibleColumns[nextColIdx] });
     }
 
@@ -377,6 +321,22 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
     }
 
     const hasSelection = selectedRows.size > 0 || selectedCols.size > 0;
+
+    let rowCountLabel = "";
+    if (search.trim()) {
+        rowCountLabel = `${filteredRows.length} matching of ${rows.length} loaded rows`;
+    } else if (data.truncated) {
+        rowCountLabel = `Showing ${data.rows.length.toLocaleString()} of ${data.total_rows.toLocaleString()} rows`;
+    } else {
+        rowCountLabel = `${data.total_rows.toLocaleString()} rows`;
+    }
+
+    let selectionLabel = "";
+    if (selectedRows.size > 0) {
+        selectionLabel = `${selectedRows.size} row${selectedRows.size > 1 ? "s" : ""} selected`;
+    } else {
+        selectionLabel = `${selectedCols.size} column${selectedCols.size > 1 ? "s" : ""} selected`;
+    }
 
     return (
         <div className="space-y-3">
@@ -430,7 +390,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                                 className="flex items-center gap-1.5 text-[13px] font-medium transition-colors px-2 py-1 border border-transparent text-muted-foreground hover:text-foreground hover:border-border"
                             >
                                 <Rows3 className="h-3 w-3" />
-                                {data.limit === 0 ? "All" : data.limit} rows
+                                {data.limit.toLocaleString()} rows
                                 <ChevronDown className="h-3 w-3 opacity-60" />
                             </button>
                         </DropdownMenuTrigger>
@@ -445,7 +405,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                                         value={String(opt.value)}
                                         className="text-sm rounded-none cursor-pointer"
                                     >
-                                        {opt.label === "All" ? "All rows" : `${opt.label} rows`}
+                                        {opt.value === 10000 ? opt.label : `${opt.label} rows`}
                                     </DropdownMenuRadioItem>
                                 ))}
                             </DropdownMenuRadioGroup>
@@ -504,9 +464,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                 {hasSelection && (
                     <div className="border-b px-4 py-1.5 flex items-center gap-3 bg-primary/5">
                         <span className="text-[13px] font-mono text-primary">
-                            {selectedRows.size > 0
-                                ? `${selectedRows.size} row${selectedRows.size > 1 ? "s" : ""} selected`
-                                : `${selectedCols.size} column${selectedCols.size > 1 ? "s" : ""} selected`}
+                            {selectionLabel}
                         </span>
                         <span className="text-muted-foreground/40 text-[13px]">·</span>
                         <button
@@ -536,7 +494,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                                 <th className="bg-muted px-4 py-1 w-12 select-none" />
                                 {visibleColumns.map((col, i) => (
                                     <th
-                                        key={i}
+                                        key={col}
                                         onClick={(e) => handleColClick(col, i, e)}
                                         className={cn(
                                             "px-4 py-1 text-[13px] font-semibold text-center select-none tracking-wider whitespace-nowrap cursor-pointer transition-colors",
@@ -563,63 +521,18 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                                                 isColSel && "bg-primary/10 border-b-2 border-primary"
                                             )}
                                         >
-                                            {editingHeader === col ? (
-                                                <input
-                                                    autoFocus
-                                                    defaultValue={col}
-                                                    className="bg-background border border-primary px-2 py-0.5 text-sm font-semibold text-foreground outline-none w-full min-w-24 rounded-none"
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === "Enter") {
-                                                            e.preventDefault();
-                                                            headerSubmittingRef.current = true;
-                                                            const val = e.currentTarget.value;
-                                                            setEditingHeader(null);
-                                                            submitRename(col, val);
-                                                        }
-                                                        if (e.key === "Escape") {
-                                                            headerSubmittingRef.current = true;
-                                                            setEditingHeader(null);
-                                                        }
-                                                    }}
-                                                    onBlur={(e) => {
-                                                        if (headerSubmittingRef.current) {
-                                                            headerSubmittingRef.current = false;
-                                                            return;
-                                                        }
-                                                        const val = e.target.value;
-                                                        setEditingHeader(null);
-                                                        submitRename(col, val);
-                                                    }}
-                                                />
-                                            ) : colInfo ? (
-                                                <ColStatsTooltip col={col} info={colInfo}>
-                                                    <div className="flex items-center gap-1.5">
-                                                        {renamingHeader === col && (
-                                                            <Loader2 className="h-3 w-3 animate-spin text-muted-foreground/50 shrink-0" />
-                                                        )}
-                                                        <span>{col}</span>
-                                                        <button
-                                                            className="opacity-0 group-hover/th:opacity-50 hover:opacity-100! transition-opacity ml-auto shrink-0"
-                                                            onClick={(e) => { e.stopPropagation(); setEditingHeader(col); }}
-                                                        >
-                                                            <Pencil className="h-3 w-3" />
-                                                        </button>
-                                                    </div>
-                                                </ColStatsTooltip>
-                                            ) : (
-                                                <div className="flex items-center gap-1.5">
-                                                    {renamingHeader === col && (
-                                                        <Loader2 className="h-3 w-3 animate-spin text-muted-foreground/50 shrink-0" />
-                                                    )}
-                                                    <span>{col}</span>
-                                                    <button
-                                                        className="opacity-0 group-hover/th:opacity-50 hover:opacity-100! transition-opacity ml-auto shrink-0"
-                                                        onClick={(e) => { e.stopPropagation(); setEditingHeader(col); }}
-                                                    >
-                                                        <Pencil className="h-3 w-3" />
-                                                    </button>
-                                                </div>
-                                            )}
+                                            <HeaderContent
+                                                col={col}
+                                                colInfo={colInfo}
+                                                isEditing={editingHeader === col}
+                                                isRenaming={renamingHeader === col}
+                                                onStartEdit={() => setEditingHeader(col)}
+                                                onSubmitRename={(val) => {
+                                                    setEditingHeader(null);
+                                                    submitRename(col, val);
+                                                }}
+                                                onCancelEdit={() => setEditingHeader(null)}
+                                            />
                                         </th>
                                     );
                                 })}
@@ -689,12 +602,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                 {/* ── Row count strip ── */}
                 <div className="border-t px-4 py-1.5 flex items-center gap-3 bg-muted/10">
                     <span className="text-[13px] text-muted-foreground font-mono">
-                        {search.trim()
-                            ? `${filteredRows.length} matching of ${rows.length} loaded rows`
-                            : data.limit === 0 || data.rows.length >= data.total_rows
-                                ? `${data.total_rows.toLocaleString()} rows`
-                                : `Showing ${data.rows.length.toLocaleString()} of ${data.total_rows.toLocaleString()} rows`
-                        }
+                        {rowCountLabel}
                     </span>
                     {hiddenCols.size > 0 && (
                         <span className="text-[13px] text-muted-foreground font-mono">

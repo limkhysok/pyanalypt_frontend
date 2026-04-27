@@ -8,6 +8,7 @@ export interface DataLabPreview {
   total_rows: number;
   total_columns: number;
   limit: number;
+  truncated: boolean;
   columns: string[];
   rows: Record<string, unknown>[];
 }
