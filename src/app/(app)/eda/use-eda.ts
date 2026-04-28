@@ -2,7 +2,7 @@
 
 import React from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { datasetApi } from "@/services/api";
+import { datasetApi, datalabApi } from "@/services/api";
 import { edaApi } from "@/services/eda.service";
 import type {
     CorrelationResponse,
@@ -25,7 +25,12 @@ export function useEda() {
     const [selectedId, setSelectedId] = React.useState<string>(searchParams.get("dataset") ?? "");
     const [activeTab, setActiveTab] = React.useState<string>(searchParams.get("tab") ?? DEFAULT_TAB);
     const [loadingDatasets, setLoadingDatasets] = React.useState(true);
-    const [loading, setLoading] = React.useState(false);
+
+    // Per-tab loading: stores the tab id that is currently loading, null when idle
+    const [loadingTabId, setLoadingTabId] = React.useState<string | null>(null);
+
+    // All column names for the selected dataset (used by CrosstabTab / PairwiseTab)
+    const [allColumns, setAllColumns] = React.useState<string[]>([]);
 
     // Per-tab cached data — only fetched once per dataset (user can re-run via controls)
     const [correlation, setCorrelation] = React.useState<CorrelationResponse | null>(null);
@@ -40,6 +45,7 @@ export function useEda() {
         setValueCounts(null);
         setOutlierSummary(null);
         setMissingHeatmap(null);
+        setAllColumns([]);
         setSelectedId(id);
     }
 
@@ -62,50 +68,60 @@ export function useEda() {
             .finally(() => setLoadingDatasets(false));
     }, []);
 
+    // Fetch all column names whenever the dataset changes
+    React.useEffect(() => {
+        if (!selectedId) return;
+        datalabApi.inspect(Number(selectedId))
+            .then((res) => setAllColumns(res.info.columns.map((c) => c.column)))
+            .catch(() => { /* non-critical — CrosstabTab will show empty picker */ });
+    }, [selectedId]);
+
     // Auto-fetch when tab + dataset change for simple tabs (no required params)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     React.useEffect(() => {
         if (!selectedId) return;
         const id = Number(selectedId);
 
         if (activeTab === "correlation" && !correlation) {
-            setLoading(true);
+            setLoadingTabId("correlation");
             edaApi.correlation(id)
                 .then(setCorrelation)
                 .catch(() => toast.error("Failed to load correlation data."))
-                .finally(() => setLoading(false));
+                .finally(() => setLoadingTabId(null));
         }
         if (activeTab === "distribution" && !distribution) {
-            setLoading(true);
+            setLoadingTabId("distribution");
             edaApi.distribution(id)
                 .then(setDistribution)
                 .catch(() => toast.error("Failed to load distribution data."))
-                .finally(() => setLoading(false));
+                .finally(() => setLoadingTabId(null));
         }
         if (activeTab === "value-counts" && !valueCounts) {
-            setLoading(true);
+            setLoadingTabId("value-counts");
             edaApi.valueCounts(id)
                 .then(setValueCounts)
                 .catch(() => toast.error("Failed to load value counts."))
-                .finally(() => setLoading(false));
+                .finally(() => setLoadingTabId(null));
         }
         if (activeTab === "outlier-summary" && !outlierSummary) {
-            setLoading(true);
+            setLoadingTabId("outlier-summary");
             edaApi.outlierSummary(id)
                 .then(setOutlierSummary)
                 .catch(() => toast.error("Failed to load outlier summary."))
-                .finally(() => setLoading(false));
+                .finally(() => setLoadingTabId(null));
         }
         if (activeTab === "missing-heatmap" && !missingHeatmap) {
-            setLoading(true);
+            setLoadingTabId("missing-heatmap");
             edaApi.missingHeatmap(id)
                 .then(setMissingHeatmap)
                 .catch(() => toast.error("Failed to load missing value data."))
-                .finally(() => setLoading(false));
+                .finally(() => setLoadingTabId(null));
         }
         // crosstab and pairwise require user-selected columns, so they are fetched on demand
     }, [selectedId, activeTab]);
 
     const selectedName = datasets.find((d) => String(d.id) === selectedId)?.file_name;
+    const numericColumns = correlation?.columns ?? [];
 
     return {
         datasets,
@@ -114,8 +130,10 @@ export function useEda() {
         activeTab,
         setActiveTab,
         loadingDatasets,
-        loading,
-        setLoading,
+        loadingTabId,
+        setLoadingTabId,
+        allColumns,
+        numericColumns,
         correlation,
         setCorrelation,
         distribution,

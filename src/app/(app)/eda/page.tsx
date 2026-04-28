@@ -43,8 +43,10 @@ export default function EDAPage() {
         activeTab,
         setActiveTab,
         loadingDatasets,
-        loading,
-        setLoading,
+        loadingTabId,
+        setLoadingTabId,
+        allColumns,
+        numericColumns,
         correlation,
         setCorrelation,
         distribution,
@@ -64,12 +66,12 @@ export default function EDAPage() {
         startTransition(() => setActiveTab(val));
     }
 
-    const isLoading = loading || isPending;
+    // Per-tab loading helpers — each tab is independent
+    function tabLoading(tabId: string) { return loadingTabId === tabId; }
+    function setTabLoading(tabId: string) { return (v: boolean) => setLoadingTabId(v ? tabId : null); }
 
-    // Derive numeric columns from correlation response (they share the same set)
-    const numericColumns = correlation?.columns ?? [];
-    // All columns — we don't have a separate inspect call here, so fall back to numeric
-    const allColumns = numericColumns;
+    // Show full-area spinner only when the active tab itself is loading
+    const isLoading = tabLoading(activeTab) || isPending;
 
     return (
         <div className="flex flex-col gap-6 p-8">
@@ -149,7 +151,7 @@ export default function EDAPage() {
                     </div>
                 )}
 
-                {/* ── Loading state ── */}
+                {/* ── Loading state (active tab only) ── */}
                 {selectedId && isLoading && (
                     <div className="border bg-muted/5 h-105 flex flex-col items-center justify-center gap-3 text-muted-foreground">
                         <Loader2 className="h-8 w-8 animate-spin opacity-40" />
@@ -162,45 +164,45 @@ export default function EDAPage() {
                     <>
                         <TabsContent value="correlation">
                             {correlation
-                                ? <CorrelationTab datasetId={Number(selectedId)} data={correlation} onUpdate={setCorrelation} loading={loading} setLoading={setLoading} />
+                                ? <CorrelationTab datasetId={Number(selectedId)} data={correlation} onUpdate={setCorrelation} loading={tabLoading("correlation")} setLoading={setTabLoading("correlation")} />
                                 : <div className="border bg-muted/5 h-48 flex items-center justify-center text-sm text-muted-foreground">No data</div>
                             }
                         </TabsContent>
 
                         <TabsContent value="distribution">
                             {distribution
-                                ? <DistributionTab datasetId={Number(selectedId)} data={distribution} onUpdate={setDistribution} loading={loading} setLoading={setLoading} />
+                                ? <DistributionTab datasetId={Number(selectedId)} data={distribution} onUpdate={setDistribution} loading={tabLoading("distribution")} setLoading={setTabLoading("distribution")} />
                                 : <div className="border bg-muted/5 h-48 flex items-center justify-center text-sm text-muted-foreground">No numeric columns found.</div>
                             }
                         </TabsContent>
 
                         <TabsContent value="value-counts">
                             {valueCounts
-                                ? <ValueCountsTab datasetId={Number(selectedId)} data={valueCounts} onUpdate={setValueCounts} loading={loading} setLoading={setLoading} />
+                                ? <ValueCountsTab datasetId={Number(selectedId)} data={valueCounts} onUpdate={setValueCounts} loading={tabLoading("value-counts")} setLoading={setTabLoading("value-counts")} />
                                 : <div className="border bg-muted/5 h-48 flex items-center justify-center text-sm text-muted-foreground">No data</div>
                             }
                         </TabsContent>
 
                         <TabsContent value="crosstab">
-                            <CrosstabTab datasetId={Number(selectedId)} columns={allColumns} loading={loading} setLoading={setLoading} />
+                            <CrosstabTab datasetId={Number(selectedId)} columns={allColumns} loading={tabLoading("crosstab")} setLoading={setTabLoading("crosstab")} />
                         </TabsContent>
 
                         <TabsContent value="outlier-summary">
                             {outlierSummary
-                                ? <OutlierSummaryTab datasetId={Number(selectedId)} data={outlierSummary} onUpdate={setOutlierSummary} loading={loading} setLoading={setLoading} />
+                                ? <OutlierSummaryTab datasetId={Number(selectedId)} data={outlierSummary} onUpdate={setOutlierSummary} loading={tabLoading("outlier-summary")} setLoading={setTabLoading("outlier-summary")} />
                                 : <div className="border bg-muted/5 h-48 flex items-center justify-center text-sm text-muted-foreground">No numeric columns found.</div>
                             }
                         </TabsContent>
 
                         <TabsContent value="missing-heatmap">
                             {missingHeatmap
-                                ? <MissingHeatmapTab datasetId={Number(selectedId)} data={missingHeatmap} onUpdate={setMissingHeatmap} loading={loading} setLoading={setLoading} />
+                                ? <MissingHeatmapTab datasetId={Number(selectedId)} data={missingHeatmap} onUpdate={setMissingHeatmap} loading={tabLoading("missing-heatmap")} setLoading={setTabLoading("missing-heatmap")} />
                                 : <div className="border bg-muted/5 h-48 flex items-center justify-center text-sm text-muted-foreground">No data</div>
                             }
                         </TabsContent>
 
                         <TabsContent value="pairwise">
-                            <PairwiseTab datasetId={Number(selectedId)} numericColumns={numericColumns} loading={loading} setLoading={setLoading} />
+                            <PairwiseTab datasetId={Number(selectedId)} numericColumns={numericColumns} loading={tabLoading("pairwise")} setLoading={setTabLoading("pairwise")} />
                         </TabsContent>
                     </>
                 )}

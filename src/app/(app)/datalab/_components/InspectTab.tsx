@@ -282,7 +282,7 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                                         key={col.column}
                                         className={cn(
                                             "border-b border-border/50 hover:bg-muted/30 transition-colors",
-                                            (hasError || col.null_count > 0 || col.null_pct > 0) && "bg-red-600/5"
+                                            hasError && "bg-red-600/5"
                                         )}
                                     >
                                         <td className="px-5 py-2.5 text-sm font-medium">

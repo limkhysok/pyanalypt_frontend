@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTheme } from "next-themes";
 import { RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,7 +23,12 @@ type Method = "pearson" | "spearman" | "kendall";
 export function CorrelationTab({ datasetId, data, onUpdate, loading, setLoading }: Readonly<Props>) {
     const { resolvedTheme } = useTheme();
     const isDark = resolvedTheme === "dark";
-    const [method, setMethod] = useState<Method>(data.method as Method ?? "pearson");
+    const [method, setMethod] = useState<Method>((data.method as Method) ?? "pearson");
+
+    // Keep selector in sync when parent re-fetches with a different method
+    useEffect(() => {
+        if (data.method) setMethod(data.method as Method);
+    }, [data.method]);
 
     function run(m: Method) {
         setMethod(m);
