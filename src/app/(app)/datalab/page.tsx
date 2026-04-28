@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { FlaskConical, Database, ChevronDown, Table2, Info, BarChart2 } from "lucide-react";
+import { FlaskConical, Database, ChevronDown, Table2, Info, BarChart2, DatabaseZap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -110,16 +110,20 @@ export default function DataLabPage() {
                 </div>
 
                 {/* ── Skeleton (dataset load or tab switch) ── */}
-                {selectedId && isLoading && (
-                    skeletonTab === "inspect"
-                        ? <InspectTabSkeleton />
-                        : skeletonTab === "describe"
-                            ? <DescribeTabSkeleton />
-                            : <PreviewTabSkeleton />
-                )}
+                {selectedId && isLoading && (() => {
+                    if (skeletonTab === "inspect") return <InspectTabSkeleton />;
+                    if (skeletonTab === "describe") return <DescribeTabSkeleton />;
+                    return <PreviewTabSkeleton />;
+                })()}
 
                 {/* ── Empty state ── */}
-                {!selectedId && <div className="border bg-muted/5 h-105" />}
+                {!selectedId && (
+                    <div className="border bg-muted/5 h-105 flex flex-col items-center justify-center gap-3 text-muted-foreground">
+                        <DatabaseZap className="h-10 w-10 opacity-30" />
+                        <p className="text-sm font-medium">No dataset selected</p>
+                        <p className="text-xs opacity-70">Select a dataset from the dropdown above to get started</p>
+                    </div>
+                )}
 
                 {/* ── Tab content ── */}
                 {selectedId && !isLoading && (

@@ -47,6 +47,7 @@ function getBreadcrumb(pathname: string): { group: string; page: string } {
         const page = pathname.includes("/preview") ? "Preview" : "Datasets";
         return { group: "Workspace", page };
     }
+    if (pathname.startsWith("/datalab"))           return { group: "Workspace", page: "DataLab"  };
     if (pathname === "/analysis")                 return { group: "Results",  page: "Analysis"  };
     if (pathname === "/insight")                  return { group: "Results",  page: "Insight"   };
     if (pathname === "/profile")                  return { group: "Account",  page: "Profile"   };
