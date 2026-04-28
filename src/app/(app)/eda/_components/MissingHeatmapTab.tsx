@@ -26,7 +26,10 @@ export function MissingHeatmapTab({ datasetId, data, onUpdate, loading, setLoadi
         setLoading(true);
         edaApi.missingHeatmap(datasetId)
             .then(onUpdate)
-            .catch(() => toast.error("Failed to load missing value data."))
+            .catch((err: unknown) => {
+                const status = (err as { response?: { status?: number } })?.response?.status;
+                toast.error(status === 500 ? "Analysis failed. Try again or contact support." : "Failed to load missing value data.");
+            })
             .finally(() => setLoading(false));
     }
 
@@ -93,6 +96,7 @@ export function MissingHeatmapTab({ datasetId, data, onUpdate, loading, setLoadi
 
     const chartHeight = Math.max(160, colEntries.length * 30 + 24);
     const coPairs = Object.entries(data.co_null_pairs ?? {});
+    const isSampled = data.total_rows === 50_000;
 
     return (
         <div className="flex flex-col gap-4">
@@ -115,6 +119,12 @@ export function MissingHeatmapTab({ datasetId, data, onUpdate, loading, setLoadi
                     Refresh
                 </Button>
             </div>
+
+            {isSampled && (
+                <div className="border border-amber-500/20 bg-amber-500/5 px-3 py-2 text-xs text-amber-700">
+                    Analysis based on a 50,000-row sample.
+                </div>
+            )}
 
             {(data.columns_with_nulls ?? 0) === 0 ? (
                 <div className="border bg-muted/5 flex items-center justify-center h-32 text-sm text-muted-foreground gap-2">

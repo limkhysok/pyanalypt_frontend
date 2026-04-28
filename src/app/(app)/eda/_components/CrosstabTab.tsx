@@ -33,7 +33,10 @@ export function CrosstabTab({ datasetId, columns, loading, setLoading }: Readonl
         edaApi.crosstab(datasetId, { col_a: colA, col_b: colB, normalize })
             .then((r) => { setResult(r); })
             .catch((e: unknown) => {
-                const msg = (e as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? "Failed to compute cross-tabulation.";
+                const status = (e as { response?: { status?: number } })?.response?.status;
+                const msg = status === 500
+                    ? "Analysis failed. Try again or contact support."
+                    : ((e as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? "Failed to compute cross-tabulation.");
                 setError(msg);
                 toast.error(msg);
             })

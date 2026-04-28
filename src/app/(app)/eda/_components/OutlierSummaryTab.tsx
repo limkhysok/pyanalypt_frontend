@@ -26,7 +26,10 @@ export function OutlierSummaryTab({ datasetId, data, onUpdate, loading, setLoadi
         setLoading(true);
         edaApi.outlierSummary(datasetId, { method: m, threshold: t })
             .then(onUpdate)
-            .catch(() => toast.error("Failed to load outlier summary."))
+            .catch((err: unknown) => {
+                const status = (err as { response?: { status?: number } })?.response?.status;
+                toast.error(status === 500 ? "Analysis failed. Try again or contact support." : "Failed to load outlier summary.");
+            })
             .finally(() => setLoading(false));
     }
 

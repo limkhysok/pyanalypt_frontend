@@ -48,7 +48,10 @@ export function PairwiseTab({ datasetId, numericColumns, loading, setLoading }: 
         setLoading(true);
         edaApi.pairwise(datasetId, { col_x: colX, col_y: colY, sample })
             .then(setResult)
-            .catch(() => toast.error("Failed to load scatter data."))
+            .catch((err: unknown) => {
+                const status = (err as { response?: { status?: number } })?.response?.status;
+                toast.error(status === 500 ? "Analysis failed. Try again or contact support." : "Failed to load scatter data.");
+            })
             .finally(() => setLoading(false));
     }
 

@@ -82,39 +82,44 @@ export function useEda() {
         if (!selectedId) return;
         const id = Number(selectedId);
 
+        function edaErrMsg(err: unknown, fallback: string) {
+            const status = (err as { response?: { status?: number } })?.response?.status;
+            return status === 500 ? "Analysis failed. Try again or contact support." : fallback;
+        }
+
         if (activeTab === "correlation" && !correlation) {
             setLoadingTabId("correlation");
             edaApi.correlation(id)
                 .then(setCorrelation)
-                .catch(() => toast.error("Failed to load correlation data."))
+                .catch((err: unknown) => toast.error(edaErrMsg(err, "Failed to load correlation data.")))
                 .finally(() => setLoadingTabId(null));
         }
         if (activeTab === "distribution" && !distribution) {
             setLoadingTabId("distribution");
             edaApi.distribution(id)
                 .then(setDistribution)
-                .catch(() => toast.error("Failed to load distribution data."))
+                .catch((err: unknown) => toast.error(edaErrMsg(err, "Failed to load distribution data.")))
                 .finally(() => setLoadingTabId(null));
         }
         if (activeTab === "value-counts" && !valueCounts) {
             setLoadingTabId("value-counts");
             edaApi.valueCounts(id)
                 .then(setValueCounts)
-                .catch(() => toast.error("Failed to load value counts."))
+                .catch((err: unknown) => toast.error(edaErrMsg(err, "Failed to load value counts.")))
                 .finally(() => setLoadingTabId(null));
         }
         if (activeTab === "outlier-summary" && !outlierSummary) {
             setLoadingTabId("outlier-summary");
             edaApi.outlierSummary(id)
                 .then(setOutlierSummary)
-                .catch(() => toast.error("Failed to load outlier summary."))
+                .catch((err: unknown) => toast.error(edaErrMsg(err, "Failed to load outlier summary.")))
                 .finally(() => setLoadingTabId(null));
         }
         if (activeTab === "missing-heatmap" && !missingHeatmap) {
             setLoadingTabId("missing-heatmap");
             edaApi.missingHeatmap(id)
                 .then(setMissingHeatmap)
-                .catch(() => toast.error("Failed to load missing value data."))
+                .catch((err: unknown) => toast.error(edaErrMsg(err, "Failed to load missing value data.")))
                 .finally(() => setLoadingTabId(null));
         }
         // crosstab and pairwise require user-selected columns, so they are fetched on demand

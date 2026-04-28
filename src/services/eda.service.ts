@@ -163,7 +163,7 @@ export const edaApi = {
     params: { col_a: string; col_b: string; normalize?: boolean }
   ): Promise<CrosstabResponse> {
     const query = new URLSearchParams({ col_a: params.col_a, col_b: params.col_b });
-    if (params.normalize) query.set('normalize', 'true');
+    query.set('normalize', params.normalize ? 'true' : 'false');
     return apiClient.get(`/eda/crosstab/${datasetId}/?${query.toString()}`);
   },
 

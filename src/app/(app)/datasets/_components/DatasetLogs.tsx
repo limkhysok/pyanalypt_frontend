@@ -20,6 +20,14 @@ import {
     BarChart2,
     ArrowUpDown,
     Zap,
+    Columns,
+    ListPlus,
+    ListFilter,
+    Eraser,
+    Gauge,
+    CalendarClock,
+    Hash,
+    CaseSensitive,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { Card } from "@/components/ui/card";
@@ -43,10 +51,18 @@ const ACTION_ICONS: Record<string, any> = {
     FILL_NULLS:       Plus,
     FILL_DERIVED:     Calculator,
     FIX_FORMULA:      Wrench,
-    TRIM_OUTLIERS:    Scissors,
-    IMPUTE_OUTLIERS:  BarChart2,
-    CAP_OUTLIERS:     ArrowUpDown,
-    TRANSFORM_COLUMN: Zap,
+    TRIM_OUTLIERS:           Scissors,
+    IMPUTE_OUTLIERS:         BarChart2,
+    CAP_OUTLIERS:            ArrowUpDown,
+    TRANSFORM_COLUMN:        Zap,
+    DROP_COLUMNS:            Columns,
+    ADD_COLUMN:              ListPlus,
+    FILTER_ROWS:             ListFilter,
+    CLEAN_STRING:            Eraser,
+    SCALE_COLUMNS:           Gauge,
+    EXTRACT_DATETIME:        CalendarClock,
+    ENCODE_COLUMNS:          Hash,
+    NORMALIZE_COLUMN_NAMES:  CaseSensitive,
 };
 
 const ACTION_COLORS: Record<string, string> = {
@@ -63,10 +79,18 @@ const ACTION_COLORS: Record<string, string> = {
     FILL_NULLS:       "text-teal-500 bg-teal-500/10",
     FILL_DERIVED:     "text-teal-500 bg-teal-500/10",
     FIX_FORMULA:      "text-purple-500 bg-purple-500/10",
-    TRIM_OUTLIERS:    "text-amber-500 bg-amber-500/10",
-    IMPUTE_OUTLIERS:  "text-amber-500 bg-amber-500/10",
-    CAP_OUTLIERS:     "text-amber-500 bg-amber-500/10",
-    TRANSFORM_COLUMN: "text-purple-500 bg-purple-500/10",
+    TRIM_OUTLIERS:           "text-amber-500 bg-amber-500/10",
+    IMPUTE_OUTLIERS:         "text-amber-500 bg-amber-500/10",
+    CAP_OUTLIERS:            "text-amber-500 bg-amber-500/10",
+    TRANSFORM_COLUMN:        "text-purple-500 bg-purple-500/10",
+    DROP_COLUMNS:            "text-orange-500 bg-orange-500/10",
+    ADD_COLUMN:              "text-emerald-500 bg-emerald-500/10",
+    FILTER_ROWS:             "text-orange-500 bg-orange-500/10",
+    CLEAN_STRING:            "text-cyan-500 bg-cyan-500/10",
+    SCALE_COLUMNS:           "text-blue-500 bg-blue-500/10",
+    EXTRACT_DATETIME:        "text-purple-500 bg-purple-500/10",
+    ENCODE_COLUMNS:          "text-indigo-500 bg-indigo-500/10",
+    NORMALIZE_COLUMN_NAMES:  "text-teal-500 bg-teal-500/10",
 };
 
 const ACTION_LABELS: Record<string, string> = {
@@ -83,10 +107,18 @@ const ACTION_LABELS: Record<string, string> = {
     FILL_NULLS:       "Fill Nulls",
     FILL_DERIVED:     "Fill Derived",
     FIX_FORMULA:      "Fix Formula",
-    TRIM_OUTLIERS:    "Trim Outliers",
-    IMPUTE_OUTLIERS:  "Impute Outliers",
-    CAP_OUTLIERS:     "Cap Outliers",
-    TRANSFORM_COLUMN: "Transform Column",
+    TRIM_OUTLIERS:           "Trim Outliers",
+    IMPUTE_OUTLIERS:         "Impute Outliers",
+    CAP_OUTLIERS:            "Cap Outliers",
+    TRANSFORM_COLUMN:        "Transform Column",
+    DROP_COLUMNS:            "Drop Columns",
+    ADD_COLUMN:              "Add Column",
+    FILTER_ROWS:             "Filter Rows",
+    CLEAN_STRING:            "Clean String",
+    SCALE_COLUMNS:           "Scale Columns",
+    EXTRACT_DATETIME:        "Extract Datetime",
+    ENCODE_COLUMNS:          "Encode Columns",
+    NORMALIZE_COLUMN_NAMES:  "Normalize Column Names",
 };
 
 function summarizeDetails(action: string, details: Record<string, any>): string | null {

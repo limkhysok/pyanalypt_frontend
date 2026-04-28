@@ -100,7 +100,10 @@ export function ValueCountsTab({ datasetId, data, onUpdate, loading, setLoading 
         setLoading(true);
         edaApi.valueCounts(datasetId, { columns: col ? [col] : undefined, top_n: n ?? topN })
             .then(onUpdate)
-            .catch(() => toast.error("Failed to load value counts."))
+            .catch((err: unknown) => {
+                const status = (err as { response?: { status?: number } })?.response?.status;
+                toast.error(status === 500 ? "Analysis failed. Try again or contact support." : "Failed to load value counts.");
+            })
             .finally(() => setLoading(false));
     }
 
@@ -133,6 +136,9 @@ export function ValueCountsTab({ datasetId, data, onUpdate, loading, setLoading 
                     Run
                 </Button>
                 <span className="ml-auto text-xs text-muted-foreground">{cols.length} columns</span>
+                {activeCol === ALL && cols.length >= 50 && (
+                    <span className="text-xs text-amber-600">Wide dataset — results limited to the first 50 columns.</span>
+                )}
             </div>
 
             <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">

@@ -127,7 +127,7 @@ export function OutlierDialog({
     async function handleDetect() {
         if (detectCols.length === 0) { toast.error("Select at least one column."); return; }
         const threshold = Number.parseFloat(detectThreshold);
-        if (Number.isNaN(threshold) || threshold <= 0) { toast.error("Threshold must be a positive number."); return; }
+        if (Number.isNaN(threshold) || threshold <= 0 || threshold > 10) { toast.error("Threshold must be between 0 and 10."); return; }
         setLoading(true);
         try {
             const res = await datalabApi.detectOutliers(datasetId, {
@@ -146,7 +146,7 @@ export function OutlierDialog({
     async function handleTrim() {
         if (trimCols.length === 0) { toast.error("Select at least one column."); return; }
         const threshold = Number.parseFloat(trimThreshold);
-        if (Number.isNaN(threshold) || threshold <= 0) { toast.error("Threshold must be a positive number."); return; }
+        if (Number.isNaN(threshold) || threshold <= 0 || threshold > 10) { toast.error("Threshold must be between 0 and 10."); return; }
         setLoading(true);
         try {
             const res = await datalabApi.trimOutliers(datasetId, { columns: trimCols, method: trimMethod, threshold });
@@ -167,7 +167,7 @@ export function OutlierDialog({
     async function handleImpute() {
         if (imputeCols.length === 0) { toast.error("Select at least one column."); return; }
         const threshold = Number.parseFloat(imputeThreshold);
-        if (Number.isNaN(threshold) || threshold <= 0) { toast.error("Threshold must be a positive number."); return; }
+        if (Number.isNaN(threshold) || threshold <= 0 || threshold > 10) { toast.error("Threshold must be between 0 and 10."); return; }
         setLoading(true);
         try {
             const res = await datalabApi.imputeOutliers(datasetId, {
@@ -846,6 +846,7 @@ function MethodThreshold({
                 <Input
                     type="number"
                     min="0.01"
+                    max="10"
                     step="0.1"
                     value={threshold}
                     onChange={(e) => onThresholdChange(e.target.value)}
