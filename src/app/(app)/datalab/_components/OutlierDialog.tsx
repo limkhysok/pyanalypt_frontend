@@ -527,7 +527,7 @@ function OutlierCard({ column, stats }: Readonly<{ column: string; stats: Outlie
                                 </thead>
                                 <tbody>
                                     {stats.sample_outliers.slice(0, 3).map((row) => (
-                                        <tr key={row.row_index as number} className="border-b border-amber-500/10 last:border-0">
+                                        <tr key={String(row.row_index)} className="border-b border-amber-500/10 last:border-0">
                                             <td className="px-2 py-0.5 text-muted-foreground font-mono">{String(row.row_index)}</td>
                                             <td className="px-2 py-0.5 text-right font-mono font-bold text-amber-600">
                                                 {displayCell(row[column])}

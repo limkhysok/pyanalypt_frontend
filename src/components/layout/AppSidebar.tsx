@@ -11,6 +11,7 @@ import {
     Lightbulb,
     BrainCircuit,
     FlaskConical,
+    TrendingUp,
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { cn, getInitials } from "@/lib/utils";
@@ -43,6 +44,7 @@ const WORKSPACE_ITEMS: NavItemDef[] = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, shortcut: "G D" },
     { label: "Datasets",  href: "/datasets",  icon: Database,         shortcut: "G S" },
     { label: "DataLab",   href: "/datalab",   icon: FlaskConical,     shortcut: "G L" },
+    { label: "EDA",       href: "/eda",       icon: TrendingUp,       shortcut: "G E" },
     { label: "Framing",   href: "/framing",   icon: BrainCircuit,     shortcut: "G F" },
 ];
 
@@ -57,6 +59,7 @@ const SHORTCUT_MAP: Record<string, string> = {
     S: "/datasets",
     F: "/framing",
     L: "/datalab",
+    E: "/eda",
     A: "/analysis",
     N: "/insight",
     ",": "/profile/setting",

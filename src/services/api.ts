@@ -12,6 +12,26 @@ export { projectApi } from './project.service';
 export { datasetApi } from './dataset.service';
 export { framingApi } from './framing.service';
 export { datalabApi } from './datalab.service';
+export { edaApi } from './eda.service';
+export type {
+  CorrelationResponse,
+  CorrelationRow,
+  DistributionResponse,
+  DistributionColumnStats,
+  DistributionBin,
+  ValueCountsResponse,
+  ValueCountsColumnStats,
+  ValueCountEntry,
+  CrosstabResponse,
+  CrosstabRow,
+  OutlierSummaryResponse,
+  OutlierSummaryColumn,
+  MissingHeatmapResponse,
+  MissingColumnStat,
+  MissingWorstRow,
+  PairwiseResponse,
+  ScatterPoint,
+} from './eda.service';
 export type {
   DataLabPreview,
   DataLabInspect,
