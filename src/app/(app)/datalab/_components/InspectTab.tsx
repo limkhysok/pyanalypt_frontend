@@ -3,7 +3,8 @@
 import React from "react";
 import {
     Loader2, Info, KeyRound, Layers, Eraser,
-    ChevronUp, ChevronDown, ChevronsUpDown, Search, X, ShieldCheck, Activity
+    ChevronUp, ChevronDown, ChevronsUpDown, Search, X, ShieldCheck, Activity,
+    Columns2, SlidersHorizontal, Filter,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,9 @@ import { DropDuplicatesDialog } from "./DropDuplicatesDialog";
 import { NullHandlingDialog } from "./NullHandlingDialog";
 import { ValidateFormulaDialog } from "./ValidateFormulaDialog";
 import { OutlierDialog } from "./OutlierDialog";
+import { ColumnToolsDialog } from "./ColumnToolsDialog";
+import { CleanFilterDialog } from "./CleanFilterDialog";
+import { TransformDialog } from "./TransformDialog";
 import { CAST_TYPES, formatBytes } from "../_lib";
 
 type SortKey = "column" | "non_null_count" | "unique_count" | "null_count" | "null_pct";
@@ -43,6 +47,9 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
     const [nullHandlingOpen, setNullHandlingOpen] = React.useState(false);
     const [auditOpen, setAuditOpen] = React.useState(false);
     const [outlierOpen, setOutlierOpen] = React.useState(false);
+    const [columnToolsOpen, setColumnToolsOpen] = React.useState(false);
+    const [cleanFilterOpen, setCleanFilterOpen] = React.useState(false);
+    const [transformOpen, setTransformOpen] = React.useState(false);
     const [search, setSearch] = React.useState("");
     const [sortKey, setSortKey] = React.useState<SortKey | null>(null);
     const [sortDir, setSortDir] = React.useState<"asc" | "desc">("asc");
@@ -107,11 +114,11 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                 onRefetchAll();
             }
         } catch (err: unknown) {
-            const errData = (err as { response?: { data?: { warnings?: CastWarning[]; errors?: string[] } } })?.response?.data;
+            const errData = (err as { response?: { data?: { warnings?: CastWarning[]; validation_errors?: string[] } } })?.response?.data;
             if (errData?.warnings && errData.warnings.length > 0) {
                 setCastWarnings(errData.warnings);
-            } else if (errData?.errors && errData.errors.length > 0) {
-                toast.error(errData.errors.join(" "));
+            } else if (errData?.validation_errors && errData.validation_errors.length > 0) {
+                toast.error(errData.validation_errors.join(" "));
             } else {
                 toast.error("Failed to cast columns.");
             }
@@ -423,6 +430,36 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                     <Activity className="h-3 w-3" />
                     Handle Outliers
                 </Button>
+
+                <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-sm rounded-none gap-1.5 border-violet-500/30 bg-violet-500/5 hover:bg-violet-500/10 text-violet-700"
+                    onClick={() => setColumnToolsOpen(true)}
+                >
+                    <Columns2 className="h-3 w-3" />
+                    Column Tools
+                </Button>
+
+                <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-sm rounded-none gap-1.5 border-sky-500/30 bg-sky-500/5 hover:bg-sky-500/10 text-sky-700"
+                    onClick={() => setCleanFilterOpen(true)}
+                >
+                    <Filter className="h-3 w-3" />
+                    Clean & Filter
+                </Button>
+
+                <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 text-sm rounded-none gap-1.5 border-teal-500/30 bg-teal-500/5 hover:bg-teal-500/10 text-teal-700"
+                    onClick={() => setTransformOpen(true)}
+                >
+                    <SlidersHorizontal className="h-3 w-3" />
+                    Transform
+                </Button>
             </div>
 
             <DropDuplicatesDialog
@@ -453,6 +490,30 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
             <OutlierDialog
                 open={outlierOpen}
                 onOpenChange={setOutlierOpen}
+                datasetId={datasetId}
+                columns={data.info.columns}
+                onRefetchAll={onRefetchAll}
+            />
+
+            <ColumnToolsDialog
+                open={columnToolsOpen}
+                onOpenChange={setColumnToolsOpen}
+                datasetId={datasetId}
+                columns={data.info.columns}
+                onRefetchAll={onRefetchAll}
+            />
+
+            <CleanFilterDialog
+                open={cleanFilterOpen}
+                onOpenChange={setCleanFilterOpen}
+                datasetId={datasetId}
+                columns={data.info.columns}
+                onRefetchAll={onRefetchAll}
+            />
+
+            <TransformDialog
+                open={transformOpen}
+                onOpenChange={setTransformOpen}
                 datasetId={datasetId}
                 columns={data.info.columns}
                 onRefetchAll={onRefetchAll}

@@ -50,7 +50,7 @@ export interface CastResponse {
 export interface CastWarningResponse {
   detail: string;
   warnings: CastWarning[];
-  errors: string[];
+  validation_errors: string[];
 }
 
 export type DropDuplicatesMode = "all_first" | "all_last" | "subset_keep" | "drop_all";
@@ -304,6 +304,137 @@ export interface CapOutliersResponse {
   detail?: string;
 }
 
+// ── Drop Columns ──────────────────────────────────────────────────────────────
+export interface DropColumnsRequest {
+  columns: string[];
+}
+
+export interface DropColumnsResponse {
+  columns_dropped: string[];
+  remaining_columns: string[];
+}
+
+// ── Add Derived Column ────────────────────────────────────────────────────────
+export interface AddColumnRequest {
+  new_name: string;
+  formula: ArithmeticFormula;
+  operand_a: string;
+  operand_b: string;
+}
+
+export interface AddColumnResponse {
+  new_column: string;
+  formula: string;
+  operand_a: string;
+  operand_b: string;
+  total_columns: number;
+}
+
+// ── Normalize Column Names ────────────────────────────────────────────────────
+export interface NormalizeColumnNamesResponse {
+  renamed?: Record<string, string>;
+  columns: string[];
+  detail?: string;
+}
+
+// ── Filter Rows ───────────────────────────────────────────────────────────────
+export type FilterOperator =
+  | "eq" | "ne" | "gt" | "gte" | "lt" | "lte"
+  | "contains" | "not_contains" | "isnull" | "notnull";
+
+export interface FilterRowsRequest {
+  column: string;
+  operator: FilterOperator;
+  value?: string;
+}
+
+export interface FilterRowsResponse {
+  column: string;
+  operator: string;
+  value?: string;
+  rows_before: number;
+  rows_after: number;
+  rows_removed: number;
+  detail?: string;
+}
+
+// ── Clean String ──────────────────────────────────────────────────────────────
+export type CleanStringOperation = "strip" | "lower" | "upper" | "title";
+
+export interface CleanStringRequest {
+  columns: string[];
+  operation: CleanStringOperation;
+}
+
+export interface CleanStringResponse {
+  operation: string;
+  columns: string[];
+  cells_changed: number;
+  detail?: string;
+}
+
+// ── Scale Columns ─────────────────────────────────────────────────────────────
+export type ScaleMethod = "minmax" | "zscore";
+
+export interface ScaleColumnsRequest {
+  columns: string[];
+  method: ScaleMethod;
+}
+
+export interface ScaleSkippedColumn {
+  column: string;
+  reason: string;
+}
+
+export interface ScaleColumnsResponse {
+  method: string;
+  scaled_columns: string[];
+  skipped_columns: ScaleSkippedColumn[];
+  detail?: string;
+}
+
+// ── Extract Datetime ──────────────────────────────────────────────────────────
+export type DatetimeFeature = "year" | "month" | "day" | "weekday" | "hour" | "minute";
+
+export interface ExtractDatetimeRequest {
+  column: string;
+  features: DatetimeFeature[];
+}
+
+export interface ExtractDatetimeResponse {
+  source_column: string;
+  added_columns: string[];
+  total_columns: number;
+}
+
+// ── Encode Columns ────────────────────────────────────────────────────────────
+export type EncodeStrategy = "label" | "onehot";
+
+export interface EncodeLabelResult {
+  column: string;
+  strategy: "label";
+  mapping: Record<string, number>;
+}
+
+export interface EncodeOnehotResult {
+  column: string;
+  strategy: "onehot";
+  new_columns: string[];
+}
+
+export type EncodeColumnResult = EncodeLabelResult | EncodeOnehotResult;
+
+export interface EncodeColumnsRequest {
+  columns: string[];
+  strategy: EncodeStrategy;
+}
+
+export interface EncodeColumnsResponse {
+  strategy: string;
+  result: EncodeColumnResult[];
+  total_columns: number;
+}
+
 export type TransformFunction = "log" | "sqrt" | "cbrt";
 
 export interface TransformColumnRequest {
@@ -415,6 +546,46 @@ export const datalabApi = {
 
   async transformColumn(datasetId: number, body: TransformColumnRequest): Promise<TransformColumnResponse> {
     const res = await apiClient.post<TransformColumnResponse>(`datalab/transform-column/${datasetId}/`, body);
+    return res.data;
+  },
+
+  async dropColumns(datasetId: number, body: DropColumnsRequest): Promise<DropColumnsResponse> {
+    const res = await apiClient.post<DropColumnsResponse>(`datalab/drop-columns/${datasetId}/`, body);
+    return res.data;
+  },
+
+  async addColumn(datasetId: number, body: AddColumnRequest): Promise<AddColumnResponse> {
+    const res = await apiClient.post<AddColumnResponse>(`datalab/add-column/${datasetId}/`, body);
+    return res.data;
+  },
+
+  async normalizeColumnNames(datasetId: number): Promise<NormalizeColumnNamesResponse> {
+    const res = await apiClient.post<NormalizeColumnNamesResponse>(`datalab/normalize-column-names/${datasetId}/`);
+    return res.data;
+  },
+
+  async filterRows(datasetId: number, body: FilterRowsRequest): Promise<FilterRowsResponse> {
+    const res = await apiClient.post<FilterRowsResponse>(`datalab/filter-rows/${datasetId}/`, body);
+    return res.data;
+  },
+
+  async cleanString(datasetId: number, body: CleanStringRequest): Promise<CleanStringResponse> {
+    const res = await apiClient.post<CleanStringResponse>(`datalab/clean-string/${datasetId}/`, body);
+    return res.data;
+  },
+
+  async scaleColumns(datasetId: number, body: ScaleColumnsRequest): Promise<ScaleColumnsResponse> {
+    const res = await apiClient.post<ScaleColumnsResponse>(`datalab/scale-columns/${datasetId}/`, body);
+    return res.data;
+  },
+
+  async extractDatetime(datasetId: number, body: ExtractDatetimeRequest): Promise<ExtractDatetimeResponse> {
+    const res = await apiClient.post<ExtractDatetimeResponse>(`datalab/extract-datetime/${datasetId}/`, body);
+    return res.data;
+  },
+
+  async encodeColumns(datasetId: number, body: EncodeColumnsRequest): Promise<EncodeColumnsResponse> {
+    const res = await apiClient.post<EncodeColumnsResponse>(`datalab/encode-columns/${datasetId}/`, body);
     return res.data;
   },
 };
