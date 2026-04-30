@@ -179,6 +179,11 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
         return Object.fromEntries(inspect.info.columns.map((c) => [c.column, c]));
     }, [inspect]);
 
+    const rowIndexMap = React.useMemo(
+        () => new Map(rows.map((r, i) => [r, i])),
+        [rows]
+    );
+
     // Clear row-index-based selection when search changes (indices shift)
     React.useEffect(() => {
         setSelectedRows(new Set());
@@ -547,7 +552,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                                 </tr>
                             ) : (
                                 filteredRows.map((row, filteredRowIndex) => {
-                                    const rowIndex = rows.indexOf(row);
+                                    const rowIndex = rowIndexMap.get(row) ?? filteredRowIndex;
                                     const isRowSel = selectedRows.has(filteredRowIndex);
                                     return (
                                         <tr

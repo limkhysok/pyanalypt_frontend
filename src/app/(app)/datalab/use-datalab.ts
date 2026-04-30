@@ -21,6 +21,7 @@ export function useDatalab() {
     const [loadingDatasets, setLoadingDatasets] = React.useState(true);
     const [loadingData, setLoadingData] = React.useState(false);
     const [limit, setLimit] = React.useState(100);
+    const refetchAllTokenRef = React.useRef(0);
 
     function handleSetSelectedId(id: string) {
         setLimit(100);
@@ -96,8 +97,10 @@ export function useDatalab() {
     function refetchAll() {
         if (!selectedId) return;
         const id = Number(selectedId);
+        const token = ++refetchAllTokenRef.current;
         Promise.all([datalabApi.preview(id, limit), datalabApi.inspect(id), datalabApi.describe(id)])
             .then(([previewData, inspectData, describeData]) => {
+                if (token !== refetchAllTokenRef.current) return;
                 setPreview(previewData);
                 setInspect(inspectData);
                 setDescribe(describeData);

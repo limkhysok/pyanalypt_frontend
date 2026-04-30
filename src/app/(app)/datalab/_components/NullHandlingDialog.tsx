@@ -33,6 +33,10 @@ import { datalabApi } from "@/services/api";
 import type { DataLabInspectColumn, FillNullsStrategy, ArithmeticFormula } from "@/services/api";
 import { toast } from "sonner";
 
+function apiErr(err: unknown) {
+    return (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail;
+}
+
 type Step = "replace" | "derive" | "drop" | "fill";
 
 const STRATEGIES: { value: FillNullsStrategy; label: string; notes: string }[] = [
@@ -139,8 +143,8 @@ export function NullHandlingDialog({
             }
             setStep("drop");
             setSelectedCols([]); // Reset selection for next step
-        } catch (err: any) {
-            toast.error(err.response?.data?.detail ?? "Failed to replace values.");
+        } catch (err: unknown) {
+            toast.error(apiErr(err) ?? "Failed to replace values.");
         } finally {
             setLoading(false);
         }
@@ -168,8 +172,8 @@ export function NullHandlingDialog({
             }
             setStep("drop");
             setSelectedCols([]);
-        } catch (err: any) {
-            toast.error(err.response?.data?.detail ?? "Failed to derive values.");
+        } catch (err: unknown) {
+            toast.error(apiErr(err) ?? "Failed to derive values.");
         } finally {
             setLoading(false);
         }
@@ -204,8 +208,8 @@ export function NullHandlingDialog({
             }
             setStep("fill");
             setSelectedCols([]); // Reset selection for next step
-        } catch (err: any) {
-            toast.error(err.response?.data?.detail ?? "Failed to drop nulls.");
+        } catch (err: unknown) {
+            toast.error(apiErr(err) ?? "Failed to drop nulls.");
         } finally {
             setLoading(false);
         }
@@ -232,8 +236,8 @@ export function NullHandlingDialog({
                 onRefetchInspect();
             }
             onOpenChange(false);
-        } catch (err: any) {
-            toast.error(err.response?.data?.detail ?? "Failed to fill nulls.");
+        } catch (err: unknown) {
+            toast.error(apiErr(err) ?? "Failed to fill nulls.");
         } finally {
             setLoading(false);
         }
@@ -338,12 +342,13 @@ export function NullHandlingDialog({
                                         </div>
                                     </div>
 
-                                    <ColumnPicker 
-                                        columns={filteredCols} 
-                                        selected={selectedCols} 
-                                        onToggle={toggleColumn} 
-                                        search={colSearch} 
-                                        onSearchChange={setColSearch} 
+                                    <ColumnPicker
+                                        columns={filteredCols}
+                                        selected={selectedCols}
+                                        onToggle={toggleColumn}
+                                        onClearAll={() => setSelectedCols([])}
+                                        search={colSearch}
+                                        onSearchChange={setColSearch}
                                     />
                                 </div>
                             )}
@@ -373,6 +378,7 @@ export function NullHandlingDialog({
                                     filteredCols={filteredCols}
                                     selectedCols={selectedCols}
                                     toggleColumn={toggleColumn}
+                                    onClearAll={() => setSelectedCols([])}
                                     colSearch={colSearch}
                                     setColSearch={setColSearch}
                                     columnsToDropPreview={columnsToDropPreview}
@@ -380,7 +386,7 @@ export function NullHandlingDialog({
                             )}
 
                             {step === "fill" && (
-                                <FillStep 
+                                <FillStep
                                     fillStrategy={fillStrategy}
                                     setFillStrategy={setFillStrategy}
                                     fillValue={fillValue}
@@ -388,6 +394,7 @@ export function NullHandlingDialog({
                                     filteredCols={filteredCols}
                                     selectedCols={selectedCols}
                                     toggleColumn={toggleColumn}
+                                    onClearAll={() => setSelectedCols([])}
                                     colSearch={colSearch}
                                     setColSearch={setColSearch}
                                 />
@@ -575,7 +582,7 @@ function DeriveStep({
 }
 
 function DropStep({
-    dropAxis, setDropAxis, dropHow, setDropHow, threshPct, setThreshPct, filteredCols, selectedCols, toggleColumn, colSearch, setColSearch, columnsToDropPreview
+    dropAxis, setDropAxis, dropHow, setDropHow, threshPct, setThreshPct, filteredCols, selectedCols, toggleColumn, onClearAll, colSearch, setColSearch, columnsToDropPreview
 }: Readonly<{
     dropAxis: "rows" | "columns",
     setDropAxis: (s: "rows" | "columns") => void,
@@ -586,6 +593,7 @@ function DropStep({
     filteredCols: DataLabInspectColumn[],
     selectedCols: string[],
     toggleColumn: (s: string) => void,
+    onClearAll?: () => void,
     colSearch: string,
     setColSearch: (s: string) => void,
     columnsToDropPreview: string[]
@@ -639,13 +647,14 @@ function DropStep({
                         </div>
                     </div>
 
-                    <ColumnPicker 
+                    <ColumnPicker
                         label="Check only these columns (optional)"
-                        columns={filteredCols} 
-                        selected={selectedCols} 
-                        onToggle={toggleColumn} 
-                        search={colSearch} 
-                        onSearchChange={setColSearch} 
+                        columns={filteredCols}
+                        selected={selectedCols}
+                        onToggle={toggleColumn}
+                        onClearAll={onClearAll}
+                        search={colSearch}
+                        onSearchChange={setColSearch}
                     />
                 </div>
             ) : (
@@ -691,7 +700,7 @@ function DropStep({
 }
 
 function FillStep({
-    fillStrategy, setFillStrategy, fillValue, setFillValue, filteredCols, selectedCols, toggleColumn, colSearch, setColSearch
+    fillStrategy, setFillStrategy, fillValue, setFillValue, filteredCols, selectedCols, toggleColumn, onClearAll, colSearch, setColSearch
 }: Readonly<{
     fillStrategy: FillNullsStrategy,
     setFillStrategy: (s: FillNullsStrategy) => void,
@@ -700,6 +709,7 @@ function FillStep({
     filteredCols: DataLabInspectColumn[],
     selectedCols: string[],
     toggleColumn: (s: string) => void,
+    onClearAll?: () => void,
     colSearch: string,
     setColSearch: (s: string) => void
 }>) {
@@ -736,12 +746,13 @@ function FillStep({
                 </div>
             )}
 
-            <ColumnPicker 
-                columns={filteredCols} 
-                selected={selectedCols} 
-                onToggle={toggleColumn} 
-                search={colSearch} 
-                onSearchChange={setColSearch} 
+            <ColumnPicker
+                columns={filteredCols}
+                selected={selectedCols}
+                onToggle={toggleColumn}
+                onClearAll={onClearAll}
+                search={colSearch}
+                onSearchChange={setColSearch}
             />
         </div>
     );
@@ -770,18 +781,20 @@ function StepButton({ label, active, icon, onClick }: Readonly<{ label: string, 
     );
 }
 
-function ColumnPicker({ 
-    columns, 
-    selected, 
-    onToggle, 
-    search, 
+function ColumnPicker({
+    columns,
+    selected,
+    onToggle,
+    onClearAll,
+    search,
     onSearchChange,
     label = "Apply to these columns (optional)"
-}: Readonly<{ 
-    columns: DataLabInspectColumn[], 
-    selected: string[], 
-    onToggle: (col: string) => void, 
-    search: string, 
+}: Readonly<{
+    columns: DataLabInspectColumn[],
+    selected: string[],
+    onToggle: (col: string) => void,
+    onClearAll?: () => void,
+    search: string,
     onSearchChange: (s: string) => void,
     label?: string
 }>) {
@@ -842,13 +855,13 @@ function ColumnPicker({
                         })}
                     </div>
                 </ScrollArea>
-                {selected.length > 0 && (
+                {selected.length > 0 && onClearAll && (
                     <div className="px-3 py-1.5 border-t border-border/40 bg-muted/5 flex justify-end">
-                        <button 
-                            onClick={() => {}} // This should be a clear all, need to pass it
+                        <button
+                            onClick={onClearAll}
                             className="text-[13px] text-muted-foreground hover:text-foreground font-bold"
                         >
-                            {/* Clear All - will implement if needed */}
+                            Clear All
                         </button>
                     </div>
                 )}

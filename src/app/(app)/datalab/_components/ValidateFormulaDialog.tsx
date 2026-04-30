@@ -82,8 +82,8 @@ export function ValidateFormulaDialog({
             } else {
                 toast.warning(`Audit found ${res.error_rows} inconsistent rows.`);
             }
-        } catch (err: any) {
-            toast.error(err.response?.data?.detail ?? "Failed to validate formula.");
+        } catch (err: unknown) {
+            toast.error((err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? "Failed to validate formula.");
         } finally {
             setLoading(false);
         }
@@ -120,8 +120,8 @@ export function ValidateFormulaDialog({
             } else {
                 toast.warning(`${recheck.error_rows} rows still inconsistent after fix.`);
             }
-        } catch (err: any) {
-            toast.error(err.response?.data?.detail ?? "Failed to fix formula.");
+        } catch (err: unknown) {
+            toast.error((err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? "Failed to fix formula.");
         } finally {
             setFixLoading(false);
         }
@@ -510,6 +510,10 @@ function buildFixParams(
             subtract: "add",      // result = A−B  → A = result+B
         };
         return { target: operand_a, formula: inverse[formula], operand_a: result_column, operand_b };
+    }
+
+    if (badColumn !== operand_b) {
+        return { target: result_column, formula, operand_a, operand_b };
     }
 
     // badColumn === operand_b: result = A OP B  →  B = ?
