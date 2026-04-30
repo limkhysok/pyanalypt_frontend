@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-    Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+    Dialog, DialogContent,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Label } from "@/components/ui/label";
@@ -34,10 +34,11 @@ const DATETIME_FEATURES: { value: DatetimeFeature; label: string; desc: string }
 ];
 
 export function TransformDialog({
-    open, onOpenChange, datasetId, columns, onRefetchAll,
+    open, onOpenChange = () => {}, asPanel, datasetId, columns, onRefetchAll,
 }: Readonly<{
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    asPanel?: boolean;
     datasetId: number;
     columns: DataLabInspectColumn[];
     onRefetchAll: () => void;
@@ -162,10 +163,8 @@ export function TransformDialog({
         }
     }
 
-    return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="rounded-none max-w-2xl p-0 gap-0 overflow-hidden border-border/60">
-                <div className="flex h-135">
+    const inner = (
+        <div className="flex h-135">
                     {/* Sidebar */}
                     <div className="w-48 bg-muted/30 border-r border-border/60 p-4 flex flex-col gap-1">
                         <div className="mb-4">
@@ -183,18 +182,18 @@ export function TransformDialog({
 
                     {/* Main */}
                     <div className="flex-1 flex flex-col bg-background">
-                        <DialogHeader className="p-6 pb-4">
-                            <DialogTitle className="text-sm font-bold">
+                        <div className="p-6 pb-4 flex flex-col space-y-1.5 text-center sm:text-left">
+                            <h2 className="text-sm font-bold leading-none tracking-tight">
                                 {step === "scale"    && "Step 1 — Scale Columns"}
                                 {step === "datetime" && "Step 2 — Extract Datetime Features"}
                                 {step === "encode"   && "Step 3 — Encode Categorical Columns"}
-                            </DialogTitle>
-                            <DialogDescription className="text-[13px]">
+                            </h2>
+                            <p className="text-sm text-muted-foreground text-[13px]">
                                 {step === "scale"    && "Normalize numeric columns to a common range. Irreversible — duplicate the dataset first if unsure."}
                                 {step === "datetime" && "Extract year, month, day, etc. from a date column into separate numeric columns."}
                                 {step === "encode"   && "Convert categorical text columns to numbers using label or one-hot encoding."}
-                            </DialogDescription>
-                        </DialogHeader>
+                            </p>
+                        </div>
 
                         <div className="flex-1 overflow-y-auto px-6 pb-6 space-y-5">
                             {step === "scale" && (
@@ -374,6 +373,20 @@ export function TransformDialog({
                         </div>
                     </div>
                 </div>
+    );
+
+    if (asPanel) {
+        return (
+            <div className="border border-border/60 bg-background h-full w-full overflow-hidden">
+                {inner}
+            </div>
+        );
+    }
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="rounded-none max-w-2xl p-0 gap-0 overflow-hidden border-border/60">
+                {inner}
             </DialogContent>
         </Dialog>
     );

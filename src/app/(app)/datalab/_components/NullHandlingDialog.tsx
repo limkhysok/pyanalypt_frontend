@@ -16,9 +16,6 @@ import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
@@ -49,14 +46,16 @@ const STRATEGIES: { value: FillNullsStrategy; label: string; notes: string }[] =
 
 export function NullHandlingDialog({
     open,
-    onOpenChange,
+    onOpenChange = () => {},
+    asPanel,
     datasetId,
     columns,
     onRefetchInspect,
     onRefetchAll,
 }: Readonly<{
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    asPanel?: boolean;
     datasetId: number;
     columns: DataLabInspectColumn[];
     onRefetchInspect: () => void;
@@ -186,7 +185,7 @@ export function NullHandlingDialog({
             const res = await datalabApi.dropNulls(datasetId, body);
 
             if (dropAxis === "rows") {
-                const r = res as any; // Rows response
+                const r = res as { rows_dropped: number };
                 if (r.rows_dropped === 0) {
                     toast.info("No rows matched for dropping.");
                 } else {
@@ -194,11 +193,12 @@ export function NullHandlingDialog({
                     onRefetchAll();
                 }
             } else {
-                const c = res as any; // Columns response
-                if (c.columns_dropped.length === 0) {
+                const c = res as { columns_dropped?: string[] };
+                const dropped = c.columns_dropped ?? [];
+                if (dropped.length === 0) {
                     toast.info("No columns matched for dropping.");
                 } else {
-                    toast.success(`Dropped ${c.columns_dropped.length} columns: ${c.columns_dropped.join(", ")}`);
+                    toast.success(`Dropped ${dropped.length} columns: ${dropped.join(", ")}`);
                     onRefetchAll();
                 }
             }
@@ -243,10 +243,8 @@ export function NullHandlingDialog({
         ? columns.filter(c => c.null_pct > threshPct).map(c => c.column)
         : [];
 
-    return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="rounded-none max-w-2xl p-0 gap-0 overflow-hidden border-border/60">
-                <div className="flex h-137.5">
+    const inner = (
+        <div className="flex h-137.5">
                     {/* ── Sidebar Stepper ── */}
                     <div className="w-48 bg-muted/30 border-r border-border/60 p-4 flex flex-col gap-1">
                         <div className="mb-4">
@@ -286,20 +284,20 @@ export function NullHandlingDialog({
 
                     {/* ── Main Content ── */}
                     <div className="flex-1 flex flex-col bg-background">
-                        <DialogHeader className="p-6 pb-4">
-                            <DialogTitle className="text-sm font-bold flex items-center gap-2">
+                        <div className="p-6 pb-4 flex flex-col space-y-1.5 text-center sm:text-left">
+                            <h2 className="text-sm font-bold leading-none tracking-tight flex items-center gap-2">
                                 {step === "replace" && "Step 1 — Fix Bad Values"}
                                 {step === "derive" && "Step 2 — Fill from Formula"}
                                 {step === "drop" && "Step 3 — Remove Empty Data"}
                                 {step === "fill" && "Step 4 — Fill Empty Cells"}
-                            </DialogTitle>
-                            <DialogDescription className="text-[13px]">
+                            </h2>
+                            <p className="text-sm text-muted-foreground text-[13px]">
                                 {step === "replace" && "Replace placeholder text like 'N/A', '-', or '?' with a real empty value."}
                                 {step === "derive" && "Calculate missing values from other columns — e.g. Total = Qty × Price."}
                                 {step === "drop" && "Delete rows or columns that are too empty to be useful."}
                                 {step === "fill" && "Replace empty cells with a calculated or fixed value."}
-                            </DialogDescription>
-                        </DialogHeader>
+                            </p>
+                        </div>
 
                         <div className="flex-1 overflow-y-auto px-6 pb-6">
                             {step === "replace" && (
@@ -455,6 +453,20 @@ export function NullHandlingDialog({
                         </div>
                     </div>
                 </div>
+    );
+
+    if (asPanel) {
+        return (
+            <div className="border border-border/60 bg-background h-full w-full overflow-hidden">
+                {inner}
+            </div>
+        );
+    }
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="rounded-none max-w-2xl p-0 gap-0 overflow-hidden border-border/60">
+                {inner}
             </DialogContent>
         </Dialog>
     );

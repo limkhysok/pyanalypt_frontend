@@ -33,7 +33,7 @@ export interface DataLabInspect {
 export interface CastColumnResult {
   column: string;
   from_dtype: string;
-  to_dtype: string;
+  to_dtype: string | null;
   status: string;
   validation?: { status: string; message: string };
 }

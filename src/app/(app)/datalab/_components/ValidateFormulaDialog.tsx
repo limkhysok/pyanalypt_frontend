@@ -12,9 +12,6 @@ import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
@@ -33,13 +30,15 @@ import { toast } from "sonner";
 
 export function ValidateFormulaDialog({
     open,
-    onOpenChange,
+    onOpenChange = () => {},
+    asPanel,
     datasetId,
     columns,
     onSuccess,
 }: Readonly<{
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    asPanel?: boolean;
     datasetId: number;
     columns: DataLabInspectColumn[];
     onSuccess?: () => void;
@@ -130,25 +129,24 @@ export function ValidateFormulaDialog({
 
     const numericCols = columns.filter(c => c.dtype.includes("int") || c.dtype.includes("float"));
 
-    return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="rounded-none max-w-3xl p-0 gap-0 overflow-hidden border-border/60">
-                <DialogHeader className="p-6 border-b bg-muted/10 relative overflow-hidden">
-                    <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
+    const inner = (
+        <>
+                <div className="flex flex-col space-y-1.5 text-center sm:text-left p-6 border-b bg-muted/10 relative overflow-hidden">
+                    <div className="absolute inset-0 bg-linear-to-br from-primary/5 via-transparent to-transparent pointer-events-none" />
                     <div className="flex items-center gap-3 relative z-10">
                         <div className="p-2 bg-primary/10 text-primary rounded-lg">
                             <Calculator className="h-5 w-5" />
                         </div>
                         <div>
-                            <DialogTitle className="text-lg font-bold tracking-tight">Audit Formula Consistency</DialogTitle>
-                            <DialogDescription className="text-sm mt-0.5">
+                            <h2 className="text-lg font-bold leading-none tracking-tight">Audit Formula Consistency</h2>
+                            <p className="text-sm text-muted-foreground mt-0.5">
                                 Verify and repair inconsistencies between calculated values and result columns.
-                            </DialogDescription>
+                            </p>
                         </div>
                     </div>
-                </DialogHeader>
+                </div>
 
-                <div className="flex flex-col h-[600px]">
+                <div className={cn("flex flex-col", asPanel ? "" : "h-150")}>
                     <div className="p-6 space-y-6 border-b bg-muted/5">
                         <div className="space-y-4">
                             <Label className="text-[12px] font-black uppercase tracking-[0.15em] text-muted-foreground/80">Formula Configuration</Label>
@@ -169,11 +167,11 @@ export function ValidateFormulaDialog({
                                     </Select>
                                 </div>
 
-                                <div className="h-10 flex items-center justify-center text-xl font-light text-muted-foreground/40 px-1 hidden md:flex">
+                                <div className="h-10 items-center justify-center text-xl font-light text-muted-foreground/40 px-1 hidden md:flex">
                                     =
                                 </div>
 
-                                <div className="flex-[2] flex gap-2">
+                                <div className="flex-2 flex gap-2">
                                     <div className="flex-1 space-y-1.5">
                                         <Label className="text-[11px] font-medium text-muted-foreground ml-1">Operand A</Label>
                                         <Select value={opA} onValueChange={setOpA}>
@@ -196,7 +194,7 @@ export function ValidateFormulaDialog({
                                             <SelectTrigger className="h-10 rounded-none font-mono text-center text-[13px] bg-background">
                                                 <SelectValue />
                                             </SelectTrigger>
-                                            <SelectContent className="rounded-none min-w-[60px]">
+                                            <SelectContent className="rounded-none min-w-15">
                                                 <SelectItem value="add" className="rounded-none font-bold text-center">+</SelectItem>
                                                 <SelectItem value="subtract" className="rounded-none font-bold text-center">−</SelectItem>
                                                 <SelectItem value="multiply" className="rounded-none font-bold text-center">×</SelectItem>
@@ -257,7 +255,7 @@ export function ValidateFormulaDialog({
                                 </div>
                                 <div>
                                     <p className="text-base font-semibold text-foreground">Awaiting Configuration</p>
-                                    <p className="text-sm opacity-60 mt-1 max-w-[300px]">
+                                    <p className="text-sm opacity-60 mt-1 max-w-75">
                                         Define the arithmetic relationship between columns to start the verification process.
                                     </p>
                                 </div>
@@ -287,7 +285,7 @@ export function ValidateFormulaDialog({
                         )}
 
                         {result && (
-                            <ScrollArea className="flex-1">
+                            <ScrollArea className="flex-1 h-100">
                                 <div className="p-6 space-y-8">
                                     {/* Stats Cards */}
                                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -340,7 +338,7 @@ export function ValidateFormulaDialog({
                                             </div>
                                             <div className="border border-border/60 overflow-hidden shadow-sm">
                                                 <div className="overflow-x-auto">
-                                                    <table className="w-full text-left text-[13px] border-collapse min-w-[600px]">
+                                                    <table className="w-full text-left text-[13px] border-collapse min-w-150">
                                                         <thead>
                                                             <tr className="bg-muted/50 border-b">
                                                                 <th className="px-4 py-2.5 font-bold font-mono text-[11px] uppercase tracking-wider opacity-60">Row</th>
@@ -408,7 +406,7 @@ export function ValidateFormulaDialog({
                                                         </button>
                                                     ))}
                                                 </div>
-                                                <p className="text-[12px] text-muted-foreground leading-relaxed max-w-[500px]">
+                                                <p className="text-[12px] text-muted-foreground leading-relaxed max-w-125">
                                                     Values in <span className="font-bold text-foreground">{fixTarget}</span> will be overwritten by calculating the inverse formula using the other two columns as reference data.
                                                 </p>
                                             </div>
@@ -441,11 +439,28 @@ export function ValidateFormulaDialog({
                     </div>
                 </div>
 
-                <div className="p-4 border-t bg-muted/20 flex justify-end">
-                    <Button variant="ghost" size="sm" className="h-9 rounded-none px-6 font-bold text-muted-foreground hover:text-foreground transition-colors" onClick={() => onOpenChange(false)}>
-                        Close Auditor
-                    </Button>
-                </div>
+                {!asPanel && (
+                    <div className="p-4 border-t bg-muted/20 flex justify-end">
+                        <Button variant="ghost" size="sm" className="h-9 rounded-none px-6 font-bold text-muted-foreground hover:text-foreground transition-colors" onClick={() => onOpenChange(false)}>
+                            Close Auditor
+                        </Button>
+                    </div>
+                )}
+        </>
+    );
+
+    if (asPanel) {
+        return (
+            <div className="border border-border/60">
+                {inner}
+            </div>
+        );
+    }
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="rounded-none max-w-3xl p-0 gap-0 overflow-hidden border-border/60">
+                {inner}
             </DialogContent>
         </Dialog>
     );

@@ -4,7 +4,7 @@ import React from "react";
 import { Loader2, Filter, CaseSensitive, ChevronRight, ChevronLeft, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-    Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+    Dialog, DialogContent,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
@@ -40,10 +40,11 @@ const STRING_OPS: { value: CleanStringOperation; label: string; desc: string }[]
 ];
 
 export function CleanFilterDialog({
-    open, onOpenChange, datasetId, columns, onRefetchAll,
+    open, onOpenChange = () => {}, asPanel, datasetId, columns, onRefetchAll,
 }: Readonly<{
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    asPanel?: boolean;
     datasetId: number;
     columns: DataLabInspectColumn[];
     onRefetchAll: () => void;
@@ -137,9 +138,8 @@ export function CleanFilterDialog({
         }
     }
 
-    return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="rounded-none max-w-2xl p-0 gap-0 overflow-hidden border-border/60">
+    const inner = (
+        <>
                 <div className="flex h-125">
                     {/* Sidebar */}
                     <div className="w-48 bg-muted/30 border-r border-border/60 p-4 flex flex-col gap-1">
@@ -157,16 +157,16 @@ export function CleanFilterDialog({
 
                     {/* Main */}
                     <div className="flex-1 flex flex-col bg-background">
-                        <DialogHeader className="p-6 pb-4">
-                            <DialogTitle className="text-sm font-bold">
+                        <div className="p-6 pb-4 flex flex-col space-y-1.5 text-center sm:text-left">
+                            <h2 className="text-lg font-semibold leading-none tracking-tight text-sm font-bold">
                                 {step === "filter" && "Step 1 — Filter Rows"}
                                 {step === "string" && "Step 2 — Clean Text Columns"}
-                            </DialogTitle>
-                            <DialogDescription className="text-[13px]">
+                            </h2>
+                            <p className="text-sm text-muted-foreground text-[13px]">
                                 {step === "filter" && "Keep only rows that match a condition. Removed rows cannot be recovered."}
                                 {step === "string" && "Strip whitespace or change casing for text (object) columns."}
-                            </DialogDescription>
-                        </DialogHeader>
+                            </p>
+                        </div>
 
                         <div className="flex-1 overflow-y-auto px-6 pb-6 space-y-5">
                             {step === "filter" && (
@@ -316,6 +316,21 @@ export function CleanFilterDialog({
                         </div>
                     </div>
                 </div>
+        </>
+    );
+
+    if (asPanel) {
+        return (
+            <div className="border border-border/60 bg-background h-full w-full overflow-hidden">
+                {inner}
+            </div>
+        );
+    }
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="rounded-none max-w-2xl p-0 gap-0 overflow-hidden border-border/60">
+                {inner}
             </DialogContent>
         </Dialog>
     );

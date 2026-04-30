@@ -7,12 +7,11 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-    Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
+    Dialog, DialogContent,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
@@ -24,10 +23,11 @@ import { toast } from "sonner";
 type Step = "drop" | "add" | "normalize";
 
 export function ColumnToolsDialog({
-    open, onOpenChange, datasetId, columns, onRefetchAll,
+    open, onOpenChange = () => {}, asPanel, datasetId, columns, onRefetchAll,
 }: Readonly<{
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    asPanel?: boolean;
     datasetId: number;
     columns: DataLabInspectColumn[];
     onRefetchAll: () => void;
@@ -133,10 +133,8 @@ export function ColumnToolsDialog({
         add: "+", subtract: "−", multiply: "×", divide: "÷",
     };
 
-    return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="rounded-none max-w-2xl p-0 gap-0 overflow-hidden border-border/60">
-                <div className="flex h-130">
+    const inner = (
+        <div className="flex h-130">
                     {/* Sidebar */}
                     <div className="w-48 bg-muted/30 border-r border-border/60 p-4 flex flex-col gap-1">
                         <div className="mb-4">
@@ -154,18 +152,18 @@ export function ColumnToolsDialog({
 
                     {/* Main */}
                     <div className="flex-1 flex flex-col bg-background">
-                        <DialogHeader className="p-6 pb-4">
-                            <DialogTitle className="text-sm font-bold flex items-center gap-2">
+                        <div className="p-6 pb-4 flex flex-col space-y-1.5 text-center sm:text-left">
+                            <h2 className="text-sm font-bold leading-none tracking-tight flex items-center gap-2">
                                 {step === "drop" && "Step 1 — Drop Columns"}
                                 {step === "add" && "Step 2 — Add Derived Column"}
                                 {step === "normalize" && "Step 3 — Normalize Column Names"}
-                            </DialogTitle>
-                            <DialogDescription className="text-[13px]">
+                            </h2>
+                            <p className="text-sm text-muted-foreground text-[13px]">
                                 {step === "drop" && "Permanently remove columns you no longer need. This cannot be undone."}
                                 {step === "add" && "Create a new column by applying an arithmetic formula to two existing numeric columns."}
                                 {step === "normalize" && "Rename all columns to lowercase snake_case — spaces and special characters become underscores."}
-                            </DialogDescription>
-                        </DialogHeader>
+                            </p>
+                        </div>
 
                         <div className="flex-1 overflow-y-auto px-6 pb-6 space-y-5">
                             {step === "drop" && (
@@ -357,6 +355,20 @@ export function ColumnToolsDialog({
                         </div>
                     </div>
                 </div>
+    );
+
+    if (asPanel) {
+        return (
+            <div className="border border-border/60 bg-background h-full w-full overflow-hidden">
+                {inner}
+            </div>
+        );
+    }
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="rounded-none max-w-2xl p-0 gap-0 overflow-hidden border-border/60">
+                {inner}
             </DialogContent>
         </Dialog>
     );

@@ -6,10 +6,6 @@ import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
-    DialogFooter,
 } from "@/components/ui/dialog";
 import {
     Select,
@@ -36,9 +32,10 @@ const MODES: { value: DropDuplicatesMode; label: string; description: string }[]
     { value: "drop_all",    label: "Remove all copies",        description: "If any row is repeated, delete every copy — nothing is kept." },
 ];
 
-export function DropDuplicatesDialog({ open, onOpenChange, datasetId, columns, onSuccess }: Readonly<{
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
+export function DropDuplicatesDialog({ open, onOpenChange = () => {}, asPanel, datasetId, columns, onSuccess }: Readonly<{
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    asPanel?: boolean;
     datasetId: number;
     columns: Column[];
     onSuccess: () => void;
@@ -97,18 +94,17 @@ export function DropDuplicatesDialog({ open, onOpenChange, datasetId, columns, o
         }
     }
 
-    return (
-        <Dialog open={open} onOpenChange={handleClose}>
-            <DialogContent className="rounded-none max-w-md gap-4">
-                <DialogHeader>
+    const inner = (
+        <>
+                <div className="flex flex-col space-y-1.5 text-center sm:text-left">
                     <div className="flex items-center gap-2 mb-0.5">
                         <Copy className="h-4 w-4 text-muted-foreground" />
-                        <DialogTitle className="text-sm font-bold">Remove Duplicate Rows</DialogTitle>
+                        <h2 className="text-lg font-semibold leading-none tracking-tight text-sm font-bold">Remove Duplicate Rows</h2>
                     </div>
-                    <DialogDescription className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground">
                         Choose how to handle rows that appear more than once.
-                    </DialogDescription>
-                </DialogHeader>
+                    </p>
+                </div>
 
                 <div className="flex items-start gap-2 px-3 py-2.5 border border-amber-500/30 bg-amber-500/5">
                     <AlertTriangle className="h-3.5 w-3.5 mt-0.5 shrink-0 text-amber-600" />
@@ -225,7 +221,7 @@ export function DropDuplicatesDialog({ open, onOpenChange, datasetId, columns, o
                     )}
                 </div>
 
-                <DialogFooter className="gap-2">
+                <div className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 gap-2">
                     <Button variant="ghost" size="sm" className="rounded-none text-sm h-8" onClick={handleClose} disabled={loading}>
                         Cancel
                     </Button>
@@ -233,7 +229,22 @@ export function DropDuplicatesDialog({ open, onOpenChange, datasetId, columns, o
                         {loading && <Loader2 className="h-3 w-3 animate-spin" />}
                         Remove Duplicates
                     </Button>
-                </DialogFooter>
+                </div>
+        </>
+    );
+
+    if (asPanel) {
+        return (
+            <div className="border border-border/60 p-5 bg-background h-full">
+                {inner}
+            </div>
+        );
+    }
+
+    return (
+        <Dialog open={open} onOpenChange={handleClose}>
+            <DialogContent className="rounded-none max-w-md gap-4">
+                {inner}
             </DialogContent>
         </Dialog>
     );

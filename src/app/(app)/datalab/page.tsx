@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { FlaskConical, Database, ChevronDown, Table2, Info, BarChart2, DatabaseZap } from "lucide-react";
+import { FlaskConical, Database, ChevronDown, Table2, Info, BarChart2, DatabaseZap, Layers, Eraser, ShieldCheck, Activity, Columns2, Filter, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -20,6 +20,14 @@ import { DescribeTab } from "./_components/DescribeTab";
 import { PreviewTabSkeleton } from "./_components/PreviewTabSkeleton";
 import { InspectTabSkeleton } from "./_components/InspectTabSkeleton";
 import { DescribeTabSkeleton } from "./_components/DescribeTabSkeleton";
+import { DropDuplicatesDialog } from "./_components/DropDuplicatesDialog";
+import { NullHandlingDialog } from "./_components/NullHandlingDialog";
+import { ValidateFormulaDialog } from "./_components/ValidateFormulaDialog";
+import { OutlierDialog } from "./_components/OutlierDialog";
+import { ColumnToolsDialog } from "./_components/ColumnToolsDialog";
+import { CleanFilterDialog } from "./_components/CleanFilterDialog";
+import { TransformDialog } from "./_components/TransformDialog";
+
 
 export default function DataLabPage() {
     const {
@@ -65,7 +73,7 @@ export default function DataLabPage() {
             {/* ── Content ── */}
             <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
                 <div className="flex items-center justify-between mb-4">
-                    <TabsList className="rounded-none">
+                    <TabsList className="rounded-none h-auto flex-wrap justify-start">
                         <TabsTrigger value="preview" className="gap-2 rounded-none">
                             <Table2 className="h-3.5 w-3.5" /> Data Preview
                         </TabsTrigger>
@@ -74,6 +82,27 @@ export default function DataLabPage() {
                         </TabsTrigger>
                         <TabsTrigger value="describe" className="gap-2 rounded-none">
                             <BarChart2 className="h-3.5 w-3.5" /> Describe
+                        </TabsTrigger>
+                        <TabsTrigger value="drop-dups" className="gap-2 rounded-none">
+                            <Layers className="h-3.5 w-3.5" /> Drop Duplicates
+                        </TabsTrigger>
+                        <TabsTrigger value="nulls" className="gap-2 rounded-none">
+                            <Eraser className="h-3.5 w-3.5" /> Handle Nulls
+                        </TabsTrigger>
+                        <TabsTrigger value="formula" className="gap-2 rounded-none">
+                            <ShieldCheck className="h-3.5 w-3.5" /> Formula Audit
+                        </TabsTrigger>
+                        <TabsTrigger value="outliers" className="gap-2 rounded-none">
+                            <Activity className="h-3.5 w-3.5" /> Handle Outliers
+                        </TabsTrigger>
+                        <TabsTrigger value="col-tools" className="gap-2 rounded-none">
+                            <Columns2 className="h-3.5 w-3.5" /> Column Tools
+                        </TabsTrigger>
+                        <TabsTrigger value="clean" className="gap-2 rounded-none">
+                            <Filter className="h-3.5 w-3.5" /> Clean & Filter
+                        </TabsTrigger>
+                        <TabsTrigger value="transform" className="gap-2 rounded-none">
+                            <SlidersHorizontal className="h-3.5 w-3.5" /> Transform
                         </TabsTrigger>
                     </TabsList>
 
@@ -145,6 +174,27 @@ export default function DataLabPage() {
                                 ? <DescribeTab data={describe} preview={preview} />
                                 : <div className="border bg-muted/5 h-105" />
                             }
+                        </TabsContent>
+                        <TabsContent value="drop-dups">
+                            {inspect ? <DropDuplicatesDialog asPanel datasetId={Number(selectedId)} columns={inspect.info.columns.map(c => ({ column: c.column, is_unique: c.is_unique }))} onSuccess={refetchAll} /> : <div className="border bg-muted/5 h-105" />}
+                        </TabsContent>
+                        <TabsContent value="nulls">
+                            {inspect ? <NullHandlingDialog asPanel datasetId={Number(selectedId)} columns={inspect.info.columns} onRefetchInspect={refetchInspect} onRefetchAll={refetchAll} /> : <div className="border bg-muted/5 h-105" />}
+                        </TabsContent>
+                        <TabsContent value="formula">
+                            {inspect ? <ValidateFormulaDialog asPanel datasetId={Number(selectedId)} columns={inspect.info.columns} onSuccess={refetchAll} /> : <div className="border bg-muted/5 h-105" />}
+                        </TabsContent>
+                        <TabsContent value="outliers">
+                            {inspect ? <OutlierDialog asPanel datasetId={Number(selectedId)} columns={inspect.info.columns} onRefetchAll={refetchAll} /> : <div className="border bg-muted/5 h-105" />}
+                        </TabsContent>
+                        <TabsContent value="col-tools">
+                            {inspect ? <ColumnToolsDialog asPanel datasetId={Number(selectedId)} columns={inspect.info.columns} onRefetchAll={refetchAll} /> : <div className="border bg-muted/5 h-105" />}
+                        </TabsContent>
+                        <TabsContent value="clean">
+                            {inspect ? <CleanFilterDialog asPanel datasetId={Number(selectedId)} columns={inspect.info.columns} onRefetchAll={refetchAll} /> : <div className="border bg-muted/5 h-105" />}
+                        </TabsContent>
+                        <TabsContent value="transform">
+                            {inspect ? <TransformDialog asPanel datasetId={Number(selectedId)} columns={inspect.info.columns} onRefetchAll={refetchAll} /> : <div className="border bg-muted/5 h-105" />}
                         </TabsContent>
                     </>
                 )}

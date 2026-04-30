@@ -546,8 +546,9 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                                     </td>
                                 </tr>
                             ) : (
-                                filteredRows.map((row, rowIndex) => {
-                                    const isRowSel = selectedRows.has(rowIndex);
+                                filteredRows.map((row, filteredRowIndex) => {
+                                    const rowIndex = rows.indexOf(row);
+                                    const isRowSel = selectedRows.has(filteredRowIndex);
                                     return (
                                         <tr
                                             key={`${rowIndex}_${displayCell(row[columns[0]])}`}
@@ -557,7 +558,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                                             )}
                                         >
                                             <td
-                                                onClick={(e) => handleRowClick(rowIndex, e)}
+                                                onClick={(e) => handleRowClick(filteredRowIndex, e)}
                                                 className={cn(
                                                     "px-4 py-2.5 text-[13px] text-center font-mono select-none tabular-nums cursor-pointer transition-colors",
                                                     isRowSel
@@ -568,8 +569,8 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                                                 {rowIndex + 1}
                                             </td>
                                             {visibleColumns.map((col) => {
-                                                const isEditing = editingCell?.rowIndex === rowIndex && editingCell?.col === col;
-                                                const hasError = cellError?.rowIndex === rowIndex && cellError?.col === col;
+                                                const isEditing = editingCell?.rowIndex === filteredRowIndex && editingCell?.col === col;
+                                                const hasError = cellError?.rowIndex === filteredRowIndex && cellError?.col === col;
                                                 return (
                                                     <PreviewCell
                                                         key={col}
@@ -581,7 +582,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                                                         isRowSelected={isRowSel}
                                                         isColSelected={selectedCols.has(col)}
                                                         onClearSelection={clearSelection}
-                                                        onStartEdit={() => { setCellError(null); setEditingCell({ rowIndex, col }); }}
+                                                        onStartEdit={() => { setCellError(null); setEditingCell({ rowIndex: filteredRowIndex, col }); }}
                                                         onCommit={(v) => { setEditingCell(null); submitCellEdit(rowIndex, col, v); }}
                                                         onCancel={() => setEditingCell(null)}
                                                         onMoveRight={() => moveEditingCell("right")}

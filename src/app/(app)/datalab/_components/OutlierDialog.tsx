@@ -18,9 +18,6 @@ import { Button } from "@/components/ui/button";
 import {
     Dialog,
     DialogContent,
-    DialogHeader,
-    DialogTitle,
-    DialogDescription,
 } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Label } from "@/components/ui/label";
@@ -51,13 +48,15 @@ function apiErr(err: unknown) {
 
 export function OutlierDialog({
     open,
-    onOpenChange,
+    onOpenChange = () => {},
+    asPanel,
     datasetId,
     columns,
     onRefetchAll,
 }: Readonly<{
-    open: boolean;
-    onOpenChange: (open: boolean) => void;
+    open?: boolean;
+    onOpenChange?: (open: boolean) => void;
+    asPanel?: boolean;
     datasetId: number;
     columns: DataLabInspectColumn[];
     onRefetchAll: () => void;
@@ -252,10 +251,8 @@ export function OutlierDialog({
         transform: { title: "Reduce Skew",          desc: "Apply a math function (log, sqrt, cbrt) to compress a skewed column. Affects all values." },
     };
 
-    return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="rounded-none max-w-3xl p-0 gap-0 overflow-hidden border-border/60">
-                <div className="flex h-137.5">
+    const inner = (
+        <div className="flex h-137.5">
                     {/* ── Sidebar ── */}
                     <div className="w-48 bg-muted/30 border-r border-border/60 p-4 flex flex-col gap-1 shrink-0">
                         <div className="mb-4">
@@ -275,10 +272,10 @@ export function OutlierDialog({
 
                     {/* ── Main Content ── */}
                     <div className="flex-1 flex flex-col bg-background min-w-0">
-                        <DialogHeader className="p-6 pb-4 shrink-0">
-                            <DialogTitle className="text-sm font-bold">{STEP_META[step].title}</DialogTitle>
-                            <DialogDescription className="text-[13px]">{STEP_META[step].desc}</DialogDescription>
-                        </DialogHeader>
+                        <div className="p-6 pb-4 shrink-0 flex flex-col space-y-1.5 text-center sm:text-left">
+                            <h2 className="text-sm font-bold leading-none tracking-tight">{STEP_META[step].title}</h2>
+                            <p className="text-sm text-muted-foreground text-[13px]">{STEP_META[step].desc}</p>
+                        </div>
 
                         <div className="flex-1 overflow-y-auto px-6 pb-4">
                             {numericCols.length === 0 ? (
@@ -400,6 +397,20 @@ export function OutlierDialog({
                         </div>
                     </div>
                 </div>
+    );
+
+    if (asPanel) {
+        return (
+            <div className="border border-border/60 bg-background h-full w-full overflow-hidden">
+                {inner}
+            </div>
+        );
+    }
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="rounded-none max-w-3xl p-0 gap-0 overflow-hidden border-border/60">
+                {inner}
             </DialogContent>
         </Dialog>
     );

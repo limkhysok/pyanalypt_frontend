@@ -2,13 +2,14 @@
 
 import React from "react";
 import {
-    Loader2, Info, KeyRound, Layers, Eraser,
-    ChevronUp, ChevronDown, ChevronsUpDown, Search, X, ShieldCheck, Activity,
-    Columns2, SlidersHorizontal, Filter,
+    Loader2, Info, KeyRound,
+    ChevronUp, ChevronDown, ChevronsUpDown, Search, X,
+    Layers, Eraser, ShieldCheck, Activity, Columns2, Filter, SlidersHorizontal,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
     Select,
     SelectContent,
@@ -28,6 +29,7 @@ import { OutlierDialog } from "./OutlierDialog";
 import { ColumnToolsDialog } from "./ColumnToolsDialog";
 import { CleanFilterDialog } from "./CleanFilterDialog";
 import { TransformDialog } from "./TransformDialog";
+
 import { CAST_TYPES, formatBytes } from "../_lib";
 
 type SortKey = "column" | "non_null_count" | "unique_count" | "null_count" | "null_pct";
@@ -43,13 +45,6 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
     const [casting, setCasting] = React.useState(false);
     const [castResults, setCastResults] = React.useState<CastColumnResult[] | null>(null);
     const [castWarnings, setCastWarnings] = React.useState<CastWarning[] | null>(null);
-    const [dropDupOpen, setDropDupOpen] = React.useState(false);
-    const [nullHandlingOpen, setNullHandlingOpen] = React.useState(false);
-    const [auditOpen, setAuditOpen] = React.useState(false);
-    const [outlierOpen, setOutlierOpen] = React.useState(false);
-    const [columnToolsOpen, setColumnToolsOpen] = React.useState(false);
-    const [cleanFilterOpen, setCleanFilterOpen] = React.useState(false);
-    const [transformOpen, setTransformOpen] = React.useState(false);
     const [search, setSearch] = React.useState("");
     const [sortKey, setSortKey] = React.useState<SortKey | null>(null);
     const [sortDir, setSortDir] = React.useState<"asc" | "desc">("asc");
@@ -131,393 +126,360 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
         <div className="space-y-4">
             <DatasetMetaStrip data={preview} />
 
-            <Card className="rounded-none shadow-sm overflow-hidden">
-                <CardHeader className="px-5 py-3 border-b">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
-                            <Info className="h-3.5 w-3.5 text-muted-foreground" />
-                            <CardTitle className="text-sm font-semibold font-mono">df.info()</CardTitle>
-                        </div>
-                        <div className="flex items-center gap-3">
-                            {hasPending && (
-                                <Button
-                                    size="sm"
-                                    className="h-7 text-sm rounded-none gap-1.5"
-                                    onClick={() => handleCast(false)}
-                                    disabled={casting}
+            <Tabs defaultValue="info">
+                <TabsList className="rounded-none h-auto flex-wrap gap-0 p-1 justify-start bg-muted/40 border border-border/60">
+                    <TabsTrigger value="info" className="rounded-none gap-1.5 text-[13px] data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                        <Info className="h-3.5 w-3.5" /> Column Info
+                    </TabsTrigger>
+                    <TabsTrigger value="drop-dups" className="rounded-none gap-1.5 text-[13px] data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                        <Layers className="h-3.5 w-3.5" /> Drop Duplicates
+                    </TabsTrigger>
+                    <TabsTrigger value="nulls" className="rounded-none gap-1.5 text-[13px] data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                        <Eraser className="h-3.5 w-3.5" /> Handle Nulls
+                    </TabsTrigger>
+                    <TabsTrigger value="formula" className="rounded-none gap-1.5 text-[13px] data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                        <ShieldCheck className="h-3.5 w-3.5" /> Formula Audit
+                    </TabsTrigger>
+                    <TabsTrigger value="outliers" className="rounded-none gap-1.5 text-[13px] data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                        <Activity className="h-3.5 w-3.5" /> Handle Outliers
+                    </TabsTrigger>
+                    <TabsTrigger value="col-tools" className="rounded-none gap-1.5 text-[13px] data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                        <Columns2 className="h-3.5 w-3.5" /> Column Tools
+                    </TabsTrigger>
+                    <TabsTrigger value="clean" className="rounded-none gap-1.5 text-[13px] data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                        <Filter className="h-3.5 w-3.5" /> Clean &amp; Filter
+                    </TabsTrigger>
+                    <TabsTrigger value="transform" className="rounded-none gap-1.5 text-[13px] data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                        <SlidersHorizontal className="h-3.5 w-3.5" /> Transform
+                    </TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="info" className="mt-3">
+                    <Card className="rounded-none shadow-sm overflow-hidden">
+                        <CardHeader className="px-5 py-3 border-b">
+                            <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                    <Info className="h-3.5 w-3.5 text-muted-foreground" />
+                                    <CardTitle className="text-sm font-semibold font-mono">df.info()</CardTitle>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                    {hasPending && (
+                                        <Button
+                                            size="sm"
+                                            className="h-7 text-sm rounded-none gap-1.5"
+                                            onClick={() => handleCast(false)}
+                                            disabled={casting}
+                                        >
+                                            {casting && <Loader2 className="h-3 w-3 animate-spin" />}
+                                            Apply Casts
+                                        </Button>
+                                    )}
+                                    <span className="text-[13px] text-muted-foreground font-mono">
+                                        {formatBytes(data.info.memory_usage_bytes)} memory
+                                    </span>
+                                </div>
+                            </div>
+                        </CardHeader>
+
+                        {/* Search bar */}
+                        <div className="border-b px-5 py-2 flex items-center gap-2">
+                            <Search className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" />
+                            <input
+                                type="text"
+                                placeholder="Filter columns…"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/40 font-mono text-foreground"
+                            />
+                            {search && (
+                                <button
+                                    type="button"
+                                    onClick={() => setSearch("")}
+                                    className="text-muted-foreground/40 hover:text-foreground transition-colors"
                                 >
-                                    {casting && <Loader2 className="h-3 w-3 animate-spin" />}
-                                    Apply Casts
-                                </Button>
+                                    <X className="h-3.5 w-3.5" />
+                                </button>
                             )}
-                            <span className="text-[13px] text-muted-foreground font-mono">
-                                {formatBytes(data.info.memory_usage_bytes)} memory
-                            </span>
-                        </div>
-                    </div>
-                </CardHeader>
-
-                {/* Search bar */}
-                <div className="border-b px-5 py-2 flex items-center gap-2">
-                    <Search className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" />
-                    <input
-                        type="text"
-                        placeholder="Filter columns…"
-                        value={search}
-                        onChange={(e) => setSearch(e.target.value)}
-                        className="flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground/40 font-mono text-foreground"
-                    />
-                    {search && (
-                        <button
-                            type="button"
-                            onClick={() => setSearch("")}
-                            className="text-muted-foreground/40 hover:text-foreground transition-colors"
-                        >
-                            <X className="h-3.5 w-3.5" />
-                        </button>
-                    )}
-                    {search && (
-                        <span className="text-[13px] text-muted-foreground font-mono shrink-0">
-                            {visibleColumns.length} / {data.info.columns.length}
-                        </span>
-                    )}
-                </div>
-
-                {castWarnings && (
-                    <div className="border-b border-amber-500/30 bg-amber-500/5 px-5 py-3 space-y-2">
-                        <p className="text-[13px] font-semibold text-amber-600">Conversion warnings — confirm to proceed:</p>
-                        <ul className="space-y-1">
-                            {castWarnings.map((w) => (
-                                <li key={w.column} className="text-[13px] text-muted-foreground font-mono">
-                                    <span className="font-semibold">{w.column}:</span> {w.warning}
-                                </li>
-                            ))}
-                        </ul>
-                        <div className="flex gap-2 pt-1">
-                            <Button size="sm" className="h-7 text-sm rounded-none gap-1.5" onClick={() => handleCast(true)} disabled={casting}>
-                                {casting && <Loader2 className="h-3 w-3 animate-spin" />}
-                                Confirm
-                            </Button>
-                            <Button size="sm" variant="ghost" className="h-7 text-sm rounded-none" onClick={() => setCastWarnings(null)} disabled={casting}>
-                                Cancel
-                            </Button>
-                        </div>
-                    </div>
-                )}
-
-                <CardContent className="p-0">
-                    <table className="w-full text-left border-collapse">
-                        <thead>
-                            <tr className="bg-muted/50 border-b">
-                                <th
-                                    className="px-5 py-2.5 text-[13px] font-semibold text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors"
-                                    onClick={() => toggleSort("column")}
-                                >
-                                    <span className="inline-flex items-center gap-1">
-                                        Column <SortIcon col="column" activeKey={sortKey} dir={sortDir} />
-                                    </span>
-                                </th>
-                                <th className="px-5 py-2.5 text-[13px] font-semibold text-muted-foreground">
-                                    Dtype
-                                </th>
-                                <th
-                                    className="px-5 py-2.5 text-[13px] font-semibold text-muted-foreground text-right cursor-pointer select-none hover:text-foreground transition-colors"
-                                    onClick={() => toggleSort("non_null_count")}
-                                >
-                                    <span className="inline-flex items-center justify-end gap-1 w-full">
-                                        Non-Null <SortIcon col="non_null_count" activeKey={sortKey} dir={sortDir} />
-                                    </span>
-                                </th>
-                                <th
-                                    className="px-5 py-2.5 text-[13px] font-semibold text-muted-foreground text-right cursor-pointer select-none hover:text-foreground transition-colors"
-                                    onClick={() => toggleSort("unique_count")}
-                                >
-                                    <span className="inline-flex items-center justify-end gap-1 w-full">
-                                        Unique <SortIcon col="unique_count" activeKey={sortKey} dir={sortDir} />
-                                    </span>
-                                </th>
-                                <th
-                                    className="px-5 py-2.5 text-[13px] font-semibold text-muted-foreground text-right cursor-pointer select-none hover:text-foreground transition-colors"
-                                    onClick={() => toggleSort("null_count")}
-                                >
-                                    <span className="inline-flex items-center justify-end gap-1 w-full">
-                                        Nulls <SortIcon col="null_count" activeKey={sortKey} dir={sortDir} />
-                                    </span>
-                                </th>
-                                <th
-                                    className="px-5 py-2.5 text-[13px] font-semibold text-muted-foreground text-right cursor-pointer select-none hover:text-foreground transition-colors"
-                                    onClick={() => toggleSort("null_pct")}
-                                >
-                                    <span className="inline-flex items-center justify-end gap-1 w-full">
-                                        Null % <SortIcon col="null_pct" activeKey={sortKey} dir={sortDir} />
-                                    </span>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {visibleColumns.length === 0 && (
-                                <tr>
-                                    <td colSpan={6} className="px-5 py-6 text-sm text-center text-muted-foreground">
-                                        No columns match &ldquo;{search}&rdquo;
-                                    </td>
-                                </tr>
+                            {search && (
+                                <span className="text-[13px] text-muted-foreground font-mono shrink-0">
+                                    {visibleColumns.length} / {data.info.columns.length}
+                                </span>
                             )}
-                            {visibleColumns.map((col) => {
-                                const result = castResults?.find((r) => r.column === col.column);
-                                const hasError = result?.status.startsWith("error");
-                                const hasWarning = result?.status === "warning";
+                        </div>
 
-                                let statusClassName = "bg-green-500/10 text-green-600 border-green-500/20";
-                                let statusLabel = "Success";
+                        {castWarnings && (
+                            <div className="border-b border-amber-500/30 bg-amber-500/5 px-5 py-3 space-y-2">
+                                <p className="text-[13px] font-semibold text-amber-600">Conversion warnings — confirm to proceed:</p>
+                                <ul className="space-y-1">
+                                    {castWarnings.map((w) => (
+                                        <li key={w.column} className="text-[13px] text-muted-foreground font-mono">
+                                            <span className="font-semibold">{w.column}:</span> {w.warning}
+                                        </li>
+                                    ))}
+                                </ul>
+                                <div className="flex gap-2 pt-1">
+                                    <Button size="sm" className="h-7 text-sm rounded-none gap-1.5" onClick={() => handleCast(true)} disabled={casting}>
+                                        {casting && <Loader2 className="h-3 w-3 animate-spin" />}
+                                        Confirm
+                                    </Button>
+                                    <Button size="sm" variant="ghost" className="h-7 text-sm rounded-none" onClick={() => setCastWarnings(null)} disabled={casting}>
+                                        Cancel
+                                    </Button>
+                                </div>
+                            </div>
+                        )}
 
-                                if (hasError) {
-                                    statusClassName = "bg-red-500/10 text-red-500 border-red-500/20";
-                                    statusLabel = result?.status ?? "Error";
-                                } else if (hasWarning) {
-                                    statusClassName = "bg-amber-500/10 text-amber-600 border-amber-500/20";
-                                    statusLabel = "Warning";
-                                }
-                                return (
-                                    <tr
-                                        key={col.column}
-                                        className={cn(
-                                            "border-b border-border/50 hover:bg-muted/30 transition-colors",
-                                            hasError && "bg-red-600/5"
-                                        )}
-                                    >
-                                        <td className="px-5 py-2.5 text-sm font-medium">
-                                            <div className="flex items-center gap-1.5">
-                                                {col.is_unique && (
-                                                    <TooltipProvider delayDuration={200}>
-                                                        <Tooltip>
-                                                            <TooltipTrigger asChild>
-                                                                <KeyRound className="h-3 w-3 text-amber-500 shrink-0 cursor-help" />
-                                                            </TooltipTrigger>
-                                                            <TooltipContent>All non-null values are unique</TooltipContent>
-                                                        </Tooltip>
-                                                    </TooltipProvider>
-                                                )}
-                                                {col.column}
-                                            </div>
-                                        </td>
-                                        <td className="px-5 py-2">
-                                            <div className="flex items-center gap-2">
-                                                <div className="text-[13px] font-mono font-black border border-border px-2 py-0.5 bg-background text-foreground tracking-tighter shrink-0">
-                                                    {result ? result.to_dtype : col.dtype}
-                                                </div>
-
-                                                <Select
-                                                    value={pendingCasts[col.column] ?? "none"}
-                                                    onValueChange={(val) => {
-                                                        setPendingCasts((prev) => {
-                                                            if (val === "none") {
-                                                                const next = { ...prev };
-                                                                delete next[col.column];
-                                                                return next;
-                                                            }
-                                                            return { ...prev, [col.column]: val };
-                                                        });
-                                                    }}
-                                                    disabled={casting}
-                                                >
-                                                    <SelectTrigger className="h-7 text-[13px] font-mono w-30 rounded-none border-border/60 bg-background/50 focus:ring-0 focus:ring-offset-0 transition-all hover:bg-muted/50">
-                                                        <SelectValue placeholder="Cast to..." />
-                                                    </SelectTrigger>
-                                                    <SelectContent className="rounded-none border-border/60">
-                                                        <SelectItem value="none" className="text-[13px] font-mono rounded-none focus:bg-primary focus:text-primary-foreground">
-                                                            none
-                                                        </SelectItem>
-                                                        {CAST_TYPES.map((t) => (
-                                                            <SelectItem
-                                                                key={t}
-                                                                value={t}
-                                                                className="text-[13px] font-mono rounded-none focus:bg-primary focus:text-primary-foreground"
-                                                            >
-                                                                {t}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-
-                                                {result && (
-                                                    <TooltipProvider delayDuration={200}>
-                                                        <Tooltip>
-                                                            <TooltipTrigger asChild>
-                                                                <span className={cn(
-                                                                    "text-[13px] font-mono px-1.5 py-0.5 rounded-none border cursor-default",
-                                                                    statusClassName
-                                                                )}>
-                                                                    {statusLabel}
-                                                                </span>
-                                                            </TooltipTrigger>
-                                                            {(hasWarning || hasError) && result.validation?.message && (
-                                                                <TooltipContent>{result.validation.message}</TooltipContent>
-                                                            )}
-                                                        </Tooltip>
-                                                    </TooltipProvider>
-                                                )}
-                                            </div>
-                                        </td>
-                                        <td className="px-5 py-2.5 text-sm tabular-nums text-right text-muted-foreground">{col.non_null_count.toLocaleString()}</td>
-                                        <td className="px-5 py-2.5 text-sm tabular-nums text-right text-muted-foreground">{col.unique_count.toLocaleString()}</td>
-                                        <td className={cn(
-                                            "px-5 py-2.5 text-sm tabular-nums text-right font-semibold",
-                                            col.null_count > 0 ? "text-red-500" : "text-muted-foreground/40"
-                                        )}>
-                                            {col.null_count.toLocaleString()}
-                                        </td>
-                                        <td className="px-5 py-2.5">
-                                            <div className="flex items-center justify-end gap-2">
-                                                <div className="w-14 h-1.5 bg-border/40 overflow-hidden shrink-0">
-                                                    <div
-                                                        className={cn("h-full transition-all", col.null_pct > 0 ? "bg-red-400" : "")}
-                                                        style={{ width: `${Math.min(col.null_pct, 100)}%` }}
-                                                    />
-                                                </div>
-                                                <span className={cn(
-                                                    "text-sm tabular-nums w-10 text-right shrink-0",
-                                                    col.null_pct > 0 ? "text-red-400" : "text-muted-foreground/40"
-                                                )}>
-                                                    {col.null_pct.toFixed(1)}%
-                                                </span>
-                                            </div>
-                                        </td>
+                        <CardContent className="p-0">
+                            <table className="w-full text-left border-collapse">
+                                <thead>
+                                    <tr className="bg-muted/50 border-b">
+                                        <th
+                                            className="px-5 py-2.5 text-[13px] font-semibold text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors"
+                                            onClick={() => toggleSort("column")}
+                                        >
+                                            <span className="inline-flex items-center gap-1">
+                                                Column <SortIcon col="column" activeKey={sortKey} dir={sortDir} />
+                                            </span>
+                                        </th>
+                                        <th className="px-5 py-2.5 text-[13px] font-semibold text-muted-foreground">
+                                            Dtype
+                                        </th>
+                                        <th
+                                            className="px-5 py-2.5 text-[13px] font-semibold text-muted-foreground text-right cursor-pointer select-none hover:text-foreground transition-colors"
+                                            onClick={() => toggleSort("non_null_count")}
+                                        >
+                                            <span className="inline-flex items-center justify-end gap-1 w-full">
+                                                Non-Null <SortIcon col="non_null_count" activeKey={sortKey} dir={sortDir} />
+                                            </span>
+                                        </th>
+                                        <th
+                                            className="px-5 py-2.5 text-[13px] font-semibold text-muted-foreground text-right cursor-pointer select-none hover:text-foreground transition-colors"
+                                            onClick={() => toggleSort("unique_count")}
+                                        >
+                                            <span className="inline-flex items-center justify-end gap-1 w-full">
+                                                Unique <SortIcon col="unique_count" activeKey={sortKey} dir={sortDir} />
+                                            </span>
+                                        </th>
+                                        <th
+                                            className="px-5 py-2.5 text-[13px] font-semibold text-muted-foreground text-right cursor-pointer select-none hover:text-foreground transition-colors"
+                                            onClick={() => toggleSort("null_count")}
+                                        >
+                                            <span className="inline-flex items-center justify-end gap-1 w-full">
+                                                Nulls <SortIcon col="null_count" activeKey={sortKey} dir={sortDir} />
+                                            </span>
+                                        </th>
+                                        <th
+                                            className="px-5 py-2.5 text-[13px] font-semibold text-muted-foreground text-right cursor-pointer select-none hover:text-foreground transition-colors"
+                                            onClick={() => toggleSort("null_pct")}
+                                        >
+                                            <span className="inline-flex items-center justify-end gap-1 w-full">
+                                                Null % <SortIcon col="null_pct" activeKey={sortKey} dir={sortDir} />
+                                            </span>
+                                        </th>
                                     </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </CardContent>
-            </Card>
+                                </thead>
+                                <tbody>
+                                    {visibleColumns.length === 0 && (
+                                        <tr>
+                                            <td colSpan={6} className="px-5 py-6 text-sm text-center text-muted-foreground">
+                                                No columns match &ldquo;{search}&rdquo;
+                                            </td>
+                                        </tr>
+                                    )}
+                                    {visibleColumns.map((col) => {
+                                        const result = castResults?.find((r) => r.column === col.column);
+                                        const hasError = result?.status.startsWith("error");
+                                        const hasWarning = result?.status === "warning";
 
-            <div className="flex items-center gap-2 flex-wrap">
-                <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-7 text-sm rounded-none gap-1.5"
-                    onClick={() => setDropDupOpen(true)}
-                >
-                    <Layers className="h-3 w-3" />
-                    Drop Duplicates
-                </Button>
+                                        let statusClassName = "bg-green-500/10 text-green-600 border-green-500/20";
+                                        let statusLabel = "Success";
 
-                <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-7 text-sm rounded-none gap-1.5 border-primary/30 bg-primary/5 hover:bg-primary/10 text-primary"
-                    onClick={() => setNullHandlingOpen(true)}
-                >
-                    <Eraser className="h-3 w-3" />
-                    Handle Nulls
-                </Button>
+                                        if (hasError) {
+                                            statusClassName = "bg-red-500/10 text-red-500 border-red-500/20";
+                                            statusLabel = result?.status ?? "Error";
+                                        } else if (hasWarning) {
+                                            statusClassName = "bg-amber-500/10 text-amber-600 border-amber-500/20";
+                                            statusLabel = "Warning";
+                                        }
+                                        return (
+                                            <tr
+                                                key={col.column}
+                                                className={cn(
+                                                    "border-b border-border/50 hover:bg-muted/30 transition-colors",
+                                                    hasError && "bg-red-600/5"
+                                                )}
+                                            >
+                                                <td className="px-5 py-2.5 text-sm font-medium">
+                                                    <div className="flex items-center gap-1.5">
+                                                        {col.is_unique && (
+                                                            <TooltipProvider delayDuration={200}>
+                                                                <Tooltip>
+                                                                    <TooltipTrigger asChild>
+                                                                        <KeyRound className="h-3 w-3 text-amber-500 shrink-0 cursor-help" />
+                                                                    </TooltipTrigger>
+                                                                    <TooltipContent>All non-null values are unique</TooltipContent>
+                                                                </Tooltip>
+                                                            </TooltipProvider>
+                                                        )}
+                                                        {col.column}
+                                                    </div>
+                                                </td>
+                                                <td className="px-5 py-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="text-[13px] font-mono font-black border border-border px-2 py-0.5 bg-background text-foreground tracking-tighter shrink-0">
+                                                            {result ? result.to_dtype : col.dtype}
+                                                        </div>
 
-                <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-7 text-sm rounded-none gap-1.5 border-green-600/30 bg-green-600/5 hover:bg-green-600/10 text-green-700"
-                    onClick={() => setAuditOpen(true)}
-                >
-                    <ShieldCheck className="h-3 w-3" />
-                    Formula Audit
-                </Button>
+                                                        <Select
+                                                            value={pendingCasts[col.column] ?? "none"}
+                                                            onValueChange={(val) => {
+                                                                setPendingCasts((prev) => {
+                                                                    if (val === "none") {
+                                                                        const next = { ...prev };
+                                                                        delete next[col.column];
+                                                                        return next;
+                                                                    }
+                                                                    return { ...prev, [col.column]: val };
+                                                                });
+                                                            }}
+                                                            disabled={casting}
+                                                        >
+                                                            <SelectTrigger className="h-7 text-[13px] font-mono w-30 rounded-none border-border/60 bg-background/50 focus:ring-0 focus:ring-offset-0 transition-all hover:bg-muted/50">
+                                                                <SelectValue placeholder="Cast to..." />
+                                                            </SelectTrigger>
+                                                            <SelectContent className="rounded-none border-border/60">
+                                                                <SelectItem value="none" className="text-[13px] font-mono rounded-none focus:bg-primary focus:text-primary-foreground">
+                                                                    none
+                                                                </SelectItem>
+                                                                {CAST_TYPES.map((t) => (
+                                                                    <SelectItem
+                                                                        key={t}
+                                                                        value={t}
+                                                                        className="text-[13px] font-mono rounded-none focus:bg-primary focus:text-primary-foreground"
+                                                                    >
+                                                                        {t}
+                                                                    </SelectItem>
+                                                                ))}
+                                                            </SelectContent>
+                                                        </Select>
 
-                <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-7 text-sm rounded-none gap-1.5 border-amber-500/30 bg-amber-500/5 hover:bg-amber-500/10 text-amber-700"
-                    onClick={() => setOutlierOpen(true)}
-                >
-                    <Activity className="h-3 w-3" />
-                    Handle Outliers
-                </Button>
+                                                        {result && (
+                                                            <TooltipProvider delayDuration={200}>
+                                                                <Tooltip>
+                                                                    <TooltipTrigger asChild>
+                                                                        <span className={cn(
+                                                                            "text-[13px] font-mono px-1.5 py-0.5 rounded-none border cursor-default",
+                                                                            statusClassName
+                                                                        )}>
+                                                                            {statusLabel}
+                                                                        </span>
+                                                                    </TooltipTrigger>
+                                                                    {(hasWarning || hasError) && result.validation?.message && (
+                                                                        <TooltipContent>{result.validation.message}</TooltipContent>
+                                                                    )}
+                                                                </Tooltip>
+                                                            </TooltipProvider>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                                <td className="px-5 py-2.5 text-sm tabular-nums text-right text-muted-foreground">{col.non_null_count.toLocaleString()}</td>
+                                                <td className="px-5 py-2.5 text-sm tabular-nums text-right text-muted-foreground">{col.unique_count.toLocaleString()}</td>
+                                                <td className={cn(
+                                                    "px-5 py-2.5 text-sm tabular-nums text-right font-semibold",
+                                                    col.null_count > 0 ? "text-red-500" : "text-muted-foreground/40"
+                                                )}>
+                                                    {col.null_count.toLocaleString()}
+                                                </td>
+                                                <td className="px-5 py-2.5">
+                                                    <div className="flex items-center justify-end gap-2">
+                                                        <div className="w-14 h-1.5 bg-border/40 overflow-hidden shrink-0">
+                                                            <div
+                                                                className={cn("h-full transition-all", col.null_pct > 0 ? "bg-red-400" : "")}
+                                                                style={{ width: `${Math.min(col.null_pct, 100)}%` }}
+                                                            />
+                                                        </div>
+                                                        <span className={cn(
+                                                            "text-sm tabular-nums w-10 text-right shrink-0",
+                                                            col.null_pct > 0 ? "text-red-400" : "text-muted-foreground/40"
+                                                        )}>
+                                                            {col.null_pct.toFixed(1)}%
+                                                        </span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        );
+                                    })}
+                                </tbody>
+                            </table>
+                        </CardContent>
+                    </Card>
+                </TabsContent>
 
-                <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-7 text-sm rounded-none gap-1.5 border-violet-500/30 bg-violet-500/5 hover:bg-violet-500/10 text-violet-700"
-                    onClick={() => setColumnToolsOpen(true)}
-                >
-                    <Columns2 className="h-3 w-3" />
-                    Column Tools
-                </Button>
+                <TabsContent value="drop-dups" className="mt-3">
+                    <DropDuplicatesDialog
+                        asPanel
+                        datasetId={datasetId}
+                        columns={data.info.columns}
+                        onSuccess={onRefetchAll}
+                    />
+                </TabsContent>
 
-                <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-7 text-sm rounded-none gap-1.5 border-sky-500/30 bg-sky-500/5 hover:bg-sky-500/10 text-sky-700"
-                    onClick={() => setCleanFilterOpen(true)}
-                >
-                    <Filter className="h-3 w-3" />
-                    Clean & Filter
-                </Button>
+                <TabsContent value="nulls" className="mt-3">
+                    <NullHandlingDialog
+                        asPanel
+                        datasetId={datasetId}
+                        columns={data.info.columns}
+                        onRefetchInspect={onRefetchInspect}
+                        onRefetchAll={onRefetchAll}
+                    />
+                </TabsContent>
 
-                <Button
-                    size="sm"
-                    variant="outline"
-                    className="h-7 text-sm rounded-none gap-1.5 border-teal-500/30 bg-teal-500/5 hover:bg-teal-500/10 text-teal-700"
-                    onClick={() => setTransformOpen(true)}
-                >
-                    <SlidersHorizontal className="h-3 w-3" />
-                    Transform
-                </Button>
-            </div>
+                <TabsContent value="formula" className="mt-3">
+                    <ValidateFormulaDialog
+                        asPanel
+                        datasetId={datasetId}
+                        columns={data.info.columns}
+                        onSuccess={onRefetchAll}
+                    />
+                </TabsContent>
 
-            <DropDuplicatesDialog
-                open={dropDupOpen}
-                onOpenChange={setDropDupOpen}
-                datasetId={datasetId}
-                columns={data.info.columns.map((c) => ({ column: c.column, is_unique: c.is_unique }))}
-                onSuccess={onRefetchAll}
-            />
+                <TabsContent value="outliers" className="mt-3">
+                    <OutlierDialog
+                        asPanel
+                        datasetId={datasetId}
+                        columns={data.info.columns}
+                        onRefetchAll={onRefetchAll}
+                    />
+                </TabsContent>
 
-            <NullHandlingDialog
-                open={nullHandlingOpen}
-                onOpenChange={setNullHandlingOpen}
-                datasetId={datasetId}
-                columns={data.info.columns}
-                onRefetchInspect={onRefetchInspect}
-                onRefetchAll={onRefetchAll}
-            />
+                <TabsContent value="col-tools" className="mt-3">
+                    <ColumnToolsDialog
+                        asPanel
+                        datasetId={datasetId}
+                        columns={data.info.columns}
+                        onRefetchAll={onRefetchAll}
+                    />
+                </TabsContent>
 
-            <ValidateFormulaDialog
-                open={auditOpen}
-                onOpenChange={setAuditOpen}
-                datasetId={datasetId}
-                columns={data.info.columns}
-                onSuccess={onRefetchAll}
-            />
+                <TabsContent value="clean" className="mt-3">
+                    <CleanFilterDialog
+                        asPanel
+                        datasetId={datasetId}
+                        columns={data.info.columns}
+                        onRefetchAll={onRefetchAll}
+                    />
+                </TabsContent>
 
-            <OutlierDialog
-                open={outlierOpen}
-                onOpenChange={setOutlierOpen}
-                datasetId={datasetId}
-                columns={data.info.columns}
-                onRefetchAll={onRefetchAll}
-            />
+                <TabsContent value="transform" className="mt-3">
+                    <TransformDialog
+                        asPanel
+                        datasetId={datasetId}
+                        columns={data.info.columns}
+                        onRefetchAll={onRefetchAll}
+                    />
+                </TabsContent>
+            </Tabs>
 
-            <ColumnToolsDialog
-                open={columnToolsOpen}
-                onOpenChange={setColumnToolsOpen}
-                datasetId={datasetId}
-                columns={data.info.columns}
-                onRefetchAll={onRefetchAll}
-            />
-
-            <CleanFilterDialog
-                open={cleanFilterOpen}
-                onOpenChange={setCleanFilterOpen}
-                datasetId={datasetId}
-                columns={data.info.columns}
-                onRefetchAll={onRefetchAll}
-            />
-
-            <TransformDialog
-                open={transformOpen}
-                onOpenChange={setTransformOpen}
-                datasetId={datasetId}
-                columns={data.info.columns}
-                onRefetchAll={onRefetchAll}
-            />
         </div>
     );
 }
