@@ -109,8 +109,12 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                 onRefetchAll();
             }
         } catch (err: unknown) {
-            const errData = (err as { response?: { data?: { warnings?: CastWarning[]; validation_errors?: string[] } } })?.response?.data;
-            if (errData?.warnings && errData.warnings.length > 0) {
+            const errRes = (err as { response?: { status?: number; data?: { warnings?: CastWarning[]; validation_errors?: string[]; updated_columns?: CastColumnResult[] } } })?.response;
+            const errData = errRes?.data;
+            if (errRes?.status === 422 && errData?.updated_columns) {
+                setCastResults(errData.updated_columns);
+                toast.error("All columns failed to cast. Check highlighted rows.");
+            } else if (errData?.warnings && errData.warnings.length > 0) {
                 setCastWarnings(errData.warnings);
             } else if (errData?.validation_errors && errData.validation_errors.length > 0) {
                 toast.error(errData.validation_errors.join(" "));

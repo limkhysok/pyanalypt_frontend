@@ -73,7 +73,7 @@ export function useEda() {
         if (!selectedId) return;
         datalabApi.inspect(Number(selectedId))
             .then((res) => setAllColumns(res.info.columns.map((c) => c.column)))
-            .catch(() => { /* non-critical — CrosstabTab will show empty picker */ });
+            .catch(() => toast.error("Failed to load column metadata — cross-tabulation and scatter may be unavailable."));
     }, [selectedId]);
 
     // Auto-fetch when tab + dataset change for simple tabs (no required params)

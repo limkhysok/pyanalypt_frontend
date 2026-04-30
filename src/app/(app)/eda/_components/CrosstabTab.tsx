@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Search } from "lucide-react";
+import { Download, Search } from "lucide-react";
+import { downloadCsv } from "@/lib/download-csv";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
@@ -21,6 +22,15 @@ interface Props {
 export function CrosstabTab({ datasetId, columns, loading, setLoading }: Readonly<Props>) {
     const [colA, setColA] = useState(columns[0] ?? "");
     const [colB, setColB] = useState(columns[1] ?? "");
+
+    function handleColAChange(v: string) {
+        setColA(v);
+        if (v === colB) setColB(columns.find((c) => c !== v) ?? "");
+    }
+    function handleColBChange(v: string) {
+        setColB(v);
+        if (v === colA) setColA(columns.find((c) => c !== v) ?? "");
+    }
     const [normalize, setNormalize] = useState(false);
     const [result, setResult] = useState<CrosstabResponse | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -53,7 +63,7 @@ export function CrosstabTab({ datasetId, columns, loading, setLoading }: Readonl
         <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3 flex-wrap">
                 <span className="text-sm font-medium">Row axis</span>
-                <Select value={colA} onValueChange={setColA}>
+                <Select value={colA} onValueChange={handleColAChange}>
                     <SelectTrigger className="h-8 w-44 rounded-none text-sm">
                         <SelectValue placeholder="Column A" />
                     </SelectTrigger>
@@ -62,7 +72,7 @@ export function CrosstabTab({ datasetId, columns, loading, setLoading }: Readonl
                     </SelectContent>
                 </Select>
                 <span className="text-sm font-medium">Column axis</span>
-                <Select value={colB} onValueChange={setColB}>
+                <Select value={colB} onValueChange={handleColBChange}>
                     <SelectTrigger className="h-8 w-44 rounded-none text-sm">
                         <SelectValue placeholder="Column B" />
                     </SelectTrigger>
@@ -93,6 +103,17 @@ export function CrosstabTab({ datasetId, columns, loading, setLoading }: Readonl
             )}
 
             {result && (
+                <>
+                <div className="flex justify-end">
+                    <Button variant="outline" size="sm" className="h-8 gap-1.5 rounded-none" onClick={() => {
+                        const headers = [rowKey, ...valCols];
+                        const rows = result.table.map((row) => [row[rowKey], ...valCols.map((c) => row[c] ?? null)] as (string | number | null)[]);
+                        downloadCsv(`crosstab_${colA}_${colB}.csv`, headers, rows);
+                    }}>
+                        <Download className="h-3 w-3" />
+                        Export CSV
+                    </Button>
+                </div>
                 <div className="border bg-card">
                     <ScrollArea className="w-full">
                         <table className="w-full text-sm">
@@ -130,6 +151,7 @@ export function CrosstabTab({ datasetId, columns, loading, setLoading }: Readonl
                         <ScrollBar orientation="horizontal" />
                     </ScrollArea>
                 </div>
+                </>
             )}
 
             <p className="text-xs text-muted-foreground">

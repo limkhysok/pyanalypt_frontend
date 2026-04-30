@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { RefreshCw, ExternalLink } from "lucide-react";
+import { Download, ExternalLink, RefreshCw } from "lucide-react";
+import { downloadCsv } from "@/lib/download-csv";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -63,6 +64,14 @@ export function OutlierSummaryTab({ datasetId, data, onUpdate, loading, setLoadi
                 <Button variant="outline" size="sm" className="h-8 gap-1.5 rounded-none" onClick={() => run(method, threshold)} disabled={loading}>
                     <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} />
                     Run
+                </Button>
+                <Button variant="outline" size="sm" className="h-8 gap-1.5 rounded-none" onClick={() => {
+                    downloadCsv(`outliers_${method}_${threshold}.csv`,
+                        ["column", "outlier_count", "outlier_pct", "lower_bound", "upper_bound", "mean", "std"],
+                        perCol.map(([col, s]) => [col, s.outlier_count, s.outlier_pct, s.lower_bound, s.upper_bound, s.mean, s.std]));
+                }}>
+                    <Download className="h-3 w-3" />
+                    Export CSV
                 </Button>
             </div>
 

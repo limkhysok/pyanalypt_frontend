@@ -2,7 +2,8 @@
 
 import { useMemo } from "react";
 import { useTheme } from "next-themes";
-import { RefreshCw, AlertTriangle } from "lucide-react";
+import { Download, RefreshCw, AlertTriangle } from "lucide-react";
+import { downloadCsv } from "@/lib/download-csv";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import EChart from "@/components/ui/EChart";
@@ -114,10 +115,19 @@ export function MissingHeatmapTab({ datasetId, data, onUpdate, loading, setLoadi
                         </div>
                     ))}
                 </div>
-                <Button variant="outline" size="sm" className="h-8 gap-1.5 rounded-none self-end" onClick={refresh} disabled={loading}>
-                    <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} />
-                    Refresh
-                </Button>
+                <div className="flex gap-2 self-end">
+                    <Button variant="outline" size="sm" className="h-8 gap-1.5 rounded-none" onClick={() => {
+                        downloadCsv("missing_heatmap.csv", ["column", "null_count", "null_pct"],
+                            colEntries.map(([col, s]) => [col, s.null_count, s.null_pct]));
+                    }}>
+                        <Download className="h-3 w-3" />
+                        Export CSV
+                    </Button>
+                    <Button variant="outline" size="sm" className="h-8 gap-1.5 rounded-none" onClick={refresh} disabled={loading}>
+                        <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} />
+                        Refresh
+                    </Button>
+                </div>
             </div>
 
             {isSampled && (
@@ -164,6 +174,10 @@ export function MissingHeatmapTab({ datasetId, data, onUpdate, loading, setLoadi
                     </div>
                 </div>
             )}
+
+            <p className="text-xs text-muted-foreground">
+                Datasets with more than 50,000 rows are automatically sampled before analysis.
+            </p>
 
             {/* Co-null pairs */}
             {coPairs.length > 0 && (

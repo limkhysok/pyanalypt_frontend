@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { useTheme } from "next-themes";
-import { RefreshCw } from "lucide-react";
+import { Download, RefreshCw } from "lucide-react";
+import { downloadCsv } from "@/lib/download-csv";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -148,6 +149,14 @@ export function DistributionTab({ datasetId, data, onUpdate, loading, setLoading
                 <Button variant="outline" size="sm" className="h-8 gap-1.5 rounded-none" onClick={() => run(bins, activeCol === ALL ? undefined : activeCol)} disabled={loading}>
                     <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} />
                     Run
+                </Button>
+                <Button variant="outline" size="sm" className="h-8 gap-1.5 rounded-none" onClick={() => {
+                    downloadCsv("distribution_stats.csv",
+                        ["column", "count", "mean", "std", "min", "max", "skewness", "kurtosis"],
+                        Object.entries(data).map(([col, s]) => [col, s.count, s.mean, s.std, s.min, s.max, s.skewness, s.kurtosis]));
+                }}>
+                    <Download className="h-3 w-3" />
+                    Export CSV
                 </Button>
                 <span className="ml-auto text-xs text-muted-foreground">{cols.length} numeric columns</span>
             </div>

@@ -39,6 +39,15 @@ export function PairwiseTab({ datasetId, numericColumns, loading, setLoading }: 
     const isDark = resolvedTheme === "dark";
     const [colX, setColX] = useState(numericColumns[0] ?? "");
     const [colY, setColY] = useState(numericColumns[1] ?? "");
+
+    function handleColXChange(v: string) {
+        setColX(v);
+        if (v === colY) setColY(numericColumns.find((c) => c !== v) ?? "");
+    }
+    function handleColYChange(v: string) {
+        setColY(v);
+        if (v === colX) setColX(numericColumns.find((c) => c !== v) ?? "");
+    }
     const [sample, setSample] = useState(500);
     const [result, setResult] = useState<PairwiseResponse | null>(null);
 
@@ -104,7 +113,7 @@ export function PairwiseTab({ datasetId, numericColumns, loading, setLoading }: 
         <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3 flex-wrap">
                 <span className="text-sm font-medium">X axis</span>
-                <Select value={colX} onValueChange={setColX}>
+                <Select value={colX} onValueChange={handleColXChange}>
                     <SelectTrigger className="h-8 w-44 rounded-none text-sm">
                         <SelectValue placeholder="Column X" />
                     </SelectTrigger>
@@ -113,7 +122,7 @@ export function PairwiseTab({ datasetId, numericColumns, loading, setLoading }: 
                     </SelectContent>
                 </Select>
                 <span className="text-sm font-medium">Y axis</span>
-                <Select value={colY} onValueChange={setColY}>
+                <Select value={colY} onValueChange={handleColYChange}>
                     <SelectTrigger className="h-8 w-44 rounded-none text-sm">
                         <SelectValue placeholder="Column Y" />
                     </SelectTrigger>

@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useTheme } from "next-themes";
-import { RefreshCw } from "lucide-react";
+import { Download, RefreshCw } from "lucide-react";
+import { downloadCsv } from "@/lib/download-csv";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import EChart from "@/components/ui/EChart";
@@ -127,6 +128,14 @@ export function CorrelationTab({ datasetId, data, onUpdate, loading, setLoading 
                 <Button variant="outline" size="sm" className="h-8 gap-1.5 rounded-none" onClick={() => run(method)} disabled={loading}>
                     <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} />
                     Refresh
+                </Button>
+                <Button variant="outline" size="sm" className="h-8 gap-1.5 rounded-none" onClick={() => {
+                    const cols = data.columns ?? [];
+                    downloadCsv(`correlation_${method}.csv`, ["column", ...cols],
+                        (data.matrix ?? []).map((row) => [row.column, ...cols.map((c) => row.values?.[c] ?? null)]));
+                }}>
+                    <Download className="h-3 w-3" />
+                    Export CSV
                 </Button>
                 <span className="ml-auto text-xs text-muted-foreground">{(data.columns ?? []).length} numeric columns</span>
             </div>
