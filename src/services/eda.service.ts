@@ -125,7 +125,7 @@ export interface PairwiseResponse {
 // ─── Service ──────────────────────────────────────────────────────────────────
 
 export const edaApi = {
-  correlation(
+  async correlation(
     datasetId: number,
     params?: { columns?: string[]; method?: 'pearson' | 'spearman' | 'kendall' }
   ): Promise<CorrelationResponse> {
@@ -133,10 +133,11 @@ export const edaApi = {
     params?.columns?.forEach((c) => query.append('columns', c));
     if (params?.method) query.set('method', params.method);
     const qs = query.toString();
-    return apiClient.get(`/eda/correlation/${datasetId}/${qs ? `?${qs}` : ''}`);
+    const res = await apiClient.get(`/eda/correlation/${datasetId}/${qs ? `?${qs}` : ''}`);
+    return res.data;
   },
 
-  distribution(
+  async distribution(
     datasetId: number,
     params?: { columns?: string[]; bins?: number }
   ): Promise<DistributionResponse> {
@@ -144,10 +145,11 @@ export const edaApi = {
     params?.columns?.forEach((c) => query.append('columns', c));
     if (params?.bins !== undefined) query.set('bins', String(params.bins));
     const qs = query.toString();
-    return apiClient.get(`/eda/distribution/${datasetId}/${qs ? `?${qs}` : ''}`);
+    const res = await apiClient.get(`/eda/distribution/${datasetId}/${qs ? `?${qs}` : ''}`);
+    return res.data;
   },
 
-  valueCounts(
+  async valueCounts(
     datasetId: number,
     params?: { columns?: string[]; top_n?: number }
   ): Promise<ValueCountsResponse> {
@@ -155,19 +157,21 @@ export const edaApi = {
     params?.columns?.forEach((c) => query.append('columns', c));
     if (params?.top_n !== undefined) query.set('top_n', String(params.top_n));
     const qs = query.toString();
-    return apiClient.get(`/eda/value-counts/${datasetId}/${qs ? `?${qs}` : ''}`);
+    const res = await apiClient.get(`/eda/value-counts/${datasetId}/${qs ? `?${qs}` : ''}`);
+    return res.data;
   },
 
-  crosstab(
+  async crosstab(
     datasetId: number,
     params: { col_a: string; col_b: string; normalize?: boolean }
   ): Promise<CrosstabResponse> {
     const query = new URLSearchParams({ col_a: params.col_a, col_b: params.col_b });
     query.set('normalize', params.normalize ? 'true' : 'false');
-    return apiClient.get(`/eda/crosstab/${datasetId}/?${query.toString()}`);
+    const res = await apiClient.get(`/eda/crosstab/${datasetId}/?${query.toString()}`);
+    return res.data;
   },
 
-  outlierSummary(
+  async outlierSummary(
     datasetId: number,
     params?: { method?: 'iqr' | 'zscore'; threshold?: number }
   ): Promise<OutlierSummaryResponse> {
@@ -175,19 +179,22 @@ export const edaApi = {
     if (params?.method) query.set('method', params.method);
     if (params?.threshold !== undefined) query.set('threshold', String(params.threshold));
     const qs = query.toString();
-    return apiClient.get(`/eda/outlier-summary/${datasetId}/${qs ? `?${qs}` : ''}`);
+    const res = await apiClient.get(`/eda/outlier-summary/${datasetId}/${qs ? `?${qs}` : ''}`);
+    return res.data;
   },
 
-  missingHeatmap(datasetId: number): Promise<MissingHeatmapResponse> {
-    return apiClient.get(`/eda/missing-heatmap/${datasetId}/`);
+  async missingHeatmap(datasetId: number): Promise<MissingHeatmapResponse> {
+    const res = await apiClient.get(`/eda/missing-heatmap/${datasetId}/`);
+    return res.data;
   },
 
-  pairwise(
+  async pairwise(
     datasetId: number,
     params: { col_x: string; col_y: string; sample?: number }
   ): Promise<PairwiseResponse> {
     const query = new URLSearchParams({ col_x: params.col_x, col_y: params.col_y });
     if (params.sample !== undefined) query.set('sample', String(params.sample));
-    return apiClient.get(`/eda/pairwise/${datasetId}/?${query.toString()}`);
+    const res = await apiClient.get(`/eda/pairwise/${datasetId}/?${query.toString()}`);
+    return res.data;
   },
 };
