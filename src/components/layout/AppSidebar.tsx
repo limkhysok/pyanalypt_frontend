@@ -12,6 +12,7 @@ import {
     BrainCircuit,
     FlaskConical,
     TrendingUp,
+    PieChart,
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { cn, getInitials } from "@/lib/utils";
@@ -49,8 +50,9 @@ const WORKSPACE_ITEMS: NavItemDef[] = [
 ];
 
 const RESULTS_ITEMS: NavItemDef[] = [
-    { label: "Analysis", href: "/analysis", icon: BarChart3,  shortcut: "G A" },
-    { label: "Insight",  href: "/insight",  icon: Lightbulb,  shortcut: "G N" },
+    { label: "Visualization", href: "/visualization", icon: PieChart,  shortcut: "G V" },
+    { label: "Analysis",      href: "/analysis",      icon: BarChart3, shortcut: "G A" },
+    { label: "Insight",       href: "/insight",       icon: Lightbulb, shortcut: "G N" },
 ];
 
 /** G + key → route */
@@ -60,6 +62,7 @@ const SHORTCUT_MAP: Record<string, string> = {
     F: "/framing",
     L: "/datalab",
     E: "/eda",
+    V: "/visualization",
     A: "/analysis",
     N: "/insight",
     ",": "/profile/setting",

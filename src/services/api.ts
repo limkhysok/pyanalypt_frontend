@@ -13,6 +13,17 @@ export { datasetApi } from './dataset.service';
 export { framingApi } from './framing.service';
 export { datalabApi } from './datalab.service';
 export { edaApi } from './eda.service';
+export { vizApi } from './viz.service';
+export type {
+  VizBarResponse,
+  VizLineResponse,
+  VizScatterResponse,
+  VizHistogramResponse,
+  VizHistogramColumn,
+  VizHistogramStats,
+  VizSeries,
+  VizAxis,
+} from './viz.service';
 export type {
   CorrelationResponse,
   CorrelationRow,
