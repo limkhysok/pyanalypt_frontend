@@ -112,7 +112,7 @@ export function PairwiseTab({ datasetId, numericColumns, loading, setLoading }: 
     return (
         <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3 flex-wrap">
-                <span className="text-sm font-medium">X axis</span>
+                <span className="text-xs font-medium">X axis</span>
                 <Select value={colX} onValueChange={handleColXChange}>
                     <SelectTrigger className="h-8 w-44 rounded-none text-sm">
                         <SelectValue placeholder="Column X" />
@@ -121,7 +121,7 @@ export function PairwiseTab({ datasetId, numericColumns, loading, setLoading }: 
                         {numericColumns.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                     </SelectContent>
                 </Select>
-                <span className="text-sm font-medium">Y axis</span>
+                <span className="text-xs font-medium">Y axis</span>
                 <Select value={colY} onValueChange={handleColYChange}>
                     <SelectTrigger className="h-8 w-44 rounded-none text-sm">
                         <SelectValue placeholder="Column Y" />
@@ -130,7 +130,7 @@ export function PairwiseTab({ datasetId, numericColumns, loading, setLoading }: 
                         {numericColumns.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                     </SelectContent>
                 </Select>
-                <span className="text-sm font-medium">Max points</span>
+                <span className="text-xs font-medium">Max points</span>
                 <Select value={String(sample)} onValueChange={(v) => setSample(Number(v))}>
                     <SelectTrigger className="h-8 w-24 rounded-none text-sm">
                         <SelectValue />
@@ -163,7 +163,7 @@ export function PairwiseTab({ datasetId, numericColumns, loading, setLoading }: 
                                 : `${result.total_valid_rows.toLocaleString()} valid rows`}
                         </span>
                     </div>
-                    <div className="border bg-card">
+                    <div className="border border-slate-200 bg-card">
                         <EChart option={option} style={{ height: "420px" }} />
                     </div>
                     <p className="text-xs text-muted-foreground">

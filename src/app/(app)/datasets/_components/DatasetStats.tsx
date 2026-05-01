@@ -28,9 +28,9 @@ export function DatasetStats({
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5"
         >
             {/* Total files */}
-            <Card className="bg-background border border-border/40 rounded-none shadow-none overflow-hidden transition-all hover:border-border/80 group">
+            <Card className="bg-background border border-slate-200 rounded-none shadow-none overflow-hidden transition-all hover:border-slate-300 group">
                 <CardContent className="p-5 flex items-center gap-5">
-                    <div className="h-11 w-11 border border-border/40 flex items-center justify-center shrink-0 bg-muted group-hover:bg-muted/80 transition-colors">
+                    <div className="h-11 w-11 border border-slate-200 flex items-center justify-center shrink-0 bg-slate-50 group-hover:bg-white transition-colors">
                         <Package className="h-5 w-5 text-muted-foreground/80" strokeWidth={1.5} />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -44,9 +44,9 @@ export function DatasetStats({
             </Card>
 
             {/* Diversity */}
-            <Card className="bg-background border border-border/40 rounded-none shadow-none overflow-hidden transition-all hover:border-border/80 group">
+            <Card className="bg-background border border-slate-200 rounded-none shadow-none overflow-hidden transition-all hover:border-slate-300 group">
                 <CardContent className="p-5 flex items-center gap-5">
-                    <div className="h-11 w-11 border border-border/40 flex items-center justify-center shrink-0 bg-muted group-hover:bg-muted/80 transition-colors">
+                    <div className="h-11 w-11 border border-slate-200 flex items-center justify-center shrink-0 bg-slate-50 group-hover:bg-white transition-colors">
                         <Activity className="h-5 w-5 text-muted-foreground/80" strokeWidth={1.5} />
                     </div>
                     <div className="flex-1 min-w-0">
@@ -60,14 +60,14 @@ export function DatasetStats({
             </Card>
 
             {/* Storage */}
-            <Card className="bg-background border border-border/40 rounded-none shadow-none overflow-hidden sm:col-span-2 lg:col-span-1 transition-all hover:border-border/80 group relative">
+            <Card className="bg-background border border-slate-200 rounded-none shadow-none overflow-hidden sm:col-span-2 lg:col-span-1 transition-all hover:border-slate-300 group relative">
                 <CardContent className="p-5">
                     <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center gap-2.5">
                             <HardDrive className="h-4 w-4 text-muted-foreground/60" strokeWidth={1.5} />
                             <p className="text-xs font-bold text-muted-foreground/70 lowercase">Storage usage</p>
                         </div>
-                        <p className="text-[11px] font-bold text-muted-foreground/40 tabular-nums lowercase">
+                        <p className="text-xs font-bold text-muted-foreground/40 tabular-nums lowercase">
                             {formatFileSize(totalSize)} of 2gb
                         </p>
                     </div>

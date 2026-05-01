@@ -4,12 +4,10 @@ import React from "react";
 import {
     Loader2, Info, KeyRound,
     ChevronUp, ChevronDown, ChevronsUpDown, Search, X,
-    Layers, Eraser, ShieldCheck, Activity, Columns2, Filter, SlidersHorizontal,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
     Select,
     SelectContent,
@@ -22,23 +20,15 @@ import { datalabApi } from "@/services/api";
 import type { DataLabPreview, DataLabInspect, CastColumnResult, CastWarning } from "@/services/api";
 import { toast } from "sonner";
 import { DatasetMetaStrip } from "./DatasetMetaStrip";
-import { DropDuplicatesDialog } from "./DropDuplicatesDialog";
-import { NullHandlingDialog } from "./NullHandlingDialog";
-import { ValidateFormulaDialog } from "./ValidateFormulaDialog";
-import { OutlierDialog } from "./OutlierDialog";
-import { ColumnToolsDialog } from "./ColumnToolsDialog";
-import { CleanFilterDialog } from "./CleanFilterDialog";
-import { TransformDialog } from "./TransformDialog";
 
 import { CAST_TYPES, formatBytes } from "../_lib";
 
 type SortKey = "column" | "non_null_count" | "unique_count" | "null_count" | "null_pct";
 
-export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefetchAll }: Readonly<{
+export function InspectTab({ data, preview, datasetId, onRefetchAll }: Readonly<{
     data: DataLabInspect;
     preview: DataLabPreview;
     datasetId: number;
-    onRefetchInspect: () => void;
     onRefetchAll: () => void;
 }>) {
     const [pendingCasts, setPendingCasts] = React.useState<Record<string, string>>({});
@@ -130,37 +120,8 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
         <div className="space-y-4">
             <DatasetMetaStrip data={preview} />
 
-            <Tabs defaultValue="info">
-                <TabsList className="rounded-none h-auto flex-wrap gap-0 p-1 justify-start bg-muted/40 border border-border/60">
-                    <TabsTrigger value="info" className="rounded-none gap-1.5 text-[13px] data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                        <Info className="h-3.5 w-3.5" /> Column Info
-                    </TabsTrigger>
-                    <TabsTrigger value="drop-dups" className="rounded-none gap-1.5 text-[13px] data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                        <Layers className="h-3.5 w-3.5" /> Drop Duplicates
-                    </TabsTrigger>
-                    <TabsTrigger value="nulls" className="rounded-none gap-1.5 text-[13px] data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                        <Eraser className="h-3.5 w-3.5" /> Handle Nulls
-                    </TabsTrigger>
-                    <TabsTrigger value="formula" className="rounded-none gap-1.5 text-[13px] data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                        <ShieldCheck className="h-3.5 w-3.5" /> Formula Audit
-                    </TabsTrigger>
-                    <TabsTrigger value="outliers" className="rounded-none gap-1.5 text-[13px] data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                        <Activity className="h-3.5 w-3.5" /> Handle Outliers
-                    </TabsTrigger>
-                    <TabsTrigger value="col-tools" className="rounded-none gap-1.5 text-[13px] data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                        <Columns2 className="h-3.5 w-3.5" /> Column Tools
-                    </TabsTrigger>
-                    <TabsTrigger value="clean" className="rounded-none gap-1.5 text-[13px] data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                        <Filter className="h-3.5 w-3.5" /> Clean &amp; Filter
-                    </TabsTrigger>
-                    <TabsTrigger value="transform" className="rounded-none gap-1.5 text-[13px] data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                        <SlidersHorizontal className="h-3.5 w-3.5" /> Transform
-                    </TabsTrigger>
-                </TabsList>
-
-                <TabsContent value="info" className="mt-3">
-                    <Card className="rounded-none shadow-sm overflow-hidden">
-                        <CardHeader className="px-5 py-3 border-b">
+            <Card className="rounded-none shadow-sm overflow-hidden">
+                        <CardHeader className="px-5 py-3 border-b border-slate-200 bg-slate-50">
                             <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
                                     <Info className="h-3.5 w-3.5 text-muted-foreground" />
@@ -178,7 +139,7 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                                             Apply Casts
                                         </Button>
                                     )}
-                                    <span className="text-[13px] text-muted-foreground font-mono">
+                                    <span className="text-xs text-gray-400 font-mono">
                                         {formatBytes(data.info.memory_usage_bytes)} memory
                                     </span>
                                 </div>
@@ -186,7 +147,7 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                         </CardHeader>
 
                         {/* Search bar */}
-                        <div className="border-b px-5 py-2 flex items-center gap-2">
+                        <div className="border-b border-slate-200 px-5 py-2 flex items-center gap-2">
                             <Search className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0" />
                             <input
                                 type="text"
@@ -205,7 +166,7 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                                 </button>
                             )}
                             {search && (
-                                <span className="text-[13px] text-muted-foreground font-mono shrink-0">
+                                <span className="text-xs text-muted-foreground font-mono shrink-0">
                                     {visibleColumns.length} / {data.info.columns.length}
                                 </span>
                             )}
@@ -213,10 +174,10 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
 
                         {castWarnings && (
                             <div className="border-b border-amber-500/30 bg-amber-500/5 px-5 py-3 space-y-2">
-                                <p className="text-[13px] font-semibold text-amber-600">Conversion warnings — confirm to proceed:</p>
+                                <p className="text-xs font-semibold text-amber-600">Conversion warnings — confirm to proceed:</p>
                                 <ul className="space-y-1">
                                     {castWarnings.map((w) => (
-                                        <li key={w.column} className="text-[13px] text-muted-foreground font-mono">
+                                        <li key={w.column} className="text-xs text-muted-foreground font-mono">
                                             <span className="font-semibold">{w.column}:</span> {w.warning}
                                         </li>
                                     ))}
@@ -236,20 +197,20 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                         <CardContent className="p-0">
                             <table className="w-full text-left border-collapse">
                                 <thead>
-                                    <tr className="bg-muted/50 border-b">
+                                    <tr className="bg-slate-50 border-b border-slate-200">
                                         <th
-                                            className="px-5 py-2.5 text-[13px] font-semibold text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors"
+                                            className="px-5 py-2.5 text-xs font-semibold text-gray-600 cursor-pointer select-none hover:text-foreground transition-colors"
                                             onClick={() => toggleSort("column")}
                                         >
                                             <span className="inline-flex items-center gap-1">
                                                 Column <SortIcon col="column" activeKey={sortKey} dir={sortDir} />
                                             </span>
                                         </th>
-                                        <th className="px-5 py-2.5 text-[13px] font-semibold text-muted-foreground">
+                                        <th className="px-5 py-2.5 text-xs font-semibold text-gray-600">
                                             Dtype
                                         </th>
                                         <th
-                                            className="px-5 py-2.5 text-[13px] font-semibold text-muted-foreground text-right cursor-pointer select-none hover:text-foreground transition-colors"
+                                            className="px-5 py-2.5 text-xs font-semibold text-gray-600 text-right cursor-pointer select-none hover:text-foreground transition-colors"
                                             onClick={() => toggleSort("non_null_count")}
                                         >
                                             <span className="inline-flex items-center justify-end gap-1 w-full">
@@ -257,7 +218,7 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                                             </span>
                                         </th>
                                         <th
-                                            className="px-5 py-2.5 text-[13px] font-semibold text-muted-foreground text-right cursor-pointer select-none hover:text-foreground transition-colors"
+                                            className="px-5 py-2.5 text-xs font-semibold text-gray-600 text-right cursor-pointer select-none hover:text-foreground transition-colors"
                                             onClick={() => toggleSort("unique_count")}
                                         >
                                             <span className="inline-flex items-center justify-end gap-1 w-full">
@@ -265,7 +226,7 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                                             </span>
                                         </th>
                                         <th
-                                            className="px-5 py-2.5 text-[13px] font-semibold text-muted-foreground text-right cursor-pointer select-none hover:text-foreground transition-colors"
+                                            className="px-5 py-2.5 text-xs font-semibold text-gray-600 text-right cursor-pointer select-none hover:text-foreground transition-colors"
                                             onClick={() => toggleSort("null_count")}
                                         >
                                             <span className="inline-flex items-center justify-end gap-1 w-full">
@@ -273,7 +234,7 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                                             </span>
                                         </th>
                                         <th
-                                            className="px-5 py-2.5 text-[13px] font-semibold text-muted-foreground text-right cursor-pointer select-none hover:text-foreground transition-colors"
+                                            className="px-5 py-2.5 text-xs font-semibold text-gray-600 text-right cursor-pointer select-none hover:text-foreground transition-colors"
                                             onClick={() => toggleSort("null_pct")}
                                         >
                                             <span className="inline-flex items-center justify-end gap-1 w-full">
@@ -309,11 +270,11 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                                             <tr
                                                 key={col.column}
                                                 className={cn(
-                                                    "border-b border-border/50 hover:bg-muted/30 transition-colors",
+                                                    "border-b border-slate-200 hover:bg-blue-50 transition-colors even:bg-gray-50",
                                                     hasError && "bg-red-600/5"
                                                 )}
                                             >
-                                                <td className="px-5 py-2.5 text-sm font-medium">
+                                                <td className="px-5 py-2.5 text-xs font-medium text-gray-900">
                                                     <div className="flex items-center gap-1.5">
                                                         {col.is_unique && (
                                                             <TooltipProvider delayDuration={200}>
@@ -330,7 +291,7 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                                                 </td>
                                                 <td className="px-5 py-2">
                                                     <div className="flex items-center gap-2">
-                                                        <div className="text-[13px] font-mono font-black border border-border px-2 py-0.5 bg-background text-foreground tracking-tighter shrink-0">
+                                                        <div className="text-xs font-mono font-black border border-slate-200 px-2 py-0.5 bg-slate-50 text-gray-900 tracking-tighter shrink-0">
                                                             {result ? result.to_dtype : col.dtype}
                                                         </div>
 
@@ -348,18 +309,18 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                                                             }}
                                                             disabled={casting}
                                                         >
-                                                            <SelectTrigger className="h-7 text-[13px] font-mono w-30 rounded-none border-border/60 bg-background/50 focus:ring-0 focus:ring-offset-0 transition-all hover:bg-muted/50">
+                                                            <SelectTrigger className="h-7 text-xs font-mono w-30 rounded-none border-border/60 bg-background/50 focus:ring-0 focus:ring-offset-0 transition-all hover:bg-muted/50">
                                                                 <SelectValue placeholder="Cast to..." />
                                                             </SelectTrigger>
                                                             <SelectContent className="rounded-none border-border/60">
-                                                                <SelectItem value="none" className="text-[13px] font-mono rounded-none focus:bg-primary focus:text-primary-foreground">
+                                                                <SelectItem value="none" className="text-xs font-mono rounded-none focus:bg-primary focus:text-primary-foreground">
                                                                     none
                                                                 </SelectItem>
                                                                 {CAST_TYPES.map((t) => (
                                                                     <SelectItem
                                                                         key={t}
                                                                         value={t}
-                                                                        className="text-[13px] font-mono rounded-none focus:bg-primary focus:text-primary-foreground"
+                                                                        className="text-xs font-mono rounded-none focus:bg-primary focus:text-primary-foreground"
                                                                     >
                                                                         {t}
                                                                     </SelectItem>
@@ -372,7 +333,7 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                                                                 <Tooltip>
                                                                     <TooltipTrigger asChild>
                                                                         <span className={cn(
-                                                                            "text-[13px] font-mono px-1.5 py-0.5 rounded-none border cursor-default",
+                                                                            "text-xs font-mono px-1.5 py-0.5 rounded-none border cursor-default",
                                                                             statusClassName
                                                                         )}>
                                                                             {statusLabel}
@@ -386,14 +347,15 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                                                         )}
                                                     </div>
                                                 </td>
-                                                <td className="px-5 py-2.5 text-sm tabular-nums text-right text-muted-foreground">{col.non_null_count.toLocaleString()}</td>
-                                                <td className="px-5 py-2.5 text-sm tabular-nums text-right text-muted-foreground">{col.unique_count.toLocaleString()}</td>
+                                                <td className="px-5 py-2.5 text-xs tabular-nums text-right text-gray-400">{col.non_null_count.toLocaleString()}</td>
+                                                <td className="px-5 py-2.5 text-xs tabular-nums text-right text-gray-400">{col.unique_count.toLocaleString()}</td>
                                                 <td className={cn(
-                                                    "px-5 py-2.5 text-sm tabular-nums text-right font-semibold",
-                                                    col.null_count > 0 ? "text-red-500" : "text-muted-foreground/40"
+                                                    "px-5 py-2.5 text-xs tabular-nums text-right font-semibold",
+                                                    col.null_count > 0 ? "text-red-500" : "text-gray-300"
                                                 )}>
                                                     {col.null_count.toLocaleString()}
                                                 </td>
+
                                                 <td className="px-5 py-2.5">
                                                     <div className="flex items-center justify-end gap-2">
                                                         <div className="w-14 h-1.5 bg-border/40 overflow-hidden shrink-0">
@@ -403,8 +365,8 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                                                             />
                                                         </div>
                                                         <span className={cn(
-                                                            "text-sm tabular-nums w-10 text-right shrink-0",
-                                                            col.null_pct > 0 ? "text-red-400" : "text-muted-foreground/40"
+                                                            "text-xs tabular-nums w-10 text-right shrink-0",
+                                                            col.null_pct > 0 ? "text-red-400" : "text-gray-300"
                                                         )}>
                                                             {col.null_pct.toFixed(1)}%
                                                         </span>
@@ -417,72 +379,6 @@ export function InspectTab({ data, preview, datasetId, onRefetchInspect, onRefet
                             </table>
                         </CardContent>
                     </Card>
-                </TabsContent>
-
-                <TabsContent value="drop-dups" className="mt-3">
-                    <DropDuplicatesDialog
-                        asPanel
-                        datasetId={datasetId}
-                        columns={data.info.columns}
-                        onSuccess={onRefetchAll}
-                    />
-                </TabsContent>
-
-                <TabsContent value="nulls" className="mt-3">
-                    <NullHandlingDialog
-                        asPanel
-                        datasetId={datasetId}
-                        columns={data.info.columns}
-                        onRefetchInspect={onRefetchInspect}
-                        onRefetchAll={onRefetchAll}
-                    />
-                </TabsContent>
-
-                <TabsContent value="formula" className="mt-3">
-                    <ValidateFormulaDialog
-                        asPanel
-                        datasetId={datasetId}
-                        columns={data.info.columns}
-                        onSuccess={onRefetchAll}
-                    />
-                </TabsContent>
-
-                <TabsContent value="outliers" className="mt-3">
-                    <OutlierDialog
-                        asPanel
-                        datasetId={datasetId}
-                        columns={data.info.columns}
-                        onRefetchAll={onRefetchAll}
-                    />
-                </TabsContent>
-
-                <TabsContent value="col-tools" className="mt-3">
-                    <ColumnToolsDialog
-                        asPanel
-                        datasetId={datasetId}
-                        columns={data.info.columns}
-                        onRefetchAll={onRefetchAll}
-                    />
-                </TabsContent>
-
-                <TabsContent value="clean" className="mt-3">
-                    <CleanFilterDialog
-                        asPanel
-                        datasetId={datasetId}
-                        columns={data.info.columns}
-                        onRefetchAll={onRefetchAll}
-                    />
-                </TabsContent>
-
-                <TabsContent value="transform" className="mt-3">
-                    <TransformDialog
-                        asPanel
-                        datasetId={datasetId}
-                        columns={data.info.columns}
-                        onRefetchAll={onRefetchAll}
-                    />
-                </TabsContent>
-            </Tabs>
 
         </div>
     );

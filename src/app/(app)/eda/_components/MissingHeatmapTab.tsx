@@ -109,9 +109,9 @@ export function MissingHeatmapTab({ datasetId, data, onUpdate, loading, setLoadi
                         { label: "Columns with nulls", value: data.columns_with_nulls ?? 0 },
                         { label: "Clean columns", value: (data.total_columns ?? 0) - (data.columns_with_nulls ?? 0) },
                     ].map(({ label, value }) => (
-                        <div key={label} className="border bg-card p-3">
-                            <div className="text-xs text-muted-foreground">{label}</div>
-                            <div className="text-xl font-bold font-mono mt-0.5">{value}</div>
+                        <div key={label} className="border border-slate-200 bg-slate-50 p-3">
+                            <div className="text-xs text-gray-400">{label}</div>
+                            <div className="text-xl font-bold font-mono mt-0.5 text-gray-900">{value}</div>
                         </div>
                     ))}
                 </div>
@@ -141,7 +141,7 @@ export function MissingHeatmapTab({ datasetId, data, onUpdate, loading, setLoadi
                     No missing values found — the dataset is complete.
                 </div>
             ) : (
-                <div className="border bg-card">
+                <div className="border border-slate-200 bg-card">
                     <EChart option={option} style={{ height: `${chartHeight}px` }} />
                 </div>
             )}
@@ -149,18 +149,18 @@ export function MissingHeatmapTab({ datasetId, data, onUpdate, loading, setLoadi
             {/* Worst rows */}
             {(data.worst_rows ?? []).length > 0 && (
                 <div className="flex flex-col gap-2">
-                    <p className="text-sm font-medium">Rows with the most missing values</p>
-                    <div className="border bg-card">
+                    <p className="text-xs font-medium text-gray-600">Rows with the most missing values</p>
+                    <div className="border border-slate-200 bg-card">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="border-b bg-muted/30">
-                                    <th className="px-3 py-2 text-left text-xs font-semibold text-muted-foreground">Row index</th>
-                                    <th className="px-3 py-2 text-right text-xs font-semibold text-muted-foreground">Missing columns</th>
+                                <tr className="border-b border-slate-200 bg-slate-50">
+                                    <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">Row index</th>
+                                    <th className="px-3 py-2 text-right text-xs font-semibold text-gray-600">Missing columns</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {(data.worst_rows ?? []).map((r) => (
-                                    <tr key={r.row_index} className="border-b last:border-0">
+                                    <tr key={r.row_index} className="border-b border-slate-200 last:border-0 hover:bg-blue-50 even:bg-gray-50 transition-colors">
                                         <td className="px-3 py-1.5 font-mono text-xs">{r.row_index}</td>
                                         <td className="px-3 py-1.5 text-right">
                                             <Badge variant="outline" className="text-[10px] px-1.5 py-0 bg-amber-500/10 text-amber-600 border-amber-500/20">

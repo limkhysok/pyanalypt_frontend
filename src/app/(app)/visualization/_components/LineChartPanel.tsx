@@ -75,23 +75,26 @@ export function LineChartPanel({ datasetId, numericColumns, allColumns }: Readon
             .finally(() => setLoading(false));
     }
 
-    const yLabel = yCols.length === 0 ? "Select columns" : yCols.length === 1 ? yCols[0] : `${yCols.length} columns`;
+    let yLabel: string;
+    if (yCols.length === 0) yLabel = "Select columns";
+    else if (yCols.length === 1) yLabel = yCols[0];
+    else yLabel = `${yCols.length} columns`;
 
     return (
         <div className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center gap-3">
-                <span className="text-sm font-medium">X axis</span>
+                <span className="text-xs font-medium">X axis</span>
                 <Select value={xCol} onValueChange={setXCol}>
-                    <SelectTrigger className="h-8 w-44 rounded-none text-sm"><SelectValue placeholder="Any column" /></SelectTrigger>
+                    <SelectTrigger className="h-8 w-44 rounded-none text-xs"><SelectValue placeholder="Any column" /></SelectTrigger>
                     <SelectContent className="rounded-none">
                         {allColumns.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                     </SelectContent>
                 </Select>
 
-                <span className="text-sm font-medium">Y axis</span>
+                <span className="text-xs font-medium">Y axis</span>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" className="h-8 w-48 justify-between rounded-none text-sm font-normal">
+                        <Button variant="outline" size="sm" className="h-8 w-48 justify-between rounded-none text-xs font-normal">
                             <span className="truncate">{yLabel}</span>
                             <ChevronDown className="h-3.5 w-3.5 ml-1 shrink-0 text-muted-foreground" />
                         </Button>
@@ -100,16 +103,16 @@ export function LineChartPanel({ datasetId, numericColumns, allColumns }: Readon
                         <DropdownMenuLabel className="text-xs text-muted-foreground">Numeric columns</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         {numericColumns.map(c => (
-                            <DropdownMenuCheckboxItem key={c} checked={yCols.includes(c)} onCheckedChange={() => toggleYCol(c)} className="text-sm">
+                            <DropdownMenuCheckboxItem key={c} checked={yCols.includes(c)} onCheckedChange={() => toggleYCol(c)} className="text-xs">
                                 {c}
                             </DropdownMenuCheckboxItem>
                         ))}
                     </DropdownMenuContent>
                 </DropdownMenu>
 
-                <span className="text-sm font-medium">Sort X</span>
+                <span className="text-xs font-medium">Sort X</span>
                 <Select value={sort ? "asc" : "none"} onValueChange={v => setSort(v === "asc")}>
-                    <SelectTrigger className="h-8 w-28 rounded-none text-sm"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-8 w-28 rounded-none text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent className="rounded-none">
                         <SelectItem value="asc">Ascending</SelectItem>
                         <SelectItem value="none">Original</SelectItem>
@@ -122,8 +125,8 @@ export function LineChartPanel({ datasetId, numericColumns, allColumns }: Readon
             </div>
 
             {option
-                ? <div className="border bg-card"><EChart option={option} style={{ height: "420px" }} /></div>
-                : <div className="border bg-muted/5 h-80 flex items-center justify-center text-sm text-muted-foreground">Configure options above and click Run</div>
+                ? <div className="border border-slate-200 bg-card"><EChart option={option} style={{ height: "420px" }} /></div>
+                : <div className="border border-slate-200 bg-muted/5 h-80 flex items-center justify-center text-xs text-muted-foreground">Configure options above and click Run</div>
             }
         </div>
     );

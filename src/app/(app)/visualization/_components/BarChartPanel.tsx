@@ -73,7 +73,7 @@ export function BarChartPanel({ datasetId, numericColumns, categoricalColumns }:
             x_col: xCol,
             y_col: yCol,
             agg,
-            group_by: groupBy !== "__none__" ? groupBy : undefined,
+            group_by: groupBy === "__none__" ? undefined : groupBy,
             limit,
         })
             .then(setResult)
@@ -84,42 +84,42 @@ export function BarChartPanel({ datasetId, numericColumns, categoricalColumns }:
     return (
         <div className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center gap-3">
-                <span className="text-sm font-medium">X axis</span>
+                <span className="text-xs font-medium">X axis</span>
                 <Select value={xCol} onValueChange={setXCol}>
-                    <SelectTrigger className="h-8 w-44 rounded-none text-sm"><SelectValue placeholder="Categorical col" /></SelectTrigger>
+                    <SelectTrigger className="h-8 w-44 rounded-none text-xs"><SelectValue placeholder="Categorical col" /></SelectTrigger>
                     <SelectContent className="rounded-none">
                         {categoricalColumns.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                     </SelectContent>
                 </Select>
 
-                <span className="text-sm font-medium">Y axis</span>
+                <span className="text-xs font-medium">Y axis</span>
                 <Select value={yCol} onValueChange={setYCol}>
-                    <SelectTrigger className="h-8 w-44 rounded-none text-sm"><SelectValue placeholder="Numeric col" /></SelectTrigger>
+                    <SelectTrigger className="h-8 w-44 rounded-none text-xs"><SelectValue placeholder="Numeric col" /></SelectTrigger>
                     <SelectContent className="rounded-none">
                         {numericColumns.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                     </SelectContent>
                 </Select>
 
-                <span className="text-sm font-medium">Agg</span>
+                <span className="text-xs font-medium">Agg</span>
                 <Select value={agg} onValueChange={setAgg}>
-                    <SelectTrigger className="h-8 w-28 rounded-none text-sm"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-8 w-28 rounded-none text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent className="rounded-none">
                         {AGG_OPTIONS.map(o => <SelectItem key={o} value={o}>{o}</SelectItem>)}
                     </SelectContent>
                 </Select>
 
-                <span className="text-sm font-medium">Group by</span>
+                <span className="text-xs font-medium">Group by</span>
                 <Select value={groupBy} onValueChange={setGroupBy}>
-                    <SelectTrigger className="h-8 w-44 rounded-none text-sm"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-8 w-44 rounded-none text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent className="rounded-none">
                         <SelectItem value="__none__">None</SelectItem>
                         {categoricalColumns.filter(c => c !== xCol).map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                     </SelectContent>
                 </Select>
 
-                <span className="text-sm font-medium">Top</span>
+                <span className="text-xs font-medium">Top</span>
                 <Select value={String(limit)} onValueChange={v => setLimit(Number(v))}>
-                    <SelectTrigger className="h-8 w-20 rounded-none text-sm"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-8 w-20 rounded-none text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent className="rounded-none">
                         {LIMIT_OPTIONS.map(n => <SelectItem key={n} value={String(n)}>{n}</SelectItem>)}
                     </SelectContent>
@@ -131,8 +131,8 @@ export function BarChartPanel({ datasetId, numericColumns, categoricalColumns }:
             </div>
 
             {option
-                ? <div className="border bg-card"><EChart option={option} style={{ height: "420px" }} /></div>
-                : <div className="border bg-muted/5 h-80 flex items-center justify-center text-sm text-muted-foreground">Configure options above and click Run</div>
+                ? <div className="border border-slate-200 bg-card"><EChart option={option} style={{ height: "420px" }} /></div>
+                : <div className="border border-slate-200 bg-muted/5 h-80 flex items-center justify-center text-xs text-muted-foreground">Configure options above and click Run</div>
             }
         </div>
     );

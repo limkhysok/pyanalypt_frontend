@@ -43,13 +43,13 @@ export function DatasetHeader({ uploadLoading, onFormatSelect }: Readonly<Datase
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="rounded-none border-border shadow-none min-w-50 p-1.5">
-                    <div className="px-3 py-2.5 text-[11px] font-bold text-muted-foreground/50 border-b border-border/50 mb-1.5">
+                    <div className="px-3 py-2.5 text-xs font-bold text-muted-foreground/50 border-b border-border/50 mb-1.5">
                         select file format
                     </div>
                     {FORMATS.map((fmt) => (
                         <DropdownMenuItem
                             key={fmt}
-                            className="rounded-none text-[13px] font-semibold h-10 cursor-pointer focus:bg-primary focus:text-primary-foreground"
+                            className="rounded-none text-sm font-semibold h-10 cursor-pointer focus:bg-primary focus:text-primary-foreground"
                             onClick={() => onFormatSelect(fmt)}
                         >
                             {fmt.toLowerCase()}

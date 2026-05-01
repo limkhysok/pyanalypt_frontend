@@ -112,8 +112,8 @@ export function CorrelationTab({ datasetId, data, onUpdate, loading, setLoading 
     return (
         <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                    <span className="font-medium text-foreground">Method</span>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span className="font-medium text-gray-600">Method</span>
                 </div>
                 <Select value={method} onValueChange={(v) => run(v as Method)}>
                     <SelectTrigger className="h-8 w-36 rounded-none text-sm">
@@ -145,7 +145,7 @@ export function CorrelationTab({ datasetId, data, onUpdate, loading, setLoading 
                     Need at least 2 numeric columns to compute a correlation matrix.
                 </div>
             ) : (
-                <div className="border bg-card">
+                <div className="border border-slate-200 bg-card">
                     <EChart option={option} style={{ height: `${Math.max(320, (data.columns ?? []).length * 32 + 80)}px` }} />
                 </div>
             )}

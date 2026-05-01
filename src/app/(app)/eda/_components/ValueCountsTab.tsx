@@ -71,7 +71,7 @@ function ValueCountsCard({ col, stats, isDark }: Readonly<{ col: string; stats: 
     const chartHeight = Math.max(160, (stats.top_values ?? []).length * 28 + 24);
 
     return (
-        <div className="border bg-card p-4 flex flex-col gap-3">
+        <div className="border border-slate-200 bg-card p-4 flex flex-col gap-3">
             <div className="flex items-center justify-between gap-2">
                 <span className="font-semibold text-sm font-mono">{col}</span>
                 <div className="flex gap-1.5">
@@ -112,7 +112,7 @@ export function ValueCountsTab({ datasetId, data, onUpdate, loading, setLoading 
     return (
         <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3 flex-wrap">
-                <span className="text-sm font-medium">Column</span>
+                <span className="text-xs font-medium">Column</span>
                 <Select value={activeCol} onValueChange={setActiveCol}>
                     <SelectTrigger className="h-8 w-44 rounded-none text-sm">
                         <SelectValue />
@@ -122,7 +122,7 @@ export function ValueCountsTab({ datasetId, data, onUpdate, loading, setLoading 
                         {cols.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                     </SelectContent>
                 </Select>
-                <span className="text-sm font-medium">Top N</span>
+                <span className="text-xs font-medium">Top N</span>
                 <Select value={String(topN)} onValueChange={(v) => setTopN(Number(v))}>
                     <SelectTrigger className="h-8 w-20 rounded-none text-sm">
                         <SelectValue />

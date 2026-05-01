@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { useTheme } from "next-themes";
 import { RefreshCw, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -65,7 +65,7 @@ function buildOption(col: string, data: VizHistogramColumn, isDark: boolean) {
     };
 }
 
-function StatsRow({ stats }: { stats: VizHistogramStats }) {
+function StatsRow({ stats }: Readonly<{ stats: VizHistogramStats }>) {
     const skew = skewLabel(stats.skewness);
     return (
         <div className="flex flex-wrap items-center gap-2">
@@ -96,11 +96,10 @@ export function HistogramPanel({ datasetId, numericColumns }: Readonly<Props>) {
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<Record<string, VizHistogramColumn> | null>(null);
 
-    const colLabel = selectedCols.length === 0
-        ? "Select columns"
-        : selectedCols.length === numericColumns.length
-            ? "All columns"
-            : `${selectedCols.length} column${selectedCols.length > 1 ? "s" : ""}`;
+    let colLabel: string;
+    if (selectedCols.length === 0) colLabel = "Select columns";
+    else if (selectedCols.length === numericColumns.length) colLabel = "All columns";
+    else colLabel = `${selectedCols.length} column${selectedCols.length === 1 ? "" : "s"}`;
 
     function toggleCol(col: string) {
         setSelectedCols(prev => prev.includes(col) ? prev.filter(c => c !== col) : [...prev, col]);
@@ -120,10 +119,10 @@ export function HistogramPanel({ datasetId, numericColumns }: Readonly<Props>) {
     return (
         <div className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center gap-3">
-                <span className="text-sm font-medium">Columns</span>
+                <span className="text-xs font-medium">Columns</span>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="outline" size="sm" className="h-8 w-48 justify-between rounded-none text-sm font-normal">
+                        <Button variant="outline" size="sm" className="h-8 w-48 justify-between rounded-none text-xs font-normal">
                             <span className="truncate">{colLabel}</span>
                             <ChevronDown className="h-3.5 w-3.5 ml-1 shrink-0 text-muted-foreground" />
                         </Button>
@@ -132,16 +131,16 @@ export function HistogramPanel({ datasetId, numericColumns }: Readonly<Props>) {
                         <DropdownMenuLabel className="text-xs text-muted-foreground">Numeric columns</DropdownMenuLabel>
                         <DropdownMenuSeparator />
                         {numericColumns.map(c => (
-                            <DropdownMenuCheckboxItem key={c} checked={selectedCols.includes(c)} onCheckedChange={() => toggleCol(c)} className="text-sm">
+                            <DropdownMenuCheckboxItem key={c} checked={selectedCols.includes(c)} onCheckedChange={() => toggleCol(c)} className="text-xs">
                                 {c}
                             </DropdownMenuCheckboxItem>
                         ))}
                     </DropdownMenuContent>
                 </DropdownMenu>
 
-                <span className="text-sm font-medium">Bins</span>
+                <span className="text-xs font-medium">Bins</span>
                 <Select value={String(bins)} onValueChange={v => setBins(Number(v))}>
-                    <SelectTrigger className="h-8 w-24 rounded-none text-sm"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-8 w-24 rounded-none text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent className="rounded-none">
                         {BIN_OPTIONS.map(n => <SelectItem key={n} value={String(n)}>{n}</SelectItem>)}
                     </SelectContent>
@@ -151,7 +150,7 @@ export function HistogramPanel({ datasetId, numericColumns }: Readonly<Props>) {
                     <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} /> Run
                 </Button>
 
-                <span className="ml-auto text-xs text-muted-foreground">{selectedCols.length} column{selectedCols.length !== 1 ? "s" : ""} selected</span>
+                <span className="ml-auto text-xs text-muted-foreground">{selectedCols.length} {selectedCols.length === 1 ? "column" : "columns"} selected</span>
             </div>
 
             {entries.length > 0
@@ -160,8 +159,8 @@ export function HistogramPanel({ datasetId, numericColumns }: Readonly<Props>) {
                         {entries.map(([col, data]) => {
                             const option = buildOption(col, data, isDark);
                             return (
-                                <div key={col} className="border bg-card p-4 flex flex-col gap-3">
-                                    <span className="font-semibold text-sm font-mono">{col}</span>
+                                <div key={col} className="border border-slate-200 bg-card p-4 flex flex-col gap-3">
+                                    <span className="font-semibold text-xs font-mono">{col}</span>
                                     <EChart option={option} style={{ height: "180px" }} />
                                     <StatsRow stats={data.stats} />
                                 </div>
@@ -169,7 +168,7 @@ export function HistogramPanel({ datasetId, numericColumns }: Readonly<Props>) {
                         })}
                     </div>
                 )
-                : <div className="border bg-muted/5 h-80 flex items-center justify-center text-sm text-muted-foreground">Configure options above and click Run</div>
+                : <div className="border border-slate-200 bg-muted/5 h-80 flex items-center justify-center text-xs text-muted-foreground">Configure options above and click Run</div>
             }
         </div>
     );

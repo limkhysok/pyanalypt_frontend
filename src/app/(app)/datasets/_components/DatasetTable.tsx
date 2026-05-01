@@ -34,7 +34,7 @@ import { formatFileSize } from "../_lib";
 function FormatBadge({ format }: Readonly<{ format: string }>) {
     return (
         <span
-            className="inline-flex items-center rounded-none border border-border px-2 py-1 text-[11px] font-bold tracking-wide bg-muted text-muted-foreground"
+            className="inline-flex items-center rounded-none border border-border px-2 py-1 text-[10px] font-bold tracking-wide bg-muted text-muted-foreground"
         >
             {format}
         </span>
@@ -81,7 +81,7 @@ export function DatasetTable({
 
     if (isLoading) {
         return (
-            <Card className="bg-background border border-border/40 rounded-none shadow-none overflow-hidden">
+            <Card className="bg-background border border-slate-200 rounded-none shadow-none overflow-hidden">
                 <div className="p-4 space-y-3">
                     {[1, 2, 3, 4, 5].map((i) => (
                         <div key={i} className="h-12 bg-muted/40 animate-pulse rounded-none" />
@@ -95,8 +95,8 @@ export function DatasetTable({
 
     if (datasets.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-24 text-center border border-border/20 rounded-none bg-background shadow-none px-4">
-                <div className="w-16 h-16 rounded-none border border-border/40 flex items-center justify-center mb-6 bg-muted">
+            <div className="flex flex-col items-center justify-center py-24 text-center border border-slate-200 rounded-none bg-background shadow-none px-4">
+                <div className="w-16 h-16 rounded-none border border-slate-200 flex items-center justify-center mb-6 bg-slate-50">
                     <Database className="h-8 w-8 text-muted-foreground/40" strokeWidth={1} />
                 </div>
                 <h3 className="text-lg font-bold tracking-tight mb-2 text-muted-foreground/80">No datasets found</h3>
@@ -113,7 +113,7 @@ export function DatasetTable({
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="center" className="rounded-none border-border shadow-none min-w-45 p-1.5">
-                        <div className="px-3 py-2 text-[11px] font-bold text-muted-foreground/40 border-b border-border/50 mb-1.5 text-center">
+                        <div className="px-3 py-2 text-[10px] font-bold text-muted-foreground/40 border-b border-border/50 mb-1.5 text-center">
                             Select format
                         </div>
                         {FORMATS.map((fmt) => (
@@ -134,20 +134,20 @@ export function DatasetTable({
     // ── Table ─────────────────────────────────────────────────────────────────
 
     return (
-        <Card className="bg-background border border-border/40 rounded-none shadow-none overflow-hidden">
+        <Card className="bg-background border border-slate-200 rounded-none shadow-none overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left border-collapse">
-                    <thead className="border-b border-border/40 bg-muted/50">
+                    <thead className="border-b border-slate-200 bg-slate-50">
                         <tr>
-                            <th className="px-6 py-4 w-14 text-center text-xs font-bold text-muted-foreground/50">#</th>
-                            <th className="px-6 py-4 text-xs font-bold text-muted-foreground/50">File name</th>
-                            <th className="px-6 py-4 text-xs font-bold text-muted-foreground/50">Format</th>
-                            <th className="px-6 py-4 text-right text-xs font-bold text-muted-foreground/50">Size</th>
-                            <th className="px-6 py-4 text-xs font-bold text-muted-foreground/50 hidden md:table-cell text-right">Date added</th>
-                            <th className="px-6 py-4 text-right text-xs font-bold text-muted-foreground/50">Actions</th>
+                            <th className="px-6 py-4 w-14 text-center text-xs font-semibold text-gray-600">#</th>
+                            <th className="px-6 py-4 text-xs font-semibold text-gray-600">File name</th>
+                            <th className="px-6 py-4 text-xs font-semibold text-gray-600">Format</th>
+                            <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600">Size</th>
+                            <th className="px-6 py-4 text-xs font-semibold text-gray-600 hidden md:table-cell text-right">Date added</th>
+                            <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-border/20">
+                    <tbody className="divide-y divide-slate-200">
                         <AnimatePresence mode="popLayout">
                             {filteredDatasets.length > 0 ? (
                                 filteredDatasets.map((dataset, idx) => (
@@ -157,16 +157,16 @@ export function DatasetTable({
                                         animate={{ opacity: 1 }}
                                         exit={{ opacity: 0 }}
                                         transition={{ duration: 0.15 }}
-                                        className="hover:bg-muted/30 transition-colors group cursor-default"
+                                        className="hover:bg-blue-50 even:bg-gray-50 transition-colors group cursor-default"
                                     >
-                                        <td className="px-6 py-5 text-center text-xs text-muted-foreground/40 font-bold font-mono">
+                                        <td className="px-6 py-5 text-center text-xs text-gray-300 font-bold font-mono">
                                             {String(idx + 1).padStart(2, '0')}
                                         </td>
 
                                         <td className="px-6 py-5">
                                             <div className="flex items-center gap-3">
                                                 <div className="h-4 w-px bg-primary/20 group-hover:bg-primary transition-colors" />
-                                                <span className="font-bold text-foreground/90 text-[15px] tracking-tight truncate max-w-sm">
+                                                <span className="font-bold text-gray-900 text-xs tracking-tight truncate max-w-sm">
                                                     {dataset.file_name}
                                                 </span>
                                             </div>
@@ -176,11 +176,11 @@ export function DatasetTable({
                                             <FormatBadge format={dataset.file_format} />
                                         </td>
 
-                                        <td className="px-6 py-5 text-right text-sm tabular-nums font-bold font-mono text-muted-foreground/80">
+                                        <td className="px-6 py-5 text-right text-xs tabular-nums font-bold font-mono text-gray-400">
                                             {formatFileSize(dataset.file_size)}
                                         </td>
 
-                                        <td className="px-6 py-5 text-sm text-muted-foreground hidden md:table-cell font-bold text-right font-mono">
+                                        <td className="px-6 py-5 text-xs text-gray-400 hidden md:table-cell font-bold text-right font-mono">
                                             {new Date(dataset.uploaded_date).toLocaleDateString(undefined, {
                                                 year: 'numeric',
                                                 month: '2-digit',
@@ -205,19 +205,19 @@ export function DatasetTable({
                                                         </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end" className="rounded-none border-border shadow-none min-w-50 p-1.5">
-                                                        <DropdownMenuItem className="rounded-none text-[13px] font-semibold h-11 cursor-pointer" onClick={() => onRename(dataset)}>
+                                                        <DropdownMenuItem className="rounded-none text-sm font-semibold h-11 cursor-pointer" onClick={() => onRename(dataset)}>
                                                             <Edit2 className="mr-3 h-4 w-4" /> Rename file
                                                         </DropdownMenuItem>
 
                                                         <DropdownMenuSub>
-                                                            <DropdownMenuSubTrigger className="rounded-none text-[13px] font-semibold h-11 cursor-pointer">
+                                                            <DropdownMenuSubTrigger className="rounded-none text-sm font-semibold h-11 cursor-pointer">
                                                                 <Copy className="mr-3 h-4 w-4" /> Duplicate dataset
                                                             </DropdownMenuSubTrigger>
                                                             <DropdownMenuSubContent className="rounded-none border-border shadow-none p-1.5 min-w-40">
-                                                                <DropdownMenuItem className="rounded-none text-[13px] font-semibold h-10 cursor-pointer" onClick={() => onDuplicate(dataset)}>Quick clone</DropdownMenuItem>
+                                                                <DropdownMenuItem className="rounded-none text-sm font-semibold h-10 cursor-pointer" onClick={() => onDuplicate(dataset)}>Quick clone</DropdownMenuItem>
                                                                 <DropdownMenuSeparator className="bg-border/40" />
                                                                 {FORMATS.map((fmt) => (
-                                                                    <DropdownMenuItem key={fmt} className="rounded-none text-[13px] font-semibold h-10 cursor-pointer" onClick={() => onDuplicate(dataset, fmt)}>
+                                                                    <DropdownMenuItem key={fmt} className="rounded-none text-sm font-semibold h-10 cursor-pointer" onClick={() => onDuplicate(dataset, fmt)}>
                                                                         as {fmt}
                                                                     </DropdownMenuItem>
                                                                 ))}
@@ -225,12 +225,12 @@ export function DatasetTable({
                                                         </DropdownMenuSub>
 
                                                         <DropdownMenuSub>
-                                                            <DropdownMenuSubTrigger className="rounded-none text-[13px] font-semibold h-11 cursor-pointer">
+                                                            <DropdownMenuSubTrigger className="rounded-none text-sm font-semibold h-11 cursor-pointer">
                                                                 <Download className="mr-3 h-4 w-4" /> Export as...
                                                             </DropdownMenuSubTrigger>
                                                             <DropdownMenuSubContent className="rounded-none border-border shadow-none p-1.5 min-w-40">
                                                                 {FORMATS.map((fmt) => (
-                                                                    <DropdownMenuItem key={fmt} className="rounded-none text-[13px] font-semibold h-10 cursor-pointer" onClick={() => onExport(dataset, fmt)}>
+                                                                    <DropdownMenuItem key={fmt} className="rounded-none text-sm font-semibold h-10 cursor-pointer" onClick={() => onExport(dataset, fmt)}>
                                                                         {fmt}
                                                                     </DropdownMenuItem>
                                                                 ))}
@@ -240,7 +240,7 @@ export function DatasetTable({
                                                         <DropdownMenuSeparator className="bg-border/40" />
 
                                                         <DropdownMenuItem
-                                                            className="rounded-none text-[13px] font-semibold h-11 text-destructive focus:text-destructive focus:bg-destructive/5 cursor-pointer"
+                                                            className="rounded-none text-sm font-semibold h-11 text-destructive focus:text-destructive focus:bg-destructive/5 cursor-pointer"
                                                             onClick={() => onDelete(dataset)}
                                                         >
                                                             <Trash2 className="mr-3 h-4 w-4" /> Delete dataset
@@ -260,7 +260,7 @@ export function DatasetTable({
                                                 <Search className="h-5 w-5 text-muted-foreground/40" strokeWidth={1.5} />
                                             </div>
                                             <div className="space-y-1">
-                                                <p className="text-base font-bold text-muted-foreground">No matching files found</p>
+                                                <p className="text-sm font-bold text-muted-foreground">No matching files found</p>
                                                 <p className="text-sm text-muted-foreground/60 italic">
                                                     Try resetting your filters to see more results.
                                                 </p>

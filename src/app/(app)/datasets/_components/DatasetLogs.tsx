@@ -172,7 +172,7 @@ export function DatasetLogs({ logs, isLoading }: Readonly<DatasetLogsProps>) {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.2, delay: idx * 0.03 }}
                     >
-                        <Card className="rounded-none border-border/40 shadow-none hover:bg-muted/30 transition-colors p-4">
+                        <Card className="rounded-none border-slate-200 shadow-none hover:bg-blue-50 transition-colors p-4">
                             <div className="flex items-center gap-5">
                                 <div className={`h-10 w-10 shrink-0 flex items-center justify-center ${colorClass}`}>
                                     <Icon className="h-5 w-5" />
@@ -183,7 +183,7 @@ export function DatasetLogs({ logs, isLoading }: Readonly<DatasetLogsProps>) {
                                         <span className="text-xs font-bold text-muted-foreground/60 w-28 shrink-0">
                                             {ACTION_LABELS[log.action] ?? log.action.replaceAll("_", " ")}
                                         </span>
-                                        <span className="text-[15px] font-bold truncate tracking-tight">
+                                        <span className="text-sm font-bold truncate tracking-tight">
                                             {log.dataset_name_snap}
                                         </span>
                                     </div>

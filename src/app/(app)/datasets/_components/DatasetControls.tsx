@@ -46,7 +46,7 @@ export function DatasetControls({
                 <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground/60" />
                 <Input
                     placeholder="search datasets..."
-                    className="pl-10 rounded-none h-11 border-border bg-background hover:bg-muted transition-colors text-[15px] font-medium placeholder:text-muted-foreground/40 shadow-none"
+                    className="pl-10 rounded-none h-8 border-border bg-background hover:bg-muted transition-colors text-xs font-medium placeholder:text-muted-foreground/40 shadow-none"
                     value={searchQuery}
                     onChange={(e) => onSearchChange(e.target.value)}
                 />
@@ -65,7 +65,7 @@ export function DatasetControls({
                     <DropdownMenuTrigger asChild>
                         <Button
                             variant="outline"
-                            className="rounded-none h-11 px-5 border-border bg-background hover:bg-muted font-bold text-sm transition-all shadow-none lowercase"
+                            className="rounded-none h-8 px-4 border-border bg-background hover:bg-muted font-bold text-xs transition-all shadow-none lowercase"
                         >
                             <ArrowUpDown className="mr-2.5 h-4 w-4" />
                             {getSortLabel(sortBy)}
@@ -73,10 +73,10 @@ export function DatasetControls({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="rounded-none border-border shadow-none min-w-45 p-1.5">
                         <DropdownMenuRadioGroup value={sortBy} onValueChange={onSortChange}>
-                            <DropdownMenuRadioItem className="rounded-none text-sm font-semibold h-10 lowercase" value="newest">newest first</DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem className="rounded-none text-sm font-semibold h-10 lowercase" value="oldest">oldest first</DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem className="rounded-none text-sm font-semibold h-10 lowercase" value="name_asc">name (a–z)</DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem className="rounded-none text-sm font-semibold h-10 lowercase" value="name_desc">name (z–a)</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem className="rounded-none text-xs font-semibold h-8 lowercase" value="newest">newest first</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem className="rounded-none text-xs font-semibold h-8 lowercase" value="oldest">oldest first</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem className="rounded-none text-xs font-semibold h-8 lowercase" value="name_asc">name (a–z)</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem className="rounded-none text-xs font-semibold h-8 lowercase" value="name_desc">name (z–a)</DropdownMenuRadioItem>
                         </DropdownMenuRadioGroup>
                     </DropdownMenuContent>
                 </DropdownMenu>
@@ -86,7 +86,7 @@ export function DatasetControls({
                     <DropdownMenuTrigger asChild>
                         <Button
                             variant="outline"
-                            className="rounded-none h-11 px-5 border-border bg-background hover:bg-muted font-bold text-sm transition-all shadow-none lowercase"
+                            className="rounded-none h-8 px-4 border-border bg-background hover:bg-muted font-bold text-xs transition-all shadow-none lowercase"
                         >
                             <Filter className="mr-2.5 h-4 w-4" />
                             {getFilterLabel(filterType)}
@@ -94,11 +94,11 @@ export function DatasetControls({
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end" className="rounded-none border-border shadow-none min-w-455">
                         <DropdownMenuRadioGroup value={filterType} onValueChange={onFilterChange}>
-                            <DropdownMenuRadioItem className="rounded-none text-sm font-semibold h-10 lowercase" value="all">all formats</DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem className="rounded-none text-sm font-semibold h-10 lowercase" value="csv">csv</DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem className="rounded-none text-sm font-semibold h-10 lowercase" value="json">json</DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem className="rounded-none text-sm font-semibold h-10 lowercase" value="xlsx">xlsx</DropdownMenuRadioItem>
-                            <DropdownMenuRadioItem className="rounded-none text-sm font-semibold h-10 lowercase" value="parquet">parquet</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem className="rounded-none text-xs font-semibold h-8 lowercase" value="all">all formats</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem className="rounded-none text-xs font-semibold h-8 lowercase" value="csv">csv</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem className="rounded-none text-xs font-semibold h-8 lowercase" value="json">json</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem className="rounded-none text-xs font-semibold h-8 lowercase" value="xlsx">xlsx</DropdownMenuRadioItem>
+                            <DropdownMenuRadioItem className="rounded-none text-xs font-semibold h-8 lowercase" value="parquet">parquet</DropdownMenuRadioItem>
                         </DropdownMenuRadioGroup>
                     </DropdownMenuContent>
                 </DropdownMenu>

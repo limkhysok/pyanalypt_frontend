@@ -83,7 +83,7 @@ export function ScatterChartPanel({ datasetId, numericColumns, categoricalColumn
         vizApi.scatter(datasetId, {
             col_x: colX,
             col_y: colY,
-            color_by: colorBy !== "__none__" ? colorBy : undefined,
+            color_by: colorBy === "__none__" ? undefined : colorBy,
             sample,
         })
             .then(setResult)
@@ -94,34 +94,34 @@ export function ScatterChartPanel({ datasetId, numericColumns, categoricalColumn
     return (
         <div className="flex flex-col gap-4">
             <div className="flex flex-wrap items-center gap-3">
-                <span className="text-sm font-medium">X</span>
+                <span className="text-xs font-medium">X</span>
                 <Select value={colX} onValueChange={setColX}>
-                    <SelectTrigger className="h-8 w-44 rounded-none text-sm"><SelectValue placeholder="Numeric col" /></SelectTrigger>
+                    <SelectTrigger className="h-8 w-44 rounded-none text-xs"><SelectValue placeholder="Numeric col" /></SelectTrigger>
                     <SelectContent className="rounded-none">
                         {numericColumns.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                     </SelectContent>
                 </Select>
 
-                <span className="text-sm font-medium">Y</span>
+                <span className="text-xs font-medium">Y</span>
                 <Select value={colY} onValueChange={setColY}>
-                    <SelectTrigger className="h-8 w-44 rounded-none text-sm"><SelectValue placeholder="Numeric col" /></SelectTrigger>
+                    <SelectTrigger className="h-8 w-44 rounded-none text-xs"><SelectValue placeholder="Numeric col" /></SelectTrigger>
                     <SelectContent className="rounded-none">
                         {numericColumns.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                     </SelectContent>
                 </Select>
 
-                <span className="text-sm font-medium">Color by</span>
+                <span className="text-xs font-medium">Color by</span>
                 <Select value={colorBy} onValueChange={setColorBy}>
-                    <SelectTrigger className="h-8 w-44 rounded-none text-sm"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-8 w-44 rounded-none text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent className="rounded-none">
                         <SelectItem value="__none__">None</SelectItem>
                         {categoricalColumns.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                     </SelectContent>
                 </Select>
 
-                <span className="text-sm font-medium">Sample</span>
+                <span className="text-xs font-medium">Sample</span>
                 <Select value={String(sample)} onValueChange={v => setSample(Number(v))}>
-                    <SelectTrigger className="h-8 w-24 rounded-none text-sm"><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-8 w-24 rounded-none text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent className="rounded-none">
                         {SAMPLE_OPTIONS.map(n => <SelectItem key={n} value={String(n)}>{n.toLocaleString()}</SelectItem>)}
                     </SelectContent>
@@ -139,8 +139,8 @@ export function ScatterChartPanel({ datasetId, numericColumns, categoricalColumn
             </div>
 
             {option
-                ? <div className="border bg-card"><EChart option={option} style={{ height: "420px" }} /></div>
-                : <div className="border bg-muted/5 h-80 flex items-center justify-center text-sm text-muted-foreground">Configure options above and click Run</div>
+                ? <div className="border border-slate-200 bg-card"><EChart option={option} style={{ height: "420px" }} /></div>
+                : <div className="border border-slate-200 bg-muted/5 h-80 flex items-center justify-center text-xs text-muted-foreground">Configure options above and click Run</div>
             }
         </div>
     );

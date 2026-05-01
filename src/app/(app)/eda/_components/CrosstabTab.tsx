@@ -62,7 +62,7 @@ export function CrosstabTab({ datasetId, columns, loading, setLoading }: Readonl
     return (
         <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3 flex-wrap">
-                <span className="text-sm font-medium">Row axis</span>
+                <span className="text-xs font-medium">Row axis</span>
                 <Select value={colA} onValueChange={handleColAChange}>
                     <SelectTrigger className="h-8 w-44 rounded-none text-sm">
                         <SelectValue placeholder="Column A" />
@@ -71,7 +71,7 @@ export function CrosstabTab({ datasetId, columns, loading, setLoading }: Readonl
                         {columns.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                     </SelectContent>
                 </Select>
-                <span className="text-sm font-medium">Column axis</span>
+                <span className="text-xs font-medium">Column axis</span>
                 <Select value={colB} onValueChange={handleColBChange}>
                     <SelectTrigger className="h-8 w-44 rounded-none text-sm">
                         <SelectValue placeholder="Column B" />
@@ -82,7 +82,7 @@ export function CrosstabTab({ datasetId, columns, loading, setLoading }: Readonl
                 </Select>
                 <div className="flex items-center gap-2">
                     <Switch id="normalize" checked={normalize} onCheckedChange={setNormalize} />
-                    <Label htmlFor="normalize" className="text-sm cursor-pointer">Show %</Label>
+                    <Label htmlFor="normalize" className="text-xs cursor-pointer">Show %</Label>
                 </div>
                 <Button variant="outline" size="sm" className="h-8 gap-1.5 rounded-none" onClick={run} disabled={loading || !colA || !colB}>
                     <Search className="h-3 w-3" />
@@ -114,14 +114,14 @@ export function CrosstabTab({ datasetId, columns, loading, setLoading }: Readonl
                         Export CSV
                     </Button>
                 </div>
-                <div className="border bg-card">
+                <div className="border border-slate-200 bg-card">
                     <ScrollArea className="w-full">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="border-b bg-muted/30">
-                                    <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground font-mono">{rowKey}</th>
+                                <tr className="border-b border-slate-200 bg-slate-50">
+                                    <th className="px-3 py-2 text-left font-semibold text-xs text-gray-600 font-mono">{rowKey}</th>
                                     {valCols.map((c) => (
-                                        <th key={c} className="px-3 py-2 text-right font-semibold text-xs text-muted-foreground font-mono">{c}</th>
+                                        <th key={c} className="px-3 py-2 text-right font-semibold text-xs text-gray-600 font-mono">{c}</th>
                                     ))}
                                 </tr>
                             </thead>
@@ -129,7 +129,7 @@ export function CrosstabTab({ datasetId, columns, loading, setLoading }: Readonl
                                 {result.table.map((row) => {
                                     const rowLabel = String(row[rowKey] ?? "");
                                     return (
-                                        <tr key={rowLabel} className="border-b last:border-0 hover:bg-muted/20 transition-colors">
+                                        <tr key={rowLabel} className="border-b border-slate-200 last:border-0 hover:bg-blue-50 even:bg-gray-50 transition-colors">
                                             <td className="px-3 py-2 font-medium font-mono text-xs">{rowLabel}</td>
                                             {valCols.map((c) => {
                                                 const val = row[c];

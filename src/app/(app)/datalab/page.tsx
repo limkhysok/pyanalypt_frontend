@@ -1,18 +1,24 @@
 "use client";
 
 import React from "react";
-import { FlaskConical, Database, ChevronDown, Table2, Info, BarChart2, DatabaseZap, Layers, Eraser, ShieldCheck, Activity, Columns2, Filter, SlidersHorizontal } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import {
+    FlaskConical, Database, ChevronDown, Table2, Info, BarChart2, DatabaseZap,
+    Trash2, Eraser, Activity, Columns2, Filter, ShieldCheck, Wand2, MoreHorizontal,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import {
     DropdownMenu,
     DropdownMenuContent,
+    DropdownMenuItem,
     DropdownMenuRadioGroup,
     DropdownMenuRadioItem,
     DropdownMenuTrigger,
     DropdownMenuLabel,
     DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 import { useDatalab } from "./use-datalab";
 import { PreviewTab } from "./_components/PreviewTab";
 import { InspectTab } from "./_components/InspectTab";
@@ -28,6 +34,201 @@ import { ColumnToolsDialog } from "./_components/ColumnToolsDialog";
 import { CleanFilterDialog } from "./_components/CleanFilterDialog";
 import { TransformDialog } from "./_components/TransformDialog";
 
+// ─── Tab definitions ──────────────────────────────────────────────────────────
+
+type TabDef = { value: string; icon: LucideIcon; label: string };
+
+const EXPLORE_TABS: TabDef[] = [
+    { value: "preview",  icon: Table2,    label: "Data Preview" },
+    { value: "inspect",  icon: Info,      label: "Inspect" },
+    { value: "describe", icon: BarChart2, label: "Describe" },
+];
+
+const CLEAN_TABS: TabDef[] = [
+    { value: "drop-dups", icon: Trash2,   label: "Drop Duplicates" },
+    { value: "nulls",     icon: Eraser,   label: "Handle Nulls" },
+    { value: "outliers",  icon: Activity, label: "Handle Outliers" },
+];
+
+const ADVANCED_TABS: TabDef[] = [
+    { value: "col-tools", icon: Columns2,    label: "Column Tools" },
+    { value: "clean",     icon: Filter,      label: "Clean & Filter" },
+    { value: "formula",   icon: ShieldCheck, label: "Formula Audit" },
+    { value: "transform", icon: Wand2,       label: "Transform" },
+];
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+type Dataset = { id: number; file_name: string };
+
+function ActionBar({ activeTab, onTabChange, datasets, selectedId, onSelectDataset, loadingDatasets, selectedName }: Readonly<{
+    activeTab: string;
+    onTabChange: (val: string) => void;
+    datasets: Dataset[];
+    selectedId: string;
+    onSelectDataset: (id: string) => void;
+    loadingDatasets: boolean;
+    selectedName: string | null | undefined;
+}>) {
+    const cleanIsActive = CLEAN_TABS.some((t) => t.value === activeTab);
+    const activeClean = CLEAN_TABS.find((t) => t.value === activeTab);
+    const advancedIsActive = ADVANCED_TABS.some((t) => t.value === activeTab);
+    const activeAdvanced = ADVANCED_TABS.find((t) => t.value === activeTab);
+
+    return (
+        <div className="flex flex-col sm:flex-row sm:items-stretch border-b border-border mb-4">
+
+            <div className="flex items-stretch min-w-0 overflow-x-auto">
+
+                {/* Group A — Exploration */}
+                {EXPLORE_TABS.map(({ value, icon: Icon, label }) => {
+                    const isActive = activeTab === value;
+                    return (
+                        <button
+                            key={value}
+                            type="button"
+                            onClick={() => onTabChange(value)}
+                            className={cn(
+                                "px-3 inline-flex items-center gap-1.5 text-xs rounded-none transition-all whitespace-nowrap border-b-2 focus-visible:outline-none",
+                                isActive
+                                    ? "text-blue-600 font-bold border-blue-600 bg-blue-50/60"
+                                    : "text-gray-500 hover:text-gray-900 hover:bg-slate-50 border-transparent"
+                            )}
+                        >
+                            <Icon className="h-3.5 w-3.5 shrink-0" />
+                            <span className="hidden sm:inline">{label}</span>
+                        </button>
+                    );
+                })}
+
+                <div aria-hidden className="hidden sm:flex items-center px-1.5">
+                    <span className="h-4 w-px bg-border/60 shrink-0" />
+                </div>
+
+                {/* Group B — Cleaning (dropdown) */}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <button
+                            type="button"
+                            className={cn(
+                                "px-3 inline-flex items-center gap-1.5 text-xs rounded-none transition-all whitespace-nowrap border-b-2 focus-visible:outline-none",
+                                cleanIsActive
+                                    ? "text-orange-600 dark:text-orange-400 font-bold border-orange-500 bg-orange-50/40 dark:bg-orange-950/20"
+                                    : "text-orange-500/60 dark:text-orange-400/50 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50/40 dark:hover:bg-orange-950/20 border-transparent"
+                            )}
+                        >
+                            {cleanIsActive && activeClean
+                                ? <activeClean.icon className="h-3.5 w-3.5 shrink-0" />
+                                : <Eraser className="h-3.5 w-3.5 shrink-0" />
+                            }
+                            {activeClean?.label ?? "Cleaning"}
+                            <ChevronDown className="h-3 w-3 shrink-0 opacity-50" />
+                        </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="rounded-none w-48 shadow-md">
+                        {CLEAN_TABS.map(({ value, icon: Icon, label }) => (
+                            <DropdownMenuItem
+                                key={value}
+                                onClick={() => onTabChange(value)}
+                                className={cn(
+                                    "rounded-none gap-2 text-xs cursor-pointer",
+                                    activeTab === value && "text-orange-600 dark:text-orange-400 font-bold bg-orange-50/60 dark:bg-orange-950/20"
+                                )}
+                            >
+                                <Icon className="h-3.5 w-3.5 shrink-0" />
+                                {label}
+                            </DropdownMenuItem>
+                        ))}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
+                <div aria-hidden className="hidden sm:flex items-center px-1.5">
+                    <span className="h-4 w-px bg-border/60 shrink-0" />
+                </div>
+
+                {/* Group C — Advanced (always dropdown) */}
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <button
+                            type="button"
+                            className={cn(
+                                "px-3 inline-flex items-center gap-1.5 text-xs rounded-none transition-all whitespace-nowrap border-b-2 focus-visible:outline-none",
+                                advancedIsActive
+                                    ? "text-blue-600 font-bold border-blue-600 bg-blue-50/60"
+                                    : "text-gray-500 hover:text-gray-900 hover:bg-slate-50 border-transparent"
+                            )}
+                        >
+                            {advancedIsActive && activeAdvanced
+                                ? <activeAdvanced.icon className="h-3.5 w-3.5 shrink-0" />
+                                : <MoreHorizontal className="h-3.5 w-3.5 shrink-0" />
+                            }
+                            {activeAdvanced?.label ?? "Advanced"}
+                            <ChevronDown className="h-3 w-3 shrink-0 opacity-50" />
+                        </button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="rounded-none w-48 shadow-md">
+                        {ADVANCED_TABS.map(({ value, icon: Icon, label }) => (
+                            <DropdownMenuItem
+                                key={value}
+                                onClick={() => onTabChange(value)}
+                                className={cn(
+                                    "rounded-none gap-2 text-xs cursor-pointer",
+                                    activeTab === value && "text-primary font-bold bg-primary/5"
+                                )}
+                            >
+                                <Icon className="h-3.5 w-3.5 shrink-0" />
+                                {label}
+                            </DropdownMenuItem>
+                        ))}
+                    </DropdownMenuContent>
+                </DropdownMenu>
+
+            </div>
+
+            {/* Dataset picker */}
+            <div className="sm:ml-auto flex items-center py-2 sm:py-1.5 sm:pl-4 border-t sm:border-t-0 border-border/40 shrink-0">
+                <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm" className="h-8 gap-2 w-full sm:w-auto sm:min-w-44 min-w-0 justify-between text-xs rounded-none" disabled={loadingDatasets}>
+                            <div className="flex items-center gap-1.5 min-w-0">
+                                <Database className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                <span className="truncate max-w-36">
+                                    {loadingDatasets ? "Loading…" : (selectedName ?? "Select dataset")}
+                                </span>
+                            </div>
+                            <ChevronDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                        </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-64 rounded-none shadow-md">
+                        <DropdownMenuLabel className="text-[13px] font-semibold text-muted-foreground">
+                            Dataset
+                        </DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuRadioGroup value={selectedId} onValueChange={onSelectDataset}>
+                            {datasets.length === 0
+                                ? <DropdownMenuRadioItem value="" disabled className="text-sm opacity-50">No datasets found</DropdownMenuRadioItem>
+                                : datasets.map((d) => (
+                                    <DropdownMenuRadioItem key={d.id} value={String(d.id)} className="text-sm truncate cursor-pointer">
+                                        {d.file_name}
+                                    </DropdownMenuRadioItem>
+                                ))
+                            }
+                        </DropdownMenuRadioGroup>
+                    </DropdownMenuContent>
+                </DropdownMenu>
+            </div>
+
+        </div>
+    );
+}
+
+function SkeletonFor({ tab }: Readonly<{ tab: string }>) {
+    if (tab === "inspect") return <InspectTabSkeleton />;
+    if (tab === "describe") return <DescribeTabSkeleton />;
+    return <PreviewTabSkeleton />;
+}
+
+// ─── Page ────────────────────────────────────────────────────────────────────
 
 export default function DataLabPage() {
     const {
@@ -59,7 +260,7 @@ export default function DataLabPage() {
     const skeletonTab = isPending ? pendingTabRef.current : activeTab;
 
     return (
-        <div className="flex flex-col gap-6 p-8">
+        <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
 
             {/* ── Header ── */}
             <div className="flex items-center gap-3">
@@ -72,80 +273,19 @@ export default function DataLabPage() {
 
             {/* ── Content ── */}
             <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-                <div className="flex items-center justify-between mb-4">
-                    <TabsList className="rounded-none h-auto flex-wrap justify-start">
-                        <TabsTrigger value="preview" className="gap-2 rounded-none">
-                            <Table2 className="h-3.5 w-3.5" /> Data Preview
-                        </TabsTrigger>
-                        <TabsTrigger value="inspect" className="gap-2 rounded-none">
-                            <Info className="h-3.5 w-3.5" /> Inspect
-                        </TabsTrigger>
-                        <TabsTrigger value="describe" className="gap-2 rounded-none">
-                            <BarChart2 className="h-3.5 w-3.5" /> Describe
-                        </TabsTrigger>
-                        <TabsTrigger value="drop-dups" className="gap-2 rounded-none">
-                            <Layers className="h-3.5 w-3.5" /> Drop Duplicates
-                        </TabsTrigger>
-                        <TabsTrigger value="nulls" className="gap-2 rounded-none">
-                            <Eraser className="h-3.5 w-3.5" /> Handle Nulls
-                        </TabsTrigger>
-                        <TabsTrigger value="formula" className="gap-2 rounded-none">
-                            <ShieldCheck className="h-3.5 w-3.5" /> Formula Audit
-                        </TabsTrigger>
-                        <TabsTrigger value="outliers" className="gap-2 rounded-none">
-                            <Activity className="h-3.5 w-3.5" /> Handle Outliers
-                        </TabsTrigger>
-                        <TabsTrigger value="col-tools" className="gap-2 rounded-none">
-                            <Columns2 className="h-3.5 w-3.5" /> Column Tools
-                        </TabsTrigger>
-                        <TabsTrigger value="clean" className="gap-2 rounded-none">
-                            <Filter className="h-3.5 w-3.5" /> Clean & Filter
-                        </TabsTrigger>
-                        <TabsTrigger value="transform" className="gap-2 rounded-none">
-                            <SlidersHorizontal className="h-3.5 w-3.5" /> Transform
-                        </TabsTrigger>
-                    </TabsList>
 
-                    {/* Dataset picker */}
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className="h-9 gap-2 min-w-44 justify-between text-sm rounded-none" disabled={loadingDatasets}>
-                                <div className="flex items-center gap-1.5 min-w-0">
-                                    <Database className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                                    <span className="truncate max-w-36">
-                                        {loadingDatasets ? "Loading…" : selectedName ?? "Select dataset"}
-                                    </span>
-                                </div>
-                                <ChevronDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-64 rounded-none">
-                            <DropdownMenuLabel className="text-[13px] font-semibold text-muted-foreground">
-                                Dataset
-                            </DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuRadioGroup value={selectedId} onValueChange={setSelectedId}>
-                                {datasets.length === 0
-                                    ? <DropdownMenuRadioItem value="" disabled className="text-sm opacity-50">No datasets found</DropdownMenuRadioItem>
-                                    : datasets.map((d) => (
-                                        <DropdownMenuRadioItem key={d.id} value={String(d.id)} className="text-sm truncate cursor-pointer">
-                                            {d.file_name}
-                                        </DropdownMenuRadioItem>
-                                    ))
-                                }
-                            </DropdownMenuRadioGroup>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
-                </div>
+                <ActionBar
+                    activeTab={activeTab}
+                    onTabChange={handleTabChange}
+                    datasets={datasets}
+                    selectedId={selectedId}
+                    onSelectDataset={setSelectedId}
+                    loadingDatasets={loadingDatasets}
+                    selectedName={selectedName}
+                />
 
-                {/* ── Skeleton (dataset load or tab switch) ── */}
-                {selectedId && isLoading && (() => {
-                    if (skeletonTab === "inspect") return <InspectTabSkeleton />;
-                    if (skeletonTab === "describe") return <DescribeTabSkeleton />;
-                    return <PreviewTabSkeleton />;
-                })()}
+                {selectedId && isLoading && <SkeletonFor tab={skeletonTab} />}
 
-                {/* ── Empty state ── */}
                 {!selectedId && (
                     <div className="border bg-muted/5 h-105 flex flex-col items-center justify-center gap-3 text-muted-foreground">
                         <DatabaseZap className="h-10 w-10 opacity-30" />
@@ -154,7 +294,6 @@ export default function DataLabPage() {
                     </div>
                 )}
 
-                {/* ── Tab content ── */}
                 {selectedId && !isLoading && (
                     <>
                         <TabsContent value="preview">
@@ -165,7 +304,7 @@ export default function DataLabPage() {
                         </TabsContent>
                         <TabsContent value="inspect">
                             {inspect && preview
-                                ? <InspectTab data={inspect} preview={preview} datasetId={Number(selectedId)} onRefetchInspect={refetchInspect} onRefetchAll={refetchAll} />
+                                ? <InspectTab data={inspect} preview={preview} datasetId={Number(selectedId)} onRefetchAll={refetchAll} />
                                 : <div className="border bg-muted/5 h-105" />
                             }
                         </TabsContent>

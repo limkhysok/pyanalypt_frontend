@@ -1,8 +1,10 @@
 "use client";
 
+import React from "react";
 import { Database, Activity } from "lucide-react";
 import { motion } from "motion/react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
+import { cn } from "@/lib/utils";
 import { useDatasets } from "./use-datasets";
 import { DatasetHeader } from "./_components/DatasetHeader";
 import { DatasetStats } from "./_components/DatasetStats";
@@ -12,7 +14,14 @@ import { DatasetLogs } from "./_components/DatasetLogs";
 import { RenameDialog } from "./_components/RenameDialog";
 import { DeleteDialog } from "./_components/DeleteDialog";
 
+const DATASET_TABS = [
+    { value: "artifacts", icon: Database, label: "Datasets" },
+    { value: "logs",      icon: Activity, label: "Activity Logs" },
+] as const;
+
 export default function DatasetsPage() {
+    const [activeTab, setActiveTab] = React.useState("artifacts");
+
     const {
         datasets,
         activityLogs,
@@ -52,7 +61,7 @@ export default function DatasetsPage() {
     } = useDatasets();
 
     return (
-        <main className="flex flex-col gap-6 p-8">
+        <main className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
 
             <DatasetHeader
                 uploadLoading={uploadLoading}
@@ -69,17 +78,29 @@ export default function DatasetsPage() {
                 />
             )}
 
-            <Tabs defaultValue="artifacts" className="w-full">
-                <TabsList className="rounded-none">
-                    <TabsTrigger value="artifacts" className="gap-2 rounded-none">
-                        <Database className="h-3.5 w-3.5" /> Datasets
-                    </TabsTrigger>
-                    <TabsTrigger value="logs" className="gap-2 rounded-none">
-                        <Activity className="h-3.5 w-3.5" /> Activity Logs
-                    </TabsTrigger>
-                </TabsList>
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
 
-                <TabsContent value="artifacts" className="space-y-6 pt-6 outline-none">
+                {/* ── Tab bar ── */}
+                <div className="flex items-stretch border-b border-border mb-4">
+                    {DATASET_TABS.map(({ value, icon: Icon, label }) => (
+                        <button
+                            key={value}
+                            type="button"
+                            onClick={() => setActiveTab(value)}
+                            className={cn(
+                                "px-3 py-2.5 inline-flex items-center gap-1.5 text-xs rounded-none transition-all whitespace-nowrap border-b-2 focus-visible:outline-none",
+                                activeTab === value
+                                    ? "text-blue-600 font-bold border-blue-600 bg-blue-50/60"
+                                    : "text-gray-500 hover:text-gray-900 hover:bg-slate-50 border-transparent"
+                            )}
+                        >
+                            <Icon className="h-3.5 w-3.5 shrink-0" />
+                            {label}
+                        </button>
+                    ))}
+                </div>
+
+                <TabsContent value="artifacts" className="space-y-6 outline-none">
                     <DatasetControls
                         searchQuery={searchQuery}
                         onSearchChange={setSearchQuery}
@@ -110,7 +131,7 @@ export default function DatasetsPage() {
                     </motion.div>
                 </TabsContent>
 
-                <TabsContent value="logs" className="pt-6 outline-none">
+                <TabsContent value="logs" className="outline-none">
                     <DatasetLogs logs={activityLogs} isLoading={logsLoading} />
                 </TabsContent>
             </Tabs>

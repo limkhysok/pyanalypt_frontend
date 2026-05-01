@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils";
 function StatRow({ label, value, mono, accent }: Readonly<{ label: string; value: string; mono?: boolean; accent?: boolean }>) {
     return (
         <div className="flex items-center justify-between gap-4">
-            <span className="text-[13px] text-muted-foreground">{label}</span>
-            <span className={cn("text-[13px]", mono && "font-mono", accent ? "text-red-400 font-semibold" : "text-foreground")}>
+            <span className="text-xs text-muted-foreground">{label}</span>
+            <span className={cn("text-xs", mono && "font-mono", accent ? "text-red-400 font-semibold" : "text-foreground")}>
                 {value}
             </span>
         </div>
@@ -32,7 +32,7 @@ function ColStatsTooltip({ col, info, children }: Readonly<{
                     className="rounded-none p-0 border border-border shadow-md min-w-44"
                 >
                     <div className="px-3 py-2 border-b bg-muted/30">
-                        <p className="text-[13px] font-semibold font-mono">{col}</p>
+                        <p className="text-xs font-semibold font-mono">{col}</p>
                     </div>
                     <div className="px-3 py-2 space-y-1">
                         <StatRow label="dtype" value={info.dtype} mono />
@@ -71,7 +71,7 @@ export function HeaderContent({
             <input
                 autoFocus
                 defaultValue={col}
-                className="bg-background border border-primary px-2 py-0.5 text-sm font-semibold text-foreground outline-none w-full min-w-24 rounded-none"
+                className="bg-background border border-primary px-2 py-0.5 text-xs font-semibold text-foreground outline-none w-full min-w-24 rounded-none"
                 onKeyDown={(e) => {
                     if (e.key === "Enter") {
                         e.preventDefault();

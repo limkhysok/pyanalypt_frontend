@@ -14,9 +14,10 @@ import {
     ScatterChart,
     DatabaseZap,
     Loader2,
+    MoreHorizontal,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsContent } from "@/components/ui/tabs";
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -25,7 +26,9 @@ import {
     DropdownMenuTrigger,
     DropdownMenuLabel,
     DropdownMenuSeparator,
+    DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import { cn } from "@/lib/utils";
 import { useEda } from "./use-eda";
 import { CorrelationTab } from "./_components/CorrelationTab";
 import { DistributionTab } from "./_components/DistributionTab";
@@ -34,6 +37,19 @@ import { CrosstabTab } from "./_components/CrosstabTab";
 import { OutlierSummaryTab } from "./_components/OutlierSummaryTab";
 import { MissingHeatmapTab } from "./_components/MissingHeatmapTab";
 import { PairwiseTab } from "./_components/PairwiseTab";
+
+const PRIMARY_TABS = [
+    { value: "correlation",  icon: Grid3X3,      label: "Correlation" },
+    { value: "distribution", icon: BarChart2,     label: "Distribution" },
+    { value: "value-counts", icon: List,          label: "Value Counts" },
+    { value: "crosstab",     icon: Table2,        label: "Cross-tab" },
+] as const;
+
+const MORE_TABS = [
+    { value: "outlier-summary",  icon: AlertTriangle, label: "Outliers" },
+    { value: "missing-heatmap",  icon: Layers,        label: "Missing" },
+    { value: "pairwise",         icon: ScatterChart,  label: "Scatter" },
+] as const;
 
 export default function EDAPage() {
     const {
@@ -66,15 +82,15 @@ export default function EDAPage() {
         startTransition(() => setActiveTab(val));
     }
 
-    // Per-tab loading helpers — each tab is independent
     function tabLoading(tabId: string) { return loadingTabId === tabId; }
     function setTabLoading(tabId: string) { return (v: boolean) => setLoadingTabId(v ? tabId : null); }
 
-    // Show full-area spinner only when the active tab itself is loading
     const isLoading = tabLoading(activeTab) || isPending;
+    const moreIsActive = MORE_TABS.some((t) => t.value === activeTab);
+    const activeMore = MORE_TABS.find((t) => t.value === activeTab);
 
     return (
-        <div className="flex flex-col gap-6 p-8">
+        <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
 
             {/* ── Header ── */}
             <div className="flex items-center gap-3">
@@ -87,59 +103,102 @@ export default function EDAPage() {
 
             {/* ── Content ── */}
             <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-                <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
-                    <TabsList className="rounded-none flex-wrap h-auto gap-0">
-                        <TabsTrigger value="correlation" className="gap-1.5 rounded-none text-xs">
-                            <Grid3X3 className="h-3 w-3" /> Correlation
-                        </TabsTrigger>
-                        <TabsTrigger value="distribution" className="gap-1.5 rounded-none text-xs">
-                            <BarChart2 className="h-3 w-3" /> Distribution
-                        </TabsTrigger>
-                        <TabsTrigger value="value-counts" className="gap-1.5 rounded-none text-xs">
-                            <List className="h-3 w-3" /> Value Counts
-                        </TabsTrigger>
-                        <TabsTrigger value="crosstab" className="gap-1.5 rounded-none text-xs">
-                            <Table2 className="h-3 w-3" /> Cross-tab
-                        </TabsTrigger>
-                        <TabsTrigger value="outlier-summary" className="gap-1.5 rounded-none text-xs">
-                            <AlertTriangle className="h-3 w-3" /> Outliers
-                        </TabsTrigger>
-                        <TabsTrigger value="missing-heatmap" className="gap-1.5 rounded-none text-xs">
-                            <Layers className="h-3 w-3" /> Missing
-                        </TabsTrigger>
-                        <TabsTrigger value="pairwise" className="gap-1.5 rounded-none text-xs">
-                            <ScatterChart className="h-3 w-3" /> Scatter
-                        </TabsTrigger>
-                    </TabsList>
+
+                {/* ── Action bar ── */}
+                <div className="flex flex-col sm:flex-row sm:items-stretch border-b border-border mb-4">
+                    <div className="flex items-stretch min-w-0 overflow-x-auto">
+
+                        {/* Primary tabs */}
+                        {PRIMARY_TABS.map(({ value, icon: Icon, label }) => (
+                            <button
+                                key={value}
+                                type="button"
+                                onClick={() => handleTabChange(value)}
+                                className={cn(
+                                    "px-3 py-2.5 inline-flex items-center gap-1.5 text-xs rounded-none transition-all whitespace-nowrap border-b-2 focus-visible:outline-none",
+                                    activeTab === value
+                                        ? "text-blue-600 font-bold border-blue-600 bg-blue-50/60"
+                                        : "text-gray-500 hover:text-gray-900 hover:bg-slate-50 border-transparent"
+                                )}
+                            >
+                                <Icon className="h-3.5 w-3.5 shrink-0" />
+                                <span className="hidden sm:inline">{label}</span>
+                            </button>
+                        ))}
+
+                        <div aria-hidden className="hidden sm:flex items-center px-1.5">
+                            <span className="h-4 w-px bg-border/60 shrink-0" />
+                        </div>
+
+                        {/* More dropdown */}
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <button
+                                    type="button"
+                                    className={cn(
+                                        "px-3 py-2.5 inline-flex items-center gap-1.5 text-xs rounded-none transition-all whitespace-nowrap border-b-2 focus-visible:outline-none",
+                                        moreIsActive
+                                            ? "text-blue-600 font-bold border-blue-600 bg-blue-50/60"
+                                            : "text-gray-500 hover:text-gray-900 hover:bg-slate-50 border-transparent"
+                                    )}
+                                >
+                                    {moreIsActive && activeMore
+                                        ? <activeMore.icon className="h-3.5 w-3.5 shrink-0" />
+                                        : <MoreHorizontal className="h-3.5 w-3.5 shrink-0" />
+                                    }
+                                    {activeMore?.label ?? "More"}
+                                    <ChevronDown className="h-3 w-3 shrink-0 opacity-50" />
+                                </button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="start" className="rounded-none w-48 shadow-md">
+                                {MORE_TABS.map(({ value, icon: Icon, label }) => (
+                                    <DropdownMenuItem
+                                        key={value}
+                                        onClick={() => handleTabChange(value)}
+                                        className={cn(
+                                            "rounded-none gap-2 text-xs cursor-pointer",
+                                            activeTab === value && "text-blue-600 font-bold bg-blue-50/60"
+                                        )}
+                                    >
+                                        <Icon className="h-3.5 w-3.5 shrink-0" />
+                                        {label}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
+                    </div>
 
                     {/* Dataset picker */}
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="outline" size="sm" className="h-9 gap-2 min-w-44 justify-between text-sm rounded-none" disabled={loadingDatasets}>
-                                <div className="flex items-center gap-1.5 min-w-0">
-                                    <Database className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                                    <span className="truncate max-w-36">
-                                        {loadingDatasets ? "Loading…" : selectedName ?? "Select dataset"}
-                                    </span>
-                                </div>
-                                <ChevronDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-64 rounded-none">
-                            <DropdownMenuLabel className="text-[13px] font-semibold text-muted-foreground">Dataset</DropdownMenuLabel>
-                            <DropdownMenuSeparator />
-                            <DropdownMenuRadioGroup value={selectedId} onValueChange={setSelectedId}>
-                                {datasets.length === 0
-                                    ? <DropdownMenuRadioItem value="" disabled className="text-sm opacity-50">No datasets found</DropdownMenuRadioItem>
-                                    : datasets.map((d) => (
-                                        <DropdownMenuRadioItem key={d.id} value={String(d.id)} className="text-sm truncate cursor-pointer">
-                                            {d.file_name}
-                                        </DropdownMenuRadioItem>
-                                    ))
-                                }
-                            </DropdownMenuRadioGroup>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                    <div className="sm:ml-auto flex items-center py-2 sm:py-1.5 sm:pl-4 border-t sm:border-t-0 border-border/40 shrink-0">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="sm" className="h-8 gap-2 w-full sm:w-auto sm:min-w-44 min-w-0 justify-between text-xs rounded-none" disabled={loadingDatasets}>
+                                    <div className="flex items-center gap-1.5 min-w-0">
+                                        <Database className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                        <span className="truncate max-w-36">
+                                            {loadingDatasets ? "Loading…" : selectedName ?? "Select dataset"}
+                                        </span>
+                                    </div>
+                                    <ChevronDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="w-64 rounded-none shadow-md">
+                                <DropdownMenuLabel className="text-xs font-semibold text-muted-foreground">Dataset</DropdownMenuLabel>
+                                <DropdownMenuSeparator />
+                                <DropdownMenuRadioGroup value={selectedId} onValueChange={setSelectedId}>
+                                    {datasets.length === 0
+                                        ? <DropdownMenuRadioItem value="" disabled className="text-xs opacity-50">No datasets found</DropdownMenuRadioItem>
+                                        : datasets.map((d) => (
+                                            <DropdownMenuRadioItem key={d.id} value={String(d.id)} className="text-xs truncate cursor-pointer">
+                                                {d.file_name}
+                                            </DropdownMenuRadioItem>
+                                        ))
+                                    }
+                                </DropdownMenuRadioGroup>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
                 </div>
 
                 {/* ── Empty state — no dataset ── */}
