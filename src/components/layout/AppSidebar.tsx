@@ -13,6 +13,7 @@ import {
     FlaskConical,
     TrendingUp,
     PieChart,
+    BookOpen,
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
 import { cn, getInitials } from "@/lib/utils";
@@ -53,6 +54,7 @@ const RESULTS_ITEMS: NavItemDef[] = [
     { label: "Visualization", href: "/visualization", icon: PieChart,  shortcut: "G V" },
     { label: "Analysis",      href: "/analysis",      icon: BarChart3, shortcut: "G A" },
     { label: "Insight",       href: "/insight",       icon: Lightbulb, shortcut: "G N" },
+    { label: "Reports",       href: "/reports",       icon: BookOpen,  shortcut: "G R" },
 ];
 
 /** G + key → route */
@@ -65,6 +67,7 @@ const SHORTCUT_MAP: Record<string, string> = {
     V: "/visualization",
     A: "/analysis",
     N: "/insight",
+    R: "/reports",
     ",": "/profile/setting",
 };
 

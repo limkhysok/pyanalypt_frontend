@@ -1,13 +1,14 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useTheme } from "next-themes";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, BookmarkPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import EChart from "@/components/ui/EChart";
+import EChart, { type EChartInstance } from "@/components/ui/EChart";
 import { vizApi, type VizBarResponse } from "@/services/viz.service";
 import { toast } from "sonner";
+import { SaveToReportModal } from "@/components/reports/SaveToReportModal";
 
 const AGG_OPTIONS = ["sum", "mean", "count", "min", "max"];
 const LIMIT_OPTIONS = [10, 20, 50, 100];
@@ -63,8 +64,16 @@ export function BarChartPanel({ datasetId, numericColumns, categoricalColumns }:
     const [limit, setLimit] = useState(20);
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<VizBarResponse | null>(null);
+    const [saveOpen, setSaveOpen] = useState(false);
+    const chartRef = useRef<EChartInstance>(null);
 
     const option = useMemo(() => result ? buildOption(result, isDark) : null, [result, isDark]);
+
+    function getChartImage() {
+        return chartRef.current?.getEchartsInstance()?.getDataURL({ type: "png", pixelRatio: 2, backgroundColor: "#fff" }) ?? null;
+    }
+
+    const chartParams = { x_col: xCol, y_col: yCol, agg, group_by: groupBy === "__none__" ? undefined : groupBy, limit };
 
     function run() {
         if (!xCol || !yCol) { toast.error("Select both X and Y columns."); return; }
@@ -128,12 +137,26 @@ export function BarChartPanel({ datasetId, numericColumns, categoricalColumns }:
                 <Button variant="outline" size="sm" className="h-8 gap-1.5 rounded-none" onClick={run} disabled={loading}>
                     <RefreshCw className={`h-3 w-3 ${loading ? "animate-spin" : ""}`} /> Run
                 </Button>
+
+                {result && (
+                    <Button variant="outline" size="sm" className="h-8 gap-1.5 rounded-none ml-auto" onClick={() => setSaveOpen(true)}>
+                        <BookmarkPlus className="h-3 w-3" /> Save to Report
+                    </Button>
+                )}
             </div>
 
             {option
-                ? <div className="border border-slate-200 bg-card"><EChart option={option} style={{ height: "420px" }} /></div>
+                ? <div className="border border-slate-200 bg-card"><EChart ref={chartRef} option={option} style={{ height: "420px" }} /></div>
                 : <div className="border border-slate-200 bg-muted/5 h-80 flex items-center justify-center text-xs text-muted-foreground">Configure options above and click Run</div>
             }
+
+            <SaveToReportModal
+                open={saveOpen}
+                onOpenChange={setSaveOpen}
+                chartType="bar"
+                chartParams={chartParams}
+                getChartImage={getChartImage}
+            />
         </div>
     );
 }

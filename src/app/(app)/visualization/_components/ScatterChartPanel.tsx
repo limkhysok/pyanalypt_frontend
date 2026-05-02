@@ -1,14 +1,15 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useRef } from "react";
 import { useTheme } from "next-themes";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, BookmarkPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import EChart from "@/components/ui/EChart";
+import EChart, { type EChartInstance } from "@/components/ui/EChart";
 import { vizApi, type VizScatterResponse } from "@/services/viz.service";
 import { toast } from "sonner";
+import { SaveToReportModal } from "@/components/reports/SaveToReportModal";
 
 const SAMPLE_OPTIONS = [100, 500, 1000, 2000, 5000];
 
@@ -74,8 +75,16 @@ export function ScatterChartPanel({ datasetId, numericColumns, categoricalColumn
     const [sample, setSample] = useState(500);
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<VizScatterResponse | null>(null);
+    const [saveOpen, setSaveOpen] = useState(false);
+    const chartRef = useRef<EChartInstance>(null);
 
     const option = useMemo(() => result ? buildOption(result, isDark) : null, [result, isDark]);
+
+    function getChartImage() {
+        return chartRef.current?.getEchartsInstance()?.getDataURL({ type: "png", pixelRatio: 2, backgroundColor: "#fff" }) ?? null;
+    }
+
+    const chartParams = { col_x: colX, col_y: colY, color_by: colorBy === "__none__" ? undefined : colorBy, sample };
 
     function run() {
         if (!colX || !colY) { toast.error("Select both X and Y columns."); return; }
@@ -136,12 +145,26 @@ export function ScatterChartPanel({ datasetId, numericColumns, categoricalColumn
                         r = {result.pearson_r.toFixed(4)}
                     </Badge>
                 )}
+
+                {result && (
+                    <Button variant="outline" size="sm" className="h-8 gap-1.5 rounded-none ml-auto" onClick={() => setSaveOpen(true)}>
+                        <BookmarkPlus className="h-3 w-3" /> Save to Report
+                    </Button>
+                )}
             </div>
 
             {option
-                ? <div className="border border-slate-200 bg-card"><EChart option={option} style={{ height: "420px" }} /></div>
+                ? <div className="border border-slate-200 bg-card"><EChart ref={chartRef} option={option} style={{ height: "420px" }} /></div>
                 : <div className="border border-slate-200 bg-muted/5 h-80 flex items-center justify-center text-xs text-muted-foreground">Configure options above and click Run</div>
             }
+
+            <SaveToReportModal
+                open={saveOpen}
+                onOpenChange={setSaveOpen}
+                chartType="scatter"
+                chartParams={chartParams}
+                getChartImage={getChartImage}
+            />
         </div>
     );
 }

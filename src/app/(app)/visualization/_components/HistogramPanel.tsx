@@ -1,15 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useTheme } from "next-themes";
-import { RefreshCw, ChevronDown } from "lucide-react";
+import { RefreshCw, ChevronDown, BookmarkPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import EChart from "@/components/ui/EChart";
+import EChart, { type EChartInstance } from "@/components/ui/EChart";
 import { vizApi, type VizHistogramColumn, type VizHistogramStats } from "@/services/viz.service";
 import { toast } from "sonner";
+import { SaveToReportModal } from "@/components/reports/SaveToReportModal";
 
 const BIN_OPTIONS = [10, 20, 30, 50, 100];
 
@@ -87,6 +88,45 @@ function StatsRow({ stats }: Readonly<{ stats: VizHistogramStats }>) {
     );
 }
 
+// Individual histogram card with its own EChart ref and Save to Report button
+interface HistogramCardProps {
+    col: string;
+    data: VizHistogramColumn;
+    bins: number;
+    isDark: boolean;
+}
+
+function HistogramCard({ col, data, bins, isDark }: Readonly<HistogramCardProps>) {
+    const option = buildOption(col, data, isDark);
+    const chartRef = useRef<EChartInstance>(null);
+    const [saveOpen, setSaveOpen] = useState(false);
+
+    function getChartImage() {
+        return chartRef.current?.getEchartsInstance()?.getDataURL({ type: "png", pixelRatio: 2, backgroundColor: "#fff" }) ?? null;
+    }
+
+    return (
+        <div className="border border-slate-200 bg-card p-4 flex flex-col gap-3">
+            <div className="flex items-center justify-between gap-2">
+                <span className="font-semibold text-xs font-mono">{col}</span>
+                <Button variant="ghost" size="sm" className="h-7 gap-1 rounded-none text-[11px] text-muted-foreground hover:text-foreground px-2" onClick={() => setSaveOpen(true)}>
+                    <BookmarkPlus className="h-3 w-3" /> Save
+                </Button>
+            </div>
+            <EChart ref={chartRef} option={option} style={{ height: "180px" }} />
+            <StatsRow stats={data.stats} />
+
+            <SaveToReportModal
+                open={saveOpen}
+                onOpenChange={setSaveOpen}
+                chartType="histogram"
+                chartParams={{ columns: [col], bins }}
+                getChartImage={getChartImage}
+            />
+        </div>
+    );
+}
+
 export function HistogramPanel({ datasetId, numericColumns }: Readonly<Props>) {
     const { resolvedTheme } = useTheme();
     const isDark = resolvedTheme === "dark";
@@ -156,16 +196,9 @@ export function HistogramPanel({ datasetId, numericColumns }: Readonly<Props>) {
             {entries.length > 0
                 ? (
                     <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
-                        {entries.map(([col, data]) => {
-                            const option = buildOption(col, data, isDark);
-                            return (
-                                <div key={col} className="border border-slate-200 bg-card p-4 flex flex-col gap-3">
-                                    <span className="font-semibold text-xs font-mono">{col}</span>
-                                    <EChart option={option} style={{ height: "180px" }} />
-                                    <StatsRow stats={data.stats} />
-                                </div>
-                            );
-                        })}
+                        {entries.map(([col, data]) => (
+                            <HistogramCard key={col} col={col} data={data} bins={bins} isDark={isDark} />
+                        ))}
                     </div>
                 )
                 : <div className="border border-slate-200 bg-muted/5 h-80 flex items-center justify-center text-xs text-muted-foreground">Configure options above and click Run</div>

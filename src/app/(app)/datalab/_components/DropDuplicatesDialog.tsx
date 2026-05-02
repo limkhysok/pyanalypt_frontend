@@ -99,7 +99,7 @@ export function DropDuplicatesDialog({ open, onOpenChange = () => {}, asPanel, d
                 <div className="flex flex-col space-y-1.5 text-center sm:text-left">
                     <div className="flex items-center gap-2 mb-0.5">
                         <Copy className="h-4 w-4 text-muted-foreground" />
-                        <h2 className="text-lg font-semibold leading-none tracking-tight text-sm font-bold">Remove Duplicate Rows</h2>
+                        <h2 className="text-sm font-semibold leading-none tracking-tight">Remove Duplicate Rows</h2>
                     </div>
                     <p className="text-sm text-muted-foreground">
                         Choose how to handle rows that appear more than once.
