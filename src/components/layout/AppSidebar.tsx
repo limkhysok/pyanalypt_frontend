@@ -8,7 +8,6 @@ import {
     Database,
     Settings,
     BarChart3,
-    Lightbulb,
     BrainCircuit,
     FlaskConical,
     TrendingUp,
@@ -44,29 +43,29 @@ type NavItemDef = {
 
 const WORKSPACE_ITEMS: NavItemDef[] = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, shortcut: "G D" },
+    { label: "Dashboards", href: "/dashboards", icon: BarChart3,      shortcut: "G B" },
     { label: "Datasets",  href: "/datasets",  icon: Database,         shortcut: "G S" },
     { label: "DataLab",   href: "/datalab",   icon: FlaskConical,     shortcut: "G L" },
     { label: "EDA",       href: "/eda",       icon: TrendingUp,       shortcut: "G E" },
-    { label: "Framing",   href: "/framing",   icon: BrainCircuit,     shortcut: "G F" },
+    { label: "ML Studio", href: "/mlstudio",  icon: BrainCircuit,     shortcut: "G M" },
 ];
 
 const RESULTS_ITEMS: NavItemDef[] = [
     { label: "Visualization", href: "/visualization", icon: PieChart,  shortcut: "G V" },
     { label: "Analysis",      href: "/analysis",      icon: BarChart3, shortcut: "G A" },
-    { label: "Insight",       href: "/insight",       icon: Lightbulb, shortcut: "G N" },
     { label: "Reports",       href: "/reports",       icon: BookOpen,  shortcut: "G R" },
 ];
 
 /** G + key → route */
 const SHORTCUT_MAP: Record<string, string> = {
     D: "/dashboard",
+    B: "/dashboards",
     S: "/datasets",
-    F: "/framing",
+    M: "/mlstudio",
     L: "/datalab",
     E: "/eda",
     V: "/visualization",
     A: "/analysis",
-    N: "/insight",
     R: "/reports",
     ",": "/profile/setting",
 };

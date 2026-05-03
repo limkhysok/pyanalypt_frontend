@@ -1,6 +1,15 @@
 import apiClient from '@/lib/axios';
 import axios from 'axios';
-import {
+export type {
+  Dataset,
+  RenameDatasetRequest,
+  DuplicateDatasetRequest,
+  DatasetExportFormat,
+  DatasetActivityLog,
+  PaginatedResponse,
+} from '@/types/dataset';
+
+import type {
   Dataset,
   RenameDatasetRequest,
   DuplicateDatasetRequest,

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LogOut, User as UserIcon, Settings } from "lucide-react";
+import { LogOut, User as UserIcon, Settings, Sparkles } from "lucide-react";
 import { GithubIcon } from "@/components/ui/Icons";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/ui/ModeToggle";
@@ -15,6 +15,7 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/context/auth-context";
+import { useAgent } from "@/context/agent-context";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { usePathname } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
@@ -61,6 +62,7 @@ function getBreadcrumb(pathname: string): { group: string; page: string } {
 // ─────────────────────────────────────────────
 export function AppNavbar() {
     const { user, logout } = useAuth();
+    const { toggle: toggleAgent } = useAgent();
     const pathname         = usePathname() ?? "";
     const { group, page }  = getBreadcrumb(pathname);
 
@@ -109,6 +111,16 @@ export function AppNavbar() {
                     >
                         <GithubIcon size={15} />
                     </Link>
+                </Button>
+
+                {/* AI Agent */}
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={toggleAgent}
+                    className="h-8 w-8 rounded-lg text-blue-500 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-all group"
+                >
+                    <Sparkles size={15} className="group-hover:scale-110 transition-transform" />
                 </Button>
 
                 {/* Theme toggle */}

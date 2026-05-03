@@ -1,0 +1,272 @@
+"use client";
+
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { motion } from "framer-motion";
+import { 
+  Plus, 
+  Layout, 
+  Clock, 
+  Trash2, 
+  Search,
+  MoreVertical,
+  BarChart3,
+  Calendar,
+  LayoutDashboard,
+  ExternalLink,
+  RefreshCw
+} from "lucide-react";
+import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { dashboardsApi, type Dashboard } from "@/services/dashboards.service";
+import { toast } from "sonner";
+import { cn } from "@/lib/utils";
+
+export default function DashboardsListPage() {
+  const [dashboards, setDashboards] = useState<Dashboard[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [activeTab, setActiveTab] = useState("all");
+
+  useEffect(() => {
+    loadDashboards();
+  }, []);
+
+  async function loadDashboards() {
+    setLoading(true);
+    try {
+      const data = await dashboardsApi.list();
+      setDashboards(data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to load dashboards");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function handleDelete(id: number) {
+    if (!confirm("Are you sure you want to delete this dashboard?")) return;
+    try {
+      await dashboardsApi.delete(id);
+      setDashboards(dashboards.filter(d => d.id !== id));
+      toast.success("Dashboard deleted");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete dashboard");
+    }
+  }
+
+  async function handleCreate() {
+    const title = prompt("Enter dashboard title:");
+    if (!title) return;
+    
+    try {
+      const newDash = await dashboardsApi.create({ title });
+      setDashboards([newDash, ...dashboards]);
+      toast.success("Dashboard created");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to create dashboard");
+    }
+  }
+
+  const filteredDashboards = dashboards.filter(d => 
+    d.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    d.description?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  return (
+    <main className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
+      
+      {/* ── Header ── */}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-3">
+          <LayoutDashboard className="h-7 w-7 text-primary" />
+          <div>
+            <h1 className="text-2xl font-bold tracking-tight leading-none font-mono">Dashboards</h1>
+            <p className="text-xs text-muted-foreground mt-1">Organize insights into interactive boards. Data visualization at scale.</p>
+          </div>
+        </div>
+
+        <Button onClick={handleCreate} className="rounded-none h-10 px-6 bg-foreground hover:bg-foreground/90 text-background font-bold text-sm tracking-normal transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none border border-foreground/10">
+          <Plus className="mr-2.5 h-4 w-4" /> New dashboard
+        </Button>
+      </div>
+
+      {/* ── Stats Row ── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+         <Card className="bg-background border border-slate-200 rounded-none shadow-none overflow-hidden group">
+            <CardContent className="p-5 flex items-center gap-5">
+                <div className="h-11 w-11 border border-slate-200 flex items-center justify-center bg-slate-50 group-hover:bg-white">
+                    <Layout className="h-5 w-5 text-muted-foreground/80" />
+                </div>
+                <div>
+                   <div className="flex items-baseline gap-2">
+                      <p className="text-2xl font-bold tabular-nums">{dashboards.length}</p>
+                      <span className="text-xs font-semibold text-muted-foreground/40 lowercase">boards</span>
+                   </div>
+                   <p className="text-xs font-medium text-muted-foreground mt-1 lowercase">Total visualizations created</p>
+                </div>
+            </CardContent>
+         </Card>
+         <Card className="bg-background border border-slate-200 rounded-none shadow-none overflow-hidden group">
+            <CardContent className="p-5 flex items-center gap-5">
+                <div className="h-11 w-11 border border-slate-200 flex items-center justify-center bg-slate-50 group-hover:bg-white">
+                    <BarChart3 className="h-5 w-5 text-muted-foreground/80" />
+                </div>
+                <div>
+                   <div className="flex items-baseline gap-2">
+                      <p className="text-2xl font-bold tabular-nums">
+                        {dashboards.reduce((acc, d) => acc + (d.widget_count || 0), 0)}
+                      </p>
+                      <span className="text-xs font-semibold text-muted-foreground/40 lowercase">widgets</span>
+                   </div>
+                   <p className="text-xs font-medium text-muted-foreground mt-1 lowercase">Individual chart components</p>
+                </div>
+            </CardContent>
+         </Card>
+         <Card className="bg-background border border-slate-200 rounded-none shadow-none overflow-hidden group">
+            <CardContent className="p-5 flex items-center gap-5">
+                <div className="h-11 w-11 border border-slate-200 flex items-center justify-center bg-slate-50 group-hover:bg-white">
+                    <Clock className="h-5 w-5 text-muted-foreground/80" />
+                </div>
+                <div>
+                   <div className="flex items-baseline gap-2">
+                      <p className="text-2xl font-bold tabular-nums">
+                        {dashboards.filter(d => {
+                           const updated = new Date(d.updated_at);
+                           const today = new Date();
+                           return updated.toDateString() === today.toDateString();
+                        }).length}
+                      </p>
+                      <span className="text-xs font-semibold text-muted-foreground/40 lowercase">today</span>
+                   </div>
+                   <p className="text-xs font-medium text-muted-foreground mt-1 lowercase">Dashboards updated in last 24h</p>
+                </div>
+            </CardContent>
+         </Card>
+      </div>
+
+      {/* ── Tabs & Content ── */}
+      <div className="w-full">
+        <div className="flex items-stretch border-b border-border mb-6">
+          {[
+            { value: "all", label: "My Boards", icon: BarChart3 },
+            { value: "shared", label: "Shared with me", icon: ExternalLink },
+          ].map((tab) => (
+            <button
+              key={tab.value}
+              onClick={() => setActiveTab(tab.value)}
+              className={cn(
+                "px-3 py-2.5 inline-flex items-center gap-1.5 text-xs rounded-none transition-all whitespace-nowrap border-b-2 focus-visible:outline-none lowercase",
+                activeTab === tab.value
+                  ? "text-blue-600 font-bold border-blue-600 bg-blue-50/60"
+                  : "text-gray-500 hover:text-gray-900 hover:bg-slate-50 border-transparent"
+              )}
+            >
+              <tab.icon className="h-3.5 w-3.5 shrink-0" />
+              {tab.label}
+            </button>
+          ))}
+        </div>
+
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-slate-50/50 p-3 border border-slate-200 rounded-none">
+            <div className="relative w-full sm:w-80 group">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input 
+                placeholder="search boards..." 
+                className="pl-9 h-9 bg-background border-slate-200 rounded-none text-xs lowercase"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
+            <div className="flex items-center gap-2">
+               <span className="text-[10px] font-bold text-muted-foreground/40 lowercase mr-2">{filteredDashboards.length} boards found</span>
+               <Button variant="outline" size="icon" className="h-9 w-9 rounded-none border-slate-200" onClick={loadDashboards}>
+                 <RefreshCw className="h-3.5 w-3.5" />
+               </Button>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {loading ? (
+              [1, 2, 3].map(i => (
+                <Card key={i} className="h-48 rounded-none border-slate-200 animate-pulse bg-slate-50/50" />
+              ))
+            ) : filteredDashboards.length === 0 ? (
+               <div className="col-span-full py-20 border border-dashed border-slate-300 flex flex-col items-center justify-center text-center">
+                  <p className="text-sm font-bold text-muted-foreground/60 lowercase">no boards found in this view</p>
+               </div>
+            ) : (
+              filteredDashboards.map((dash, i) => (
+                <motion.div
+                  key={dash.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                >
+                  <Card className="group bg-background border border-slate-200 rounded-none shadow-none hover:border-slate-400 transition-all">
+                    <CardContent className="p-0">
+                      <div className="p-5 border-b border-slate-100">
+                        <div className="flex justify-between items-start mb-3">
+                          <div className="h-10 w-10 border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors">
+                            <BarChart3 className="h-5 w-5" />
+                          </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-none text-muted-foreground">
+                                <MoreVertical className="h-4 w-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end" className="rounded-none border-border shadow-none p-1.5">
+                              <DropdownMenuItem className="rounded-none text-sm font-semibold cursor-pointer">rename</DropdownMenuItem>
+                              <DropdownMenuItem className="text-rose-600 rounded-none text-sm font-semibold cursor-pointer" onClick={() => handleDelete(dash.id)}>
+                                <Trash2 className="mr-2 h-4 w-4" /> delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                        <h3 className="text-base font-bold tracking-tight lowercase truncate">{dash.title}</h3>
+                        <p className="text-[10px] text-muted-foreground font-medium mt-1 lowercase line-clamp-1 h-4">
+                           {dash.description || "no description provided"}
+                        </p>
+                      </div>
+
+                      <div className="p-5 bg-slate-50 group-hover:bg-white transition-colors flex items-center justify-between">
+                         <div className="flex items-center gap-4">
+                            <div className="flex flex-col">
+                               <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest mb-1">widgets</span>
+                               <span className="text-xs font-bold lowercase">{dash.widget_count || 0} items</span>
+                            </div>
+                            <div className="flex flex-col">
+                               <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest mb-1">updated</span>
+                               <span className="text-xs font-bold lowercase text-muted-foreground">{format(new Date(dash.updated_at), "MMM d")}</span>
+                            </div>
+                         </div>
+                         <Button asChild size="sm" variant="outline" className="rounded-none h-8 px-4 text-xs font-bold lowercase border-slate-200 hover:border-slate-800 transition-all">
+                           <Link href={`/dashboards/${dash.id}`}>
+                             view board
+                           </Link>
+                         </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))
+            )}
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}

@@ -4,14 +4,17 @@ import * as React from "react";
 import { Loader2 } from "lucide-react";
 import { AppNavbar } from "@/components/layout/AppNavbar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
+import { AgentSidebar } from "@/components/layout/AgentSidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { useAuth } from "@/context/auth-context";
 import { useRouter, usePathname } from "next/navigation";
+import { useAgent } from "@/context/agent-context";
 
 export function AppShell({ children }: Readonly<{ children: React.ReactNode }>) {
     const { user, isLoading } = useAuth();
     const router = useRouter();
     const pathname = usePathname();
+    const { isOpen, width } = useAgent();
 
     React.useEffect(() => {
         if (!isLoading && user) {
@@ -42,12 +45,16 @@ export function AppShell({ children }: Readonly<{ children: React.ReactNode }>) 
 
             <AppSidebar />
 
-            <SidebarInset className="overflow-x-clip w-full min-w-0">
+            <SidebarInset 
+                className="overflow-x-clip w-full min-w-0 transition-[margin] duration-300 ease-in-out"
+                style={{ marginRight: isOpen ? `${width}px` : 0 } as React.CSSProperties}
+            >
                 <AppNavbar />
                 <div className="flex-1 w-full min-w-0 overflow-x-clip">
                     {children}
                 </div>
             </SidebarInset>
+            <AgentSidebar />
         </SidebarProvider>
     );
 }
