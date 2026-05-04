@@ -26,13 +26,8 @@ export default function DashboardDetailPage() {
   const [loading, setLoading] = useState(true);
   const [isEditMode, setIsEditMode] = useState(false);
 
-  useEffect(() => {
-    if (id) {
-      loadDashboard();
-    }
-  }, [id]);
 
-  async function loadDashboard() {
+  const loadDashboard = React.useCallback(async () => {
     try {
       const data = await dashboardsApi.get(Number(id));
       setDashboard(data);
@@ -42,7 +37,13 @@ export default function DashboardDetailPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [id]);
+  
+  useEffect(() => {
+    if (id) {
+      loadDashboard();
+    }
+  }, [id, loadDashboard]);
 
   async function handleGlobalRefresh() {
     if (!dashboard) return;
@@ -61,7 +62,7 @@ export default function DashboardDetailPage() {
       <div className="h-[calc(100vh-theme(spacing.12))] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <RefreshCw className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm font-bold uppercase tracking-widest text-muted-foreground">Initializing Workspace...</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground font-mono">Initializing Workspace...</p>
         </div>
       </div>
     );
@@ -72,15 +73,15 @@ export default function DashboardDetailPage() {
   return (
     <div className="min-h-screen bg-background flex flex-col">
       {/* Detail Header */}
-      <header className="h-16 border-b border-border/60 bg-background/80 backdrop-blur-md px-8 flex items-center justify-between sticky top-0 z-20">
+      <header className="h-14 border-b-2 border-foreground bg-background px-6 flex items-center justify-between sticky top-0 z-20">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" className="rounded-xl" onClick={() => router.push("/dashboards")}>
-            <ArrowLeft className="h-5 w-5" />
+          <Button variant="ghost" size="icon" className="rounded-none hover:bg-muted/80" onClick={() => router.push("/dashboards")}>
+            <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div className="h-8 w-[1px] bg-border/60 mx-2" />
+          <div className="h-6 w-[2px] bg-foreground/10 mx-1" />
           <div>
-            <h1 className="text-lg font-black tracking-tight leading-none">{dashboard.title}</h1>
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Dashboard Viewer • {dashboard.widgets.length} components</p>
+            <h1 className="text-base font-bold tracking-tight leading-none font-mono lowercase">{dashboard.title}</h1>
+            <p className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-widest mt-1.5">Dashboard Viewer • {dashboard.widgets.length} components</p>
           </div>
         </div>
 
@@ -98,18 +99,20 @@ export default function DashboardDetailPage() {
             variant={isEditMode ? "default" : "outline"}
             size="sm"
             className={cn(
-              "h-9 px-4 rounded-xl gap-2 text-xs font-bold transition-all",
-              isEditMode ? "bg-primary shadow-lg shadow-primary/20" : "border-border/60 hover:bg-muted/50"
+              "h-8 px-4 rounded-none gap-2 text-xs font-bold transition-all border-2",
+              isEditMode 
+                ? "bg-foreground text-background border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none" 
+                : "border-slate-200 hover:border-foreground"
             )}
             onClick={() => setIsEditMode(!isEditMode)}
           >
             {isEditMode ? (
               <>
-                <Save className="h-3.5 w-3.5" /> Save Changes
+                <Save className="h-3.5 w-3.5" /> save layout
               </>
             ) : (
               <>
-                <Edit3 className="h-3.5 w-3.5" /> Edit Layout
+                <Edit3 className="h-3.5 w-3.5" /> edit mode
               </>
             )}
           </Button>
@@ -117,14 +120,14 @@ export default function DashboardDetailPage() {
           <Button 
             variant="ghost" 
             size="icon" 
-            className="h-9 w-9 rounded-xl border border-border/60 hover:bg-muted/50"
+            className="h-8 w-8 rounded-none border-2 border-slate-200 hover:border-foreground hover:bg-slate-50 transition-all"
             onClick={handleGlobalRefresh}
           >
-            <RefreshCw className="h-4 w-4" />
+            <RefreshCw className="h-3.5 w-3.5" />
           </Button>
           
-          <Button variant="ghost" size="icon" className="h-9 w-9 rounded-xl border border-border/60 hover:bg-muted/50">
-             <Settings className="h-4 w-4" />
+          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-none border-2 border-slate-200 hover:border-foreground hover:bg-slate-50 transition-all">
+             <Settings className="h-3.5 w-3.5" />
           </Button>
         </div>
       </header>
@@ -134,16 +137,16 @@ export default function DashboardDetailPage() {
         <div className="max-w-[1600px] mx-auto">
            {dashboard.widgets.length === 0 ? (
              <div className="h-[60vh] flex flex-col items-center justify-center text-center space-y-6">
-               <div className="h-20 w-20 rounded-3xl bg-muted/20 border border-border/40 flex items-center justify-center">
-                 <Layout className="h-10 w-10 text-muted-foreground" />
+               <div className="h-20 w-20 rounded-none bg-slate-50 border-2 border-slate-200 flex items-center justify-center">
+                 <Layout className="h-10 w-10 text-slate-400" />
                </div>
-               <div className="space-y-2">
-                 <h2 className="text-2xl font-bold tracking-tight">Empty Dashboard</h2>
-                 <p className="text-muted-foreground text-sm max-w-sm mx-auto">
-                   This dashboard doesn't have any widgets yet. Add your visualizations from the DataLab or EDA modules.
+               <div className="space-y-3">
+                 <h2 className="text-xl font-bold tracking-tight lowercase">empty dashboard</h2>
+                 <p className="text-muted-foreground text-[13px] max-w-sm mx-auto lowercase">
+                   this dashboard doesn&apos;t have any widgets yet. add your visualizations from the datalab or eda modules.
                  </p>
                </div>
-               <Button className="rounded-xl px-8 font-bold">Add Widget</Button>
+               <Button className="rounded-none px-8 h-10 font-bold bg-foreground text-background shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:bg-foreground/90 transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none lowercase">add component</Button>
              </div>
            ) : (
              <DashboardGrid 
@@ -159,10 +162,10 @@ export default function DashboardDetailPage() {
       {/* Floating Action Button for adding widgets in edit mode */}
       {isEditMode && (
         <Button 
-          className="fixed bottom-8 right-8 h-14 w-14 rounded-2xl shadow-2xl shadow-primary/40 bg-primary hover:bg-primary/90 text-primary-foreground group transition-all hover:scale-105 active:scale-95"
+          className="fixed bottom-8 right-8 h-12 w-12 rounded-none border-2 border-foreground shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-foreground hover:bg-foreground text-background group transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
           onClick={() => toast.info("Select a visualization from Datalab to add to dashboard")}
         >
-          <Plus className="h-6 w-6 transition-transform group-hover:rotate-90" />
+          <Plus className="h-5 w-5 transition-transform group-hover:rotate-90" />
         </Button>
       )}
     </div>

@@ -11,7 +11,6 @@ import {
   Search,
   MoreVertical,
   BarChart3,
-  Calendar,
   LayoutDashboard,
   ExternalLink,
   RefreshCw
@@ -26,28 +25,56 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+  DialogDescription
+} from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { dashboardsApi, type Dashboard } from "@/services/dashboards.service";
+import { datasetApi, type Dataset } from "@/services/dataset.service";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 export default function DashboardsListPage() {
   const [dashboards, setDashboards] = useState<Dashboard[]>([]);
+  const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("all");
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [newTitle, setNewTitle] = useState("");
+  const [newDescription, setNewDescription] = useState("");
+  const [selectedDatasetId, setSelectedDatasetId] = useState<string>("");
+  const [isCreating, setIsCreating] = useState(false);
 
   useEffect(() => {
-    loadDashboards();
+    loadInitialData();
   }, []);
 
-  async function loadDashboards() {
+  async function loadInitialData() {
     setLoading(true);
     try {
-      const data = await dashboardsApi.list();
-      setDashboards(data);
+      const [dashData, datasetData] = await Promise.all([
+        dashboardsApi.list(),
+        datasetApi.listDatasets()
+      ]);
+      setDashboards(dashData);
+      setDatasets(datasetData.results || []);
     } catch (err) {
       console.error(err);
-      toast.error("Failed to load dashboards");
+      toast.error("Failed to load initial data");
     } finally {
       setLoading(false);
     }
@@ -65,17 +92,36 @@ export default function DashboardsListPage() {
     }
   }
 
-  async function handleCreate() {
-    const title = prompt("Enter dashboard title:");
-    if (!title) return;
+  async function handleCreate(e: React.FormEvent) {
+    e.preventDefault();
+    if (!newTitle.trim()) {
+      toast.error("Please enter a dashboard title");
+      return;
+    }
+
+    if (!selectedDatasetId) {
+      toast.error("Please select a dataset");
+      return;
+    }
     
+    setIsCreating(true);
     try {
-      const newDash = await dashboardsApi.create({ title });
+      const newDash = await dashboardsApi.create({ 
+        title: newTitle,
+        description: newDescription,
+        dataset_id: parseInt(selectedDatasetId)
+      });
       setDashboards([newDash, ...dashboards]);
       toast.success("Dashboard created");
+      setIsCreateDialogOpen(false);
+      setNewTitle("");
+      setNewDescription("");
+      setSelectedDatasetId("");
     } catch (err) {
       console.error(err);
       toast.error("Failed to create dashboard");
+    } finally {
+      setIsCreating(false);
     }
   }
 
@@ -97,9 +143,71 @@ export default function DashboardsListPage() {
           </div>
         </div>
 
-        <Button onClick={handleCreate} className="rounded-none h-10 px-6 bg-foreground hover:bg-foreground/90 text-background font-bold text-sm tracking-normal transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none border border-foreground/10">
-          <Plus className="mr-2.5 h-4 w-4" /> New dashboard
-        </Button>
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="rounded-none h-10 px-6 bg-foreground hover:bg-foreground/90 text-background font-bold text-sm tracking-normal transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none border border-foreground/10">
+              <Plus className="mr-2.5 h-4 w-4" /> New dashboard
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[425px] rounded-none border-2 border-foreground shadow-[8px_8px_0px_0px_rgba(0,0,0,0.1)]">
+            <DialogHeader>
+              <DialogTitle className="text-xl font-bold font-mono lowercase">Create New Dashboard</DialogTitle>
+              <DialogDescription className="text-xs lowercase">
+                Enter a title and description for your new visualization board.
+              </DialogDescription>
+            </DialogHeader>
+            <form onSubmit={handleCreate} className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="dataset" className="text-xs font-bold lowercase">Select Dataset</Label>
+                <Select value={selectedDatasetId} onValueChange={setSelectedDatasetId}>
+                  <SelectTrigger id="dataset" className="rounded-none border-foreground/20 focus:ring-0 focus:border-foreground">
+                    <SelectValue placeholder="choose a dataset..." />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-none border-foreground">
+                    {datasets.length === 0 ? (
+                      <div className="p-2 text-xs text-muted-foreground text-center">No datasets found. Upload one first!</div>
+                    ) : (
+                      datasets.map((ds) => (
+                        <SelectItem key={ds.id} value={ds.id.toString()} className="rounded-none text-xs lowercase">
+                          {ds.file_name}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="title" className="text-xs font-bold lowercase">Dashboard Title</Label>
+                <Input
+                  id="title"
+                  value={newTitle}
+                  onChange={(e) => setNewTitle(e.target.value)}
+                  placeholder="e.g. Sales Performance Q2"
+                  className="rounded-none border-foreground/20 focus-visible:ring-0 focus-visible:border-foreground"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="description" className="text-xs font-bold lowercase">Description (Optional)</Label>
+                <Input
+                  id="description"
+                  value={newDescription}
+                  onChange={(e) => setNewDescription(e.target.value)}
+                  placeholder="Briefly describe what this board tracks..."
+                  className="rounded-none border-foreground/20 focus-visible:ring-0 focus-visible:border-foreground"
+                />
+              </div>
+              <DialogFooter className="mt-4">
+                <Button 
+                  type="submit" 
+                  disabled={isCreating}
+                  className="rounded-none w-full bg-foreground text-background hover:bg-foreground/90 font-bold lowercase"
+                >
+                  {isCreating ? "Creating..." : "Create Dashboard"}
+                </Button>
+              </DialogFooter>
+            </form>
+          </DialogContent>
+        </Dialog>
       </div>
 
       {/* ── Stats Row ── */}
@@ -192,7 +300,7 @@ export default function DashboardsListPage() {
             </div>
             <div className="flex items-center gap-2">
                <span className="text-[10px] font-bold text-muted-foreground/40 lowercase mr-2">{filteredDashboards.length} boards found</span>
-               <Button variant="outline" size="icon" className="h-9 w-9 rounded-none border-slate-200" onClick={loadDashboards}>
+               <Button variant="outline" size="icon" className="h-9 w-9 rounded-none border-slate-200" onClick={loadInitialData}>
                  <RefreshCw className="h-3.5 w-3.5" />
                </Button>
             </div>

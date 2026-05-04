@@ -11,7 +11,7 @@ export interface MLModel {
   algorithm: string;
   target_column: string | null;
   feature_columns: string[];
-  hyperparameters: Record<string, any>;
+  hyperparameters: Record<string, unknown>;
   status: 'training' | 'completed' | 'failed';
   metrics: Record<string, number> | null;
   feature_importance: Record<string, number> | null;
@@ -26,15 +26,15 @@ export interface TrainModelPayload {
   algorithm: string;
   target_column?: string;
   feature_columns: string[];
-  hyperparameters?: Record<string, any>;
+  hyperparameters?: Record<string, unknown>;
 }
 
 export interface PredictionPayload {
-  data: Record<string, any>[];
+  data: Record<string, unknown>[];
 }
 
 export interface PredictionResponse {
-  predictions: any[];
+  predictions: unknown[];
 }
 
 export interface Algorithm {
@@ -72,6 +72,6 @@ export const mlStudioApi = {
     const res = await apiClient.get('mlstudio/algorithms/', {
       params: { task_type: taskType },
     });
-    return res.data;
+    return Array.isArray(res.data) ? res.data : (res.data.results ?? []);
   },
 };

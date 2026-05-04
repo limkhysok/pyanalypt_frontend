@@ -9,7 +9,7 @@ export interface DashboardWidget {
   widget_type: WidgetType;
   dataset: number | null;
   dataset_name?: string | null;
-  chart_params: Record<string, any> | null;
+  chart_params: Record<string, unknown> | null;
   chart_image: string | null;
   annotation: string;
   grid_x: number;
@@ -37,13 +37,14 @@ export interface DashboardDetail extends Dashboard {
 export interface CreateDashboardPayload {
   title: string;
   description?: string;
+  dataset_id: number;
 }
 
 export interface CreateWidgetPayload {
   title: string;
   widget_type: WidgetType;
   dataset?: number;
-  chart_params?: Record<string, any>;
+  chart_params?: Record<string, unknown>;
   grid_x?: number;
   grid_y?: number;
   grid_w?: number;
@@ -53,7 +54,7 @@ export interface CreateWidgetPayload {
 export interface UpdateWidgetPayload {
   title?: string;
   widget_type?: WidgetType;
-  chart_params?: Record<string, any>;
+  chart_params?: Record<string, unknown>;
   grid_x?: number;
   grid_y?: number;
   grid_w?: number;

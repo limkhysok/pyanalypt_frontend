@@ -51,6 +51,7 @@ export default function MLStudioTrainPage() {
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [algorithms, setAlgorithms] = useState<Algorithm[]>([]);
   const [columns, setColumns] = useState<string[]>([]);
+  const [loadingAlgorithms, setLoadingAlgorithms] = useState(false);
   
   // Form State
   const [name, setName] = useState("");
@@ -60,23 +61,7 @@ export default function MLStudioTrainPage() {
   const [targetColumn, setTargetColumn] = useState<string>("");
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
 
-  useEffect(() => {
-    loadInitialData();
-  }, []);
-
-  useEffect(() => {
-    if (taskType) {
-      loadAlgorithms(taskType);
-    }
-  }, [taskType]);
-
-  useEffect(() => {
-    if (selectedDatasetId) {
-      loadColumns(Number(selectedDatasetId));
-    }
-  }, [selectedDatasetId]);
-
-  async function loadInitialData() {
+  const loadInitialData = React.useCallback(async () => {
     try {
       const response = await datasetApi.listDatasets();
       setDatasets(response.results);
@@ -84,20 +69,27 @@ export default function MLStudioTrainPage() {
       console.error(err);
       toast.error("Failed to load datasets");
     }
-  }
+  }, []);
 
-  async function loadAlgorithms(type: TaskType) {
+  const loadAlgorithms = React.useCallback(async (type: TaskType) => {
+    setLoadingAlgorithms(true);
     try {
       const data = await mlStudioApi.getAlgorithms(type);
       setAlgorithms(data);
-      if (data.length > 0) setSelectedAlgorithm(data[0].id);
+      if (data && data.length > 0) {
+        setSelectedAlgorithm(String(data[0].id));
+      } else {
+        setSelectedAlgorithm("");
+      }
     } catch (err) {
       console.error(err);
       toast.error("Failed to load algorithms");
+    } finally {
+      setLoadingAlgorithms(false);
     }
-  }
+  }, []);
 
-  async function loadColumns(datasetId: number) {
+  const loadColumns = React.useCallback(async (datasetId: number) => {
     try {
       const data = await datalabApi.preview(datasetId, 1);
       setColumns(data.columns);
@@ -105,7 +97,23 @@ export default function MLStudioTrainPage() {
       console.error("Column loading failed", err);
       toast.error("Failed to load column information");
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    loadInitialData();
+  }, [loadInitialData]);
+  
+  useEffect(() => {
+    if (taskType) {
+      loadAlgorithms(taskType);
+    }
+  }, [taskType, loadAlgorithms]);
+
+  useEffect(() => {
+    if (selectedDatasetId) {
+      loadColumns(Number(selectedDatasetId));
+    }
+  }, [selectedDatasetId, loadColumns]);
 
   const selectedDataset = datasets.find(d => d.id.toString() === selectedDatasetId);
 
@@ -158,8 +166,8 @@ export default function MLStudioTrainPage() {
       {/* Header */}
       <header className="h-16 border-b border-border/60 bg-background/80 backdrop-blur-md px-8 flex items-center justify-between sticky top-0 z-20">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" className="rounded-xl" onClick={() => router.push("/mlstudio")}>
-            <ArrowLeft className="h-5 w-5" />
+          <Button variant="ghost" size="icon" className="rounded-none hover:bg-muted/80" onClick={() => router.push("/mlstudio")}>
+            <ArrowLeft className="h-4 w-4" />
           </Button>
           <div className="h-8 w-[1px] bg-border/60 mx-2" />
           <div>
@@ -172,22 +180,22 @@ export default function MLStudioTrainPage() {
 
         <div className="flex items-center gap-4">
            {currentStep < 4 ? (
-             <Button 
-               className="rounded-xl h-10 px-6 font-bold gap-2"
-               disabled={!isStepValid()}
-               onClick={() => setCurrentStep(prev => prev + 1)}
-             >
-               Next Step <ChevronRight className="h-4 w-4" />
-             </Button>
+              <Button 
+                className="rounded-none h-10 px-6 font-bold gap-2 bg-foreground text-background shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:bg-foreground/90 transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none lowercase"
+                disabled={!isStepValid()}
+                onClick={() => setCurrentStep(prev => prev + 1)}
+              >
+                next step <ChevronRight className="h-4 w-4" />
+              </Button>
            ) : (
-             <Button 
-               className="rounded-xl h-10 px-8 font-bold gap-2 bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-500/20"
-               disabled={loading}
-               onClick={handleTrain}
-             >
-               {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
-               Start Training
-             </Button>
+              <Button 
+                className="rounded-none h-10 px-8 font-bold gap-2 bg-foreground text-background shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] hover:bg-foreground/90 transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none lowercase"
+                disabled={loading}
+                onClick={handleTrain}
+              >
+                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                start training
+              </Button>
            )}
         </div>
       </header>
@@ -214,7 +222,7 @@ export default function MLStudioTrainPage() {
               return (
                 <div key={step.id} className="relative z-10 flex flex-col items-center gap-3">
                   <div className={cn(
-                    "h-10 w-10 rounded-full flex items-center justify-center transition-all duration-500 border-2",
+                    "h-10 w-10 rounded-none flex items-center justify-center transition-all duration-500 border-2",
                     stepStyle
                   )}>
                     {isCompleted ? <Check className="h-5 w-5" /> : <StepIcon className="h-5 w-5" />}
@@ -238,7 +246,7 @@ export default function MLStudioTrainPage() {
                   <Label className="text-xl font-black tracking-tight">Name your model</Label>
                   <Input 
                     placeholder="e.g. Sales Forecast Model 2026" 
-                    className="h-14 text-lg font-bold rounded-2xl bg-muted/20 border-border/60"
+                    className="h-14 text-lg font-bold rounded-none bg-slate-50 border-2 border-foreground/20 focus-visible:ring-0 focus-visible:border-foreground transition-all"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                   />
@@ -250,13 +258,13 @@ export default function MLStudioTrainPage() {
                       <Card 
                         key={ds.id} 
                         className={cn(
-                          "cursor-pointer transition-all duration-300 rounded-3xl border-2 hover:border-primary/40",
-                          selectedDatasetId === ds.id.toString() ? "border-primary bg-primary/5 shadow-xl shadow-primary/5" : "border-border/40 bg-background/50"
+                          "cursor-pointer transition-all duration-300 rounded-none border-2 hover:border-foreground/40",
+                          selectedDatasetId === ds.id.toString() ? "border-foreground bg-slate-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]" : "border-slate-200 bg-background"
                         )}
                         onClick={() => setSelectedDatasetId(ds.id.toString())}
                       >
                         <CardContent className="p-5 flex items-center gap-4">
-                          <div className={cn("h-12 w-12 rounded-2xl flex items-center justify-center", selectedDatasetId === ds.id.toString() ? "bg-primary text-primary-foreground" : "bg-muted/40 text-muted-foreground")}>
+                          <div className={cn("h-12 w-12 rounded-none flex items-center justify-center border-2", selectedDatasetId === ds.id.toString() ? "bg-foreground text-background border-foreground" : "bg-slate-50 text-slate-400 border-slate-200")}>
                             <Database className="h-6 w-6" />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -283,33 +291,40 @@ export default function MLStudioTrainPage() {
                         key={type}
                         onClick={() => setTaskType(type)}
                         className={cn(
-                          "flex flex-col items-center gap-4 p-8 rounded-[2.5rem] border-2 transition-all duration-300",
-                          taskType === type ? "border-primary bg-primary/5 text-primary scale-105 shadow-xl shadow-primary/10" : "border-border/40 hover:border-border text-muted-foreground hover:bg-muted/10"
+                          "flex flex-col items-center gap-4 p-8 rounded-none border-2 transition-all duration-300",
+                          taskType === type ? "border-foreground bg-slate-50 text-foreground shadow-[6px_6px_0px_0px_rgba(0,0,0,0.1)] scale-105" : "border-slate-200 hover:border-slate-300 text-slate-400 hover:bg-slate-50"
                         )}
                       >
-                        <div className={cn("h-16 w-16 rounded-3xl flex items-center justify-center transition-all", taskType === type ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground")}>
+                        <div className={cn("h-16 w-16 rounded-none flex items-center justify-center transition-all border-2", taskType === type ? "bg-foreground text-background border-foreground" : "bg-slate-50 text-slate-400 border-slate-100")}>
                            {type === 'regression' && <Activity className="h-8 w-8" />}
                            {type === 'classification' && <ListTodo className="h-8 w-8" />}
                            {type === 'clustering' && <Sparkles className="h-8 w-8" />}
                         </div>
-                        <span className="font-black uppercase tracking-[0.15em] text-xs">{type}</span>
+                        <span className="font-bold uppercase tracking-[0.15em] text-xs font-mono">{type}</span>
                       </button>
                     ))}
                   </div>
                 </div>
 
                 <div className="space-y-4">
-                  <Label className="text-xl font-black tracking-tight">Choose an algorithm</Label>
-                  <Select value={selectedAlgorithm} onValueChange={setSelectedAlgorithm}>
-                    <SelectTrigger className="h-14 rounded-2xl bg-muted/20 border-border/60 font-bold text-lg">
-                      <SelectValue placeholder="Select algorithm" />
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xl font-black tracking-tight">Choose an algorithm</Label>
+                    {loadingAlgorithms && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
+                  </div>
+                  <Select value={selectedAlgorithm} onValueChange={setSelectedAlgorithm} disabled={loadingAlgorithms}>
+                    <SelectTrigger className="h-14 rounded-none bg-slate-50 border-2 border-foreground/20 font-bold text-lg focus:ring-0 focus:border-foreground">
+                      <SelectValue placeholder={loadingAlgorithms ? "Loading..." : "Select algorithm"} />
                     </SelectTrigger>
-                    <SelectContent className="rounded-2xl">
-                      {algorithms.map((algo) => (
-                        <SelectItem key={algo.id} value={algo.id} className="rounded-xl font-medium">
-                          {algo.name}
-                        </SelectItem>
-                      ))}
+                    <SelectContent className="rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
+                      {algorithms.length === 0 ? (
+                        <div className="p-4 text-xs text-muted-foreground font-mono text-center">no algorithms found for this task type</div>
+                      ) : (
+                        algorithms.map((algo) => (
+                          <SelectItem key={algo.id} value={String(algo.id)} className="rounded-none font-medium text-sm">
+                            {algo.name}
+                          </SelectItem>
+                        ))
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
@@ -325,12 +340,12 @@ export default function MLStudioTrainPage() {
                        <Target className="h-5 w-5 text-primary" /> Select Target Column (Label)
                     </Label>
                     <Select value={targetColumn} onValueChange={setTargetColumn}>
-                      <SelectTrigger className="h-14 rounded-2xl bg-muted/20 border-border/60 font-bold text-lg">
+                      <SelectTrigger className="h-14 rounded-none bg-slate-50 border-2 border-foreground/20 font-bold text-lg focus:ring-0 focus:border-foreground">
                         <SelectValue placeholder="Which column to predict?" />
                       </SelectTrigger>
-                      <SelectContent className="rounded-2xl">
+                      <SelectContent className="rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
                         {columns.map((col) => (
-                          <SelectItem key={col} value={col} className="rounded-xl font-medium">
+                          <SelectItem key={col} value={col} className="rounded-none font-medium">
                             {col}
                           </SelectItem>
                         ))}
@@ -350,11 +365,11 @@ export default function MLStudioTrainPage() {
                         type="button"
                         onClick={() => toggleFeature(col)}
                         className={cn(
-                          "p-4 rounded-2xl border-2 transition-all flex items-center justify-between outline-none focus:ring-2 ring-primary/20 text-left",
-                          selectedFeatures.includes(col) ? "border-primary bg-primary/5 text-primary font-bold" : "border-border/40 hover:bg-muted/10 text-muted-foreground"
+                          "p-4 rounded-none border-2 transition-all flex items-center justify-between outline-none focus:ring-0 text-left",
+                          selectedFeatures.includes(col) ? "border-foreground bg-slate-50 text-foreground font-bold shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]" : "border-slate-200 hover:bg-slate-50 text-slate-400"
                         )}
                       >
-                        <span className="text-sm truncate">{col}</span>
+                        <span className="text-sm truncate lowercase font-mono">{col}</span>
                         {selectedFeatures.includes(col) && <Check className="h-4 w-4 shrink-0" />}
                       </button>
                     ))}
@@ -379,57 +394,57 @@ export default function MLStudioTrainPage() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-6">
-                  <div className="p-6 rounded-3xl bg-muted/30 border border-border/40 space-y-4">
-                    <div className="flex items-center gap-2 text-primary">
+                  <div className="p-6 rounded-none bg-slate-50 border-2 border-foreground space-y-4">
+                    <div className="flex items-center gap-2 text-foreground">
                        <Settings2 className="h-4 w-4" />
-                       <span className="text-[10px] font-black uppercase tracking-[0.1em]">General Info</span>
+                       <span className="text-[10px] font-black uppercase tracking-[0.1em] font-mono">General Info</span>
                     </div>
                     <div className="space-y-3">
-                       <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Model Name</span>
+                       <div className="flex justify-between text-xs lowercase font-mono">
+                          <span className="text-muted-foreground/60">model name</span>
                           <span className="font-bold">{name}</span>
                        </div>
-                       <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Dataset</span>
+                       <div className="flex justify-between text-xs lowercase font-mono">
+                          <span className="text-muted-foreground/60">dataset</span>
                           <span className="font-bold">{selectedDataset?.file_name}</span>
                        </div>
                     </div>
                   </div>
 
-                  <div className="p-6 rounded-3xl bg-muted/30 border border-border/40 space-y-4">
-                    <div className="flex items-center gap-2 text-primary">
+                  <div className="p-6 rounded-none bg-slate-50 border-2 border-foreground space-y-4">
+                    <div className="flex items-center gap-2 text-foreground">
                        <BrainCircuit className="h-4 w-4" />
-                       <span className="text-[10px] font-black uppercase tracking-[0.1em]">Architecture</span>
+                       <span className="text-[10px] font-black uppercase tracking-[0.1em] font-mono">Architecture</span>
                     </div>
                     <div className="space-y-3">
-                       <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Task</span>
-                          <Badge className="font-bold uppercase tracking-widest text-[9px]">{taskType}</Badge>
+                       <div className="flex justify-between text-xs lowercase font-mono">
+                          <span className="text-muted-foreground/60">task</span>
+                          <Badge className="font-bold uppercase tracking-widest text-[9px] rounded-none border-foreground bg-foreground text-background">{taskType}</Badge>
                        </div>
-                       <div className="flex justify-between text-sm">
-                          <span className="text-muted-foreground">Algorithm</span>
+                       <div className="flex justify-between text-xs lowercase font-mono">
+                          <span className="text-muted-foreground/60">algorithm</span>
                           <span className="font-bold">{algorithms.find(a => a.id === selectedAlgorithm)?.name}</span>
                        </div>
                     </div>
                   </div>
                 </div>
 
-                <div className="p-6 rounded-3xl bg-muted/30 border border-border/40 space-y-4">
+                <div className="p-6 rounded-none bg-slate-50 border-2 border-foreground space-y-4">
                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2 text-primary">
+                      <div className="flex items-center gap-2 text-foreground">
                          <Target className="h-4 w-4" />
-                         <span className="text-[10px] font-black uppercase tracking-[0.1em]">Target & Features</span>
+                         <span className="text-[10px] font-black uppercase tracking-[0.1em] font-mono">Target & Features</span>
                       </div>
-                      <span className="text-[10px] font-bold text-muted-foreground">{selectedFeatures.length} features selected</span>
+                      <span className="text-[10px] font-bold text-muted-foreground/60 lowercase">{selectedFeatures.length} features selected</span>
                    </div>
                    <div className="flex flex-wrap gap-2">
                       {taskType !== 'clustering' && (
-                        <Badge variant="default" className="rounded-lg bg-primary text-[10px] py-1 px-3">Target: {targetColumn}</Badge>
+                        <Badge variant="default" className="rounded-none border-2 border-foreground bg-foreground text-background text-[10px] py-1 px-3 lowercase font-mono">Target: {targetColumn}</Badge>
                       )}
-                      {selectedFeatures.slice(0, 8).map(f => (
-                        <Badge key={f} variant="outline" className="rounded-lg border-border/60 text-[10px] py-1 px-3 text-muted-foreground">{f}</Badge>
+                      {selectedFeatures.slice(0, 12).map(f => (
+                        <Badge key={f} variant="outline" className="rounded-none border-2 border-slate-200 text-[10px] py-1 px-3 text-slate-400 lowercase font-mono">{f}</Badge>
                       ))}
-                      {selectedFeatures.length > 8 && <span className="text-[10px] text-muted-foreground font-bold">+{selectedFeatures.length - 8} more</span>}
+                      {selectedFeatures.length > 12 && <span className="text-[10px] text-slate-400 font-bold lowercase">+{selectedFeatures.length - 12} more</span>}
                    </div>
                 </div>
               </motion.div>
