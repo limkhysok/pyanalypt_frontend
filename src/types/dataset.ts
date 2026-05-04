@@ -92,6 +92,8 @@ export interface DatasetFrame {
     id: number;
     dataset: number;
     prompt_snap: string;
+    model_used: string;
+    result: string;
     response_json: any;
     created_at: string;
 }

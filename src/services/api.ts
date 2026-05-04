@@ -111,6 +111,8 @@ export type {
   EncodeColumnResult,
   EncodeColumnsRequest,
   EncodeColumnsResponse,
+  RevertRequest,
+  RevertResponse,
 } from './datalab.service';
 
 // Utilities

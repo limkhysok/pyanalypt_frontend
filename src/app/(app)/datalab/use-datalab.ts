@@ -108,6 +108,19 @@ export function useDatalab() {
             .catch(() => toast.error("Failed to refresh dataset."));
     }
 
+    async function revertDataset(params: { undo?: boolean; snapshot_id?: number }) {
+        if (!selectedId) return;
+        const id = Number(selectedId);
+        try {
+            await datalabApi.revert(id, params);
+            toast.success(params.undo ? "Dataset reverted to previous state." : "Dataset restored to specific snapshot.");
+            refetchAll();
+        } catch (err: unknown) {
+            const detail = (err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? "Failed to revert dataset.";
+            toast.error(detail);
+        }
+    }
+
     const selectedName = datasets.find((d) => String(d.id) === selectedId)?.file_name;
 
     return {
@@ -124,6 +137,7 @@ export function useDatalab() {
         refetchInspect,
         refetchDescribe,
         refetchAll,
+        revertDataset,
         selectedName,
         limit,
         setLimit,

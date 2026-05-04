@@ -1,7 +1,8 @@
 "use client";
 
 import { DatasetActivityLog } from "@/types/dataset";
-import {
+import { 
+    LucideIcon,
     Clock,
     Upload,
     Edit2,
@@ -28,6 +29,7 @@ import {
     CalendarClock,
     Hash,
     CaseSensitive,
+    RotateCcw,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { Card } from "@/components/ui/card";
@@ -37,7 +39,7 @@ interface DatasetLogsProps {
     isLoading: boolean;
 }
 
-const ACTION_ICONS: Record<string, any> = {
+const ACTION_ICONS: Record<string, LucideIcon> = {
     UPLOAD:           Upload,
     RENAME:           Edit2,
     DELETE:           Trash2,
@@ -63,6 +65,7 @@ const ACTION_ICONS: Record<string, any> = {
     EXTRACT_DATETIME:        CalendarClock,
     ENCODE_COLUMNS:          Hash,
     NORMALIZE_COLUMN_NAMES:  CaseSensitive,
+    REVERT:                  RotateCcw,
 };
 
 const ACTION_COLORS: Record<string, string> = {
@@ -91,6 +94,7 @@ const ACTION_COLORS: Record<string, string> = {
     EXTRACT_DATETIME:        "text-purple-500 bg-purple-500/10",
     ENCODE_COLUMNS:          "text-indigo-500 bg-indigo-500/10",
     NORMALIZE_COLUMN_NAMES:  "text-teal-500 bg-teal-500/10",
+    REVERT:                  "text-blue-500 bg-blue-500/10",
 };
 
 const ACTION_LABELS: Record<string, string> = {
@@ -119,23 +123,43 @@ const ACTION_LABELS: Record<string, string> = {
     EXTRACT_DATETIME:        "Extract Datetime",
     ENCODE_COLUMNS:          "Encode Columns",
     NORMALIZE_COLUMN_NAMES:  "Normalize Column Names",
+    REVERT:                  "Revert",
 };
 
-function summarizeDetails(action: string, details: Record<string, any>): string | null {
-    if (!details || Object.keys(details).length === 0) return null;
-    if ("cells_filled" in details) {
-        const strategy = details.strategy ? ` using ${details.strategy} strategy` : "";
+function getNumericSummary(details: Record<string, unknown>): string | null {
+    if (typeof details.cells_filled === 'number') {
+        const strategy = typeof details.strategy === 'string' ? ` using ${details.strategy} strategy` : "";
         return `Filled ${details.cells_filled} cells${strategy}`;
     }
-    if ("rows_dropped" in details) return `Dropped ${details.rows_dropped} rows`;
-    if ("columns_dropped" in details) return `Dropped ${details.columns_dropped} columns`;
-    if ("rows_before" in details && "rows_after" in details) {
+    if (typeof details.rows_dropped === 'number') return `Dropped ${details.rows_dropped} rows`;
+    if (typeof details.columns_dropped === 'number') return `Dropped ${details.columns_dropped} columns`;
+    
+    if (typeof details.rows_before === 'number' && typeof details.rows_after === 'number') {
         return `${details.rows_before - details.rows_after} duplicates removed`;
     }
-    if ("column" in details && "to_dtype" in details) return `Cast '${details.column}' → ${details.to_dtype}`;
-    if ("old_name" in details && "new_name" in details) return `'${details.old_name}' → '${details.new_name}'`;
-    if ("column" in details && "outliers_treated" in details) return `Treated ${details.outliers_treated} outliers in '${details.column}'`;
     return null;
+}
+
+function getStructuralSummary(details: Record<string, unknown>): string | null {
+    if (typeof details.column === 'string') {
+        if (typeof details.to_dtype === 'string') return `Cast '${details.column}' → ${details.to_dtype}`;
+        if (typeof details.outliers_treated === 'number') return `Treated ${details.outliers_treated} outliers in '${details.column}'`;
+    }
+
+    if (typeof details.old_name === 'string' && typeof details.new_name === 'string') {
+        return `'${details.old_name}' → '${details.new_name}'`;
+    }
+    return null;
+}
+
+function summarizeDetails(action: string, details: Record<string, unknown>): string | null {
+    if (!details || Object.keys(details).length === 0) return null;
+
+    if (action === "REVERT") {
+        return details.was_undo ? "Undid last action" : `Reverted to snapshot #${details.snapshot_id}`;
+    }
+
+    return getNumericSummary(details) ?? getStructuralSummary(details);
 }
 
 

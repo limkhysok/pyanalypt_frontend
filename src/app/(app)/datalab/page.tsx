@@ -5,6 +5,7 @@ import type { LucideIcon } from "lucide-react";
 import {
     FlaskConical, Database, ChevronDown, Table2, Info, BarChart2, DatabaseZap,
     Trash2, Eraser, Activity, Columns2, Filter, ShieldCheck, Wand2, MoreHorizontal,
+    RotateCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
@@ -61,7 +62,7 @@ const ADVANCED_TABS: TabDef[] = [
 
 type Dataset = { id: number; file_name: string };
 
-function ActionBar({ activeTab, onTabChange, datasets, selectedId, onSelectDataset, loadingDatasets, selectedName }: Readonly<{
+function ActionBar({ activeTab, onTabChange, datasets, selectedId, onSelectDataset, loadingDatasets, selectedName, onUndo }: Readonly<{
     activeTab: string;
     onTabChange: (val: string) => void;
     datasets: Dataset[];
@@ -69,6 +70,7 @@ function ActionBar({ activeTab, onTabChange, datasets, selectedId, onSelectDatas
     onSelectDataset: (id: string) => void;
     loadingDatasets: boolean;
     selectedName: string | null | undefined;
+    onUndo: () => void;
 }>) {
     const cleanIsActive = CLEAN_TABS.some((t) => t.value === activeTab);
     const activeClean = CLEAN_TABS.find((t) => t.value === activeTab);
@@ -183,6 +185,22 @@ function ActionBar({ activeTab, onTabChange, datasets, selectedId, onSelectDatas
                     </DropdownMenuContent>
                 </DropdownMenu>
 
+                <div aria-hidden className="hidden sm:flex items-center px-1.5">
+                    <span className="h-4 w-px bg-border/60 shrink-0" />
+                </div>
+
+                {/* Undo Button */}
+                <button
+                    type="button"
+                    onClick={onUndo}
+                    disabled={!selectedId}
+                    className="px-3 inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-900 hover:bg-slate-50 border-b-2 border-transparent transition-all whitespace-nowrap focus-visible:outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                    title="Undo last action"
+                >
+                    <RotateCcw className="h-3.5 w-3.5 shrink-0" />
+                    <span className="hidden lg:inline">Undo</span>
+                </button>
+
             </div>
 
             {/* Dataset picker */}
@@ -244,20 +262,21 @@ export default function DataLabPage() {
         loadingData,
         refetchInspect,
         refetchAll,
+        revertDataset,
         selectedName,
         setLimit,
     } = useDatalab();
 
     const [isPending, startTransition] = React.useTransition();
-    const pendingTabRef = React.useRef(activeTab);
+    const [nextTab, setNextTab] = React.useState<string | null>(null);
 
     function handleTabChange(val: string) {
-        pendingTabRef.current = val;
+        setNextTab(val);
         startTransition(() => setActiveTab(val));
     }
 
     const isLoading = loadingData || isPending;
-    const skeletonTab = isPending ? pendingTabRef.current : activeTab;
+    const skeletonTab = (isPending && nextTab) ? nextTab : activeTab;
 
     return (
         <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
@@ -282,6 +301,7 @@ export default function DataLabPage() {
                     onSelectDataset={setSelectedId}
                     loadingDatasets={loadingDatasets}
                     selectedName={selectedName}
+                    onUndo={() => revertDataset({ undo: true })}
                 />
 
                 {selectedId && isLoading && <SkeletonFor tab={skeletonTab} />}

@@ -454,6 +454,17 @@ export interface TransformColumnResponse {
   detail?: string;
 }
 
+// ── Revert / Undo ─────────────────────────────────────────────────────────────
+export interface RevertRequest {
+  undo?: boolean;
+  snapshot_id?: number;
+}
+
+export interface RevertResponse {
+  detail: string;
+  updated_at: string;
+}
+
 export const datalabApi = {
   async preview(datasetId: number, limit = 100): Promise<DataLabPreview> {
     const res = await apiClient.get<DataLabPreview>(`datalab/preview/${datasetId}/`, {
@@ -586,6 +597,11 @@ export const datalabApi = {
 
   async encodeColumns(datasetId: number, body: EncodeColumnsRequest): Promise<EncodeColumnsResponse> {
     const res = await apiClient.post<EncodeColumnsResponse>(`datalab/encode-columns/${datasetId}/`, body);
+    return res.data;
+  },
+
+  async revert(datasetId: number, body: RevertRequest): Promise<RevertResponse> {
+    const res = await apiClient.post<RevertResponse>(`datalab/revert/${datasetId}/`, body);
     return res.data;
   },
 };
