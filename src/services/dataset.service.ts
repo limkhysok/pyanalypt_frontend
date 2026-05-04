@@ -104,5 +104,13 @@ export const datasetApi = {
     return response.data;
   },
 
+  /**
+   * Get workspace summary for the dashboard.
+   */
+  async workspaceSummary(): Promise<any> {
+    const response = await apiClient.get('datasets/workspace_summary/');
+    return response.data;
+  },
+
 };
 

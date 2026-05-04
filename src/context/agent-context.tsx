@@ -21,6 +21,24 @@ export function AgentProvider({ children }: Readonly<{ children: React.ReactNode
     const open = React.useCallback(() => setIsOpen(true), []);
     const close = React.useCallback(() => setIsOpen(false), []);
 
+    // Add global hotkey Ctrl+X to toggle agent
+    React.useEffect(() => {
+        const onKeyDown = (e: KeyboardEvent) => {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "x") {
+                const target = e.target as HTMLElement;
+                if (
+                    ["INPUT", "TEXTAREA", "SELECT"].includes(target.tagName) ||
+                    target.isContentEditable
+                ) return;
+
+                e.preventDefault();
+                toggle();
+            }
+        };
+        globalThis.addEventListener("keydown", onKeyDown);
+        return () => globalThis.removeEventListener("keydown", onKeyDown);
+    }, [toggle]);
+
     const value = React.useMemo(() => ({
         isOpen, toggle, open, close, width, setWidth
     }), [isOpen, toggle, open, close, width]);

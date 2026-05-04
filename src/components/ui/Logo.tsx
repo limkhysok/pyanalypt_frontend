@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
  */
 export function Logo({ className }: Readonly<{ className?: string }>) {
   return (
-    <div className={cn("relative overflow-hidden rounded-full w-6 h-6", className)}>
+    <div className={cn("relative overflow-hidden shrink-0", className)}>
       <Image
         src="/logo.svg"
         alt="PyAnalypt Logo"

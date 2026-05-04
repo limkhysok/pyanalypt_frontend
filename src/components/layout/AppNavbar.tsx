@@ -97,6 +97,16 @@ export function AppNavbar() {
             {/* ── Right: actions ── */}
             <div className="flex items-center gap-1">
 
+                {/* AI Agent */}
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={toggleAgent}
+                    className="h-8 w-8 rounded-lg text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all group"
+                >
+                    <OllamaIcon size={18} className="group-hover:scale-110 transition-transform" />
+                </Button>
+
                 {/* GitHub */}
                 <Button
                     variant="ghost"
@@ -111,17 +121,6 @@ export function AppNavbar() {
                     >
                         <GithubIcon size={15} />
                     </Link>
-                </Button>
-
-
-                {/* AI Agent */}
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={toggleAgent}
-                    className="h-8 w-8 rounded-lg text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all group"
-                >
-                    <OllamaIcon size={18} className="group-hover:scale-110 transition-transform" />
                 </Button>
 
                 {/* Theme toggle */}

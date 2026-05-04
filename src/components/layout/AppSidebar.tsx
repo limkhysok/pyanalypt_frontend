@@ -267,13 +267,13 @@ export function AppSidebar() {
         <Sidebar collapsible="icon">
 
             {/* ── Header ── */}
-            <SidebarHeader className="h-12 shrink-0 border-b border-sidebar-border px-4 group-data-[collapsible=icon]:px-0">
+            <SidebarHeader className="flex flex-col gap-2 h-12 shrink-0 border-b border-sidebar-border px-4 group-data-[collapsible=icon]:px-0">
                 <Link
                     href="/dashboard"
                     className="flex h-full items-center gap-2.5 group/logo overflow-hidden group-data-[collapsible=icon]:justify-center"
                 >
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center">
-                        <Logo className="h-5 w-5 transition-transform duration-500 group-hover/logo:rotate-12" />
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-950 dark:bg-zinc-50 transition-colors duration-300">
+                        <Logo className="h-4.5 w-4.5 transition-transform duration-500 group-hover/logo:rotate-12" />
                     </div>
                     <span className="truncate text-[14px] font-bold tracking-wide text-sidebar-active group-data-[collapsible=icon]:hidden">
                         PyAnalypt
