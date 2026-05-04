@@ -5,12 +5,11 @@ import {
   Plus, 
   Send, 
   Database, 
-  Bot, 
   Loader2,
-  Sparkles,
   History,
   X
 } from "lucide-react";
+import { QwenIcon } from "@/components/ui/Icons";
 import { motion, AnimatePresence } from "framer-motion";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -277,8 +276,8 @@ export function AgentSidebar() {
           {/* Header */}
           <header className="h-12 border-b border-border/60 px-4 flex items-center justify-between shrink-0 bg-background">
             <div className="flex items-center gap-2">
-              <div className="h-6 w-6 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-600">
-                <Sparkles className="h-3.5 w-3.5" />
+              <div className="h-6 w-6 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-600">
+                <QwenIcon size={14} />
               </div>
               <span className="text-[11px] font-black tracking-tight uppercase font-mono">Qwen 2.5 @ Ollama</span>
             </div>
@@ -354,7 +353,7 @@ export function AgentSidebar() {
                     disabled={!newChatDataset || loading}
                     onClick={handleCreateSession}
                   >
-                    {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4" />}
+                    {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <QwenIcon size={16} />}
                     start analysis
                   </Button>
                   <Button variant="ghost" className="w-full h-10 rounded-none font-bold lowercase text-[10px] opacity-40 hover:opacity-100" onClick={() => setView("list")}>
@@ -391,7 +390,7 @@ export function AgentSidebar() {
                         msg.role === "assistant" ? "bg-emerald-500/5 border-emerald-500/20 text-emerald-600" : "bg-muted border-border"
                       )}>
                         {msg.role === "assistant" ? (
-                          <Bot className="h-3 w-3" />
+                          <QwenIcon size={12} />
                         ) : (
                           <Avatar className="h-full w-full rounded-none">
                             <AvatarImage src={user?.profile_picture || undefined} />
@@ -416,7 +415,7 @@ export function AgentSidebar() {
                   {streamingToken && (
                     <div className="flex flex-col gap-1.5 items-start animate-in fade-in slide-in-from-bottom-1">
                        <div className="h-5 w-5 rounded-none bg-emerald-500/5 border border-emerald-500/20 text-emerald-600 flex items-center justify-center shrink-0">
-                          <Bot className="h-3 w-3" />
+                          <QwenIcon size={12} />
                        </div>
                        <div className="rounded-none px-3.5 py-2.5 bg-muted/30 border border-border/40 text-xs w-fit max-w-full shadow-sm">
                           <div className="prose prose-xs dark:prose-invert max-w-none">
