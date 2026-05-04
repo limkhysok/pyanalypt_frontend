@@ -15,6 +15,7 @@ import {
     DatabaseZap,
     Loader2,
     MoreHorizontal,
+    LayoutGrid,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent } from "@/components/ui/tabs";
@@ -37,9 +38,11 @@ import { CrosstabTab } from "./_components/CrosstabTab";
 import { OutlierSummaryTab } from "./_components/OutlierSummaryTab";
 import { MissingHeatmapTab } from "./_components/MissingHeatmapTab";
 import { PairwiseTab } from "./_components/PairwiseTab";
+import { AssociationTab } from "./_components/AssociationTab";
 
 const PRIMARY_TABS = [
     { value: "correlation",  icon: Grid3X3,      label: "Correlation" },
+    { value: "association",  icon: LayoutGrid,   label: "Association" },
     { value: "distribution", icon: BarChart2,     label: "Distribution" },
     { value: "value-counts", icon: List,          label: "Value Counts" },
     { value: "crosstab",     icon: Table2,        label: "Cross-tab" },
@@ -73,6 +76,8 @@ export default function EDAPage() {
         setOutlierSummary,
         missingHeatmap,
         setMissingHeatmap,
+        association,
+        setAssociation,
         selectedName,
     } = useEda();
 
@@ -224,6 +229,13 @@ export default function EDAPage() {
                         <TabsContent value="correlation">
                             {correlation
                                 ? <CorrelationTab datasetId={Number(selectedId)} data={correlation} onUpdate={setCorrelation} loading={tabLoading("correlation")} setLoading={setTabLoading("correlation")} />
+                                : <div className="border bg-muted/5 h-48 flex items-center justify-center text-sm text-muted-foreground">No data</div>
+                            }
+                        </TabsContent>
+
+                        <TabsContent value="association">
+                            {association
+                                ? <AssociationTab datasetId={Number(selectedId)} data={association} onUpdate={setAssociation} loading={tabLoading("association")} setLoading={setTabLoading("association")} />
                                 : <div className="border bg-muted/5 h-48 flex items-center justify-center text-sm text-muted-foreground">No data</div>
                             }
                         </TabsContent>

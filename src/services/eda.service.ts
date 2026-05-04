@@ -122,6 +122,19 @@ export interface PairwiseResponse {
   points: ScatterPoint[];
 }
 
+// ─── Association ──────────────────────────────────────────────────────────────
+
+export interface AssociationRow {
+  column: string;
+  values: Record<string, number>;
+}
+
+export interface AssociationResponse {
+  columns: string[];
+  method: string;
+  matrix: AssociationRow[];
+}
+
 // ─── Service ──────────────────────────────────────────────────────────────────
 
 export const edaApi = {
@@ -133,7 +146,7 @@ export const edaApi = {
     params?.columns?.forEach((c) => query.append('columns', c));
     if (params?.method) query.set('method', params.method);
     const qs = query.toString();
-    const res = await apiClient.get(`/eda/correlation/${datasetId}/${qs ? `?${qs}` : ''}`);
+    const res = await apiClient.get(`/eda/correlation/${datasetId}/${qs ? '?' + qs : ''}`);
     return res.data;
   },
 
@@ -145,7 +158,7 @@ export const edaApi = {
     params?.columns?.forEach((c) => query.append('columns', c));
     if (params?.bins !== undefined) query.set('bins', String(params.bins));
     const qs = query.toString();
-    const res = await apiClient.get(`/eda/distribution/${datasetId}/${qs ? `?${qs}` : ''}`);
+    const res = await apiClient.get(`/eda/distribution/${datasetId}/${qs ? '?' + qs : ''}`);
     return res.data;
   },
 
@@ -157,7 +170,7 @@ export const edaApi = {
     params?.columns?.forEach((c) => query.append('columns', c));
     if (params?.top_n !== undefined) query.set('top_n', String(params.top_n));
     const qs = query.toString();
-    const res = await apiClient.get(`/eda/value-counts/${datasetId}/${qs ? `?${qs}` : ''}`);
+    const res = await apiClient.get(`/eda/value-counts/${datasetId}/${qs ? '?' + qs : ''}`);
     return res.data;
   },
 
@@ -179,7 +192,7 @@ export const edaApi = {
     if (params?.method) query.set('method', params.method);
     if (params?.threshold !== undefined) query.set('threshold', String(params.threshold));
     const qs = query.toString();
-    const res = await apiClient.get(`/eda/outlier-summary/${datasetId}/${qs ? `?${qs}` : ''}`);
+    const res = await apiClient.get(`/eda/outlier-summary/${datasetId}/${qs ? '?' + qs : ''}`);
     return res.data;
   },
 
@@ -195,6 +208,17 @@ export const edaApi = {
     const query = new URLSearchParams({ col_x: params.col_x, col_y: params.col_y });
     if (params.sample !== undefined) query.set('sample', String(params.sample));
     const res = await apiClient.get(`/eda/pairwise/${datasetId}/?${query.toString()}`);
+    return res.data;
+  },
+
+  async association(
+    datasetId: number,
+    params?: { columns?: string[] }
+  ): Promise<AssociationResponse> {
+    const query = new URLSearchParams();
+    params?.columns?.forEach((c) => query.append('columns', c));
+    const qs = query.toString();
+    const res = await apiClient.get(`/eda/association/${datasetId}/${qs ? '?' + qs : ''}`);
     return res.data;
   },
 };

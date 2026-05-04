@@ -42,6 +42,8 @@ export type {
   MissingWorstRow,
   PairwiseResponse,
   ScatterPoint,
+  AssociationResponse,
+  AssociationRow,
 } from './eda.service';
 export type {
   DataLabPreview,

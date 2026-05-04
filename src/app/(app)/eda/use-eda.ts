@@ -10,6 +10,7 @@ import type {
     ValueCountsResponse,
     OutlierSummaryResponse,
     MissingHeatmapResponse,
+    AssociationResponse,
 } from "@/services/eda.service";
 import type { Dataset } from "@/types/dataset";
 import { toast } from "sonner";
@@ -38,6 +39,7 @@ export function useEda() {
     const [valueCounts, setValueCounts] = React.useState<ValueCountsResponse | null>(null);
     const [outlierSummary, setOutlierSummary] = React.useState<OutlierSummaryResponse | null>(null);
     const [missingHeatmap, setMissingHeatmap] = React.useState<MissingHeatmapResponse | null>(null);
+    const [association, setAssociation] = React.useState<AssociationResponse | null>(null);
 
     function selectDataset(id: string) {
         setCorrelation(null);
@@ -45,17 +47,23 @@ export function useEda() {
         setValueCounts(null);
         setOutlierSummary(null);
         setMissingHeatmap(null);
+        setAssociation(null);
         setAllColumns([]);
         setSelectedId(id);
     }
 
     // Sync URL params
     React.useEffect(() => {
-        const params = new URLSearchParams(searchParams.toString());
-        if (selectedId) params.set("dataset", selectedId); else params.delete("dataset");
-        if (activeTab && activeTab !== DEFAULT_TAB) params.set("tab", activeTab); else params.delete("tab");
-        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    }, [selectedId, activeTab]);
+        const currentParams = new URLSearchParams(searchParams.toString());
+        const targetParams = new URLSearchParams(searchParams.toString());
+        
+        if (selectedId) targetParams.set("dataset", selectedId); else targetParams.delete("dataset");
+        if (activeTab && activeTab !== DEFAULT_TAB) targetParams.set("tab", activeTab); else targetParams.delete("tab");
+
+        if (currentParams.toString() !== targetParams.toString()) {
+            router.replace(`${pathname}?${targetParams.toString()}`, { scroll: false });
+        }
+    }, [selectedId, activeTab, pathname, router, searchParams]);
 
     // Load dataset list
     React.useEffect(() => {
@@ -77,7 +85,6 @@ export function useEda() {
     }, [selectedId]);
 
     // Auto-fetch when tab + dataset change for simple tabs (no required params)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     React.useEffect(() => {
         if (!selectedId) return;
         const id = Number(selectedId);
@@ -122,8 +129,24 @@ export function useEda() {
                 .catch((err: unknown) => toast.error(edaErrMsg(err, "Failed to load missing value data.")))
                 .finally(() => setLoadingTabId(null));
         }
+        if (activeTab === "association" && !association) {
+            setLoadingTabId("association");
+            edaApi.association(id)
+                .then(setAssociation)
+                .catch((err: unknown) => toast.error(edaErrMsg(err, "Failed to load association data.")))
+                .finally(() => setLoadingTabId(null));
+        }
         // crosstab and pairwise require user-selected columns, so they are fetched on demand
-    }, [selectedId, activeTab]);
+    }, [
+        selectedId,
+        activeTab,
+        association,
+        correlation,
+        distribution,
+        missingHeatmap,
+        outlierSummary,
+        valueCounts
+    ]);
 
     const selectedName = datasets.find((d) => String(d.id) === selectedId)?.file_name;
     const numericColumns = correlation?.columns ?? [];
@@ -149,6 +172,8 @@ export function useEda() {
         setOutlierSummary,
         missingHeatmap,
         setMissingHeatmap,
+        association,
+        setAssociation,
         selectedName,
     };
 }
