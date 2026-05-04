@@ -35,7 +35,7 @@ import { getInitials } from "@/lib/utils";
 
 const GROUP_HREFS: Record<string, string> = {
     Workspace: "/dashboard",
-    Results:   "/analysis",
+    Results:   "/visualization",
     Account:   "/profile",
 };
 
@@ -50,7 +50,7 @@ function getBreadcrumb(pathname: string): { group: string; page: string } {
     }
     if (pathname.startsWith("/datalab"))           return { group: "Workspace", page: "DataLab"  };
     if (pathname.startsWith("/eda"))              return { group: "Workspace", page: "EDA"      };
-    if (pathname === "/analysis")                 return { group: "Results",  page: "Analysis"  };
+    if (pathname.startsWith("/visualization"))     return { group: "Results",  page: "Visualization"  };
     if (pathname === "/insight")                  return { group: "Results",  page: "Insight"   };
     if (pathname === "/profile")                  return { group: "Account",  page: "Profile"   };
     if (pathname === "/profile/setting")          return { group: "Account",  page: "Settings"  };

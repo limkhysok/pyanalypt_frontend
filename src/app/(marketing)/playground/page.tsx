@@ -164,10 +164,10 @@ export default function Playground() {
                             <div className="h-10 border-b border-border/50 bg-muted/30 flex items-center justify-between px-5 shrink-0">
                                 <div className="flex items-center gap-2">
                                     <FileText size={12} className="text-blue-500/60 dark:text-blue-400/60" />
-                                    <span className="text-[9px] font-black uppercase tracking-widest text-muted-foreground/60">telemetry.csv</span>
+                                    <span className="text-[9px] font-black capitalize tracking-widest text-muted-foreground/60">telemetry.csv</span>
                                 </div>
                                 <div className="flex items-center gap-3">
-                                    <span className="text-[9px] font-bold text-muted-foreground/40 uppercase">{csvData.length} B</span>
+                                    <span className="text-[9px] font-bold text-muted-foreground/40 capitalize">{csvData.length} B</span>
                                 </div>
                             </div>
 
@@ -183,12 +183,12 @@ export default function Playground() {
 
                                 {error && (
                                     <div className="p-3 rounded-lg bg-red-500/5 border border-red-500/10">
-                                        <p className="text-red-500 text-[9px] font-black uppercase tracking-widest">{error}</p>
+                                        <p className="text-red-500 text-[9px] font-black capitalize tracking-widest">{error}</p>
                                     </div>
                                 )}
 
                                 <div className="space-y-3">
-                                    <h3 className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-50">Engine Mode</h3>
+                                    <h3 className="text-[9px] font-black capitalize tracking-widest text-muted-foreground opacity-50">Engine Mode</h3>
                                     <div className="grid grid-cols-3 gap-2">
                                         {[
                                             { id: 'bar', icon: BarChart3, label: 'BAR' },
@@ -232,20 +232,20 @@ export default function Playground() {
                                     <div className="w-2.5 h-2.5 rounded-full bg-border/40 group-hover:bg-amber-500/40 transition-colors" />
                                     <div className="w-2.5 h-2.5 rounded-full bg-border/40 group-hover:bg-blue-500/60 transition-colors" />
                                 </div>
-                                <span className="text-[10px] font-black uppercase tracking-tight text-muted-foreground opacity-40">Live Renderer v1.02</span>
+                                <span className="text-[10px] font-black capitalize tracking-tight text-muted-foreground opacity-40">Live Renderer v1.02</span>
                             </div>
                             <div className="flex items-center gap-2">
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    className="h-8 rounded-lg text-[9px] font-black tracking-widest border-border/40 hover:bg-muted hover:border-blue-500/30 dark:hover:border-blue-400/30 uppercase px-4 transition-colors"
+                                    className="h-8 rounded-lg text-[9px] font-black tracking-widest border-border/40 hover:bg-muted hover:border-blue-500/30 dark:hover:border-blue-400/30 capitalize px-4 transition-colors"
                                     onClick={() => handleExport('svg')}
                                 >
                                     SVG
                                 </Button>
                                 <Button
                                     size="sm"
-                                    className="h-8 rounded-lg text-[9px] font-black tracking-widest bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-400 hover:scale-105 transition-all uppercase px-4"
+                                    className="h-8 rounded-lg text-[9px] font-black tracking-widest bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-400 hover:scale-105 transition-all capitalize px-4"
                                     onClick={() => handleExport('png')}
                                 >
                                     PNG SNAPSHOT
@@ -257,7 +257,7 @@ export default function Playground() {
                             <div className="flex items-end justify-between border-b border-border/10 pb-4 shrink-0">
                                 <div className="space-y-1">
                                     <h3 className="text-lg font-black tracking-tight text-foreground/90">Growth Telemetry</h3>
-                                    <p className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-widest flex items-center gap-2">
+                                    <p className="text-[9px] font-bold text-muted-foreground/50 capitalize tracking-widest flex items-center gap-2">
                                         <span className="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400 shadow-[0_0_6px_rgba(59,130,246,0.5)]" />
                                         Client Instance Active
                                     </p>
@@ -269,7 +269,7 @@ export default function Playground() {
                                     </div>
                                     <div className="flex items-center gap-2 group/legend cursor-help">
                                         <div className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400" />
-                                        <span className="text-[9px] font-black text-blue-600 dark:text-blue-400 uppercase tracking-widest">Actual</span>
+                                        <span className="text-[9px] font-black text-blue-600 dark:text-blue-400 capitalize tracking-widest">Actual</span>
                                     </div>
                                 </div>
                             </div>

@@ -146,7 +146,7 @@ export function DashboardGrid({ dashboardId, widgets, onRefresh, isEditMode }: R
                      />
                    ) : (
                      <div className="h-full w-full flex items-center justify-center text-muted-foreground bg-muted/5">
-                       <p className="text-[10px] font-bold uppercase tracking-widest">No chart data</p>
+                       <p className="text-[10px] font-bold capitalize tracking-widest">No chart data</p>
                      </div>
                    )}
                    {widget.annotation && (

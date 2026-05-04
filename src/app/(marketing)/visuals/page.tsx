@@ -44,9 +44,9 @@ export default function VisualsPage() {
                     <div className="flex flex-col gap-1.5">
                         <div className="flex items-center gap-2.5">
                             <Grid3X3 size={14} className="text-blue-500 dark:text-blue-400" />
-                            <span className="text-[11px] font-black uppercase tracking-widest text-muted-foreground">dist/architectures.lib</span>
+                            <span className="text-[11px] font-black capitalize tracking-widest text-muted-foreground">dist/architectures.lib</span>
                         </div>
-                        <h2 className="text-xl font-black tracking-tighter opacity-80 uppercase">Global Visual Library</h2>
+                        <h2 className="text-xl font-black tracking-tighter opacity-80 capitalize">Global Visual Library</h2>
                     </div>
 
                     <div className="flex flex-col md:flex-row items-center gap-4 w-full lg:w-auto">
@@ -64,7 +64,7 @@ export default function VisualsPage() {
                             <DropdownMenuTrigger asChild>
                                 <button className="relative group w-full md:w-56 h-10 bg-background border border-border/80 rounded-xl px-11 flex items-center justify-between cursor-pointer focus:border-blue-500/40 dark:focus:border-blue-400/40 transition-all outline-none">
                                     <Filter className="absolute left-4 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground/40 pointer-events-none" />
-                                    <span className="text-[11px] font-black uppercase tracking-widest truncate">{activeScenario}</span>
+                                    <span className="text-[11px] font-black capitalize tracking-widest truncate">{activeScenario}</span>
                                     <ChevronDown size={12} className="absolute right-4 top-1/2 -translate-y-1/2 opacity-40" />
                                 </button>
                             </DropdownMenuTrigger>
@@ -74,7 +74,7 @@ export default function VisualsPage() {
                                         key={scenario}
                                         onClick={() => setActiveScenario(scenario)}
                                         className={cn(
-                                            "rounded-xl px-4 py-2.5 text-[10px] font-black uppercase tracking-widest cursor-pointer transition-all duration-200",
+                                            "rounded-xl px-4 py-2.5 text-[10px] font-black capitalize tracking-widest cursor-pointer transition-all duration-200",
                                             activeScenario === scenario
                                                 ? "bg-blue-600 dark:bg-blue-500 text-white"
                                                 : "hover:bg-muted text-muted-foreground hover:text-foreground"
@@ -108,7 +108,7 @@ export default function VisualsPage() {
                                             </div>
                                             <div className="flex gap-1.5">
                                                 {chart.scenarios.slice(0, 1).map(s => (
-                                                    <span key={s} className="text-[8px] font-black uppercase tracking-tighter px-2 py-0.5 rounded-full bg-muted border border-border/60 text-muted-foreground opacity-60">
+                                                    <span key={s} className="text-[8px] font-black capitalize tracking-tighter px-2 py-0.5 rounded-full bg-muted border border-border/60 text-muted-foreground opacity-60">
                                                         {s}
                                                     </span>
                                                 ))}
@@ -124,7 +124,7 @@ export default function VisualsPage() {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-1.5 text-[11px] font-black text-blue-600 dark:text-blue-400 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 uppercase tracking-widest">
+                                    <div className="flex items-center gap-1.5 text-[11px] font-black text-blue-600 dark:text-blue-400 opacity-0 translate-y-2 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-500 capitalize tracking-widest">
                                         View Architecture <Info size={10} />
                                     </div>
 
@@ -137,7 +137,7 @@ export default function VisualsPage() {
                         })
                     ) : (
                         <div className="col-span-full py-20 text-center">
-                            <p className="text-sm font-black text-muted-foreground uppercase tracking-widest opacity-40">No architectures matching current filter</p>
+                            <p className="text-sm font-black text-muted-foreground capitalize tracking-widest opacity-40">No architectures matching current filter</p>
                         </div>
                     )}
                 </div>

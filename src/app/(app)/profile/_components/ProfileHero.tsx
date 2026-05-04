@@ -34,7 +34,7 @@ export function ProfileHero({ user, displayName, initials }: Readonly<ProfileHer
                                     alt={displayName}
                                     className="object-cover rounded-none grayscale transition-all duration-300 hover:grayscale-0"
                                 />
-                                <AvatarFallback className="text-4xl font-black bg-muted text-foreground/40 rounded-none uppercase">
+                                <AvatarFallback className="text-4xl font-black bg-muted text-foreground/40 rounded-none capitalize">
                                     {initials}
                                 </AvatarFallback>
                             </Avatar>
@@ -45,19 +45,19 @@ export function ProfileHero({ user, displayName, initials }: Readonly<ProfileHer
                     <div className="flex-1 min-w-0 pt-4 md:pt-0">
                         <div className="flex flex-col gap-1 mb-6">
                             <div className="flex flex-wrap items-center gap-3">
-                                <h1 className="text-3xl sm:text-4xl font-black tracking-[0.05em] text-foreground truncate uppercase">
+                                <h1 className="text-3xl sm:text-4xl font-black tracking-[0.05em] text-foreground truncate capitalize">
                                     {displayName}
                                 </h1>
                                 {user?.email_verified && (
                                     <Badge
                                         variant="outline"
-                                        className="bg-foreground/5 text-foreground border-foreground/20 text-[9px] font-black uppercase tracking-[0.2em] px-2.5 py-1 rounded-none"
+                                        className="bg-foreground/5 text-foreground border-foreground/20 text-[9px] font-black capitalize tracking-[0.2em] px-2.5 py-1 rounded-none"
                                     >
                                         VERIFIED
                                     </Badge>
                                 )}
                             </div>
-                            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px] font-bold text-muted-foreground uppercase opacity-70">
+                            <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[12px] font-bold text-muted-foreground capitalize opacity-70">
                                 <span className="flex items-center gap-1.5 font-mono">
                                     <AtSign className="h-3 w-3" />
                                     {user?.username}
@@ -72,28 +72,28 @@ export function ProfileHero({ user, displayName, initials }: Readonly<ProfileHer
                         {/* Segmented Data Grid - Black & White */}
                         <div className="grid grid-cols-2 lg:grid-cols-4 gap-px bg-border border border-border">
                             <div className="bg-background hover:bg-muted/30 transition-colors p-4 space-y-1.5">
-                                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Joined</p>
+                                <p className="text-[9px] font-black capitalize tracking-[0.2em] text-muted-foreground/40">Joined</p>
                                 <div className="flex items-center gap-2 text-[13px] font-bold text-foreground">
                                     <Calendar className="h-3.5 w-3.5 text-muted-foreground/40" />
                                     {formatDate(user?.date_joined)}
                                 </div>
                             </div>
                             <div className="bg-background hover:bg-muted/30 transition-colors p-4 space-y-1.5">
-                                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Status</p>
-                                <div className="flex items-center gap-2 text-[13px] font-bold uppercase tracking-tight">
+                                <p className="text-[9px] font-black capitalize tracking-[0.2em] text-muted-foreground/40">Status</p>
+                                <div className="flex items-center gap-2 text-[13px] font-bold capitalize tracking-tight">
                                     <div className="h-1.5 w-1.5 rounded-full bg-foreground" />
                                     ACTIVE
                                 </div>
                             </div>
                             <div className="hidden lg:block bg-background hover:bg-muted/30 transition-colors p-4 space-y-1.5">
-                                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Identity Tier</p>
-                                <div className="text-[13px] font-bold uppercase tracking-tight text-foreground">
+                                <p className="text-[9px] font-black capitalize tracking-[0.2em] text-muted-foreground/40">Identity Tier</p>
+                                <div className="text-[13px] font-bold capitalize tracking-tight text-foreground">
                                     PRIMARY
                                 </div>
                             </div>
                             <div className="hidden lg:block bg-background hover:bg-muted/30 transition-colors p-4 space-y-1.5">
-                                <p className="text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground/40">Network Score</p>
-                                <div className="text-[13px] font-bold uppercase tracking-tight text-foreground">
+                                <p className="text-[9px] font-black capitalize tracking-[0.2em] text-muted-foreground/40">Network Score</p>
+                                <div className="text-[13px] font-bold capitalize tracking-tight text-foreground">
                                     98.0
                                 </div>
                             </div>

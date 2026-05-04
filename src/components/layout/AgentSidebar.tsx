@@ -279,7 +279,7 @@ export function AgentSidebar() {
               <div className="h-6 w-6 rounded-lg bg-indigo-500/10 flex items-center justify-center text-indigo-600">
                 <QwenIcon size={14} />
               </div>
-              <span className="text-[11px] font-black tracking-tight uppercase font-mono">Qwen 2.5 @ Ollama</span>
+              <span className="text-[11px] font-black tracking-tight capitalize font-mono">Qwen 2.5 @ Ollama</span>
             </div>
             <div className="flex items-center gap-1">
               <Button variant="ghost" size="icon" className="h-7 w-7 rounded-lg text-muted-foreground hover:text-foreground" onClick={close}>
@@ -299,7 +299,7 @@ export function AgentSidebar() {
                 </div>
                 <ScrollArea className="flex-1">
                   <div className="p-2 space-y-1">
-                     <p className="px-3 py-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground/40 flex items-center gap-2">
+                     <p className="px-3 py-2 text-[10px] font-black capitalize tracking-widest text-muted-foreground/40 flex items-center gap-2">
                        <History className="h-3 w-3" /> interaction history
                      </p>
                      {sessions.map(s => (
@@ -324,12 +324,12 @@ export function AgentSidebar() {
               <div className="p-6 space-y-6">
                 <div className="space-y-4">
                   <div className="text-center">
-                     <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground/40 mb-2">Initialize Instance</h3>
+                     <h3 className="text-xs font-black capitalize tracking-widest text-muted-foreground/40 mb-2">Initialize Instance</h3>
                      <h4 className="text-base font-bold font-mono lowercase">new_analysis_v1</h4>
                   </div>
                   
                   <div className="space-y-2 pt-4">
-                    <Label className="text-[10px] font-black uppercase tracking-widest px-1 text-muted-foreground/40">Select Source Data</Label>
+                    <Label className="text-[10px] font-black capitalize tracking-widest px-1 text-muted-foreground/40">Select Source Data</Label>
                     <Select value={newChatDataset} onValueChange={setNewChatDataset}>
                       <SelectTrigger className="h-10 rounded-none border-border/60 bg-muted/10 font-mono text-xs lowercase">
                         <SelectValue placeholder="choose dataset source..." />
@@ -370,7 +370,7 @@ export function AgentSidebar() {
                       <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
                       <span className="text-[10px] font-bold truncate lowercase tabular-nums opacity-60 font-mono">{currentSession.dataset_name}</span>
                    </div>
-                   <Button variant="ghost" size="sm" className="h-6 text-[9px] font-black uppercase tracking-widest px-2 opacity-40 hover:opacity-100" onClick={() => setView("list")}>
+                   <Button variant="ghost" size="sm" className="h-6 text-[9px] font-black capitalize tracking-widest px-2 opacity-40 hover:opacity-100" onClick={() => setView("list")}>
                       logs
                    </Button>
                 </div>
@@ -450,8 +450,8 @@ export function AgentSidebar() {
                       </Button>
                    </div>
                    <div className="mt-2 flex items-center justify-between px-1">
-                      <p className="text-[8px] text-muted-foreground font-black uppercase tracking-widest opacity-30">ollama_host_active</p>
-                      <p className="text-[8px] text-muted-foreground font-black uppercase tracking-widest opacity-30">session_v2.5</p>
+                      <p className="text-[8px] text-muted-foreground font-black capitalize tracking-widest opacity-30">ollama_host_active</p>
+                      <p className="text-[8px] text-muted-foreground font-black capitalize tracking-widest opacity-30">session_v2.5</p>
                    </div>
                 </div>
               </div>

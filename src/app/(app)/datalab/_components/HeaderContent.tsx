@@ -10,7 +10,7 @@ function StatRow({ label, value, mono, accent }: Readonly<{ label: string; value
     return (
         <div className="flex items-center justify-between gap-4">
             <span className="text-xs text-muted-foreground">{label}</span>
-            <span className={cn("text-xs", mono && "font-mono", accent ? "text-red-400 font-semibold" : "text-foreground")}>
+            <span className={cn("text-xs", mono && "font-mono", accent ? "text-destructive font-semibold" : "text-foreground")}>
                 {value}
             </span>
         </div>

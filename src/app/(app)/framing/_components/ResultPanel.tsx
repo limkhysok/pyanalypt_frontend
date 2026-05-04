@@ -80,7 +80,7 @@ function StreamingPanel({
                     Generating problem statements…
                     <Badge
                         variant="outline"
-                        className="ml-auto text-[9px] font-black uppercase tracking-widest border-blue-500/20 text-blue-500 bg-blue-500/8"
+                        className="ml-auto text-[9px] font-black capitalize tracking-widest border-blue-500/20 text-blue-500 bg-blue-500/8"
                     >
                         {"Live "}
                         <span className="ml-1.5 w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse inline-block" />
@@ -147,7 +147,7 @@ function NoFramesPanel({ onGenerate }: Readonly<{ onGenerate: () => void }>) {
             </p>
             <Button
                 onClick={onGenerate}
-                className="rounded-2xl h-10 px-5 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] uppercase tracking-widest shadow-sm shadow-blue-500/20 transition-all"
+                className="rounded-2xl h-10 px-5 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] capitalize tracking-widest shadow-sm shadow-blue-500/20 transition-all"
             >
                 <Sparkles className="mr-2 h-4 w-4" />
                 Generate

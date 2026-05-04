@@ -35,7 +35,7 @@ const OPERATORS: { value: FilterOperator; label: string; needsValue: boolean }[]
 const STRING_OPS: { value: CleanStringOperation; label: string; desc: string }[] = [
     { value: "strip", label: "Strip whitespace", desc: "Remove leading and trailing spaces" },
     { value: "lower", label: "Lowercase",        desc: "Convert all text to lowercase"     },
-    { value: "upper", label: "Uppercase",        desc: "Convert all text to UPPERCASE"     },
+    { value: "upper", label: "capitalize",        desc: "Convert all text to capitalize"     },
     { value: "title", label: "Title Case",       desc: "Capitalize the first letter of each word" },
 ];
 

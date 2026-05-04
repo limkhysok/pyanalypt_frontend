@@ -110,16 +110,16 @@ function StatCard({ stat, index }: Readonly<{ stat: typeof STATS[number]; index:
                 <div className="absolute inset-0 bg-linear-to-b from-blue-500/3 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none rounded-4xl" />
                 <CardContent className="p-6 relative z-10">
                     <div className="flex items-start justify-between mb-5">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{stat.title}</p>
+                        <p className="text-[10px] font-black capitalize tracking-widest text-muted-foreground">{stat.title}</p>
                         <div className="p-2.5 rounded-xl bg-blue-500/10 border border-blue-500/20 group-hover:scale-110 transition-transform duration-300">
                             <stat.icon size={14} className="text-blue-500" aria-hidden="true" />
                         </div>
                     </div>
                     <p className="text-3xl font-black tracking-tight text-foreground">{stat.value}</p>
-                    <p className="text-[10px] text-muted-foreground/60 font-bold uppercase tracking-widest mt-1">{stat.label}</p>
+                    <p className="text-[10px] text-muted-foreground/60 font-bold capitalize tracking-widest mt-1">{stat.label}</p>
                     <div className="mt-4 pt-4 border-t border-border/10">
                         <span className={cn(
-                            "text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border",
+                            "text-[9px] font-black capitalize tracking-widest px-2.5 py-1 rounded-full border",
                             stat.trendUp
                                 ? "text-blue-500 bg-blue-500/10 border-blue-500/20"
                                 : "text-muted-foreground bg-secondary/60 border-border/20"
@@ -246,7 +246,7 @@ export default function DashboardPage() {
                     >
                         <div className="flex items-center gap-2">
                             <LayoutDashboard size={13} className="text-blue-500" aria-hidden="true" />
-                            <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
+                            <span className="text-[10px] font-black capitalize tracking-widest text-blue-600 dark:text-blue-400">
                                 Workspace
                             </span>
                         </div>
@@ -268,7 +268,7 @@ export default function DashboardPage() {
                         <Button
                             variant="outline"
                             size="sm"
-                            className="rounded-2xl h-10 px-5 border-border/30 bg-background/60 hover:bg-secondary/50 font-black text-[10px] uppercase tracking-widest transition-all"
+                            className="rounded-2xl h-10 px-5 border-border/30 bg-background/60 hover:bg-secondary/50 font-black text-[10px] capitalize tracking-widest transition-all"
                             asChild
                         >
                             <Link href="/datasets">
@@ -278,7 +278,7 @@ export default function DashboardPage() {
                         </Button>
                         <Button
                             size="sm"
-                            className="rounded-2xl h-10 px-5 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] uppercase tracking-widest shadow-sm shadow-blue-500/20 transition-all"
+                            className="rounded-2xl h-10 px-5 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] capitalize tracking-widest shadow-sm shadow-blue-500/20 transition-all"
                             asChild
                         >
                             <Link href="/analysis">
@@ -302,7 +302,7 @@ export default function DashboardPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.35 }}
                 >
-                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground mb-4">Quick Actions</p>
+                    <p className="text-[10px] font-black capitalize tracking-widest text-muted-foreground mb-4">Quick Actions</p>
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         {QUICK_ACTIONS.map((action) => (
                             <Link key={action.label} href={action.href}>
@@ -333,11 +333,11 @@ export default function DashboardPage() {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <CardTitle className="text-base font-black tracking-tight">Weekly Activity</CardTitle>
-                                    <CardDescription className="text-[10px] font-bold uppercase tracking-widest mt-0.5">
+                                    <CardDescription className="text-[10px] font-bold capitalize tracking-widest mt-0.5">
                                         Analyses &amp; datasets · last 7 days
                                     </CardDescription>
                                 </div>
-                                <Badge variant="outline" className="text-[9px] font-black uppercase tracking-widest border-blue-500/20 text-blue-500 bg-blue-500/8">
+                                <Badge variant="outline" className="text-[9px] font-black capitalize tracking-widest border-blue-500/20 text-blue-500 bg-blue-500/8">
                                     {"Live"}
                                     <span className="ml-1.5 w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse inline-block" aria-hidden="true" />
                                 </Badge>
@@ -348,11 +348,11 @@ export default function DashboardPage() {
                             <div className="flex items-center gap-5 mt-4">
                                 <div className="flex items-center gap-2">
                                     <span className="w-3 h-0.5 bg-blue-500 rounded-full inline-block" aria-hidden="true" />
-                                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Analyses</span>
+                                    <span className="text-[10px] font-black text-muted-foreground capitalize tracking-widest">Analyses</span>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <span className="w-3 h-0.5 bg-slate-400 rounded-full inline-block border-dashed" aria-hidden="true" />
-                                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Datasets</span>
+                                    <span className="text-[10px] font-black text-muted-foreground capitalize tracking-widest">Datasets</span>
                                 </div>
                             </div>
                         </CardContent>
@@ -365,7 +365,7 @@ export default function DashboardPage() {
                                 <Activity size={14} className="text-blue-500" aria-hidden="true" />
                                 Recent Activity
                             </CardTitle>
-                            <CardDescription className="text-[10px] font-bold uppercase tracking-widest mt-0.5">
+                            <CardDescription className="text-[10px] font-bold capitalize tracking-widest mt-0.5">
                                 Your latest actions
                             </CardDescription>
                         </CardHeader>
@@ -405,14 +405,14 @@ export default function DashboardPage() {
                                         <Database size={14} className="text-blue-500" aria-hidden="true" />
                                         Recent Datasets
                                     </CardTitle>
-                                    <CardDescription className="text-[10px] font-bold uppercase tracking-widest mt-0.5">
+                                    <CardDescription className="text-[10px] font-bold capitalize tracking-widest mt-0.5">
                                         Last 5 uploaded files
                                     </CardDescription>
                                 </div>
                                 <Button
                                     variant="ghost"
                                     size="sm"
-                                    className="rounded-xl text-[10px] font-black uppercase tracking-widest text-blue-500 hover:bg-blue-500/10 transition-all"
+                                    className="rounded-xl text-[10px] font-black capitalize tracking-widest text-blue-500 hover:bg-blue-500/10 transition-all"
                                     asChild
                                 >
                                     <Link href="/datasets">
@@ -427,10 +427,10 @@ export default function DashboardPage() {
                                 <table className="w-full text-sm">
                                     <thead>
                                         <tr className="border-b border-border/10">
-                                            <th className="text-left text-[9px] font-black uppercase tracking-widest text-muted-foreground px-6 py-3">Name</th>
-                                            <th className="text-left text-[9px] font-black uppercase tracking-widest text-muted-foreground px-6 py-3 hidden sm:table-cell">Rows</th>
-                                            <th className="text-left text-[9px] font-black uppercase tracking-widest text-muted-foreground px-6 py-3">Status</th>
-                                            <th className="text-left text-[9px] font-black uppercase tracking-widest text-muted-foreground px-6 py-3 hidden md:table-cell">Updated</th>
+                                            <th className="text-left text-[9px] font-black capitalize tracking-widest text-muted-foreground px-6 py-3">Name</th>
+                                            <th className="text-left text-[9px] font-black capitalize tracking-widest text-muted-foreground px-6 py-3 hidden sm:table-cell">Rows</th>
+                                            <th className="text-left text-[9px] font-black capitalize tracking-widest text-muted-foreground px-6 py-3">Status</th>
+                                            <th className="text-left text-[9px] font-black capitalize tracking-widest text-muted-foreground px-6 py-3 hidden md:table-cell">Updated</th>
                                             <th className="px-6 py-3" aria-label="Actions" />
                                         </tr>
                                     </thead>
@@ -451,7 +451,7 @@ export default function DashboardPage() {
                                                     </td>
                                                     <td className="px-6 py-4">
                                                         <span className={cn(
-                                                            "inline-flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest px-2.5 py-1 rounded-full border",
+                                                            "inline-flex items-center gap-1.5 text-[9px] font-black capitalize tracking-widest px-2.5 py-1 rounded-full border",
                                                             cfg.className
                                                         )}>
                                                             <cfg.icon size={10} aria-hidden="true" />

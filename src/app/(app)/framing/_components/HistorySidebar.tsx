@@ -20,7 +20,7 @@ export function HistorySidebar({
         <div className="lg:col-span-1">
             <Card className="bg-background/60 backdrop-blur-xl border border-border/20 rounded-4xl overflow-hidden">
                 <CardHeader className="p-4 pb-2 border-b border-border/10">
-                    <p className="text-[10px] font-black tracking-widest text-muted-foreground uppercase">
+                    <p className="text-[10px] font-black tracking-widest text-muted-foreground capitalize">
                         History
                     </p>
                 </CardHeader>

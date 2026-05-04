@@ -36,7 +36,7 @@ export default function AboutPage() {
         <div className="py-12 md:py-20 space-y-12 text-center">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-800/50 mx-auto">
             <Sparkles size={14} className="text-blue-500 dark:text-blue-400" />
-            <span className="text-[10px] font-black text-blue-700 dark:text-blue-300 tracking-tight uppercase">
+            <span className="text-[10px] font-black text-blue-700 dark:text-blue-300 tracking-tight capitalize">
               The Mission & Story
             </span>
           </div>
@@ -119,14 +119,14 @@ export default function AboutPage() {
           <div className="space-y-8">
             <div className="p-8 rounded-2xl border border-border/40 bg-zinc-50/5 dark:bg-zinc-900/20 backdrop-blur-sm space-y-8">
               <div className="space-y-6">
-                <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground opacity-60">Connect</h3>
+                <h3 className="text-xs font-black capitalize tracking-widest text-muted-foreground opacity-60">Connect</h3>
                 <div className="space-y-5">
                   <div className="flex items-center gap-4 group cursor-pointer">
                     <div className="w-10 h-10 rounded-lg bg-muted border border-border/60 flex items-center justify-center group-hover:bg-blue-50 dark:group-hover:bg-blue-950/50 group-hover:border-blue-400/50 dark:group-hover:border-blue-400/50 transition-colors">
                       <Mail size={18} className="text-muted-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-tighter text-muted-foreground">General Info</p>
+                      <p className="text-[10px] font-black capitalize tracking-tighter text-muted-foreground">General Info</p>
                       <p className="text-sm font-bold">hello@pyanalypt.com</p>
                     </div>
                   </div>
@@ -136,7 +136,7 @@ export default function AboutPage() {
                       <GithubIcon size={18} className="text-muted-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-tighter text-muted-foreground">Open Source</p>
+                      <p className="text-[10px] font-black capitalize tracking-tighter text-muted-foreground">Open Source</p>
                       <p className="text-sm font-bold">@soklimkhy/pyanalypt</p>
                     </div>
                   </a>
@@ -146,7 +146,7 @@ export default function AboutPage() {
                       <MapPin size={18} className="text-muted-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black uppercase tracking-tighter text-muted-foreground">HQ</p>
+                      <p className="text-[10px] font-black capitalize tracking-tighter text-muted-foreground">HQ</p>
                       <p className="text-sm font-bold">Phnom Penh, KH</p>
                     </div>
                   </div>
@@ -154,7 +154,7 @@ export default function AboutPage() {
               </div>
 
               <div className="pt-8 border-t border-border/10 space-y-4">
-                <h3 className="text-xs font-black uppercase tracking-widest text-muted-foreground opacity-60">Support</h3>
+                <h3 className="text-xs font-black capitalize tracking-widest text-muted-foreground opacity-60">Support</h3>
                 <p className="text-xs font-medium text-muted-foreground leading-relaxed">
                   We reply to every message personally. Current response time: <span className="text-blue-600 dark:text-blue-400 font-black">~12 hours</span>.
                 </p>

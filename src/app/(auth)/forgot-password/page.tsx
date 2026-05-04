@@ -48,7 +48,7 @@ export default function ForgotPasswordPage() {
 					<Link href="/login">
 						<Button
 							variant="ghost"
-							className="w-full h-11 rounded-xl text-[10px] font-black uppercase tracking-widest border border-border/40"
+							className="w-full h-11 rounded-xl text-[10px] font-black capitalize tracking-widest border border-border/40"
 						>
 							Back to Login
 						</Button>
@@ -61,7 +61,7 @@ export default function ForgotPasswordPage() {
 					</p>
 
 					{error && (
-						<div className="p-3 rounded-xl bg-red-500/5 text-red-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-3 border border-red-500/10 animate-in fade-in slide-in-from-top-1">
+						<div className="p-3 rounded-xl bg-red-500/5 text-red-500 text-[10px] font-black capitalize tracking-widest flex items-center gap-3 border border-red-500/10 animate-in fade-in slide-in-from-top-1">
 							<AlertCircle size={14} />
 							{error}
 						</div>
@@ -70,7 +70,7 @@ export default function ForgotPasswordPage() {
 					<div className="space-y-2">
 						<Label
 							htmlFor="email"
-							className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-60 ml-1"
+							className="text-[10px] font-black capitalize tracking-[0.2em] text-muted-foreground opacity-60 ml-1"
 						>
 							Email
 						</Label>
@@ -91,7 +91,7 @@ export default function ForgotPasswordPage() {
 
 					<Button
 						disabled={isLoading}
-						className="w-full h-11 bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-400 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300 shadow-xl shadow-blue-500/20 hover:scale-[1.01] active:scale-[0.98]"
+						className="w-full h-11 bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-400 rounded-xl text-[11px] font-black capitalize tracking-[0.2em] transition-all duration-300 shadow-xl shadow-blue-500/20 hover:scale-[1.01] active:scale-[0.98]"
 					>
 						{isLoading ? (
 							<div className="flex items-center gap-3">
@@ -106,7 +106,7 @@ export default function ForgotPasswordPage() {
 						)}
 					</Button>
 
-					<p className="text-center text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-60 flex items-center justify-center gap-2">
+					<p className="text-center text-[10px] font-black text-muted-foreground capitalize tracking-widest opacity-60 flex items-center justify-center gap-2">
 						Remembered it?
 						<Link href="/login" className="text-blue-600 dark:text-blue-400 hover:underline flex items-center gap-1.5">
 							Back to Login <ArrowRight size={11} />

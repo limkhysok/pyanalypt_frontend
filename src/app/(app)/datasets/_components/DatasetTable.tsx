@@ -157,26 +157,28 @@ export function DatasetTable({
                                         animate={{ opacity: 1 }}
                                         exit={{ opacity: 0 }}
                                         transition={{ duration: 0.15 }}
-                                        className="hover:bg-blue-50 even:bg-gray-50 transition-colors group cursor-default"
+                                        className="hover:bg-muted/30 even:bg-muted/5 transition-colors group cursor-default"
                                     >
-                                        <td className="px-6 py-5 text-center text-xs text-gray-300 font-bold font-mono">
-                                            {String(idx + 1).padStart(2, '0')}
+                                        <td className="px-6 py-5 text-center">
+                                            <div className="flex items-center justify-center gap-2">
+                                                <span className="text-[10px] text-muted-foreground/30 font-bold font-mono">
+                                                    {String(idx + 1).padStart(2, '0')}
+                                                </span>
+                                                <div className="w-1 h-3.5 bg-foreground/5 group-hover:bg-foreground/20 transition-colors" />
+                                            </div>
                                         </td>
 
                                         <td className="px-6 py-5">
-                                            <div className="flex items-center gap-3">
-                                                <div className="h-4 w-px bg-primary/20 group-hover:bg-primary transition-colors" />
-                                                <span className="font-bold text-gray-900 text-xs tracking-tight truncate max-w-sm">
-                                                    {dataset.file_name}
-                                                </span>
-                                            </div>
+                                            <span className="font-bold text-foreground text-[13px] tracking-tight truncate max-w-sm block">
+                                                {dataset.file_name}
+                                            </span>
                                         </td>
 
                                         <td className="px-6 py-5">
                                             <FormatBadge format={dataset.file_format} />
                                         </td>
 
-                                        <td className="px-6 py-5 text-right text-xs tabular-nums font-bold font-mono text-gray-400">
+                                        <td className="px-6 py-5 text-right text-[11px] tabular-nums font-bold font-mono text-muted-foreground/60">
                                             {formatFileSize(dataset.file_size)}
                                         </td>
 

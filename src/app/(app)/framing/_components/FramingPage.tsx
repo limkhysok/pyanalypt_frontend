@@ -46,7 +46,7 @@ function GoalsSidebar({ goals, activeId, isStreaming, onSelect, onNew }: Readonl
         <div className="lg:col-span-1">
             <Card className="bg-background/60 backdrop-blur-xl border border-border/20 rounded-4xl overflow-hidden">
                 <CardHeader className="p-4 pb-2 border-b border-border/10 flex flex-row items-center justify-between gap-2">
-                    <p className="text-[10px] font-black tracking-widest text-muted-foreground uppercase">Goals</p>
+                    <p className="text-[10px] font-black tracking-widest text-muted-foreground capitalize">Goals</p>
                     <Button
                         size="sm"
                         variant="ghost"
@@ -343,7 +343,7 @@ function StreamingPanel({ text }: Readonly<{ text: string }>) {
                     <Sparkles className="h-3.5 w-3.5 text-blue-500 animate-pulse" />
                 </div>
                 <span className="text-sm font-black tracking-tight">AI is suggesting questions…</span>
-                <Badge variant="outline" className="ml-auto text-[9px] font-black uppercase tracking-widest border-blue-500/20 text-blue-500 bg-blue-500/8">
+                <Badge variant="outline" className="ml-auto text-[9px] font-black capitalize tracking-widest border-blue-500/20 text-blue-500 bg-blue-500/8">
                     Live <span className="ml-1.5 w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse inline-block" />
                 </Badge>
             </CardHeader>
@@ -394,7 +394,7 @@ function GoalDetail({ goal, isStreaming, streamingText, onGoalUpdated, onSuggest
                         <div className="w-7 h-7 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
                             <BrainCircuit className="h-3.5 w-3.5 text-blue-500" />
                         </div>
-                        <p className="text-[10px] font-black tracking-widest text-muted-foreground uppercase">Problem Statement</p>
+                        <p className="text-[10px] font-black tracking-widest text-muted-foreground capitalize">Problem Statement</p>
                     </div>
                 </CardHeader>
                 <CardContent className="p-5">
@@ -414,7 +414,7 @@ function GoalDetail({ goal, isStreaming, streamingText, onGoalUpdated, onSuggest
                             <div className="w-7 h-7 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
                                 <FileText className="h-3.5 w-3.5 text-blue-500" />
                             </div>
-                            <p className="text-[10px] font-black tracking-widest text-muted-foreground uppercase">Research Questions</p>
+                            <p className="text-[10px] font-black tracking-widest text-muted-foreground capitalize">Research Questions</p>
                             <Badge variant="outline" className="text-[9px] font-black border-border/30">
                                 {questions.length}/{MAX_QUESTIONS}
                             </Badge>
@@ -423,7 +423,7 @@ function GoalDetail({ goal, isStreaming, streamingText, onGoalUpdated, onSuggest
                             size="sm"
                             disabled={isStreaming || atLimit}
                             onClick={onSuggest}
-                            className="rounded-2xl h-8 px-4 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] uppercase tracking-widest shadow-sm shadow-blue-500/20 transition-all"
+                            className="rounded-2xl h-8 px-4 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] capitalize tracking-widest shadow-sm shadow-blue-500/20 transition-all"
                         >
                             {isStreaming
                                 ? <><Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Generating…</>
@@ -503,7 +503,7 @@ function CreateGoalForm({ datasetId, onCreated, onCancel }: Readonly<CreateGoalF
             </CardHeader>
             <CardContent className="p-5 flex flex-col gap-4">
                 <div className="flex flex-col gap-1.5">
-                    <label htmlFor="goal-statement" className="text-[10px] font-black tracking-widest text-muted-foreground uppercase">
+                    <label htmlFor="goal-statement" className="text-[10px] font-black tracking-widest text-muted-foreground capitalize">
                         What are you trying to find out?
                     </label>
                     <textarea
@@ -520,13 +520,13 @@ function CreateGoalForm({ datasetId, onCreated, onCancel }: Readonly<CreateGoalF
                     <Button
                         onClick={handleCreate}
                         disabled={saving}
-                        className="rounded-2xl h-9 px-5 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] uppercase tracking-widest shadow-sm shadow-blue-500/20"
+                        className="rounded-2xl h-9 px-5 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] capitalize tracking-widest shadow-sm shadow-blue-500/20"
                     >
                         {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
                         Create Goal
                     </Button>
                     {onCancel && (
-                        <Button variant="ghost" className="rounded-2xl h-9 px-5 font-black text-[10px] uppercase tracking-widest" onClick={onCancel} disabled={saving}>
+                        <Button variant="ghost" className="rounded-2xl h-9 px-5 font-black text-[10px] capitalize tracking-widest" onClick={onCancel} disabled={saving}>
                             Cancel
                         </Button>
                     )}
@@ -661,7 +661,7 @@ export function FramingPage() {
                 <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="space-y-2">
                     <div className="flex items-center gap-2">
                         <BrainCircuit size={13} className="text-blue-500" />
-                        <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">Analysis Goals</span>
+                        <span className="text-[10px] font-black capitalize tracking-widest text-blue-600 dark:text-blue-400">Analysis Goals</span>
                     </div>
                     <h1 className="text-3xl md:text-4xl font-black tracking-tight leading-none">Problem Framing</h1>
                     <p className="text-sm text-muted-foreground font-medium">
@@ -702,7 +702,7 @@ export function FramingPage() {
                         {loadingGoals ? (
                             <div className="flex flex-col items-center justify-center py-32 gap-3">
                                 <div className="h-7 w-7 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
-                                <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Loading goals…</p>
+                                <p className="text-xs font-bold text-muted-foreground capitalize tracking-widest">Loading goals…</p>
                             </div>
                         ) : (
                             <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">

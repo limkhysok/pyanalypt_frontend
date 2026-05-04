@@ -62,7 +62,7 @@ export default function DashboardDetailPage() {
       <div className="h-[calc(100vh-theme(spacing.12))] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <RefreshCw className="h-8 w-8 animate-spin text-primary" />
-          <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground font-mono">Initializing Workspace...</p>
+          <p className="text-[10px] font-bold capitalize tracking-widest text-muted-foreground font-mono">Initializing Workspace...</p>
         </div>
       </div>
     );
@@ -81,7 +81,7 @@ export default function DashboardDetailPage() {
           <div className="h-6 w-[2px] bg-foreground/10 mx-1" />
           <div>
             <h1 className="text-base font-bold tracking-tight leading-none font-mono lowercase">{dashboard.title}</h1>
-            <p className="text-[9px] font-bold text-muted-foreground/60 uppercase tracking-widest mt-1.5">Dashboard Viewer • {dashboard.widgets.length} components</p>
+            <p className="text-[9px] font-bold text-muted-foreground/60 capitalize tracking-widest mt-1.5">Dashboard Viewer • {dashboard.widgets.length} components</p>
           </div>
         </div>
 

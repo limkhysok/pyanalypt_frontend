@@ -151,7 +151,7 @@ export default function ProfileSessionsPage() {
                                             <div className="flex items-center gap-2">
                                                 <h3 className="text-[14px] font-bold tracking-tight">{session.device}</h3>
                                                 {session.is_current && (
-                                                    <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-none px-2 py-0.5 text-[9px] font-bold uppercase tracking-widest rounded-none">
+                                                    <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-none px-2 py-0.5 text-[9px] font-bold capitalize tracking-widest rounded-none">
                                                         This device
                                                     </Badge>
                                                 )}
@@ -168,7 +168,7 @@ export default function ProfileSessionsPage() {
                                             </div>
 
                                             <div className="pt-2 flex items-center gap-2">
-                                                <Badge variant="outline" className="text-[9px] font-bold bg-muted/20 border-border/40 uppercase px-2 py-0 rounded-none">
+                                                <Badge variant="outline" className="text-[9px] font-bold bg-muted/20 border-border/40 capitalize px-2 py-0 rounded-none">
                                                     {session.browser}
                                                 </Badge>
                                             </div>
@@ -202,11 +202,11 @@ export default function ProfileSessionsPage() {
                     <Shield size={20} />
                 </div>
                 <div className="space-y-1">
-                    <h4 className="font-bold text-[13px] uppercase tracking-tight">Security Recommendations</h4>
+                    <h4 className="font-bold text-[13px] capitalize tracking-tight">Security Recommendations</h4>
                     <p className="text-[12px] text-muted-foreground leading-relaxed">
                         Notice any sessions from unfamiliar locations? Revoke them immediately and reset your password for maximum protection.
                     </p>
-                    <Button variant="link" className="p-0 h-auto text-[11px] text-blue-600 dark:text-blue-400 font-bold uppercase tracking-widest mt-1">
+                    <Button variant="link" className="p-0 h-auto text-[11px] text-blue-600 dark:text-blue-400 font-bold capitalize tracking-widest mt-1">
                         Security Checklist <ChevronRight size={14} className="ml-1 inline" />
                     </Button>
                 </div>

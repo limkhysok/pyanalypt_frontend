@@ -208,7 +208,7 @@ export default function ChatInterface() {
         <ScrollArea className="flex-1 p-2">
           <div className="space-y-1">
             <div className="px-3 py-2">
-              <h3 className="text-[11px] font-bold uppercase tracking-widest text-muted-foreground/60 flex items-center gap-2">
+              <h3 className="text-[11px] font-bold capitalize tracking-widest text-muted-foreground/60 flex items-center gap-2">
                 <History className="h-3 w-3" /> Recent Activity
               </h3>
             </div>
@@ -271,7 +271,7 @@ export default function ChatInterface() {
                 </div>
                 <div className="min-w-0">
                   <h3 className="text-[14px] font-bold truncate leading-tight">{currentSession.title}</h3>
-                  <p className="text-[11px] text-muted-foreground truncate uppercase tracking-tight">Source: {currentSession.dataset_name}</p>
+                  <p className="text-[11px] text-muted-foreground truncate capitalize tracking-tight">Source: {currentSession.dataset_name}</p>
                 </div>
               </div>
               <Button variant="ghost" size="sm" className="h-8 text-xs gap-1.5" onClick={() => setCurrentSession(null)}>
@@ -323,7 +323,7 @@ export default function ChatInterface() {
                             </ReactMarkdown>
                           </div>
                         </div>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest px-1">
+                        <p className="text-[10px] text-muted-foreground capitalize tracking-widest px-1">
                           {new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </p>
                       </div>
@@ -403,7 +403,7 @@ export default function ChatInterface() {
                   </Button>
                 </div>
                 <div className="mt-2 px-3 flex items-center justify-between">
-                   <p className="text-[10px] text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+                   <p className="text-[10px] text-muted-foreground capitalize tracking-widest flex items-center gap-2">
                      <Sparkles className="h-2.5 w-2.5 text-primary" /> Press Enter to send • Shift+Enter for new line
                    </p>
                 </div>
@@ -428,7 +428,7 @@ export default function ChatInterface() {
 
             <div className="w-full max-w-sm space-y-4 pt-4">
               <div className="space-y-2 text-left">
-                <Label htmlFor="dataset-select" className="text-[12px] font-bold text-muted-foreground uppercase tracking-wider px-1">Select Dataset</Label>
+                <Label htmlFor="dataset-select" className="text-[12px] font-bold text-muted-foreground capitalize tracking-wider px-1">Select Dataset</Label>
                 <Select value={newChatDataset} onValueChange={setNewChatDataset}>
                   <SelectTrigger id="dataset-select" className="h-11 rounded-xl border-border/60 bg-muted/20">
                     <SelectValue placeholder="Choose a source dataset..." />
@@ -438,7 +438,7 @@ export default function ChatInterface() {
                       <SelectItem key={d.id} value={d.id.toString()} className="rounded-lg">
                         <div className="flex flex-col">
                           <span className="font-medium">{d.file_name}</span>
-                          <span className="text-[10px] text-muted-foreground uppercase tracking-tight">{d.file_size.toLocaleString()} bytes</span>
+                          <span className="text-[10px] text-muted-foreground capitalize tracking-tight">{d.file_size.toLocaleString()} bytes</span>
                         </div>
                       </SelectItem>
                     ))}

@@ -18,7 +18,7 @@ export default function Loading() {
                 </div>
 
                 <div className="flex flex-col items-center gap-1.5">
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-blue-600/40 animate-pulse">
+                    <span className="text-[10px] font-black capitalize tracking-[0.3em] text-blue-600/40 animate-pulse">
                         Initializing
                     </span>
                     <h2 className="text-sm font-bold tracking-tight text-foreground/80">

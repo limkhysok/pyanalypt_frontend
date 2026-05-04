@@ -101,15 +101,15 @@ const ProfileSettingsTab = () => {
                         {/* Form Section */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                             <div className="space-y-3">
-                                <Label htmlFor="username" className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">Username</Label>
+                                <Label htmlFor="username" className="text-xs font-bold capitalize tracking-widest text-muted-foreground/60">Username</Label>
                                 <Input id="username" defaultValue={user?.username ?? undefined} className="bg-background/50 border-border/40 focus:ring-primary/20" />
                             </div>
                             <div className="space-y-3">
-                                <Label htmlFor="email" className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">Email Address</Label>
+                                <Label htmlFor="email" className="text-xs font-bold capitalize tracking-widest text-muted-foreground/60">Email Address</Label>
                                 <Input id="email" type="email" defaultValue={user?.email ?? undefined} className="bg-background/50 border-border/40 focus:ring-primary/20" />
                             </div>
                             <div className="md:col-span-2 space-y-3">
-                                <Label htmlFor="bio" className="text-xs font-bold uppercase tracking-widest text-muted-foreground/60">Bio</Label>
+                                <Label htmlFor="bio" className="text-xs font-bold capitalize tracking-widest text-muted-foreground/60">Bio</Label>
                                 <div className="relative">
                                     <textarea 
                                         id="bio"
@@ -142,7 +142,7 @@ const ProfileSettingsTab = () => {
                             <p className="text-sm font-bold">Reset Dashboard Layout</p>
                             <p className="text-xs text-muted-foreground">Restore your dashboard view components to their default state.</p>
                         </div>
-                        <Button variant="outline" className="text-xs font-bold uppercase tracking-tight">Reset Now</Button>
+                        <Button variant="outline" className="text-xs font-bold capitalize tracking-tight">Reset Now</Button>
                     </CardContent>
                 </Card>
             </div>

@@ -21,10 +21,13 @@ export function DatasetHeader({ uploadLoading, onFormatSelect }: Readonly<Datase
     return (
         <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-                <Database className="h-7 w-7 text-primary" />
+                <Database className="h-6 w-6 text-foreground/80" strokeWidth={1.5} />
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight leading-none font-mono">Datasets</h1>
-                    <p className="text-xs text-muted-foreground mt-1">Manage and organize your data files. File size limit is 25 MB.</p>
+                    <h1 className="text-xl font-bold tracking-tight leading-none font-mono capitalize">Datasets</h1>
+                    <p className="text-[10px] font-bold text-muted-foreground mt-2 capitalize tracking-tight">
+                        Manage and organize your data workspace. 
+                        <span className="ml-2 text-muted-foreground/40 font-mono">Size limit: 25MB</span>
+                    </p>
                 </div>
             </div>
 
@@ -32,12 +35,12 @@ export function DatasetHeader({ uploadLoading, onFormatSelect }: Readonly<Datase
                 <DropdownMenuTrigger asChild>
                     <Button
                         disabled={uploadLoading}
-                        className="rounded-none h-10 px-6 bg-foreground hover:bg-foreground/90 text-background font-bold text-sm tracking-normal transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none border border-foreground/10"
+                        className="rounded-none h-11 px-8 bg-foreground hover:bg-foreground/90 text-background font-bold text-xs capitalize tracking-widest transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none border border-foreground/10 group"
                     >
                         {uploadLoading ? (
-                            <Loader2 className="mr-2.5 h-4 w-4 animate-spin" />
+                            <Loader2 className="mr-3 h-4 w-4 animate-spin" />
                         ) : (
-                            <Plus className="mr-2.5 h-4 w-4" />
+                            <Plus className="mr-3 h-4 w-4 transition-transform group-hover:rotate-90 duration-300" />
                         )}
                         {uploadLoading ? "Uploading..." : "Import dataset"}
                     </Button>

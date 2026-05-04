@@ -202,7 +202,7 @@ export default function ProfileAuthPage() {
 
                     <form onSubmit={(e) => { e.preventDefault(); handleChangePassword(); }} className="space-y-6">
                         <div className="space-y-2">
-                            <Label htmlFor="current" className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/80 ml-1">
+                            <Label htmlFor="current" className="text-[11px] font-bold capitalize tracking-wider text-muted-foreground/80 ml-1">
                                 Current Password
                             </Label>
                             <div className="relative">
@@ -229,7 +229,7 @@ export default function ProfileAuthPage() {
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                                <Label htmlFor="new" className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/80 ml-1">
+                                <Label htmlFor="new" className="text-[11px] font-bold capitalize tracking-wider text-muted-foreground/80 ml-1">
                                     New Password
                                 </Label>
                                 <div className="relative">
@@ -251,7 +251,7 @@ export default function ProfileAuthPage() {
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <Label htmlFor="confirm" className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/80 ml-1">
+                                <Label htmlFor="confirm" className="text-[11px] font-bold capitalize tracking-wider text-muted-foreground/80 ml-1">
                                     Confirm New Password
                                 </Label>
                                 <div className="relative">
@@ -301,11 +301,11 @@ export default function ProfileAuthPage() {
                             </CardDescription>
                         </div>
                         {is2FAEnabled ? (
-                            <Badge variant="outline" className="h-5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-none px-2 font-bold text-[9px] uppercase tracking-widest rounded-none">
+                            <Badge variant="outline" className="h-5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-none px-2 font-bold text-[9px] capitalize tracking-widest rounded-none">
                                 Enabled
                             </Badge>
                         ) : (
-                            <Badge variant="outline" className="h-5 bg-destructive/10 text-destructive border-none px-2 font-bold text-[9px] uppercase tracking-widest rounded-none">
+                            <Badge variant="outline" className="h-5 bg-destructive/10 text-destructive border-none px-2 font-bold text-[9px] capitalize tracking-widest rounded-none">
                                 Disabled
                             </Badge>
                         )}
@@ -359,7 +359,7 @@ export default function ProfileAuthPage() {
                                         <p className="text-[11px] text-muted-foreground leading-relaxed">
                                             Emergency backup codes to access your account.
                                         </p>
-                                        <span className="text-[9px] uppercase font-bold text-muted-foreground/60 italic">Enable 2FA first</span>
+                                        <span className="text-[9px] capitalize font-bold text-muted-foreground/60 italic">Enable 2FA first</span>
                                     </div>
                                 </div>
                             </div>
@@ -385,7 +385,7 @@ export default function ProfileAuthPage() {
                                     <QRCodeSVG value={setupData.otpauth_uri} size={180} />
                                 </div>
                                 <div className="w-full space-y-1">
-                                    <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground/60 ml-1">Manual entry key</p>
+                                    <p className="text-[10px] font-bold capitalize tracking-wider text-muted-foreground/60 ml-1">Manual entry key</p>
                                     <div className="flex items-center gap-2">
                                         <code className="flex-1 text-[11px] font-mono bg-muted/40 px-3 py-2 border border-border/40 tracking-widest select-all truncate">
                                             {setupData.secret}
@@ -404,7 +404,7 @@ export default function ProfileAuthPage() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/80 ml-1">
+                                <Label className="text-[11px] font-bold capitalize tracking-wider text-muted-foreground/80 ml-1">
                                     Verification Code
                                 </Label>
                                 <Input
@@ -452,7 +452,7 @@ export default function ProfileAuthPage() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/80 ml-1">
+                                <Label className="text-[11px] font-bold capitalize tracking-wider text-muted-foreground/80 ml-1">
                                     Authenticator Code
                                 </Label>
                                 <Input
@@ -469,7 +469,7 @@ export default function ProfileAuthPage() {
                             </div>
 
                             <div className="space-y-2">
-                                <Label className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground/80 ml-1">
+                                <Label className="text-[11px] font-bold capitalize tracking-wider text-muted-foreground/80 ml-1">
                                     Current Password
                                 </Label>
                                 <Input

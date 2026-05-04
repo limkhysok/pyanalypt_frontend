@@ -93,8 +93,8 @@ function ActionBar({ activeTab, onTabChange, datasets, selectedId, onSelectDatas
                             className={cn(
                                 "px-3 inline-flex items-center gap-1.5 text-xs rounded-none transition-all whitespace-nowrap border-b-2 focus-visible:outline-none",
                                 isActive
-                                    ? "text-blue-600 font-bold border-blue-600 bg-blue-50/60"
-                                    : "text-gray-500 hover:text-gray-900 hover:bg-slate-50 border-transparent"
+                                    ? "text-primary font-bold border-primary bg-primary/5"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40 border-transparent"
                             )}
                         >
                             <Icon className="h-3.5 w-3.5 shrink-0" />
@@ -156,8 +156,8 @@ function ActionBar({ activeTab, onTabChange, datasets, selectedId, onSelectDatas
                             className={cn(
                                 "px-3 inline-flex items-center gap-1.5 text-xs rounded-none transition-all whitespace-nowrap border-b-2 focus-visible:outline-none",
                                 advancedIsActive
-                                    ? "text-blue-600 font-bold border-blue-600 bg-blue-50/60"
-                                    : "text-gray-500 hover:text-gray-900 hover:bg-slate-50 border-transparent"
+                                    ? "text-primary font-bold border-primary bg-primary/5"
+                                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40 border-transparent"
                             )}
                         >
                             {advancedIsActive && activeAdvanced
@@ -194,7 +194,7 @@ function ActionBar({ activeTab, onTabChange, datasets, selectedId, onSelectDatas
                     type="button"
                     onClick={onUndo}
                     disabled={!selectedId}
-                    className="px-3 inline-flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-900 hover:bg-slate-50 border-b-2 border-transparent transition-all whitespace-nowrap focus-visible:outline-none disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="px-3 inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground hover:bg-muted/40 border-b-2 border-transparent transition-all whitespace-nowrap focus-visible:outline-none disabled:opacity-30 disabled:cursor-not-allowed"
                     title="Undo last action"
                 >
                     <RotateCcw className="h-3.5 w-3.5 shrink-0" />

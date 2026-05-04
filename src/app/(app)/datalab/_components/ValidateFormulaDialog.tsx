@@ -149,7 +149,7 @@ export function ValidateFormulaDialog({
                 <div className={cn("flex flex-col", asPanel ? "" : "h-150")}>
                     <div className="p-6 space-y-6 border-b bg-muted/5">
                         <div className="space-y-4">
-                            <Label className="text-[12px] font-black uppercase tracking-[0.15em] text-muted-foreground/80">Formula Configuration</Label>
+                            <Label className="text-[12px] font-black capitalize tracking-[0.15em] text-muted-foreground/80">Formula Configuration</Label>
                             <div className="flex flex-col md:flex-row items-stretch md:items-end gap-3">
                                 <div className="flex-1 space-y-1.5">
                                     <Label className="text-[11px] font-medium text-muted-foreground ml-1">Result Column</Label>
@@ -277,7 +277,7 @@ export function ValidateFormulaDialog({
                                         </div>
                                     </div>
                                     <div className="text-center">
-                                        <p className="text-sm font-bold text-foreground tracking-widest uppercase">Analyzing Data</p>
+                                        <p className="text-sm font-bold text-foreground tracking-widest capitalize">Analyzing Data</p>
                                         <p className="text-[11px] text-muted-foreground mt-1 font-mono">Comparing millions of cell pairs...</p>
                                     </div>
                                 </div>
@@ -318,7 +318,7 @@ export function ValidateFormulaDialog({
                                             <AlertCircle className="h-6 w-6 mt-0.5" />
                                         )}
                                         <div className="space-y-1">
-                                            <p className="text-sm font-black uppercase tracking-tight">
+                                            <p className="text-sm font-black capitalize tracking-tight">
                                                 {result.error_rows === 0 ? "Data Integrity Confirmed" : "Formula Inconsistencies Detected"}
                                             </p>
                                             <p className="text-sm opacity-90 leading-relaxed">
@@ -333,7 +333,7 @@ export function ValidateFormulaDialog({
                                     {result.sample_errors.length > 0 && (
                                         <div className="space-y-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
                                             <div className="flex items-center justify-between">
-                                                <Label className="text-[12px] font-black uppercase tracking-widest text-muted-foreground/80">Inconsistency Examples</Label>
+                                                <Label className="text-[12px] font-black capitalize tracking-widest text-muted-foreground/80">Inconsistency Examples</Label>
                                                 <span className="text-[11px] text-muted-foreground font-medium italic">Showing up to 10 most extreme cases</span>
                                             </div>
                                             <div className="border border-border/60 overflow-hidden shadow-sm">
@@ -341,13 +341,13 @@ export function ValidateFormulaDialog({
                                                     <table className="w-full text-left text-[13px] border-collapse min-w-150">
                                                         <thead>
                                                             <tr className="bg-muted/50 border-b">
-                                                                <th className="px-4 py-2.5 font-bold font-mono text-[11px] uppercase tracking-wider opacity-60">Row</th>
-                                                                <th className="px-4 py-2.5 font-bold font-mono text-[11px] uppercase tracking-wider opacity-60">{result.operand_a}</th>
+                                                                <th className="px-4 py-2.5 font-bold font-mono text-[11px] capitalize tracking-wider opacity-60">Row</th>
+                                                                <th className="px-4 py-2.5 font-bold font-mono text-[11px] capitalize tracking-wider opacity-60">{result.operand_a}</th>
                                                                 <th className="px-2 py-2.5 font-bold font-mono text-[11px] text-center opacity-40"></th>
-                                                                <th className="px-4 py-2.5 font-bold font-mono text-[11px] uppercase tracking-wider opacity-60">{result.operand_b}</th>
-                                                                <th className="px-4 py-2.5 font-bold font-mono text-[11px] uppercase tracking-wider text-primary bg-primary/5">Calculated</th>
-                                                                <th className="px-4 py-2.5 font-bold font-mono text-[11px] uppercase tracking-wider text-destructive bg-destructive/5">{result.result_column}</th>
-                                                                <th className="px-4 py-2.5 font-bold font-mono text-[11px] uppercase tracking-wider text-right">Δ Diff</th>
+                                                                <th className="px-4 py-2.5 font-bold font-mono text-[11px] capitalize tracking-wider opacity-60">{result.operand_b}</th>
+                                                                <th className="px-4 py-2.5 font-bold font-mono text-[11px] capitalize tracking-wider text-primary bg-primary/5">Calculated</th>
+                                                                <th className="px-4 py-2.5 font-bold font-mono text-[11px] capitalize tracking-wider text-destructive bg-destructive/5">{result.result_column}</th>
+                                                                <th className="px-4 py-2.5 font-bold font-mono text-[11px] capitalize tracking-wider text-right">Δ Diff</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody className="divide-y divide-border/40">
@@ -381,11 +381,11 @@ export function ValidateFormulaDialog({
                                                 <div className="h-8 w-8 rounded-full bg-amber-500/20 flex items-center justify-center">
                                                     <Wrench className="h-4 w-4 text-amber-600" />
                                                 </div>
-                                                <span className="text-base font-black uppercase tracking-tight text-amber-700 dark:text-amber-400">Remediation Suite</span>
+                                                <span className="text-base font-black capitalize tracking-tight text-amber-700 dark:text-amber-400">Remediation Suite</span>
                                             </div>
 
                                             <div className="space-y-3 relative z-10">
-                                                <Label className="text-[12px] font-black uppercase tracking-widest text-muted-foreground/80">
+                                                <Label className="text-[12px] font-black capitalize tracking-widest text-muted-foreground/80">
                                                     Identify target column for repair
                                                 </Label>
                                                 <div className="flex gap-2 flex-wrap">
@@ -425,7 +425,7 @@ export function ValidateFormulaDialog({
                                                 </Button>
                                                 {fixLoading && (
                                                     <div className="flex items-center gap-2">
-                                                        <span className="text-[11px] text-amber-600 animate-pulse font-black uppercase tracking-[0.2em]">
+                                                        <span className="text-[11px] text-amber-600 animate-pulse font-black capitalize tracking-[0.2em]">
                                                             Executing Fix...
                                                         </span>
                                                     </div>
@@ -472,7 +472,7 @@ function StatCard({ label, value, note, color, highlight }: Readonly<{ label: st
             "p-4 border border-border/40 bg-background flex flex-col gap-1.5 transition-all relative overflow-hidden",
             highlight && "ring-1 ring-inset ring-destructive/10"
         )}>
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground/70">{label}</span>
+            <span className="text-[10px] font-black capitalize tracking-[0.2em] text-muted-foreground/70">{label}</span>
             <span className={cn("text-2xl font-black font-mono tracking-tighter", color)}>{value}</span>
             {note && <span className="text-[10px] text-muted-foreground italic leading-none opacity-60">{note}</span>}
             {highlight && <div className="absolute top-0 right-0 w-8 h-8 bg-destructive/5 rounded-bl-full pointer-events-none" />}

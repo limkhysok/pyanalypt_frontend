@@ -69,7 +69,7 @@ export default function ResetPasswordPage() {
 						</p>
 					</div>
 					<Link href="/login">
-						<Button className="w-full h-11 bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-400 rounded-xl text-[11px] font-black uppercase tracking-[0.2em]">
+						<Button className="w-full h-11 bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-400 rounded-xl text-[11px] font-black capitalize tracking-[0.2em]">
 							Go to Login
 						</Button>
 					</Link>
@@ -81,7 +81,7 @@ export default function ResetPasswordPage() {
 					</p>
 
 					{error && (
-						<div className="p-3 rounded-xl bg-red-500/5 text-red-500 text-[10px] font-black uppercase tracking-widest flex items-center gap-3 border border-red-500/10 animate-in fade-in slide-in-from-top-1">
+						<div className="p-3 rounded-xl bg-red-500/5 text-red-500 text-[10px] font-black capitalize tracking-widest flex items-center gap-3 border border-red-500/10 animate-in fade-in slide-in-from-top-1">
 							<AlertCircle size={14} />
 							{error}
 						</div>
@@ -90,7 +90,7 @@ export default function ResetPasswordPage() {
 					<div className="space-y-2">
 						<Label
 							htmlFor="password1"
-							className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-60 ml-1"
+							className="text-[10px] font-black capitalize tracking-[0.2em] text-muted-foreground opacity-60 ml-1"
 						>
 							New Password
 						</Label>
@@ -120,7 +120,7 @@ export default function ResetPasswordPage() {
 					<div className="space-y-2">
 						<Label
 							htmlFor="password2"
-							className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground opacity-60 ml-1"
+							className="text-[10px] font-black capitalize tracking-[0.2em] text-muted-foreground opacity-60 ml-1"
 						>
 							Confirm Password
 						</Label>
@@ -148,7 +148,7 @@ export default function ResetPasswordPage() {
 
 					<Button
 						disabled={isLoading}
-						className="w-full h-11 bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-400 rounded-xl text-[11px] font-black uppercase tracking-[0.2em] transition-all duration-300 shadow-xl shadow-blue-500/20 hover:scale-[1.01] active:scale-[0.98]"
+						className="w-full h-11 bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-400 rounded-xl text-[11px] font-black capitalize tracking-[0.2em] transition-all duration-300 shadow-xl shadow-blue-500/20 hover:scale-[1.01] active:scale-[0.98]"
 					>
 						{isLoading ? (
 							<div className="flex items-center gap-3">
@@ -160,7 +160,7 @@ export default function ResetPasswordPage() {
 						)}
 					</Button>
 
-					<p className="text-center text-[10px] font-black text-muted-foreground uppercase tracking-widest opacity-60">
+					<p className="text-center text-[10px] font-black text-muted-foreground capitalize tracking-widest opacity-60">
 						Link expired?{" "}
 						<Link href="/forgot-password" className="text-blue-600 dark:text-blue-400 hover:underline">
 							Request a new one

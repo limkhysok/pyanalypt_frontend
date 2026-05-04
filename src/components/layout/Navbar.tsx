@@ -59,7 +59,7 @@ export function Navbar() {
                 {/* Brand */}
                 <Link href="/" className="flex items-center gap-2.5 px-3 group shrink-0">
                     <Logo className="w-6 h-6 transition-all duration-500 group-hover:rotate-12 grayscale group-hover:grayscale-0" />
-                    <span className="text-[12px] font-black tracking-tighter text-foreground uppercase opacity-80 hidden sm:block">
+                    <span className="text-[12px] font-black tracking-tighter text-foreground capitalize opacity-80 hidden sm:block">
                         PyAnalypt
                     </span>
                 </Link>
@@ -75,7 +75,7 @@ export function Navbar() {
                                 key={item.label}
                                 href={item.href}
                                 className={cn(
-                                    "px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-[0.2em] transition-all duration-200",
+                                    "px-4 py-1.5 rounded-full text-[9px] font-black capitalize tracking-[0.2em] transition-all duration-200",
                                     isActive
                                         ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40"
                                         : "text-muted-foreground/60 hover:text-foreground hover:bg-muted"
@@ -161,13 +161,13 @@ export function Navbar() {
                         <div className="hidden md:flex items-center gap-1">
                             <Link
                                 href="/login"
-                                className="px-3 py-1.5 text-[9px] font-black uppercase tracking-[0.2em] text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                className="px-3 py-1.5 text-[9px] font-black capitalize tracking-[0.2em] text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                             >
                                 Login
                             </Link>
                             <Link
                                 href="/register"
-                                className="px-4 py-1.5 bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center rounded-full text-[9px] font-black uppercase tracking-widest hover:bg-blue-700 dark:hover:bg-blue-400 hover:scale-105 transition-all shadow-lg shadow-blue-500/20"
+                                className="px-4 py-1.5 bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center rounded-full text-[9px] font-black capitalize tracking-widest hover:bg-blue-700 dark:hover:bg-blue-400 hover:scale-105 transition-all shadow-lg shadow-blue-500/20"
                             >
                                 Start <UserIcon size={10} className="ml-2" />
                             </Link>

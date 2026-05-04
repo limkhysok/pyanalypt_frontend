@@ -146,7 +146,7 @@ export default function MLModelDetailPage() {
   if (loading) return (
     <div className="h-screen flex flex-col items-center justify-center space-y-4">
       <RefreshCw className="h-10 w-10 animate-spin text-primary" />
-      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Synchronizing model state...</p>
+      <p className="text-[10px] font-black capitalize tracking-widest text-muted-foreground">Synchronizing model state...</p>
     </div>
   );
 
@@ -166,11 +166,11 @@ export default function MLModelDetailPage() {
           <div>
             <div className="flex items-center gap-2 mb-0.5">
                <h1 className="text-xl font-black tracking-tight">{model.name}</h1>
-               <Badge className={cn("text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded-md", cfg.color)}>
+               <Badge className={cn("text-[9px] font-black capitalize tracking-widest px-2 py-0.5 rounded-md", cfg.color)}>
                  {cfg.label}
                </Badge>
             </div>
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest flex items-center gap-2">
+            <p className="text-[10px] font-bold text-muted-foreground capitalize tracking-widest flex items-center gap-2">
               <Cpu className="h-3 w-3" /> {model.algorithm} • {model.task_type}
             </p>
           </div>
@@ -195,7 +195,7 @@ export default function MLModelDetailPage() {
                <CardHeader className="pb-2">
                   <div className="flex items-center gap-2 text-primary">
                     <Trophy className="h-4 w-4" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Performance Metrics</span>
+                    <span className="text-[10px] font-black capitalize tracking-widest">Performance Metrics</span>
                   </div>
                </CardHeader>
                <CardContent className="space-y-6">
@@ -203,7 +203,7 @@ export default function MLModelDetailPage() {
                     <div className="grid grid-cols-1 gap-4">
                        {Object.entries(model.metrics).map(([key, val]) => (
                          <div key={key} className="p-4 rounded-2xl bg-muted/30 border border-border/20 flex items-center justify-between">
-                            <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">{key.replace('_', ' ')}</span>
+                            <span className="text-xs font-bold capitalize tracking-widest text-muted-foreground">{key.replace('_', ' ')}</span>
                             <span className="text-xl font-black text-primary">{(val * 100).toFixed(2)}{key.includes('score') || key.includes('accuracy') ? '%' : ''}</span>
                          </div>
                        ))}
@@ -221,7 +221,7 @@ export default function MLModelDetailPage() {
                <CardHeader className="pb-2">
                   <div className="flex items-center gap-2 text-primary">
                     <Database className="h-4 w-4" />
-                    <span className="text-[10px] font-black uppercase tracking-widest">Training Context</span>
+                    <span className="text-[10px] font-black capitalize tracking-widest">Training Context</span>
                   </div>
                </CardHeader>
                <CardContent className="space-y-4">
@@ -247,10 +247,10 @@ export default function MLModelDetailPage() {
           <div className="lg:col-span-8 space-y-8">
              <Tabs defaultValue="insights" className="w-full">
                 <TabsList className="h-12 w-full max-w-md bg-muted/40 p-1 rounded-2xl mb-6">
-                   <TabsTrigger value="insights" className="flex-1 rounded-xl font-bold uppercase tracking-widest text-[10px]">
+                   <TabsTrigger value="insights" className="flex-1 rounded-xl font-bold capitalize tracking-widest text-[10px]">
                       <BarChart3 className="h-3 w-3 mr-2" /> Model Insights
                    </TabsTrigger>
-                   <TabsTrigger value="predict" className="flex-1 rounded-xl font-bold uppercase tracking-widest text-[10px]">
+                   <TabsTrigger value="predict" className="flex-1 rounded-xl font-bold capitalize tracking-widest text-[10px]">
                       <Play className="h-3 w-3 mr-2" /> Make Prediction
                    </TabsTrigger>
                 </TabsList>
@@ -286,7 +286,7 @@ export default function MLModelDetailPage() {
                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             {model.feature_columns.map(col => (
                               <div key={col} className="space-y-2">
-                                <Label className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">{col}</Label>
+                                <Label className="text-[10px] font-black capitalize tracking-widest text-muted-foreground">{col}</Label>
                                 <Input 
                                   placeholder={`Value for ${col}`} 
                                   className="h-11 rounded-xl bg-muted/20 border-border/60 font-medium"
@@ -301,7 +301,7 @@ export default function MLModelDetailPage() {
                             <Button 
                               onClick={handlePredict} 
                               disabled={predicting || model.status !== 'completed'} 
-                              className="w-full md:w-auto rounded-xl h-12 px-8 font-black text-[11px] uppercase tracking-widest gap-2 shadow-lg shadow-primary/20"
+                              className="w-full md:w-auto rounded-xl h-12 px-8 font-black text-[11px] capitalize tracking-widest gap-2 shadow-lg shadow-primary/20"
                             >
                               {predicting ? <RefreshCw className="h-4 w-4 animate-spin" /> : <Zap className="h-4 w-4 fill-current" />}
                               Run Prediction
@@ -314,7 +314,7 @@ export default function MLModelDetailPage() {
                                        <Activity className="h-5 w-5" />
                                     </div>
                                     <div>
-                                       <p className="text-[10px] font-black uppercase tracking-widest text-primary/70">Prediction Result</p>
+                                       <p className="text-[10px] font-black capitalize tracking-widest text-primary/70">Prediction Result</p>
                                        <p className="text-xl font-black text-primary">
                                           {typeof predictionResult === 'number' ? predictionResult.toFixed(4) : predictionResult}
                                        </p>

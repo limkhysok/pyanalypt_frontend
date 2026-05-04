@@ -353,11 +353,11 @@ export default function DashboardsListPage() {
                       <div className="p-5 bg-slate-50 group-hover:bg-white transition-colors flex items-center justify-between">
                          <div className="flex items-center gap-4">
                             <div className="flex flex-col">
-                               <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest mb-1">widgets</span>
+                               <span className="text-[9px] font-bold text-muted-foreground/40 capitalize tracking-widest mb-1">widgets</span>
                                <span className="text-xs font-bold lowercase">{dash.widget_count || 0} items</span>
                             </div>
                             <div className="flex flex-col">
-                               <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest mb-1">updated</span>
+                               <span className="text-[9px] font-bold text-muted-foreground/40 capitalize tracking-widest mb-1">updated</span>
                                <span className="text-xs font-bold lowercase text-muted-foreground">{format(new Date(dash.updated_at), "MMM d")}</span>
                             </div>
                          </div>

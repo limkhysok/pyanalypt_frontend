@@ -42,7 +42,7 @@ function HeroSection({ onStart }: Readonly<{ onStart: () => void }>) {
             {/* Badge */}
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-800/50">
               <span className="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400" />
-              <span className="text-[10px] font-black text-blue-700 dark:text-blue-300 tracking-tight uppercase">
+              <span className="text-[10px] font-black text-blue-700 dark:text-blue-300 tracking-tight capitalize">
                 Now in Beta
               </span>
             </div>
@@ -176,7 +176,7 @@ function HeroSection({ onStart }: Readonly<{ onStart: () => void }>) {
                       <p className="text-[10px] md:text-[11px] font-bold text-muted-foreground lowercase opacity-70">instance: px-9802</p>
                     </div>
                   </div>
-                  <div className="h-8 md:h-10 px-3 md:px-4 rounded-lg md:rounded-xl border border-blue-200/60 dark:border-blue-800/40 bg-blue-50/50 dark:bg-blue-950/30 flex items-center text-[10px] font-black tracking-widest text-blue-700 dark:text-blue-300 uppercase shadow-sm">
+                  <div className="h-8 md:h-10 px-3 md:px-4 rounded-lg md:rounded-xl border border-blue-200/60 dark:border-blue-800/40 bg-blue-50/50 dark:bg-blue-950/30 flex items-center text-[10px] font-black tracking-widest text-blue-700 dark:text-blue-300 capitalize shadow-sm">
                     0.4s
                   </div>
                 </div>

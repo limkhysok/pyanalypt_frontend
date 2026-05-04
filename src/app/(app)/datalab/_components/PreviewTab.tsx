@@ -26,13 +26,12 @@ import { CellDisplay } from "./CellDisplay";
 import { HeaderContent } from "./HeaderContent";
 
 function PreviewCell({
-    col, raw, isEditing, hasError, errorMsg,
+    raw, isEditing, hasError, errorMsg,
     isRowSelected, isColSelected,
     onStartEdit, onCommit, onCancel, onClearSelection,
     onMoveRight, onMoveDown,
     cellSubmittingRef,
 }: Readonly<{
-    col: string;
     raw: unknown;
     isEditing: boolean;
     hasError: boolean;
@@ -52,19 +51,19 @@ function PreviewCell({
     const isSelected = isRowSelected || isColSelected;
     const isCross = isRowSelected && isColSelected;
 
-    let textStyle = "text-foreground/80";
+    let textStyle = "text-foreground/90";
     let bgClass = "";
 
     if (hasError) {
         textStyle = "text-destructive";
-        bgClass = "bg-destructive/5";
+        bgClass = "bg-destructive/10";
     } else if (isNull && !isSelected) {
         textStyle = "text-muted-foreground/30 italic";
-        bgClass = "bg-red-600/5";
+        bgClass = "bg-destructive/5";
     } else if (isCross) {
-        bgClass = "bg-primary/20";
+        bgClass = "bg-primary/25";
     } else if (isSelected) {
-        bgClass = "bg-primary/10";
+        bgClass = "bg-primary/15";
     }
 
     return (
@@ -420,7 +419,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
 
                 {/* ── Column picker panel ── */}
                 {colPickerOpen && (
-                    <div className="border-b px-4 py-3 space-y-2 bg-muted/10">
+                    <div className="border-b px-4 py-3 space-y-2 bg-muted/30">
                         <div className="flex items-center justify-between">
                             <span className="text-xs font-semibold text-muted-foreground">
                                 {visibleColumns.length} of {columns.length} columns visible
@@ -467,7 +466,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
 
                 {/* ── Selection action bar ── */}
                 {hasSelection && (
-                    <div className="border-b px-4 py-1.5 flex items-center gap-3 bg-primary/5">
+                    <div className="border-b px-4 py-1.5 flex items-center gap-3 bg-primary/10">
                         <span className="text-xs font-mono text-primary">
                             {selectionLabel}
                         </span>
@@ -579,7 +578,6 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                                                 return (
                                                     <PreviewCell
                                                         key={col}
-                                                        col={col}
                                                         raw={row[col]}
                                                         isEditing={isEditing}
                                                         hasError={hasError}
@@ -606,7 +604,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                 </ScrollArea>
 
                 {/* ── Row count strip ── */}
-                <div className="border-t px-4 py-1.5 flex items-center gap-3 bg-muted/10">
+                <div className="border-t px-4 py-1.5 flex items-center gap-3 bg-muted/30">
                     <span className="text-xs text-muted-foreground font-mono">
                         {rowCountLabel}
                     </span>

@@ -43,7 +43,6 @@ type NavItemDef = {
 
 const WORKSPACE_ITEMS: NavItemDef[] = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, shortcut: "G D" },
-    { label: "Dashboards", href: "/dashboards", icon: BarChart3,      shortcut: "G B" },
     { label: "Datasets",  href: "/datasets",  icon: Database,         shortcut: "G S" },
     { label: "DataLab",   href: "/datalab",   icon: FlaskConical,     shortcut: "G L" },
     { label: "EDA",       href: "/eda",       icon: TrendingUp,       shortcut: "G E" },
@@ -51,21 +50,20 @@ const WORKSPACE_ITEMS: NavItemDef[] = [
 ];
 
 const RESULTS_ITEMS: NavItemDef[] = [
-    { label: "Visualization", href: "/visualization", icon: PieChart,  shortcut: "G V" },
-    { label: "Analysis",      href: "/analysis",      icon: BarChart3, shortcut: "G A" },
-    { label: "Reports",       href: "/reports",       icon: BookOpen,  shortcut: "G R" },
+    { label: "Visualization", href: "/visualization", icon: PieChart, shortcut: "G V" },
+    { label: "Dashboards",    href: "/dashboards",    icon: BarChart3, shortcut: "G B" },
+    { label: "Reports",       href: "/reports",       icon: BookOpen, shortcut: "G R" },
 ];
 
 /** G + key → route */
 const SHORTCUT_MAP: Record<string, string> = {
     D: "/dashboard",
-    B: "/dashboards",
     S: "/datasets",
-    M: "/mlstudio",
     L: "/datalab",
     E: "/eda",
+    M: "/mlstudio",
     V: "/visualization",
-    A: "/analysis",
+    B: "/dashboards",
     R: "/reports",
     ",": "/profile/setting",
 };
@@ -288,7 +286,7 @@ export function AppSidebar() {
 
                 {/* Workspace group */}
                 <SidebarGroup className="px-0 gap-0">
-                    <SidebarGroupLabel className="h-8 px-4 text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40 group-data-[collapsible=icon]:hidden">
+                    <SidebarGroupLabel className="h-8 px-4 text-[10px] font-semibold capitalize tracking-widest text-sidebar-foreground/40 group-data-[collapsible=icon]:hidden">
                         Workspace
                     </SidebarGroupLabel>
                     <SidebarGroupContent>
@@ -302,7 +300,7 @@ export function AppSidebar() {
 
                 {/* Results group */}
                 <SidebarGroup className="px-0 gap-0 mt-4">
-                    <SidebarGroupLabel className="h-8 px-4 text-[10px] font-semibold uppercase tracking-widest text-sidebar-foreground/40 group-data-[collapsible=icon]:hidden">
+                    <SidebarGroupLabel className="h-8 px-4 text-[10px] font-semibold capitalize tracking-widest text-sidebar-foreground/40 group-data-[collapsible=icon]:hidden">
                         Results
                     </SidebarGroupLabel>
                     <SidebarGroupContent>

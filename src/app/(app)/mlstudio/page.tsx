@@ -240,14 +240,14 @@ export default function MLStudioListPage() {
                         <div className="p-5 bg-slate-50 group-hover:bg-white transition-colors space-y-4">
                            <div className="flex items-center justify-between">
                               <div className="flex flex-col">
-                                 <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest mb-1">dataset</span>
+                                 <span className="text-[9px] font-bold text-muted-foreground/40 capitalize tracking-widest mb-1">dataset</span>
                                  <div className="flex items-center gap-1.5">
                                     <Database className="h-3 w-3 text-blue-500" />
                                     <span className="text-xs font-bold lowercase truncate max-w-[120px]">{model.dataset_name || "untitled"}</span>
                                  </div>
                               </div>
                               <div className="flex flex-col text-right">
-                                 <span className="text-[9px] font-bold text-muted-foreground/40 uppercase tracking-widest mb-1">created</span>
+                                 <span className="text-[9px] font-bold text-muted-foreground/40 capitalize tracking-widest mb-1">created</span>
                                  <span className="text-xs font-bold lowercase text-muted-foreground">{format(new Date(model.created_at), "MMM d, yyyy")}</span>
                               </div>
                            </div>

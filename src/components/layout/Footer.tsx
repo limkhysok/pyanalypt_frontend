@@ -21,21 +21,21 @@ export function Footer() {
                         <Link href="/" className="flex items-center gap-3 group/logo relative">
                             <Logo className="w-8 h-8 transition-all duration-500 group-hover/logo:scale-110 grayscale group-hover/logo:grayscale-0" />
                             <div className="flex flex-col -gap-0.5">
-                                <span className="text-[13px] font-black tracking-tighter text-foreground uppercase opacity-80">
+                                <span className="text-[13px] font-black tracking-tighter text-foreground capitalize opacity-80">
                                     PyAnalypt
                                 </span>
-                                <span className="text-[7px] font-black tracking-[0.3em] text-muted-foreground uppercase opacity-40">Intelligence OS</span>
+                                <span className="text-[7px] font-black tracking-[0.3em] text-muted-foreground capitalize opacity-40">Intelligence OS</span>
                             </div>
                         </Link>
                         <div className="h-4 w-px bg-border/40 hidden xl:block" />
-                        <p className="hidden xl:block text-[9px] font-bold text-muted-foreground uppercase tracking-widest opacity-30 max-w-40 leading-tight">
+                        <p className="hidden xl:block text-[9px] font-bold text-muted-foreground capitalize tracking-widest opacity-30 max-w-40 leading-tight">
                             Intelligence built for modern engineering.
                         </p>
                     </div>
 
                     {/* ── Navigation HUD Cluster ── */}
                     <nav aria-label="Footer" className="md:px-2 w-full md:w-auto">
-                        <ul className="grid grid-cols-2 md:flex md:items-center justify-center gap-x-8 gap-y-6 md:gap-x-12 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+                        <ul className="grid grid-cols-2 md:flex md:items-center justify-center gap-x-8 gap-y-6 md:gap-x-12 text-[10px] font-black capitalize tracking-[0.2em] text-muted-foreground">
                             <li className="flex justify-center md:justify-start"><Link href="/" className="hover:text-foreground transition-all flex items-center gap-2.5 group/link"><Home size={12} className="opacity-40 group-hover/link:opacity-100 transition-opacity" /> Home</Link></li>
                             <li className="flex justify-center md:justify-start"><Link href="/visuals" className="hover:text-foreground transition-all flex items-center gap-2.5 group/link"><BarChart3 size={12} className="opacity-40 group-hover/link:opacity-100 transition-opacity" /> Visuals</Link></li>
                             <li className="flex justify-center md:justify-start"><Link href="/playground" className="hover:text-foreground transition-all flex items-center gap-2.5 group/link"><FlaskConical size={12} className="opacity-40 group-hover/link:opacity-100 transition-opacity" /> Lab</Link></li>
@@ -65,12 +65,12 @@ export function Footer() {
                         <div className="h-6 w-px bg-border/40 hidden md:block" />
 
                         <div className="flex flex-col items-center md:items-end gap-1.5 pt-0.5">
-                            <p className="text-[9px] text-muted-foreground font-black uppercase tracking-[0.4em] opacity-30">
+                            <p className="text-[9px] text-muted-foreground font-black capitalize tracking-[0.4em] opacity-30">
                                 © {new Date().getFullYear()} PyAnalypt
                             </p>
                             <div className="flex items-center gap-2 opacity-20 cursor-default">
                                 <div className="w-1 h-1 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.4)]" />
-                                <span className="text-[7px] font-black uppercase tracking-widest text-foreground">Operational Status Nom.</span>
+                                <span className="text-[7px] font-black capitalize tracking-widest text-foreground">Operational Status Nom.</span>
                             </div>
                         </div>
                     </div>

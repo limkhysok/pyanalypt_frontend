@@ -172,7 +172,7 @@ export default function MLStudioTrainPage() {
           <div className="h-8 w-[1px] bg-border/60 mx-2" />
           <div>
             <h1 className="text-lg font-black tracking-tight leading-none">Train New Model</h1>
-            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">
+            <p className="text-[10px] font-bold text-muted-foreground capitalize tracking-widest mt-1">
               Step {currentStep} of {STEPS.length} • {STEPS[currentStep-1].label}
             </p>
           </div>
@@ -228,7 +228,7 @@ export default function MLStudioTrainPage() {
                     {isCompleted ? <Check className="h-5 w-5" /> : <StepIcon className="h-5 w-5" />}
                   </div>
                   <span className={cn(
-                    "text-[10px] font-black uppercase tracking-[0.1em] transition-colors duration-500",
+                    "text-[10px] font-black capitalize tracking-[0.1em] transition-colors duration-500",
                     labelStyle
                   )}>
                     {step.label}
@@ -269,7 +269,7 @@ export default function MLStudioTrainPage() {
                           </div>
                           <div className="flex-1 min-w-0">
                             <p className="font-bold truncate text-sm">{ds.file_name}</p>
-                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">{ds.file_format.toUpperCase()}</p>
+                            <p className="text-[10px] font-bold text-muted-foreground capitalize tracking-widest">{ds.file_format.toUpperCase()}</p>
                           </div>
                           {selectedDatasetId === ds.id.toString() && <Check className="text-primary h-5 w-5" />}
                         </CardContent>
@@ -300,7 +300,7 @@ export default function MLStudioTrainPage() {
                            {type === 'classification' && <ListTodo className="h-8 w-8" />}
                            {type === 'clustering' && <Sparkles className="h-8 w-8" />}
                         </div>
-                        <span className="font-bold uppercase tracking-[0.15em] text-xs font-mono">{type}</span>
+                        <span className="font-bold capitalize tracking-[0.15em] text-xs font-mono">{type}</span>
                       </button>
                     ))}
                   </div>
@@ -375,8 +375,8 @@ export default function MLStudioTrainPage() {
                     ))}
                   </div>
                   <div className="flex gap-2 pt-2">
-                    <Button variant="ghost" size="sm" className="text-[10px] font-bold uppercase tracking-widest" onClick={() => setSelectedFeatures(columns.filter(c => c !== targetColumn))}>Select All</Button>
-                    <Button variant="ghost" size="sm" className="text-[10px] font-bold uppercase tracking-widest text-destructive" onClick={() => setSelectedFeatures([])}>Clear All</Button>
+                    <Button variant="ghost" size="sm" className="text-[10px] font-bold capitalize tracking-widest" onClick={() => setSelectedFeatures(columns.filter(c => c !== targetColumn))}>Select All</Button>
+                    <Button variant="ghost" size="sm" className="text-[10px] font-bold capitalize tracking-widest text-destructive" onClick={() => setSelectedFeatures([])}>Clear All</Button>
                   </div>
                 </div>
               </motion.div>
@@ -397,7 +397,7 @@ export default function MLStudioTrainPage() {
                   <div className="p-6 rounded-none bg-slate-50 border-2 border-foreground space-y-4">
                     <div className="flex items-center gap-2 text-foreground">
                        <Settings2 className="h-4 w-4" />
-                       <span className="text-[10px] font-black uppercase tracking-[0.1em] font-mono">General Info</span>
+                       <span className="text-[10px] font-black capitalize tracking-[0.1em] font-mono">General Info</span>
                     </div>
                     <div className="space-y-3">
                        <div className="flex justify-between text-xs lowercase font-mono">
@@ -414,12 +414,12 @@ export default function MLStudioTrainPage() {
                   <div className="p-6 rounded-none bg-slate-50 border-2 border-foreground space-y-4">
                     <div className="flex items-center gap-2 text-foreground">
                        <BrainCircuit className="h-4 w-4" />
-                       <span className="text-[10px] font-black uppercase tracking-[0.1em] font-mono">Architecture</span>
+                       <span className="text-[10px] font-black capitalize tracking-[0.1em] font-mono">Architecture</span>
                     </div>
                     <div className="space-y-3">
                        <div className="flex justify-between text-xs lowercase font-mono">
                           <span className="text-muted-foreground/60">task</span>
-                          <Badge className="font-bold uppercase tracking-widest text-[9px] rounded-none border-foreground bg-foreground text-background">{taskType}</Badge>
+                          <Badge className="font-bold capitalize tracking-widest text-[9px] rounded-none border-foreground bg-foreground text-background">{taskType}</Badge>
                        </div>
                        <div className="flex justify-between text-xs lowercase font-mono">
                           <span className="text-muted-foreground/60">algorithm</span>
@@ -433,7 +433,7 @@ export default function MLStudioTrainPage() {
                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-foreground">
                          <Target className="h-4 w-4" />
-                         <span className="text-[10px] font-black uppercase tracking-[0.1em] font-mono">Target & Features</span>
+                         <span className="text-[10px] font-black capitalize tracking-[0.1em] font-mono">Target & Features</span>
                       </div>
                       <span className="text-[10px] font-bold text-muted-foreground/60 lowercase">{selectedFeatures.length} features selected</span>
                    </div>

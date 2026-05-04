@@ -53,7 +53,7 @@ export function DescribeTab({ data, preview }: Readonly<{
             <DatasetMetaStrip data={preview} />
 
             <Card className="rounded-none shadow-sm overflow-hidden">
-                <CardHeader className="px-5 py-3 border-b border-slate-200 bg-slate-50">
+                <CardHeader className="px-5 py-3 border-b border-border bg-muted/40">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
                             <BarChart2 className="h-4 w-4 text-muted-foreground" />
@@ -65,7 +65,7 @@ export function DescribeTab({ data, preview }: Readonly<{
                     </div>
                 </CardHeader>
 
-                <div className="border-b border-slate-200 px-5 py-2 flex items-center gap-2">
+                <div className="border-b border-border px-5 py-2 flex items-center gap-2">
                     <Search className="h-4 w-4 text-muted-foreground/50 shrink-0" />
                     <input
                         type="text"
@@ -93,19 +93,19 @@ export function DescribeTab({ data, preview }: Readonly<{
                 <CardContent className="p-0">
                     {numericNames.length > 0 && (
                         <>
-                            <div className="px-5 py-2 bg-slate-50 border-b border-slate-200 flex items-center gap-1.5">
-                                <span className="text-xs font-semibold text-gray-500 tracking-wider uppercase">Numeric</span>
-                                <span className="text-xs text-gray-400 font-mono">({numericNames.length})</span>
+                            <div className="px-5 py-2 bg-muted/40 border-b border-border flex items-center gap-1.5">
+                                <span className="text-xs font-semibold text-muted-foreground tracking-wider capitalize">Numeric</span>
+                                <span className="text-xs text-muted-foreground/40 font-mono">({numericNames.length})</span>
                             </div>
                             <ScrollArea className="w-full">
                                 <table className="border-collapse min-w-full">
                                     <thead>
-                                        <tr className="bg-slate-50 border-b border-slate-200">
-                                            <th className="sticky left-0 z-10 bg-slate-50 px-5 py-3 text-xs font-semibold text-gray-600 text-left border-r border-slate-200 min-w-20 whitespace-nowrap">
+                                        <tr className="bg-muted/40 border-b border-border">
+                                            <th className="sticky left-0 z-10 bg-muted px-5 py-3 text-xs font-semibold text-muted-foreground text-left border-r border-border min-w-20 whitespace-nowrap">
                                                 stat
                                             </th>
                                             {numericNames.map((col) => (
-                                                <th key={col} className="px-5 py-3 text-xs font-semibold font-mono text-right whitespace-nowrap text-gray-900">
+                                                <th key={col} className="px-5 py-3 text-xs font-semibold font-mono text-right whitespace-nowrap text-foreground">
                                                     {col}
                                                 </th>
                                             ))}
@@ -113,12 +113,12 @@ export function DescribeTab({ data, preview }: Readonly<{
                                     </thead>
                                     <tbody>
                                         {NUMERIC_STATS.map((stat) => (
-                                            <tr key={stat} className="border-b border-slate-200 hover:bg-blue-50 transition-colors even:bg-gray-50">
-                                                <td className="sticky left-0 z-10 bg-white px-5 py-2.5 text-xs font-mono font-semibold text-gray-400 border-r border-slate-200 whitespace-nowrap">
+                                            <tr key={stat} className="border-b border-border hover:bg-muted/30 transition-colors even:bg-muted/10">
+                                                <td className="sticky left-0 z-10 bg-background px-5 py-2.5 text-xs font-mono font-semibold text-muted-foreground/60 border-r border-border whitespace-nowrap">
                                                     {stat}
                                                 </td>
                                                 {numericNames.map((col) => (
-                                                    <td key={col} className="px-5 py-2.5 text-xs tabular-nums text-right text-gray-600 whitespace-nowrap">
+                                                    <td key={col} className="px-5 py-2.5 text-xs tabular-nums text-right text-muted-foreground whitespace-nowrap">
                                                         {fmtNum(numericCols[col][stat as keyof DataLabDescribeNumericStats])}
                                                     </td>
                                                 ))}
@@ -134,21 +134,21 @@ export function DescribeTab({ data, preview }: Readonly<{
                     {categoricalNames.length > 0 && (
                         <>
                             <div className={cn(
-                                "px-5 py-2 bg-slate-50 border-b border-slate-200 flex items-center gap-1.5",
+                                "px-5 py-2 bg-muted/40 border-b border-border flex items-center gap-1.5",
                                 numericNames.length > 0 && "border-t"
                             )}>
-                                <span className="text-xs font-semibold text-gray-500 tracking-wider uppercase">Categorical / String</span>
-                                <span className="text-xs text-gray-400 font-mono">({categoricalNames.length})</span>
+                                <span className="text-xs font-semibold text-muted-foreground tracking-wider capitalize">Categorical / String</span>
+                                <span className="text-xs text-muted-foreground/40 font-mono">({categoricalNames.length})</span>
                             </div>
                             <ScrollArea className="w-full">
                                 <table className="border-collapse min-w-full">
                                     <thead>
-                                        <tr className="bg-slate-50 border-b border-slate-200">
-                                            <th className="sticky left-0 z-10 bg-slate-50 px-5 py-3 text-xs font-semibold text-gray-600 text-left border-r border-slate-200 min-w-20 whitespace-nowrap">
+                                        <tr className="bg-muted/40 border-b border-border">
+                                            <th className="sticky left-0 z-10 bg-muted px-5 py-3 text-xs font-semibold text-muted-foreground text-left border-r border-border min-w-20 whitespace-nowrap">
                                                 stat
                                             </th>
                                             {categoricalNames.map((col) => (
-                                                <th key={col} className="px-5 py-3 text-xs font-semibold font-mono text-right whitespace-nowrap text-gray-900">
+                                                <th key={col} className="px-5 py-3 text-xs font-semibold font-mono text-right whitespace-nowrap text-foreground">
                                                     {col}
                                                 </th>
                                             ))}
@@ -156,8 +156,8 @@ export function DescribeTab({ data, preview }: Readonly<{
                                     </thead>
                                     <tbody>
                                         {CATEGORICAL_STATS.map((stat) => (
-                                            <tr key={stat} className="border-b border-slate-200 hover:bg-blue-50 transition-colors even:bg-gray-50">
-                                                <td className="sticky left-0 z-10 bg-white px-5 py-2.5 text-xs font-mono font-semibold text-gray-400 border-r border-slate-200 whitespace-nowrap">
+                                            <tr key={stat} className="border-b border-border hover:bg-muted/30 transition-colors even:bg-muted/10">
+                                                <td className="sticky left-0 z-10 bg-background px-5 py-2.5 text-xs font-mono font-semibold text-muted-foreground/60 border-r border-border whitespace-nowrap">
                                                     {stat}
                                                 </td>
                                                 {categoricalNames.map((col) => {
@@ -165,7 +165,7 @@ export function DescribeTab({ data, preview }: Readonly<{
                                                     return (
                                                         <td key={col} className={cn(
                                                             "px-5 py-2.5 text-xs whitespace-nowrap text-right",
-                                                            stat === "top" ? "font-mono text-gray-600" : "tabular-nums text-right text-gray-600"
+                                                            stat === "top" ? "font-mono text-muted-foreground" : "tabular-nums text-right text-muted-foreground"
                                                         )}>
                                                             {fmtNum(val as number | string | undefined | null)}
                                                         </td>
