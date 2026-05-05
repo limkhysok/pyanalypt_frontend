@@ -46,11 +46,13 @@ export default function VisualizationPage() {
         <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
 
             {/* ── Header ── */}
-            <div className="flex items-center gap-3">
-                <BarChart2 className="h-7 w-7 text-primary" />
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight font-mono">Visualization</h1>
-                    <p className="text-sm text-muted-foreground mt-1">Build charts from your cleaned datasets</p>
+            <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                    <BarChart2 className="h-6 w-6 text-primary shrink-0" />
+                    <div className="flex items-baseline gap-2.5 flex-wrap">
+                        <h1 className="text-2xl font-bold tracking-tight font-mono leading-none">Visualization</h1>
+                        <span className="text-sm text-muted-foreground leading-none">/ Build charts from your cleaned datasets</span>
+                    </div>
                 </div>
             </div>
 
@@ -67,8 +69,8 @@ export default function VisualizationPage() {
                                 className={cn(
                                     "px-3 py-2.5 inline-flex items-center gap-1.5 text-xs rounded-none transition-all whitespace-nowrap border-b-2 focus-visible:outline-none",
                                     chartType === value
-                                        ? "text-blue-600 font-bold border-blue-600 bg-blue-50/60"
-                                        : "text-gray-500 hover:text-gray-900 hover:bg-slate-50 border-transparent"
+                                        ? "text-primary font-bold border-primary bg-primary/5"
+                                        : "text-muted-foreground hover:text-foreground hover:bg-muted/40 border-transparent"
                                 )}
                             >
                                 <Icon className="h-3.5 w-3.5 shrink-0" />

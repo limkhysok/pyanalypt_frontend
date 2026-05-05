@@ -282,11 +282,13 @@ export default function DataLabPage() {
         <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
 
             {/* ── Header ── */}
-            <div className="flex items-center gap-3">
-                <FlaskConical className="h-7 w-7 text-primary" />
-                <div>
-                    <h1 className="text-2xl font-bold tracking-tight font-mono">DataLab</h1>
-                    <p className="text-sm text-muted-foreground mt-1">Inspect and preview your datasets</p>
+            <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                    <FlaskConical className="h-6 w-6 text-primary shrink-0" />
+                    <div className="flex items-baseline gap-2.5 flex-wrap">
+                        <h1 className="text-2xl font-bold tracking-tight font-mono leading-none">DataLab</h1>
+                        <span className="text-sm text-muted-foreground leading-none">/ Inspect and preview your datasets</span>
+                    </div>
                 </div>
             </div>
 

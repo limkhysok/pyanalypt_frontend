@@ -21,41 +21,36 @@ export function DatasetHeader({ uploadLoading, onFormatSelect }: Readonly<Datase
     return (
         <div className="flex items-center justify-between gap-4">
             <div className="flex items-center gap-3">
-                <Database className="h-6 w-6 text-foreground/80" strokeWidth={1.5} />
-                <div>
-                    <h1 className="text-xl font-bold tracking-tight leading-none font-mono capitalize">Datasets</h1>
-                    <p className="text-[10px] font-bold text-muted-foreground mt-2 capitalize tracking-tight">
-                        Manage and organize your data workspace. 
-                        <span className="ml-2 text-muted-foreground/40 font-mono">Size limit: 25MB</span>
-                    </p>
+                <Database className="h-6 w-6 text-primary shrink-0" />
+                <div className="flex items-baseline gap-2.5 flex-wrap">
+                    <h1 className="text-2xl font-bold tracking-tight font-mono leading-none">Datasets</h1>
+                    <span className="text-sm text-muted-foreground leading-none">/  Manage and organize your data workspace<span className="ml-1.5 text-xs text-muted-foreground/40 font-mono">· 25MB limit</span></span>
                 </div>
             </div>
 
             <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                     <Button
+                        size="sm"
                         disabled={uploadLoading}
-                        className="rounded-none h-11 px-8 bg-foreground hover:bg-foreground/90 text-background font-bold text-xs capitalize tracking-widest transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:shadow-[6px_6px_0px_0px_rgba(0,0,0,0.15)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none border border-foreground/10 group"
+                        className="h-8 gap-2 text-xs rounded-none capitalize bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white border-0"
                     >
                         {uploadLoading ? (
-                            <Loader2 className="mr-3 h-4 w-4 animate-spin" />
+                            <Loader2 className="h-3.5 w-3.5 animate-spin" />
                         ) : (
-                            <Plus className="mr-3 h-4 w-4 transition-transform group-hover:rotate-90 duration-300" />
+                            <Plus className="h-3.5 w-3.5" />
                         )}
-                        {uploadLoading ? "Uploading..." : "Import dataset"}
+                        {uploadLoading ? "Uploading…" : "Import dataset"}
                     </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="rounded-none border-border shadow-none min-w-50 p-1.5">
-                    <div className="px-3 py-2.5 text-xs font-bold text-muted-foreground/50 border-b border-border/50 mb-1.5">
-                        select file format
-                    </div>
+                <DropdownMenuContent align="end" className="rounded-none w-40 shadow-md">
                     {FORMATS.map((fmt) => (
                         <DropdownMenuItem
                             key={fmt}
-                            className="rounded-none text-sm font-semibold h-10 cursor-pointer focus:bg-primary focus:text-primary-foreground"
+                            className="rounded-none gap-2 text-xs cursor-pointer"
                             onClick={() => onFormatSelect(fmt)}
                         >
-                            {fmt.toLowerCase()}
+                            {fmt.toUpperCase()}
                         </DropdownMenuItem>
                     ))}
                 </DropdownMenuContent>

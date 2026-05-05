@@ -16,6 +16,7 @@ import type {
   DatasetExportFormat,
   DatasetActivityLog,
   PaginatedResponse,
+  WorkspaceSummary,
 } from '@/types/dataset';
 
 export const datasetApi = {
@@ -77,8 +78,9 @@ export const datasetApi = {
       });
 
       const disposition = response.headers['content-disposition'] as string | undefined;
-      const filenameMatch = disposition?.match(/filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/i);
-      const filename = filenameMatch?.[1] || filenameMatch?.[2] || null;
+      const filenamePattern = /filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/i;
+      const filenameMatch = disposition != null ? filenamePattern.exec(disposition) : null;
+      const filename = filenameMatch?.[1] ?? filenameMatch?.[2] ?? null;
       const contentType = (response.headers['content-type'] as string | undefined) ?? null;
 
       return {
@@ -107,7 +109,7 @@ export const datasetApi = {
   /**
    * Get workspace summary for the dashboard.
    */
-  async workspaceSummary(): Promise<any> {
+  async workspaceSummary(): Promise<WorkspaceSummary> {
     const response = await apiClient.get('datasets/workspace_summary/');
     return response.data;
   },

@@ -57,7 +57,7 @@ export default function DatasetsPage() {
     } = useDatasets();
 
     return (
-        <main className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
+        <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
 
             <DatasetHeader
                 uploadLoading={uploadLoading}
@@ -65,79 +65,64 @@ export default function DatasetsPage() {
             />
 
             <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                {/* ── Tab bar ── */}
-                <div className="flex items-center justify-between border-b border-border/60 mb-6 px-1">
-                    <div className="flex items-stretch gap-1">
-                        {DATASET_TABS.map(({ value, icon: Icon, label }) => (
+
+                {/* ── Tab bar — mirrors Datalab page style ── */}
+                <div className="flex items-stretch border-b border-border mb-4">
+                    {DATASET_TABS.map(({ value, icon: Icon, label }) => {
+                        const isActive = activeTab === value;
+                        return (
                             <button
                                 key={value}
                                 type="button"
                                 onClick={() => setActiveTab(value)}
                                 className={cn(
-                                    "relative px-4 py-3 flex items-center gap-2.5 text-[11px] font-bold capitalize tracking-widest transition-all focus-visible:outline-none group",
-                                    activeTab === value
-                                        ? "text-foreground"
-                                        : "text-muted-foreground hover:text-foreground"
+                                    "px-3 h-10 inline-flex items-center gap-1.5 text-xs rounded-none transition-all whitespace-nowrap border-b-2 focus-visible:outline-none",
+                                    isActive
+                                        ? "text-primary font-bold border-primary bg-primary/5"
+                                        : "text-muted-foreground hover:text-foreground hover:bg-muted/40 border-transparent"
                                 )}
                             >
-                                <Icon className={cn(
-                                    "h-3.5 w-3.5 transition-transform duration-300",
-                                    activeTab === value ? "scale-110" : "group-hover:scale-110"
-                                )} />
-                                {label}
-                                {activeTab === value && (
-                                    <motion.div
-                                        layoutId="activeTab"
-                                        className="absolute bottom-0 left-0 right-0 h-0.5 bg-foreground"
-                                        transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                                    />
-                                )}
+                                <Icon className="h-3.5 w-3.5 shrink-0" />
+                                <span>{label}</span>
                             </button>
-                        ))}
-                    </div>
-
-                    <div className="hidden sm:flex items-center gap-2 text-[10px] font-bold text-muted-foreground/40 capitalize tracking-tighter">
-                        <Activity className="h-3 w-3" />
-                        <span>Live Workspace Status</span>
-                    </div>
+                        );
+                    })}
                 </div>
 
-                <TabsContent value="artifacts" className="space-y-8 outline-none mt-0">
-                    <div className="space-y-6">
-                        <DatasetControls
-                            searchQuery={searchQuery}
-                            onSearchChange={setSearchQuery}
-                            sortBy={sortBy}
-                            onSortChange={setSortBy}
-                            filterType={filterType}
-                            onFilterChange={setFilterType}
-                            countLabel={countLabel}
-                            showCount={datasets.length > 0}
+                <TabsContent value="artifacts" className="space-y-4 outline-none mt-0">
+                    <DatasetControls
+                        searchQuery={searchQuery}
+                        onSearchChange={setSearchQuery}
+                        sortBy={sortBy}
+                        onSortChange={setSortBy}
+                        filterType={filterType}
+                        onFilterChange={setFilterType}
+                        countLabel={countLabel}
+                        showCount={datasets.length > 0}
+                    />
+                    <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        <DatasetTable
+                            datasets={datasets}
+                            filteredDatasets={filteredDatasets}
+                            isLoading={isLoading}
+                            exportingDatasetId={exportingDatasetId}
+                            onFormatSelect={handleImportFormatSelect}
+                            onRename={handleRenameOpen}
+                            onExport={handleExport}
+                            onDuplicate={handleDuplicate}
+                            onDelete={handleRemoveOpen}
                         />
-
-                        <motion.div
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ duration: 0.4, delay: 0.2 }}
-                        >
-                            <DatasetTable
-                                datasets={datasets}
-                                filteredDatasets={filteredDatasets}
-                                isLoading={isLoading}
-                                exportingDatasetId={exportingDatasetId}
-                                onFormatSelect={handleImportFormatSelect}
-                                onRename={handleRenameOpen}
-                                onExport={handleExport}
-                                onDuplicate={handleDuplicate}
-                                onDelete={handleRemoveOpen}
-                            />
-                        </motion.div>
-                    </div>
+                    </motion.div>
                 </TabsContent>
 
                 <TabsContent value="logs" className="outline-none mt-0">
                     <DatasetLogs logs={activityLogs} isLoading={logsLoading} />
                 </TabsContent>
+
             </Tabs>
 
             <RenameDialog
@@ -164,6 +149,6 @@ export default function DatasetsPage() {
                 accept={importAccept}
                 disabled={uploadLoading}
             />
-        </main>
+        </div>
     );
 }

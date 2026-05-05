@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Loader2, BookOpen, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-    Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+    Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import {
     Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
@@ -111,6 +111,9 @@ export function SaveToReportModal({ open, onOpenChange, chartType, chartParams, 
                     <DialogTitle className="flex items-center gap-2 text-sm font-semibold">
                         <BookOpen className="h-4 w-4" /> Save to Report
                     </DialogTitle>
+                    <DialogDescription className="text-xs text-muted-foreground">
+                        Choose an existing report or create a new one to save this chart.
+                    </DialogDescription>
                 </DialogHeader>
 
                 <div className="flex flex-col gap-4 py-2">

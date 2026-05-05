@@ -25,46 +25,8 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { cn } from "@/lib/utils";
 import { datasetApi } from "@/services/dataset.service";
+import { WorkspaceSummary } from "@/types/dataset";
 
-// ─── Types ──────────────────────────────────────────────────────────────────
-
-interface WorkspaceStat {
-    value: string;
-    trend: string;
-    trend_up: boolean;
-}
-
-interface WorkspaceSummary {
-    stats: {
-        total_datasets: WorkspaceStat;
-        total_analyses: WorkspaceStat;
-        total_insights: WorkspaceStat;
-        storage_used: {
-            value: string;
-            label: string;
-            pct: number;
-            trend_up: boolean;
-        };
-    };
-    recent_datasets: Array<{
-        id: number;
-        name: string;
-        status: string;
-        updated: string;
-        rows?: number;
-    }>;
-    activity_feed: Array<{
-        action: string;
-        label: string;
-        sub: string;
-        time: string;
-    }>;
-    chart_data: {
-        days: string[];
-        analyses: number[];
-        datasets: number[];
-    };
-}
 
 const STATUS_CONFIG: Record<string, { icon: React.ElementType; label: string; className: string }> = {
     ready:      { icon: CheckCircle2, label: "Ready",      className: "text-blue-500 bg-blue-500/10 border-blue-500/20"     },
@@ -188,7 +150,7 @@ export default function DashboardPage() {
         { title: "Total Datasets", value: summary.stats.total_datasets.value, label: "files uploaded", trend: summary.stats.total_datasets.trend, trendUp: summary.stats.total_datasets.trend_up, icon: Database },
         { title: "Analyses Run", value: summary.stats.total_analyses.value, label: "jobs completed", trend: summary.stats.total_analyses.trend, trendUp: summary.stats.total_analyses.trend_up, icon: Activity },
         { title: "Insights Found", value: summary.stats.total_insights.value, label: "auto-detections", trend: summary.stats.total_insights.trend, trendUp: summary.stats.total_insights.trend_up, icon: TrendingUp },
-        { title: "Storage Used", value: summary.stats.storage_used.value, label: summary.stats.storage_used.label, trend: `${summary.stats.storage_used.pct}% capacity`, trendUp: false, icon: HardDrive },
+        { title: "Storage Used", value: summary.stats.storage_used.value, label: summary.stats.storage_used.label ?? "storage", trend: `${summary.stats.storage_used.pct ?? 0}% capacity`, trendUp: false, icon: HardDrive },
     ] : [];
 
     const recentDatasets = summary?.recent_datasets || [];
@@ -272,14 +234,14 @@ export default function DashboardPage() {
                         </CardHeader>
                         <CardContent className="p-4">
                             <ul className="space-y-2" aria-label="Recent activity">
-                                {activityFeed.length > 0 ? activityFeed.map((item) => {
+                                {activityFeed.length > 0 ? activityFeed.map((item, i) => {
                                     let Icon = CheckCircle2;
                                     let color = "text-blue-500";
                                     let bg = "bg-blue-500/10";
                                     if (item.action === "UPLOAD") { Icon = Upload; color = "text-foreground/60"; bg = "bg-secondary/60"; }
                                     if (item.action === "AI_ANALYSIS") { Icon = Search; color = "text-blue-500"; bg = "bg-blue-500/10"; }
                                     return (
-                                        <li key={`${item.label}-${item.time}`} className="flex items-start gap-3 p-3 rounded-2xl hover:bg-secondary/40 transition-colors">
+                                        <li key={`${item.label}-${item.time}-${i}`} className="flex items-start gap-3 p-3 rounded-2xl hover:bg-secondary/40 transition-colors">
                                             <div className={cn("w-7 h-7 rounded-xl flex items-center justify-center shrink-0 mt-0.5", bg)}>
                                                 <Icon size={13} className={color} />
                                             </div>

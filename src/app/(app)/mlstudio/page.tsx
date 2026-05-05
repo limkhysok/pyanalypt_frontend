@@ -9,13 +9,11 @@ import {
   Search, 
   MoreVertical, 
   Trash2, 
-  Play, 
   Activity,
   CheckCircle2,
   AlertCircle,
   Clock,
   Database,
-  BarChart3,
   Cpu,
   RefreshCw
 } from "lucide-react";
@@ -80,22 +78,111 @@ export default function MLStudioListPage() {
     m.task_type.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  function renderModelGrid() {
+    if (loading) {
+      return [1, 2, 3].map(i => (
+        <Card key={i} className="h-48 rounded-none border-slate-200 animate-pulse bg-slate-50/50" />
+      ));
+    }
+    if (filteredModels.length === 0) {
+      return (
+        <div className="col-span-full py-20 border border-dashed border-slate-300 flex flex-col items-center justify-center text-center">
+          <p className="text-sm font-bold text-muted-foreground/60 lowercase">no models found in this view</p>
+        </div>
+      );
+    }
+    return filteredModels.map((model, i) => {
+      const cfg = STATUS_CONFIG[model.status] || STATUS_CONFIG.failed;
+      return (
+        <motion.div
+          key={model.id}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: i * 0.05 }}
+        >
+          <Card className="group bg-background border border-slate-200 rounded-none shadow-none hover:border-slate-400 transition-all">
+            <CardContent className="p-0">
+              <div className="p-5 border-b border-slate-100">
+                <div className="flex justify-between items-start mb-3">
+                  <div className="h-10 w-10 border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors">
+                    <Cpu className="h-5 w-5" />
+                  </div>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-none text-muted-foreground">
+                        <MoreVertical className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="rounded-none border-border shadow-none p-1.5">
+                      <DropdownMenuItem asChild className="rounded-none text-sm font-semibold cursor-pointer">
+                        <Link href={`/mlstudio/${model.id}`}>view details</Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem className="text-rose-600 rounded-none text-sm font-semibold cursor-pointer" onClick={() => handleDelete(model.id)}>
+                        <Trash2 className="mr-2 h-4 w-4" /> delete
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+                <h3 className="text-base font-bold tracking-tight lowercase truncate">{model.name}</h3>
+                <div className="flex items-center gap-1.5 mt-1">
+                  <Activity className="h-3 w-3 text-muted-foreground/50" />
+                  <span className="text-[10px] font-bold text-muted-foreground lowercase">{model.algorithm} • {model.task_type}</span>
+                </div>
+              </div>
+
+              <div className="p-5 bg-slate-50 group-hover:bg-white transition-colors space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-col">
+                    <span className="text-[9px] font-bold text-muted-foreground/40 capitalize tracking-widest mb-1">dataset</span>
+                    <div className="flex items-center gap-1.5">
+                      <Database className="h-3 w-3 text-blue-500" />
+                      <span className="text-xs font-bold lowercase truncate max-w-[120px]">{model.dataset_name || "untitled"}</span>
+                    </div>
+                  </div>
+                  <div className="flex flex-col text-right">
+                    <span className="text-[9px] font-bold text-muted-foreground/40 capitalize tracking-widest mb-1">created</span>
+                    <span className="text-xs font-bold lowercase text-muted-foreground">{format(new Date(model.created_at), "MMM d, yyyy")}</span>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between pt-2 border-t border-slate-100">
+                  <div className={cn(
+                    "flex items-center gap-1.5 px-2 py-1 border text-[10px] font-bold lowercase",
+                    cfg.color
+                  )}>
+                    <cfg.icon className="h-3 w-3" />
+                    {cfg.label}
+                  </div>
+                  <Button asChild size="sm" variant="outline" className="rounded-none h-8 px-4 text-xs font-bold lowercase border-slate-200 hover:border-slate-800 transition-all">
+                    <Link href={`/mlstudio/${model.id}`}>
+                      {model.status === 'completed' ? 'predict' : 'open'}
+                    </Link>
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </motion.div>
+      );
+    });
+  }
+
   return (
     <main className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
       
       {/* ── Header ── */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <BrainCircuit className="h-7 w-7 text-primary" />
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight leading-none font-mono">ML Studio</h1>
-            <p className="text-xs text-muted-foreground mt-1">Train and manage predictive models. Automation power for your data.</p>
+          <BrainCircuit className="h-6 w-6 text-primary shrink-0" />
+          <div className="flex items-baseline gap-2.5 flex-wrap">
+            <h1 className="text-2xl font-bold tracking-tight font-mono leading-none">ML Studio</h1>
+            <span className="text-sm text-muted-foreground leading-none">/ Train and manage predictive models</span>
           </div>
         </div>
 
-        <Button asChild className="rounded-none h-10 px-6 bg-foreground hover:bg-foreground/90 text-background font-bold text-sm tracking-normal transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none border border-foreground/10">
+        <Button asChild size="sm" className="h-8 gap-2 text-xs rounded-none capitalize bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white border-0">
           <Link href="/mlstudio/train">
-            <Plus className="mr-2.5 h-4 w-4" /> Train new model
+            <Plus className="h-3.5 w-3.5" /> Train new model
           </Link>
         </Button>
       </div>
@@ -159,8 +246,8 @@ export default function MLStudioListPage() {
               className={cn(
                 "px-3 py-2.5 inline-flex items-center gap-1.5 text-xs rounded-none transition-all whitespace-nowrap border-b-2 focus-visible:outline-none lowercase",
                 activeTab === tab.value
-                  ? "text-blue-600 font-bold border-blue-600 bg-blue-50/60"
-                  : "text-gray-500 hover:text-gray-900 hover:bg-slate-50 border-transparent"
+                  ? "text-primary font-bold border-primary bg-primary/5"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/40 border-transparent"
               )}
             >
               <tab.icon className="h-3.5 w-3.5 shrink-0" />
@@ -189,90 +276,7 @@ export default function MLStudioListPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {loading ? (
-              [1, 2, 3].map(i => (
-                <Card key={i} className="h-48 rounded-none border-slate-200 animate-pulse bg-slate-50/50" />
-              ))
-            ) : filteredModels.length === 0 ? (
-               <div className="col-span-full py-20 border border-dashed border-slate-300 flex flex-col items-center justify-center text-center">
-                  <p className="text-sm font-bold text-muted-foreground/60 lowercase">no models found in this view</p>
-               </div>
-            ) : (
-              filteredModels.map((model, i) => {
-                const cfg = STATUS_CONFIG[model.status] || STATUS_CONFIG.failed;
-                return (
-                  <motion.div
-                    key={model.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                  >
-                    <Card className="group bg-background border border-slate-200 rounded-none shadow-none hover:border-slate-400 transition-all">
-                      <CardContent className="p-0">
-                        <div className="p-5 border-b border-slate-100">
-                          <div className="flex justify-between items-start mb-3">
-                            <div className="h-10 w-10 border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors">
-                              <Cpu className="h-5 w-5" />
-                            </div>
-                            <DropdownMenu>
-                              <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="icon" className="h-8 w-8 rounded-none text-muted-foreground">
-                                  <MoreVertical className="h-4 w-4" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuContent align="end" className="rounded-none border-border shadow-none p-1.5">
-                                <DropdownMenuItem asChild className="rounded-none text-sm font-semibold cursor-pointer">
-                                  <Link href={`/mlstudio/${model.id}`}>view details</Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem className="text-rose-600 rounded-none text-sm font-semibold cursor-pointer" onClick={() => handleDelete(model.id)}>
-                                  <Trash2 className="mr-2 h-4 w-4" /> delete
-                                </DropdownMenuItem>
-                              </DropdownMenuContent>
-                            </DropdownMenu>
-                          </div>
-                          <h3 className="text-base font-bold tracking-tight lowercase truncate">{model.name}</h3>
-                          <div className="flex items-center gap-1.5 mt-1">
-                            <Activity className="h-3 w-3 text-muted-foreground/50" />
-                            <span className="text-[10px] font-bold text-muted-foreground lowercase">{model.algorithm} • {model.task_type}</span>
-                          </div>
-                        </div>
-
-                        <div className="p-5 bg-slate-50 group-hover:bg-white transition-colors space-y-4">
-                           <div className="flex items-center justify-between">
-                              <div className="flex flex-col">
-                                 <span className="text-[9px] font-bold text-muted-foreground/40 capitalize tracking-widest mb-1">dataset</span>
-                                 <div className="flex items-center gap-1.5">
-                                    <Database className="h-3 w-3 text-blue-500" />
-                                    <span className="text-xs font-bold lowercase truncate max-w-[120px]">{model.dataset_name || "untitled"}</span>
-                                 </div>
-                              </div>
-                              <div className="flex flex-col text-right">
-                                 <span className="text-[9px] font-bold text-muted-foreground/40 capitalize tracking-widest mb-1">created</span>
-                                 <span className="text-xs font-bold lowercase text-muted-foreground">{format(new Date(model.created_at), "MMM d, yyyy")}</span>
-                              </div>
-                           </div>
-
-                           <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                              <div className={cn(
-                                "flex items-center gap-1.5 px-2 py-1 border text-[10px] font-bold lowercase",
-                                cfg.color
-                              )}>
-                                <cfg.icon className="h-3 w-3" />
-                                {cfg.label}
-                              </div>
-                              <Button asChild size="sm" variant="outline" className="rounded-none h-8 px-4 text-xs font-bold lowercase border-slate-200 hover:border-slate-800 transition-all">
-                                <Link href={`/mlstudio/${model.id}`}>
-                                  {model.status === 'completed' ? 'predict' : 'open'}
-                                </Link>
-                              </Button>
-                           </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </motion.div>
-                );
-              })
-            )}
+            {renderModelGrid()}
           </div>
         </div>
       </div>

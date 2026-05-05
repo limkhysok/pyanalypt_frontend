@@ -92,7 +92,7 @@ export default function DashboardsListPage() {
     }
   }
 
-  async function handleCreate(e: React.FormEvent) {
+  async function handleCreate(e: React.SyntheticEvent) {
     e.preventDefault();
     if (!newTitle.trim()) {
       toast.error("Please enter a dashboard title");
@@ -109,7 +109,7 @@ export default function DashboardsListPage() {
       const newDash = await dashboardsApi.create({ 
         title: newTitle,
         description: newDescription,
-        dataset_id: parseInt(selectedDatasetId)
+        dataset_id: Number.parseInt(selectedDatasetId)
       });
       setDashboards([newDash, ...dashboards]);
       toast.success("Dashboard created");
@@ -130,23 +130,93 @@ export default function DashboardsListPage() {
     d.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  function renderDashboardGrid() {
+    if (loading) {
+      return [1, 2, 3].map(i => (
+        <Card key={i} className="h-48 rounded-none border-slate-200 animate-pulse bg-slate-50/50" />
+      ));
+    }
+    if (filteredDashboards.length === 0) {
+      return (
+        <div className="col-span-full py-20 border border-dashed border-slate-300 flex flex-col items-center justify-center text-center">
+          <p className="text-sm font-bold text-muted-foreground/60 lowercase">no boards found in this view</p>
+        </div>
+      );
+    }
+    return filteredDashboards.map((dash, i) => (
+      <motion.div
+        key={dash.id}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: i * 0.05 }}
+      >
+        <Card className="group bg-background border border-slate-200 rounded-none shadow-none hover:border-slate-400 transition-all">
+          <CardContent className="p-0">
+            <div className="p-5 border-b border-slate-100">
+              <div className="flex justify-between items-start mb-3">
+                <div className="h-10 w-10 border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors">
+                  <BarChart3 className="h-5 w-5" />
+                </div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8 rounded-none text-muted-foreground">
+                      <MoreVertical className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="rounded-none border-border shadow-none p-1.5">
+                    <DropdownMenuItem className="rounded-none text-sm font-semibold cursor-pointer">rename</DropdownMenuItem>
+                    <DropdownMenuItem className="text-rose-600 rounded-none text-sm font-semibold cursor-pointer" onClick={() => handleDelete(dash.id)}>
+                      <Trash2 className="mr-2 h-4 w-4" /> delete
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+              <h3 className="text-base font-bold tracking-tight lowercase truncate">{dash.title}</h3>
+              <p className="text-[10px] text-muted-foreground font-medium mt-1 lowercase line-clamp-1 h-4">
+                {dash.description || "no description provided"}
+              </p>
+            </div>
+
+            <div className="p-5 bg-slate-50 group-hover:bg-white transition-colors flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="flex flex-col">
+                  <span className="text-[9px] font-bold text-muted-foreground/40 capitalize tracking-widest mb-1">widgets</span>
+                  <span className="text-xs font-bold lowercase">{dash.widget_count || 0} items</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-[9px] font-bold text-muted-foreground/40 capitalize tracking-widest mb-1">updated</span>
+                  <span className="text-xs font-bold lowercase text-muted-foreground">{format(new Date(dash.updated_at), "MMM d")}</span>
+                </div>
+              </div>
+              <Button asChild size="sm" variant="outline" className="rounded-none h-8 px-4 text-xs font-bold lowercase border-slate-200 hover:border-slate-800 transition-all">
+                <Link href={`/dashboards/${dash.id}`}>
+                  view board
+                </Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </motion.div>
+    ));
+  }
+
   return (
     <main className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
       
       {/* ── Header ── */}
       <div className="flex items-center justify-between gap-4">
         <div className="flex items-center gap-3">
-          <LayoutDashboard className="h-7 w-7 text-primary" />
-          <div>
-            <h1 className="text-2xl font-bold tracking-tight leading-none font-mono">Dashboards</h1>
-            <p className="text-xs text-muted-foreground mt-1">Organize insights into interactive boards. Data visualization at scale.</p>
+          <LayoutDashboard className="h-6 w-6 text-primary shrink-0" />
+          <div className="flex items-baseline gap-2.5 flex-wrap">
+            <h1 className="text-2xl font-bold tracking-tight font-mono leading-none">Dashboards</h1>
+            <span className="text-sm text-muted-foreground leading-none">/ Organize insights into interactive boards</span>
           </div>
         </div>
 
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="rounded-none h-10 px-6 bg-foreground hover:bg-foreground/90 text-background font-bold text-sm tracking-normal transition-all shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none border border-foreground/10">
-              <Plus className="mr-2.5 h-4 w-4" /> New dashboard
+            <Button size="sm" className="h-8 gap-2 text-xs rounded-none capitalize bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white border-0">
+              <Plus className="h-3.5 w-3.5" /> New dashboard
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px] rounded-none border-2 border-foreground shadow-[8px_8px_0px_0px_rgba(0,0,0,0.1)]">
@@ -277,8 +347,8 @@ export default function DashboardsListPage() {
               className={cn(
                 "px-3 py-2.5 inline-flex items-center gap-1.5 text-xs rounded-none transition-all whitespace-nowrap border-b-2 focus-visible:outline-none lowercase",
                 activeTab === tab.value
-                  ? "text-blue-600 font-bold border-blue-600 bg-blue-50/60"
-                  : "text-gray-500 hover:text-gray-900 hover:bg-slate-50 border-transparent"
+                  ? "text-primary font-bold border-primary bg-primary/5"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/40 border-transparent"
               )}
             >
               <tab.icon className="h-3.5 w-3.5 shrink-0" />
@@ -307,71 +377,7 @@ export default function DashboardsListPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {loading ? (
-              [1, 2, 3].map(i => (
-                <Card key={i} className="h-48 rounded-none border-slate-200 animate-pulse bg-slate-50/50" />
-              ))
-            ) : filteredDashboards.length === 0 ? (
-               <div className="col-span-full py-20 border border-dashed border-slate-300 flex flex-col items-center justify-center text-center">
-                  <p className="text-sm font-bold text-muted-foreground/60 lowercase">no boards found in this view</p>
-               </div>
-            ) : (
-              filteredDashboards.map((dash, i) => (
-                <motion.div
-                  key={dash.id}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: i * 0.05 }}
-                >
-                  <Card className="group bg-background border border-slate-200 rounded-none shadow-none hover:border-slate-400 transition-all">
-                    <CardContent className="p-0">
-                      <div className="p-5 border-b border-slate-100">
-                        <div className="flex justify-between items-start mb-3">
-                          <div className="h-10 w-10 border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors">
-                            <BarChart3 className="h-5 w-5" />
-                          </div>
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <Button variant="ghost" size="icon" className="h-8 w-8 rounded-none text-muted-foreground">
-                                <MoreVertical className="h-4 w-4" />
-                              </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="rounded-none border-border shadow-none p-1.5">
-                              <DropdownMenuItem className="rounded-none text-sm font-semibold cursor-pointer">rename</DropdownMenuItem>
-                              <DropdownMenuItem className="text-rose-600 rounded-none text-sm font-semibold cursor-pointer" onClick={() => handleDelete(dash.id)}>
-                                <Trash2 className="mr-2 h-4 w-4" /> delete
-                              </DropdownMenuItem>
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        </div>
-                        <h3 className="text-base font-bold tracking-tight lowercase truncate">{dash.title}</h3>
-                        <p className="text-[10px] text-muted-foreground font-medium mt-1 lowercase line-clamp-1 h-4">
-                           {dash.description || "no description provided"}
-                        </p>
-                      </div>
-
-                      <div className="p-5 bg-slate-50 group-hover:bg-white transition-colors flex items-center justify-between">
-                         <div className="flex items-center gap-4">
-                            <div className="flex flex-col">
-                               <span className="text-[9px] font-bold text-muted-foreground/40 capitalize tracking-widest mb-1">widgets</span>
-                               <span className="text-xs font-bold lowercase">{dash.widget_count || 0} items</span>
-                            </div>
-                            <div className="flex flex-col">
-                               <span className="text-[9px] font-bold text-muted-foreground/40 capitalize tracking-widest mb-1">updated</span>
-                               <span className="text-xs font-bold lowercase text-muted-foreground">{format(new Date(dash.updated_at), "MMM d")}</span>
-                            </div>
-                         </div>
-                         <Button asChild size="sm" variant="outline" className="rounded-none h-8 px-4 text-xs font-bold lowercase border-slate-200 hover:border-slate-800 transition-all">
-                           <Link href={`/dashboards/${dash.id}`}>
-                             view board
-                           </Link>
-                         </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </motion.div>
-              ))
-            )}
+            {renderDashboardGrid()}
           </div>
         </div>
       </div>

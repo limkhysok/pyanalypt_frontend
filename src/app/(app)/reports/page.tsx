@@ -1,13 +1,13 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import {
     BookOpen, Plus, Trash2, FileText, Loader2, Calendar, LayoutGrid,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
-    Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter,
+    Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { reportsApi, type Report } from "@/services/reports.service";
@@ -56,6 +56,9 @@ function NewReportDialog({ open, onOpenChange, onCreated }: Readonly<NewReportDi
             <DialogContent className="rounded-none max-w-md">
                 <DialogHeader>
                     <DialogTitle className="text-sm font-semibold">New Report</DialogTitle>
+                    <DialogDescription className="text-xs text-muted-foreground">
+                        Create a new report to save and share charts and insights.
+                    </DialogDescription>
                 </DialogHeader>
                 <div className="flex flex-col gap-3 py-2">
                     <div className="flex flex-col gap-1.5">
@@ -125,10 +128,10 @@ function DeleteDialog({ report, onClose, onDeleted }: Readonly<DeleteDialogProps
             <DialogContent className="rounded-none max-w-sm">
                 <DialogHeader>
                     <DialogTitle className="text-sm font-semibold">Delete Report</DialogTitle>
+                    <DialogDescription className="text-xs text-muted-foreground pt-1">
+                        Delete <span className="font-semibold text-foreground">&quot;{report?.title}&quot;</span> and all its items? This cannot be undone.
+                    </DialogDescription>
                 </DialogHeader>
-                <p className="text-xs text-muted-foreground py-2">
-                    Delete <span className="font-semibold text-foreground">"{report?.title}"</span> and all its items? This cannot be undone.
-                </p>
                 <DialogFooter>
                     <Button variant="outline" size="sm" className="rounded-none" onClick={onClose} disabled={deleting}>
                         Cancel
@@ -147,17 +150,13 @@ function DeleteDialog({ report, onClose, onDeleted }: Readonly<DeleteDialogProps
 interface ReportCardProps {
     report: Report;
     onDelete: (report: Report) => void;
-    onClick: () => void;
 }
 
-function ReportCard({ report, onDelete, onClick }: Readonly<ReportCardProps>) {
+function ReportCard({ report, onDelete }: Readonly<ReportCardProps>) {
     return (
-        <div
-            className="group border border-border bg-card hover:border-border/80 hover:bg-accent/5 transition-colors cursor-pointer flex flex-col gap-0"
-            onClick={onClick}
-        >
-            <div className="flex items-start justify-between gap-3 p-4 pb-3">
-                <div className="flex items-start gap-3 min-w-0">
+        <div className="group relative border border-border bg-card hover:border-border/80 hover:bg-accent/5 transition-colors flex flex-col gap-0">
+            <Link href={`/reports/${report.id}`} className="flex flex-col gap-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1">
+                <div className="flex items-start gap-3 p-4 pb-3 min-w-0 pr-10">
                     <div className="mt-0.5 shrink-0 flex h-8 w-8 items-center justify-center bg-blue-50 text-blue-600 border border-blue-100">
                         <FileText className="h-4 w-4" />
                     </div>
@@ -168,50 +167,55 @@ function ReportCard({ report, onDelete, onClick }: Readonly<ReportCardProps>) {
                         )}
                     </div>
                 </div>
-                <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 rounded-none shrink-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
-                    onClick={e => { e.stopPropagation(); onDelete(report); }}
-                >
-                    <Trash2 className="h-3.5 w-3.5" />
-                </Button>
-            </div>
 
-            <div className="border-t border-border/60 px-4 py-2.5 flex items-center gap-4 text-[11px] text-muted-foreground">
-                <span className="flex items-center gap-1">
-                    <LayoutGrid className="h-3 w-3" />
-                    {report.item_count} {report.item_count === 1 ? "item" : "items"}
-                </span>
-                {report.dataset_name && (
-                    <span className="truncate">{report.dataset_name}</span>
-                )}
-                <span className="ml-auto flex items-center gap-1 shrink-0">
-                    <Calendar className="h-3 w-3" />
-                    {formatDate(report.updated_at)}
-                </span>
-            </div>
+                <div className="border-t border-border/60 px-4 py-2.5 flex items-center gap-4 text-[11px] text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                        <LayoutGrid className="h-3 w-3" />
+                        {report.item_count} {report.item_count === 1 ? "item" : "items"}
+                    </span>
+                    {report.dataset_name && (
+                        <span className="truncate">{report.dataset_name}</span>
+                    )}
+                    <span className="ml-auto flex items-center gap-1 shrink-0">
+                        <Calendar className="h-3 w-3" />
+                        {formatDate(report.updated_at)}
+                    </span>
+                </div>
+            </Link>
+
+            {/* Delete button — absolute positioned, outside the link */}
+            <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-2 right-2 h-7 w-7 rounded-none shrink-0 opacity-0 group-hover:opacity-100 text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-all"
+                onClick={e => { e.preventDefault(); onDelete(report); }}
+            >
+                <Trash2 className="h-3.5 w-3.5" />
+            </Button>
         </div>
     );
 }
 
 // ── Page ───────────────────────────────────────────────────────────────────────
 export default function ReportsPage() {
-    const router = useRouter();
     const [reports, setReports] = useState<Report[]>([]);
     const [loading, setLoading] = useState(true);
     const [newOpen, setNewOpen] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState<Report | null>(null);
 
-    const load = useCallback(() => {
+    const load = useCallback(async () => {
         setLoading(true);
-        reportsApi.list()
-            .then(setReports)
-            .catch(() => toast.error("Failed to load reports."))
-            .finally(() => setLoading(false));
+        try {
+            const data = await reportsApi.list();
+            setReports(data);
+        } catch {
+            toast.error("Failed to load reports.");
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
-    useEffect(() => { load(); }, [load]);
+    useEffect(() => { void load(); }, [load]);
 
     function handleCreated(report: Report) {
         setReports(prev => [report, ...prev]);
@@ -221,30 +225,17 @@ export default function ReportsPage() {
         setReports(prev => prev.filter(r => r.id !== id));
     }
 
-    return (
-        <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
-
-            {/* Header */}
-            <div className="flex items-center justify-between gap-4">
-                <div className="flex items-center gap-3">
-                    <BookOpen className="h-7 w-7 text-primary" />
-                    <div>
-                        <h1 className="text-2xl font-bold tracking-tight font-mono">Reports</h1>
-                        <p className="text-sm text-muted-foreground mt-1">Save charts and insights into shareable reports</p>
-                    </div>
-                </div>
-                <Button size="sm" className="rounded-none gap-1.5" onClick={() => setNewOpen(true)}>
-                    <Plus className="h-3.5 w-3.5" /> New Report
-                </Button>
-            </div>
-
-            {/* Content */}
-            {loading ? (
+    function renderContent() {
+        if (loading) {
+            return (
                 <div className="border border-slate-200 bg-muted/5 h-64 flex items-center justify-center gap-2 text-muted-foreground">
                     <Loader2 className="h-5 w-5 animate-spin" />
                     <span className="text-sm">Loading reports…</span>
                 </div>
-            ) : reports.length === 0 ? (
+            );
+        }
+        if (reports.length === 0) {
+            return (
                 <div className="border border-slate-200 bg-muted/5 h-64 flex flex-col items-center justify-center gap-3 text-muted-foreground">
                     <BookOpen className="h-10 w-10 opacity-20" />
                     <p className="text-sm font-medium">No reports yet</p>
@@ -253,18 +244,40 @@ export default function ReportsPage() {
                         <Plus className="h-3.5 w-3.5" /> New Report
                     </Button>
                 </div>
-            ) : (
-                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                    {reports.map(report => (
-                        <ReportCard
-                            key={report.id}
-                            report={report}
-                            onDelete={setDeleteTarget}
-                            onClick={() => router.push(`/reports/${report.id}`)}
-                        />
-                    ))}
+            );
+        }
+        return (
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                {reports.map(report => (
+                    <ReportCard
+                        key={report.id}
+                        report={report}
+                        onDelete={setDeleteTarget}
+                    />
+                ))}
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
+
+            {/* Header */}
+            <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                    <BookOpen className="h-6 w-6 text-primary shrink-0" />
+                    <div className="flex items-baseline gap-2.5 flex-wrap">
+                        <h1 className="text-2xl font-bold tracking-tight font-mono leading-none">Reports</h1>
+                        <span className="text-sm text-muted-foreground leading-none">/ Save charts and insights into shareable reports</span>
+                    </div>
                 </div>
-            )}
+                <Button size="sm" className="h-8 gap-2 text-xs rounded-none capitalize bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white border-0" onClick={() => setNewOpen(true)}>
+                    <Plus className="h-3.5 w-3.5" /> New Report
+                </Button>
+            </div>
+
+            {/* Content */}
+            {renderContent()}
 
             <NewReportDialog open={newOpen} onOpenChange={setNewOpen} onCreated={handleCreated} />
             <DeleteDialog report={deleteTarget} onClose={() => setDeleteTarget(null)} onDeleted={handleDeleted} />
