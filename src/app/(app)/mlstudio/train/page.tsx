@@ -60,6 +60,7 @@ export default function MLStudioTrainPage() {
   const [selectedAlgorithm, setSelectedAlgorithm] = useState<string>("");
   const [targetColumn, setTargetColumn] = useState<string>("");
   const [selectedFeatures, setSelectedFeatures] = useState<string[]>([]);
+  const [hyperparameters, setHyperparameters] = useState<Record<string, string | number>>({});
 
   const loadInitialData = React.useCallback(async () => {
     try {
@@ -110,6 +111,14 @@ export default function MLStudioTrainPage() {
   }, [taskType, loadAlgorithms]);
 
   useEffect(() => {
+    const algo = algorithms.find(a => a.id === selectedAlgorithm);
+    if (algo) {
+      // Initialize with empty object or defaults if you prefer
+      setHyperparameters({});
+    }
+  }, [selectedAlgorithm, algorithms]);
+
+  useEffect(() => {
     if (selectedDatasetId) {
       loadColumns(Number(selectedDatasetId));
     }
@@ -118,8 +127,24 @@ export default function MLStudioTrainPage() {
   const selectedDataset = datasets.find(d => d.id.toString() === selectedDatasetId);
 
   async function handleTrain() {
-    if (!name || !selectedDatasetId || !selectedAlgorithm) {
-      toast.error("Please fill in all required fields");
+    if (!name.trim()) {
+      toast.error("Please provide a name for your model");
+      return;
+    }
+    if (!selectedDatasetId) {
+      toast.error("Please select a dataset");
+      return;
+    }
+    if (!selectedAlgorithm) {
+      toast.error("Please select an algorithm");
+      return;
+    }
+    if (taskType !== 'clustering' && !targetColumn) {
+      toast.error("Please select a target column to predict");
+      return;
+    }
+    if (selectedFeatures.length === 0) {
+      toast.error("Please select at least one feature column");
       return;
     }
 
@@ -132,7 +157,7 @@ export default function MLStudioTrainPage() {
         algorithm: selectedAlgorithm,
         target_column: taskType === "clustering" ? undefined : targetColumn,
         feature_columns: selectedFeatures,
-        hyperparameters: {}
+        hyperparameters: hyperparameters
       });
       toast.success("Training started successfully");
       router.push(`/mlstudio/${model.id}`);
@@ -150,15 +175,20 @@ export default function MLStudioTrainPage() {
     );
   };
 
-  const isStepValid = () => {
-    if (currentStep === 1) return name && selectedDatasetId;
-    if (currentStep === 2) return selectedAlgorithm;
-    if (currentStep === 3) {
-      const hasFeatures = selectedFeatures.length > 0;
-      if (taskType === 'clustering') return hasFeatures;
-      return targetColumn && hasFeatures;
+
+  const handleNext = () => {
+    if (currentStep === 1) {
+      if (!name.trim()) return toast.error("Please provide a name for your model");
+      if (!selectedDatasetId) return toast.error("Please select a dataset");
     }
-    return true;
+    if (currentStep === 2) {
+      if (!selectedAlgorithm) return toast.error("Please select an algorithm");
+    }
+    if (currentStep === 3) {
+      if (taskType !== 'clustering' && !targetColumn) return toast.error("Please select a target column");
+      if (selectedFeatures.length === 0) return toast.error("Please select at least one feature");
+    }
+    setCurrentStep(prev => prev + 1);
   };
 
   return (
@@ -182,8 +212,7 @@ export default function MLStudioTrainPage() {
            {currentStep < 4 ? (
               <Button 
                 className="rounded-none h-10 px-6 font-bold gap-2 bg-foreground text-background shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:bg-foreground/90 transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none lowercase"
-                disabled={!isStepValid()}
-                onClick={() => setCurrentStep(prev => prev + 1)}
+                onClick={handleNext}
               >
                 next step <ChevronRight className="h-4 w-4" />
               </Button>
@@ -328,6 +357,40 @@ export default function MLStudioTrainPage() {
                     </SelectContent>
                   </Select>
                 </div>
+
+                {selectedAlgorithm && algorithms.find(a => a.id === selectedAlgorithm)?.hyperparams && Object.keys(algorithms.find(a => a.id === selectedAlgorithm)!.hyperparams).length > 0 && (
+                  <div className="space-y-6 pt-4 border-t border-slate-100">
+                    <Label className="text-xl font-black tracking-tight flex items-center gap-2">
+                       <Settings2 className="h-5 w-5 text-primary" /> Fine-tune Parameters
+                    </Label>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                      {Object.entries(algorithms.find(a => a.id === selectedAlgorithm)!.hyperparams).map(([key, type]) => (
+                        <div key={key} className="space-y-2">
+                          <Label className="text-xs font-black uppercase tracking-widest text-muted-foreground">{key.replaceAll('_', ' ')}</Label>
+                          <Input 
+                            type={type === 'int' || type === 'float' ? 'number' : 'text'}
+                            step={type === 'float' ? '0.01' : '1'}
+                            placeholder={`Enter ${key}`}
+                            className="h-12 rounded-none bg-slate-50 border-2 border-foreground/10 font-bold focus:border-foreground"
+                            value={hyperparameters[key] || ""}
+                            onChange={(e) => {
+                              const val = e.target.value;
+                              let parsedVal: string | number = val;
+                              if (type === "int") parsedVal = Number.parseInt(val, 10);
+                              else if (type === "float") parsedVal = Number.parseFloat(val);
+                              
+                              setHyperparameters(prev => ({
+                                ...prev,
+                                [key]: parsedVal
+                              }));
+                            }}
+                          />
+                          <p className="text-[10px] font-medium text-slate-400 italic">Expected type: {type}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </motion.div>
             )}
 
@@ -462,8 +525,8 @@ export default function MLStudioTrainPage() {
              {currentStep < 4 && (
                <Button 
                 variant="outline" 
-                className="rounded-xl h-12 px-8 font-bold gap-2"
-                onClick={() => setCurrentStep(prev => prev + 1)}
+                className="rounded-none h-12 px-8 font-bold gap-2 border-2 border-foreground hover:bg-slate-50 transition-all"
+                onClick={handleNext}
                >
                  Continue <ChevronRight className="h-4 w-4" />
                </Button>

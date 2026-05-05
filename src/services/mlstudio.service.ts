@@ -12,9 +12,14 @@ export interface MLModel {
   target_column: string | null;
   feature_columns: string[];
   hyperparameters: Record<string, unknown>;
-  status: 'training' | 'completed' | 'failed';
+  status: 'pending' | 'training' | 'completed' | 'failed';
   metrics: Record<string, number> | null;
-  feature_importance: Record<string, number> | null;
+  feature_importance: { feature: string; importance: number; importance_pct: number }[] | null;
+  label_classes: string[];
+  train_samples: number | null;
+  test_samples: number | null;
+  training_time_seconds: number | null;
+  allowed_hyperparams: Record<string, string>;
   created_at: string;
   updated_at: string;
 }
@@ -30,17 +35,33 @@ export interface TrainModelPayload {
 }
 
 export interface PredictionPayload {
-  data: Record<string, unknown>[];
+  dataset_id?: number;
+  data?: Record<string, unknown>[];
+}
+
+export interface PredictionItem {
+  row_index: number;
+  prediction: number | string;
 }
 
 export interface PredictionResponse {
-  predictions: unknown[];
+  predictions: (number | string | PredictionItem)[];
+  model_id?: number;
+  model_name?: string;
+  dataset_id?: number;
+  task_type?: TaskType;
+  algorithm?: string;
+  feature_columns?: string[];
+  target_column?: string | null;
+  label_classes?: string[];
+  total_rows?: number;
+  predicted_rows?: number;
 }
 
 export interface Algorithm {
-  id: string;
-  name: string;
-  description: string;
+  id: string;   // same as the algorithm key, e.g. "linear", "ridge"
+  name: string; // human-readable label
+  hyperparams: Record<string, string>;
 }
 
 export const mlStudioApi = {
@@ -72,6 +93,13 @@ export const mlStudioApi = {
     const res = await apiClient.get('mlstudio/algorithms/', {
       params: { task_type: taskType },
     });
-    return Array.isArray(res.data) ? res.data : (res.data.results ?? []);
+    // Backend returns: { "regression": [{algorithm: "linear", hyperparams: {...}}, ...] }
+    const taskData: { algorithm: string; hyperparams: Record<string, string> }[] =
+      res.data?.[taskType] ?? [];
+    return taskData.map((item) => ({
+      id: item.algorithm,
+      name: item.algorithm.replaceAll('_', ' ').replaceAll(/\b\w/g, (c) => c.toUpperCase()),
+      hyperparams: item.hyperparams,
+    }));
   },
 };

@@ -24,15 +24,18 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { mlStudioApi, type MLModel } from "@/services/mlstudio.service";
+import { mlStudioApi, type MLModel, type PredictionResponse, type PredictionItem } from "@/services/mlstudio.service";
+import { datasetApi } from "@/services/dataset.service";
+import { type Dataset } from "@/types/dataset";
 import EChart from "@/components/ui/EChart";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
 
 const STATUS_CONFIG = {
+  pending: { icon: Clock, label: "Pending", color: "text-slate-500 bg-slate-500/10 border-slate-500/20" },
   training: { icon: Clock, label: "Training", color: "text-amber-500 bg-amber-500/10 border-amber-500/20" },
-  completed: { icon: CheckCircle2, label: "Completed", color: "text-blue-500 bg-blue-500/10 border-blue-500/20" },
+  completed: { icon: CheckCircle2, label: "Completed", color: "text-green-500 bg-green-500/10 border-green-500/20" },
   failed: { icon: AlertCircle, label: "Failed", color: "text-destructive bg-destructive/10 border-destructive/20" },
 };
 
@@ -46,13 +49,15 @@ export default function MLModelDetailPage() {
   const [loading, setLoading] = useState(true);
   const [predicting, setPredicting] = useState(false);
   const [predictionInput, setPredictionInput] = useState<Record<string, string>>({});
-  const [predictionResult, setPredictionResult] = useState<any>(null);
+  const [predictionResult, setPredictionResult] = useState<string | number | null>(null);
+  
+  // Batch Prediction State
+  const [allDatasets, setAllDatasets] = useState<Dataset[]>([]);
+  const [selectedBatchDatasetId, setSelectedBatchDatasetId] = useState<string>("");
+  const [batchResults, setBatchResults] = useState<PredictionResponse | null>(null);
+  const [batchLoading, setBatchLoading] = useState(false);
 
-  useEffect(() => {
-    if (id) loadModel();
-  }, [id]);
-
-  async function loadModel() {
+  const loadModel = React.useCallback(async () => {
     try {
       const data = await mlStudioApi.get(Number(id));
       setModel(data);
@@ -69,23 +74,38 @@ export default function MLModelDetailPage() {
     } finally {
       setLoading(false);
     }
-  }
+  }, [id]);
+
+  useEffect(() => {
+    if (id) loadModel();
+  }, [id, loadModel]);
+
+  useEffect(() => {
+    datasetApi.listDatasets().then(res => setAllDatasets(res.results));
+  }, []);
 
   async function handlePredict() {
     if (!model) return;
     setPredicting(true);
     try {
       // Convert inputs to numbers where appropriate
-      const formattedInput = { ...predictionInput };
+      const formattedInput: Record<string, string | number> = { ...predictionInput };
       Object.keys(formattedInput).forEach(key => {
         const val = formattedInput[key];
-        if (!Number.isNaN(Number(val)) && val !== "") {
-          (formattedInput as any)[key] = Number(val);
+        if (typeof val === 'string' && !Number.isNaN(Number(val)) && val !== "") {
+          formattedInput[key] = Number(val);
         }
       });
 
       const res = await mlStudioApi.predict(model.id, { data: [formattedInput] });
-      setPredictionResult(res.predictions[0]);
+      // Real-time prediction returns: { "predictions": [val1, ...] } OR the new format
+      // If it's the new format, it might be { "predictions": [{"row_index": 0, "prediction": val}] }
+      const firstPred = res.predictions[0];
+      if (typeof firstPred === 'object' && firstPred !== null && 'prediction' in firstPred) {
+        setPredictionResult(firstPred.prediction);
+      } else {
+        setPredictionResult(firstPred);
+      }
       toast.success("Prediction generated");
     } catch (err) {
       console.error(err);
@@ -95,11 +115,30 @@ export default function MLModelDetailPage() {
     }
   }
 
+  async function handleBatchPredict() {
+    if (!model || !selectedBatchDatasetId) {
+      toast.error("Please select a dataset for batch prediction");
+      return;
+    }
+    setBatchLoading(true);
+    setBatchResults(null);
+    try {
+      const res = await mlStudioApi.predict(model.id, { dataset_id: Number(selectedBatchDatasetId) });
+      setBatchResults(res);
+      toast.success(`Batch prediction complete: ${res.predicted_rows} rows processed`);
+    } catch (err) {
+      console.error(err);
+      toast.error("Batch prediction failed");
+    } finally {
+      setBatchLoading(false);
+    }
+  }
+
   const importanceOption = useMemo(() => {
-    if (!model?.feature_importance) return null;
-    const data = Object.entries(model.feature_importance)
-      .sort((a, b) => b[1] - a[1])
-      .slice(0, 10);
+    if (!model?.feature_importance || !Array.isArray(model.feature_importance)) return null;
+    const data = [...model.feature_importance]
+      .sort((a, b) => b.importance - a.importance)
+      .slice(0, 12);
 
     return {
       backgroundColor: "transparent",
@@ -118,7 +157,7 @@ export default function MLModelDetailPage() {
       },
       yAxis: { 
         type: "category", 
-        data: data.map(d => d[0]).reverse(),
+        data: data.map(d => d.feature).reverse(),
         axisLabel: { color: isDark ? "#a1a1aa" : "#3f3f46", fontSize: 11, fontWeight: "bold" },
         axisLine: { show: false }
       },
@@ -126,7 +165,7 @@ export default function MLModelDetailPage() {
         {
           name: "Importance",
           type: "bar",
-          data: data.map(d => d[1]).reverse(),
+          data: data.map(d => d.importance).reverse(),
           itemStyle: {
             borderRadius: [0, 6, 6, 0],
             color: {
@@ -234,10 +273,34 @@ export default function MLModelDetailPage() {
                        <span className="text-muted-foreground font-medium">Target Column</span>
                        <Badge variant="secondary" className="font-bold">{model.target_column || "N/A"}</Badge>
                     </div>
-                    <div className="flex justify-between items-center text-sm">
-                       <span className="text-muted-foreground font-medium">Features</span>
-                       <span className="font-bold">{model.feature_columns.length} columns</span>
-                    </div>
+                     <div className="flex justify-between items-center text-sm">
+                        <span className="text-muted-foreground font-medium">Features</span>
+                        <span className="font-bold">{model.feature_columns.length} columns</span>
+                     </div>
+                     <div className="pt-2 border-t border-border/10 space-y-3">
+                        <div className="flex justify-between items-center text-xs">
+                           <span className="text-muted-foreground">Train Samples</span>
+                           <span className="font-bold">{model.train_samples ?? "—"}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-xs">
+                           <span className="text-muted-foreground">Test Samples</span>
+                           <span className="font-bold">{model.test_samples ?? "—"}</span>
+                        </div>
+                        <div className="flex justify-between items-center text-xs">
+                           <span className="text-muted-foreground">Training Time</span>
+                           <span className="font-bold">{model.training_time_seconds?.toFixed(2)}s</span>
+                        </div>
+                        {model.label_classes && model.label_classes.length > 0 && (
+                          <div className="space-y-2 pt-2">
+                             <span className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Label Classes</span>
+                             <div className="flex flex-wrap gap-1">
+                                {model.label_classes.map(cls => (
+                                  <Badge key={cls} variant="outline" className="text-[9px] font-bold px-1.5 py-0 rounded-sm">{cls}</Badge>
+                                ))}
+                             </div>
+                          </div>
+                        )}
+                     </div>
                   </div>
                </CardContent>
             </Card>
@@ -259,7 +322,7 @@ export default function MLModelDetailPage() {
                    <Card className="rounded-[2.5rem] border-border/40 bg-background/50">
                       <CardHeader>
                          <CardTitle className="text-lg font-black tracking-tight">Feature Importance</CardTitle>
-                         <CardDescription className="text-xs font-medium">Which variables contribute most to the model's predictions?</CardDescription>
+                         <CardDescription className="text-xs font-medium">Which variables contribute most to the model&apos;s predictions?</CardDescription>
                       </CardHeader>
                       <CardContent>
                          {importanceOption ? (
@@ -329,14 +392,82 @@ export default function MLModelDetailPage() {
                       </CardContent>
                    </Card>
 
-                   <Card className="rounded-[2.5rem] border-dashed border-2 border-border/40 bg-muted/5">
-                      <CardContent className="p-8 text-center space-y-4">
-                         <TableIcon className="h-10 w-10 text-muted-foreground/30 mx-auto" />
-                         <div className="space-y-1">
-                            <h3 className="text-sm font-bold">Batch Prediction</h3>
-                            <p className="text-xs text-muted-foreground">Upload a CSV or JSON file to run predictions on multiple rows at once.</p>
+                   <Card className="rounded-[2.5rem] border-2 border-border/40 bg-background/50 overflow-hidden">
+                      <CardHeader className="bg-muted/30">
+                         <CardTitle className="text-lg font-black tracking-tight">Batch Prediction</CardTitle>
+                         <CardDescription className="text-xs font-medium">Select a dataset to generate predictions for all its rows.</CardDescription>
+                      </CardHeader>
+                      <CardContent className="p-8 space-y-6">
+                         <div className="space-y-4">
+                            <Label className="text-[10px] font-black capitalize tracking-widest text-muted-foreground">Target Dataset</Label>
+                            <div className="flex gap-4">
+                               <select 
+                                 className="flex-1 h-11 rounded-xl bg-muted/20 border-border/60 px-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-primary/20"
+                                 value={selectedBatchDatasetId}
+                                 onChange={(e) => setSelectedBatchDatasetId(e.target.value)}
+                               >
+                                 <option value="">Select a dataset...</option>
+                                 {allDatasets.map(ds => (
+                                   <option key={ds.id} value={ds.id}>{ds.file_name} ({ds.file_format.toUpperCase()})</option>
+                                 ))}
+                               </select>
+                               <Button 
+                                 onClick={handleBatchPredict} 
+                                 disabled={batchLoading || !selectedBatchDatasetId}
+                                 className="rounded-xl h-11 px-6 font-bold shadow-lg shadow-primary/20 gap-2"
+                               >
+                                  {batchLoading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <TableIcon className="h-4 w-4" />}
+                                  Run Batch
+                               </Button>
+                            </div>
                          </div>
-                         <Button variant="outline" className="rounded-xl font-bold h-10 px-6 border-border/60">Upload Batch Data</Button>
+
+                         {batchResults && (
+                           <div className="p-6 rounded-2xl bg-green-500/5 border border-green-500/20 space-y-4">
+                              <div className="flex items-center justify-between">
+                                 <div className="flex items-center gap-2">
+                                    <CheckCircle2 className="h-5 w-5 text-green-500" />
+                                    <h4 className="font-bold text-sm">Batch Prediction Successful</h4>
+                                 </div>
+                                 <Badge className="bg-green-500 text-white border-none">
+                                    {batchResults.predicted_rows} / {batchResults.total_rows} rows processed
+                                 </Badge>
+                              </div>
+                              <p className="text-xs text-muted-foreground">
+                                Predictions have been generated based on the model trained with target column <b>{batchResults.target_column}</b>.
+                              </p>
+                              <div className="pt-4 border-t border-border/10">
+                                 <div className="max-h-[200px] overflow-y-auto rounded-xl border border-border/40">
+                                    <table className="w-full text-[10px] font-mono">
+                                       <thead className="bg-muted/50 sticky top-0">
+                                          <tr>
+                                             <th className="px-3 py-2 text-left border-b border-border/40">Row Index</th>
+                                             <th className="px-3 py-2 text-left border-b border-border/40">Prediction</th>
+                                          </tr>
+                                       </thead>
+                                       <tbody>
+                                          {batchResults.predictions.slice(0, 100).map((p) => {
+                                             const item = p as PredictionItem;
+                                             return (
+                                               <tr key={item.row_index} className="border-b border-border/10 last:border-0">
+                                                  <td className="px-3 py-2 text-muted-foreground">{item.row_index}</td>
+                                                  <td className="px-3 py-2 font-bold text-primary">{typeof item.prediction === 'number' ? item.prediction.toFixed(4) : item.prediction}</td>
+                                               </tr>
+                                             );
+                                          })}
+                                          {batchResults.predictions.length > 100 && (
+                                            <tr>
+                                               <td colSpan={2} className="px-3 py-4 text-center text-muted-foreground italic">
+                                                  ... and {batchResults.predictions.length - 100} more rows
+                                               </td>
+                                            </tr>
+                                          )}
+                                       </tbody>
+                                    </table>
+                                 </div>
+                              </div>
+                           </div>
+                         )}
                       </CardContent>
                    </Card>
                 </TabsContent>
