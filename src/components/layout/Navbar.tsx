@@ -21,13 +21,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/context/auth-context";
 
 const NAV_ITEMS = [
-    { label: "Home",    href: "/",          icon: Home        },
-    { label: "Visuals", href: "/visuals",   icon: BarChart2   },
-    { label: "Lab",     href: "/playground",icon: FlaskConical},
-    { label: "Intel",   href: "/about",     icon: Info        },
+    { label: "Home",       href: "/",           icon: Home        },
+    { label: "Visuals",    href: "/visuals",    icon: BarChart2   },
+    { label: "Playground", href: "/playground", icon: FlaskConical},
+    { label: "Intel",      href: "/about",      icon: Info        },
 ];
 
-const GITHUB_URL = "https://github.com/pyanalypt/pyanalypt";
+const GITHUB_URL = "https://github.com/soklimkhy/pyanalypt";
 
 export function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
@@ -45,21 +45,21 @@ export function Navbar() {
     const initials = user ? getInitials(user) : "";
 
     return (
-        <div className="fixed top-0 inset-x-0 z-50 flex flex-col items-center pt-5 sm:pt-8 px-3 sm:px-6 pointer-events-none">
+        <div className="fixed top-0 inset-x-0 z-50 pointer-events-none">
 
-            {/* ── Pill HUD ── */}
+            {/* ── Bar Navbar ── */}
             <header
                 className={cn(
-                    "relative pointer-events-auto flex items-center justify-between px-3 h-12 transition-all duration-300 rounded-full border shadow-2xl w-full md:w-fit md:min-w-160",
+                    "font-sans relative pointer-events-auto flex items-center justify-between px-4 sm:px-6 h-14 transition-all duration-300 border-b w-full",
                     scrolled
-                        ? "bg-background/95 backdrop-blur-2xl border-foreground/10 shadow-foreground/5"
-                        : "bg-background/60 backdrop-blur-md border-border/80 shadow-none"
+                        ? "bg-background/95 backdrop-blur-2xl border-foreground/10"
+                        : "bg-background/70 backdrop-blur-md border-border/50"
                 )}
             >
                 {/* Brand */}
-                <Link href="/" className="flex items-center gap-2.5 px-3 group shrink-0">
+                <Link href="/" className="flex items-center gap-2.5 group shrink-0">
                     <Logo className="w-6 h-6 transition-all duration-500 group-hover:rotate-12 grayscale group-hover:grayscale-0" />
-                    <span className="text-[12px] font-black tracking-tighter text-foreground capitalize opacity-80 hidden sm:block">
+                    <span className="text-sm sm:text-base font-black tracking-tight text-foreground hidden sm:block">
                         PyAnalypt
                     </span>
                 </Link>
@@ -75,10 +75,10 @@ export function Navbar() {
                                 key={item.label}
                                 href={item.href}
                                 className={cn(
-                                    "px-4 py-1.5 rounded-full text-[9px] font-black capitalize tracking-[0.2em] transition-all duration-200",
+                                    "px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold tracking-tight transition-all duration-200",
                                     isActive
                                         ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40"
-                                        : "text-muted-foreground/60 hover:text-foreground hover:bg-muted"
+                                        : "text-foreground/70 hover:text-foreground hover:bg-muted"
                                 )}
                             >
                                 {item.label}
@@ -161,15 +161,15 @@ export function Navbar() {
                         <div className="hidden md:flex items-center gap-1">
                             <Link
                                 href="/login"
-                                className="px-3 py-1.5 text-[9px] font-black capitalize tracking-[0.2em] text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                className="px-3 py-1.5 text-xs sm:text-sm font-bold tracking-tight text-foreground/70 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                             >
                                 Login
                             </Link>
                             <Link
                                 href="/register"
-                                className="px-4 py-1.5 bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center rounded-full text-[9px] font-black capitalize tracking-widest hover:bg-blue-700 dark:hover:bg-blue-400 hover:scale-105 transition-all shadow-lg shadow-blue-500/20"
+                                className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center rounded-full text-xs sm:text-sm font-bold tracking-tight hover:bg-blue-700 dark:hover:bg-blue-400 hover:scale-105 transition-all shadow-lg shadow-blue-500/20"
                             >
-                                Start <UserIcon size={10} className="ml-2" />
+                                Get started <UserIcon size={12} className="ml-1.5" />
                             </Link>
                         </div>
                     )}
@@ -188,13 +188,13 @@ export function Navbar() {
 
             {/* ── Mobile menu ── */}
             {mobileMenuOpen && (
-                <div className="md:hidden absolute top-[calc(100%+6px)] inset-x-3 sm:inset-x-6 z-40 bg-background/95 backdrop-blur-3xl border border-border/80 rounded-xl overflow-hidden shadow-xl pointer-events-auto animate-in fade-in slide-in-from-top-2 duration-200">
+                <div className="md:hidden absolute top-full inset-x-0 z-40 bg-background/98 backdrop-blur-3xl border-b border-border/80 overflow-hidden shadow-lg pointer-events-auto animate-in fade-in slide-in-from-top-2 duration-200">
 
                     {/* Header row */}
                     <div className="flex items-center justify-between px-3 py-2 border-b border-border/20">
                         <div className="flex items-center gap-2">
                             <Logo className="w-4 h-4 grayscale" />
-                            <span className="text-xs font-semibold tracking-tight">PyAnalypt</span>
+                            <span className="text-sm font-black tracking-tight text-foreground">PyAnalypt</span>
                         </div>
                         <div className="flex items-center gap-0.5">
                             <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full" asChild>
@@ -217,10 +217,10 @@ export function Navbar() {
                                     href={item.href}
                                     onClick={() => setMobileMenuOpen(false)}
                                     className={cn(
-                                        "flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs font-medium transition-all",
+                                        "flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-bold transition-all",
                                         isActive
                                             ? "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400"
-                                            : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                                            : "text-foreground/70 hover:bg-muted hover:text-foreground"
                                     )}
                                 >
                                     <Icon size={13} className={cn("shrink-0", isActive ? "" : "opacity-40")} />
@@ -249,32 +249,32 @@ export function Navbar() {
                                             </AvatarFallback>
                                         </Avatar>
                                         <div className="min-w-0">
-                                            <p className="text-xs font-semibold truncate leading-tight">{displayName}</p>
-                                            {user?.email && <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>}
+                                            <p className="text-sm font-bold truncate leading-tight text-foreground">{displayName}</p>
+                                            {user?.email && <p className="text-xs text-muted-foreground truncate">{user.email}</p>}
                                         </div>
                                     </div>
                                     <Link
                                         href="/dashboard"
                                         onClick={() => setMobileMenuOpen(false)}
-                                        className="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
+                                        className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-bold text-foreground/70 hover:bg-muted hover:text-foreground transition-all"
                                     >
                                         <span>Dashboard</span>
-                                        <LayoutDashboard size={12} className="opacity-40" />
+                                        <LayoutDashboard size={14} className="opacity-40" />
                                     </Link>
                                     <Link
                                         href="/profile"
                                         onClick={() => setMobileMenuOpen(false)}
-                                        className="flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-all"
+                                        className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-bold text-foreground/70 hover:bg-muted hover:text-foreground transition-all"
                                     >
                                         <span>Profile</span>
-                                        <UserIcon size={12} className="opacity-40" />
+                                        <UserIcon size={14} className="opacity-40" />
                                     </Link>
                                     <button
                                         onClick={() => { logout(); setMobileMenuOpen(false); }}
-                                        className="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium text-red-500/70 hover:bg-red-500/5 hover:text-red-500 transition-all"
+                                        className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-bold text-red-500/70 hover:bg-red-500/5 hover:text-red-500 transition-all"
                                     >
                                         <span>Sign out</span>
-                                        <LogOut size={12} className="opacity-50" />
+                                        <LogOut size={14} className="opacity-50" />
                                     </button>
                                 </div>
                             ) : (
@@ -282,14 +282,14 @@ export function Navbar() {
                                     <Link
                                         href="/login"
                                         onClick={() => setMobileMenuOpen(false)}
-                                        className="w-full py-2 text-center text-xs font-semibold text-muted-foreground hover:text-foreground rounded-lg hover:bg-muted transition-all"
+                                        className="w-full py-3 text-center text-sm font-bold text-foreground/70 hover:text-foreground rounded-lg hover:bg-muted transition-all"
                                     >
                                         Sign in
                                     </Link>
                                     <Link
                                         href="/register"
                                         onClick={() => setMobileMenuOpen(false)}
-                                        className="w-full py-2 text-center text-xs font-semibold text-white bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 rounded-lg transition-all shadow-md shadow-blue-500/20"
+                                        className="w-full py-3 text-center text-sm font-bold text-white bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 rounded-lg transition-all shadow-md shadow-blue-500/20"
                                     >
                                         Get started
                                     </Link>

@@ -11,8 +11,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { GithubIcon } from "@/components/ui/Icons";
 
+const GITHUB_URL = "https://github.com/soklimkhy/pyanalypt";
+
 // --- Hero Section ---
-function HeroSection({ onStart }: Readonly<{ onStart: () => void }>) {
+function HeroSection() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -49,7 +51,7 @@ function HeroSection({ onStart }: Readonly<{ onStart: () => void }>) {
 
             <div className="space-y-4 md:space-y-6">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter leading-[1.1] md:leading-[0.95] text-foreground">
-                Analytics As Fast As <br />
+                Analytics As Fast As{" "}
                 <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 via-blue-400 dark:from-blue-400 dark:via-blue-300 to-muted-foreground/30">
                   Your Decision Making.
                 </span>
@@ -61,15 +63,16 @@ function HeroSection({ onStart }: Readonly<{ onStart: () => void }>) {
 
             <div className="flex flex-col sm:flex-row items-center gap-3 md:gap-4 w-full sm:w-auto pt-2">
               {/* Primary — Blue */}
-              <Button
-                size="lg"
-                onClick={onStart}
-                className="w-full sm:w-auto h-12 md:h-14 px-8 md:px-10 text-sm font-black gap-3 rounded-xl bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-400 hover:scale-[1.03] hover:shadow-2xl hover:shadow-blue-500/25 active:scale-95 transition-all duration-300"
-              >
-                Launch Dashboard <ArrowRight size={16} />
-              </Button>
+              <Link href="/dashboard" className="w-full sm:w-auto">
+                <Button
+                  size="lg"
+                  className="w-full sm:w-auto h-12 md:h-14 px-8 md:px-10 text-sm font-black gap-3 rounded-xl bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-400 hover:scale-[1.03] hover:shadow-2xl hover:shadow-blue-500/25 active:scale-95 transition-all duration-300"
+                >
+                  Launch Dashboard <ArrowRight size={16} />
+                </Button>
+              </Link>
               {/* Secondary — Gray outline */}
-              <Link href="https://github.com/soklimkhy/pyanalypt" target="_blank" className="w-full sm:w-auto">
+              <Link href={GITHUB_URL} target="_blank" className="w-full sm:w-auto">
                 <Button
                   variant="outline"
                   size="lg"
@@ -206,7 +209,7 @@ function ProductStory() {
       <div className="absolute inset-x-0 top-0 h-24 bg-linear-to-b from-secondary/10 to-transparent pointer-events-none" />
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808005_1px,transparent_1px),linear-gradient(to_bottom,#80808005_1px,transparent_1px)] bg-size-[60px_60px] pointer-events-none" />
       {/* Subtle blue glow center */}
-      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-100 bg-blue-500/3 dark:bg-blue-500/5 blur-[120px] pointer-events-none" />
+      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-100 bg-blue-500/8 dark:bg-blue-500/10 blur-[120px] pointer-events-none" />
 
       <div className="container mx-auto px-6 max-w-5xl relative z-10">
         <div className="flex flex-col items-center text-center space-y-10">
@@ -253,15 +256,10 @@ function ProductStory() {
 }
 
 export default function Home() {
-  const scrollToVisuals = () => {
-    const element = document.getElementById('visuals-section');
-    element?.scrollIntoView({ behavior: 'smooth' });
-  };
-
   return (
     <main className="min-h-screen bg-background relative selection:bg-blue-500/20 overflow-x-hidden">
       <div className="relative z-0">
-        <HeroSection onStart={scrollToVisuals} />
+        <HeroSection />
         <ProductStory />
       </div>
     </main>

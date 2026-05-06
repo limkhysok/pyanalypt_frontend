@@ -270,14 +270,17 @@ export function AppSidebar() {
             <SidebarHeader className="flex flex-col gap-2 h-12 shrink-0 border-b border-sidebar-border px-4 group-data-[collapsible=icon]:px-0">
                 <Link
                     href="/dashboard"
-                    className="flex h-full items-center gap-2.5 group/logo overflow-hidden group-data-[collapsible=icon]:justify-center"
+                    className="flex h-full items-center gap-2.5 group/logo group-data-[collapsible=icon]:justify-center"
                 >
-                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-zinc-950 dark:bg-zinc-50 transition-colors duration-300">
-                        <Logo className="h-4.5 w-4.5 transition-transform duration-500 group-hover/logo:rotate-12" />
+                    <div className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full bg-sidebar-foreground/5 ring-1 ring-sidebar-foreground/10 transition-all duration-300 group-hover/logo:ring-sidebar-foreground/25 group-data-[collapsible=icon]:mx-auto">
+                        <Logo className="h-3.5 w-3.5 transition-transform duration-500 group-hover/logo:rotate-12" />
                     </div>
-                    <span className="truncate text-[14px] font-bold tracking-wide text-sidebar-active group-data-[collapsible=icon]:hidden">
-                        PyAnalypt
-                    </span>
+                    <div className="flex min-w-0 overflow-hidden flex-col group-data-[collapsible=icon]:hidden">
+                        <div className="flex items-baseline gap-0.5">
+                            <span className="text-[15px] font-semibold text-sidebar-foreground/40 leading-none" style={{ fontFamily: "var(--font-fredoka)" }}>Py</span>
+                            <span className="text-[15px] font-semibold text-sidebar-foreground leading-none" style={{ fontFamily: "var(--font-fredoka)" }}>Analypt</span>
+                        </div>
+                    </div>
                 </Link>
             </SidebarHeader>
 

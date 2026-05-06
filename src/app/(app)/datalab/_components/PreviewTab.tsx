@@ -490,12 +490,12 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                 )}
 
                 {/* ── Table ── */}
-                <ScrollArea className="w-full">
-                    <table className="w-full text-left border-collapse text-xs">
-                        <thead>
+                <ScrollArea className="w-full h-[calc(100vh-340px)] min-h-[400px]">
+                    <table className="w-full text-left border-collapse text-xs relative">
+                        <thead className="sticky top-0 z-30 bg-background shadow-sm">
                             {/* Excel letter row */}
-                            <tr className="border-b border-border/40">
-                                <th className="bg-muted px-4 py-1 w-12 select-none" />
+                            <tr className="border-b border-border/40 bg-muted/50">
+                                <th className="px-4 py-1 w-12 select-none" />
                                 {visibleColumns.map((col, i) => (
                                     <th
                                         key={col}
@@ -512,8 +512,8 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                                 ))}
                             </tr>
                             {/* Column name row */}
-                            <tr className="border-b">
-                                <th className="bg-muted px-4 py-3 text-xs font-semibold text-muted-foreground w-12 text-center select-none">#</th>
+                            <tr className="border-b bg-background">
+                                <th className="px-4 py-3 text-xs font-semibold text-muted-foreground w-12 text-center select-none border-r">#</th>
                                 {visibleColumns.map((col) => {
                                     const colInfo = inspectMap[col];
                                     const isColSel = selectedCols.has(col);

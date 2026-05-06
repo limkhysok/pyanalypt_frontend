@@ -80,13 +80,13 @@ export function AppNavbar() {
                 <Breadcrumb className="hidden sm:block">
                     <BreadcrumbList>
                         <BreadcrumbItem>
-                            <BreadcrumbLink asChild className="text-[13px] font-medium tracking-normal">
+                            <BreadcrumbLink asChild className="text-[14px] font-semibold tracking-normal">
                                 <Link href={GROUP_HREFS[group] ?? "/dashboard"}>{group}</Link>
                             </BreadcrumbLink>
                         </BreadcrumbItem>
                         <BreadcrumbSeparator />
                         <BreadcrumbItem>
-                            <BreadcrumbPage className="text-[13px] font-semibold tracking-normal">
+                            <BreadcrumbPage className="text-[14px] font-bold tracking-normal text-foreground">
                                 {page}
                             </BreadcrumbPage>
                         </BreadcrumbItem>

@@ -6,6 +6,7 @@ import {
     ChevronUp, ChevronDown, ChevronsUpDown, Search, X,
 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -195,9 +196,10 @@ export function InspectTab({ data, preview, datasetId, onRefetchAll }: Readonly<
                         )}
 
                         <CardContent className="p-0">
-                            <table className="w-full text-left border-collapse">
-                                <thead>
-                                    <tr className="bg-muted/40 border-b border-border">
+                            <ScrollArea className="w-full h-[calc(100vh-340px)] min-h-[400px]">
+                                <table className="w-full text-left border-collapse relative">
+                                    <thead className="sticky top-0 z-30 bg-background shadow-sm">
+                                        <tr className="bg-muted/40 border-b border-border">
                                         <th
                                             className="px-5 py-2.5 text-xs font-semibold text-muted-foreground cursor-pointer select-none hover:text-foreground transition-colors"
                                             onClick={() => toggleSort("column")}
@@ -377,6 +379,8 @@ export function InspectTab({ data, preview, datasetId, onRefetchAll }: Readonly<
                                     })}
                                 </tbody>
                             </table>
+                            <ScrollBar orientation="horizontal" />
+                        </ScrollArea>
                         </CardContent>
                     </Card>
 

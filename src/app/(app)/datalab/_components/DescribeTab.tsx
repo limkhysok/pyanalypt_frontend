@@ -97,9 +97,9 @@ export function DescribeTab({ data, preview }: Readonly<{
                                 <span className="text-xs font-semibold text-muted-foreground tracking-wider capitalize">Numeric</span>
                                 <span className="text-xs text-muted-foreground/40 font-mono">({numericNames.length})</span>
                             </div>
-                            <ScrollArea className="w-full">
-                                <table className="border-collapse min-w-full">
-                                    <thead>
+                            <ScrollArea className="w-full max-h-[400px]">
+                                <table className="border-collapse min-w-full relative">
+                                    <thead className="sticky top-0 z-20 bg-background shadow-sm">
                                         <tr className="bg-muted/40 border-b border-border">
                                             <th className="sticky left-0 z-10 bg-muted px-5 py-3 text-xs font-semibold text-muted-foreground text-left border-r border-border min-w-20 whitespace-nowrap">
                                                 stat
@@ -140,9 +140,9 @@ export function DescribeTab({ data, preview }: Readonly<{
                                 <span className="text-xs font-semibold text-muted-foreground tracking-wider capitalize">Categorical / String</span>
                                 <span className="text-xs text-muted-foreground/40 font-mono">({categoricalNames.length})</span>
                             </div>
-                            <ScrollArea className="w-full">
-                                <table className="border-collapse min-w-full">
-                                    <thead>
+                            <ScrollArea className="w-full max-h-[300px]">
+                                <table className="border-collapse min-w-full relative">
+                                    <thead className="sticky top-0 z-20 bg-background shadow-sm">
                                         <tr className="bg-muted/40 border-b border-border">
                                             <th className="sticky left-0 z-10 bg-muted px-5 py-3 text-xs font-semibold text-muted-foreground text-left border-r border-border min-w-20 whitespace-nowrap">
                                                 stat

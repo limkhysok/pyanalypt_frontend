@@ -94,7 +94,7 @@ function ActionBar({ activeTab, onTabChange, datasets, selectedId, onSelectDatas
                                 "px-3 inline-flex items-center gap-1.5 text-xs rounded-none transition-all whitespace-nowrap border-b-2 focus-visible:outline-none",
                                 isActive
                                     ? "text-primary font-bold border-primary bg-primary/5"
-                                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40 border-transparent"
+                                    : "text-muted-foreground/80 hover:text-foreground hover:bg-muted/40 border-transparent"
                             )}
                         >
                             <Icon className="h-3.5 w-3.5 shrink-0" />
@@ -116,7 +116,7 @@ function ActionBar({ activeTab, onTabChange, datasets, selectedId, onSelectDatas
                                 "px-3 inline-flex items-center gap-1.5 text-xs rounded-none transition-all whitespace-nowrap border-b-2 focus-visible:outline-none",
                                 cleanIsActive
                                     ? "text-orange-600 dark:text-orange-400 font-bold border-orange-500 bg-orange-50/40 dark:bg-orange-950/20"
-                                    : "text-orange-500/60 dark:text-orange-400/50 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50/40 dark:hover:bg-orange-950/20 border-transparent"
+                                    : "text-orange-500/80 dark:text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50/40 dark:hover:bg-orange-950/20 border-transparent"
                             )}
                         >
                             {cleanIsActive && activeClean
@@ -157,7 +157,7 @@ function ActionBar({ activeTab, onTabChange, datasets, selectedId, onSelectDatas
                                 "px-3 inline-flex items-center gap-1.5 text-xs rounded-none transition-all whitespace-nowrap border-b-2 focus-visible:outline-none",
                                 advancedIsActive
                                     ? "text-primary font-bold border-primary bg-primary/5"
-                                    : "text-muted-foreground hover:text-foreground hover:bg-muted/40 border-transparent"
+                                    : "text-muted-foreground/80 hover:text-foreground hover:bg-muted/40 border-transparent"
                             )}
                         >
                             {advancedIsActive && activeAdvanced
