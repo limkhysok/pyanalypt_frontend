@@ -9,6 +9,7 @@ import {
     Settings,
     BarChart3,
     BrainCircuit,
+    Cpu,
     FlaskConical,
     TrendingUp,
     PieChart,
@@ -44,9 +45,10 @@ type NavItemDef = {
 const WORKSPACE_ITEMS: NavItemDef[] = [
     { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, shortcut: "G D" },
     { label: "Datasets",  href: "/datasets",  icon: Database,         shortcut: "G S" },
+    { label: "Framing",   href: "/framing",   icon: BrainCircuit,     shortcut: "G F" },
     { label: "DataLab",   href: "/datalab",   icon: FlaskConical,     shortcut: "G L" },
     { label: "EDA",       href: "/eda",       icon: TrendingUp,       shortcut: "G E" },
-    { label: "ML Studio", href: "/mlstudio",  icon: BrainCircuit,     shortcut: "G M" },
+    { label: "ML Studio", href: "/mlstudio",  icon: Cpu,              shortcut: "G M" },
 ];
 
 const RESULTS_ITEMS: NavItemDef[] = [
@@ -59,6 +61,7 @@ const RESULTS_ITEMS: NavItemDef[] = [
 const SHORTCUT_MAP: Record<string, string> = {
     D: "/dashboard",
     S: "/datasets",
+    F: "/framing",
     L: "/datalab",
     E: "/eda",
     M: "/mlstudio",

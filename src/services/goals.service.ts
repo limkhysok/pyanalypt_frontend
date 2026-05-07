@@ -47,17 +47,26 @@ async function consumeSSEStream(
 ): Promise<void> {
   const reader = body.getReader();
   const decoder = new TextDecoder();
+  let buffer = '';
   try {
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
-      for (const line of decoder.decode(value, { stream: true }).split('\n')) {
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop() ?? '';
+      for (const line of lines) {
         const parsed = parseSSELine(line);
         if (!parsed) continue;
         if (parsed.type === 'done') { onDone(); return; }
         if (parsed.type === 'error') { onError(new Error(parsed.message)); return; }
         onToken(parsed.data);
       }
+    }
+    if (buffer) {
+      const parsed = parseSSELine(buffer);
+      if (parsed?.type === 'done') { onDone(); return; }
+      if (parsed?.type === 'error') { onError(new Error(parsed.message)); return; }
     }
     onDone();
   } finally {

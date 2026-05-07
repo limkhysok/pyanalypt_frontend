@@ -1,23 +1,29 @@
 "use client";
 
 import { useEffect, useState, useCallback, useRef } from "react";
-import { motion } from "motion/react";
 import {
     BrainCircuit, Database, Loader2, Sparkles, ChevronDown,
-    FileText, Plus, Trash2, Check, X, Pencil, Bot,
+    FileText, Plus, Trash2, Check, X, Pencil, Bot, DatabaseZap,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-    DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuLabel,
+    DropdownMenuRadioGroup,
+    DropdownMenuRadioItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 import { datasetApi } from "@/services/dataset.service";
 import { goalsApi, type AnalysisGoal, type AnalysisGoalDetail, type AnalysisQuestion } from "@/services/goals.service";
 import { type Dataset } from "@/types/dataset";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
 
 const MAX_QUESTIONS = 20;
 
@@ -25,87 +31,13 @@ function applyGoalQuestionCount(goals: AnalysisGoal[], detail: AnalysisGoalDetai
     return goals.map(g => g.id === detail.id ? { ...g, question_count: detail.question_count } : g);
 }
 
-// ── Dataset picker label ──────────────────────────────────────────────────────
-function DatasetTriggerLabel({ loading, selected }: Readonly<{ loading: boolean; selected: Dataset | null }>) {
-    if (loading) return <span className="flex items-center gap-2 text-muted-foreground"><Loader2 className="h-4 w-4 animate-spin" /><span className="text-xs">Loading datasets…</span></span>;
-    if (selected) return <span className="flex items-center gap-2 truncate"><FileText className="h-4 w-4 shrink-0 text-blue-500" /><span className="truncate text-sm">{selected.file_name}</span></span>;
-    return <span className="flex items-center gap-2 text-muted-foreground"><Database className="h-4 w-4" /><span className="text-sm">Select a dataset</span></span>;
-}
-
-// ── Goals sidebar ─────────────────────────────────────────────────────────────
-interface GoalsSidebarProps {
-    goals: AnalysisGoal[];
-    activeId: number | null;
-    isStreaming: boolean;
-    onSelect: (g: AnalysisGoal) => void;
-    onNew: () => void;
-}
-
-function GoalsSidebar({ goals, activeId, isStreaming, onSelect, onNew }: Readonly<GoalsSidebarProps>) {
-    return (
-        <div className="lg:col-span-1">
-            <Card className="bg-background/60 backdrop-blur-xl border border-border/20 rounded-4xl overflow-hidden">
-                <CardHeader className="p-4 pb-2 border-b border-border/10 flex flex-row items-center justify-between gap-2">
-                    <p className="text-[10px] font-black tracking-widest text-muted-foreground capitalize">Goals</p>
-                    <Button
-                        size="sm"
-                        variant="ghost"
-                        className="h-6 w-6 rounded-full p-0 text-blue-500 hover:bg-blue-500/10"
-                        onClick={onNew}
-                        title="New Goal"
-                    >
-                        <Plus className="h-3.5 w-3.5" />
-                    </Button>
-                </CardHeader>
-                <CardContent className="p-2">
-                    {goals.length === 0 ? (
-                        <p className="text-[10px] text-muted-foreground/60 text-center py-4 font-medium">No goals yet</p>
-                    ) : (
-                        <div className="space-y-1">
-                            {goals.map((g, idx) => {
-                                const isActive = activeId === g.id && !isStreaming;
-                                return (
-                                    <button
-                                        key={g.id}
-                                        onClick={() => onSelect(g)}
-                                        className={cn(
-                                            "w-full text-left rounded-2xl px-3 py-2.5 transition-all border",
-                                            isActive ? "bg-blue-500/10 border-blue-500/20" : "hover:bg-secondary/50 border-transparent"
-                                        )}
-                                    >
-                                        <div className="flex items-center gap-1.5 mb-0.5">
-                                            <span className={cn("text-[10px] font-black", isActive ? "text-blue-500" : "text-muted-foreground")}>
-                                                Goal {idx + 1}
-                                            </span>
-                                            {idx === 0 && (
-                                                <Badge className="text-[9px] font-black px-1.5 py-0 ml-auto border-blue-500/20 text-blue-500 bg-blue-500/10">Latest</Badge>
-                                            )}
-                                        </div>
-                                        <p className="text-[10px] text-muted-foreground/70 font-medium line-clamp-2 leading-relaxed">
-                                            {g.problem_statement || <span className="italic opacity-50">No problem statement</span>}
-                                        </p>
-                                        <p className="text-[9px] text-muted-foreground/40 mt-1">
-                                            {g.question_count} {g.question_count === 1 ? "question" : "questions"}
-                                        </p>
-                                    </button>
-                                );
-                            })}
-                        </div>
-                    )}
-                </CardContent>
-            </Card>
-        </div>
-    );
-}
-
 // ── Inline editable problem statement ─────────────────────────────────────────
-interface ProblemStatementProps {
+
+function ProblemStatement({ goalId, value, onSaved }: Readonly<{
     goalId: number;
     value: string;
     onSaved: (v: string) => void;
-}
-
-function ProblemStatement({ goalId, value, onSaved }: Readonly<ProblemStatementProps>) {
+}>) {
     const [editing, setEditing] = useState(false);
     const [draft, setDraft] = useState(value);
     const [saving, setSaving] = useState(false);
@@ -135,14 +67,15 @@ function ProblemStatement({ goalId, value, onSaved }: Readonly<ProblemStatementP
                     onChange={e => setDraft(e.target.value)}
                     rows={3}
                     placeholder="What are you trying to find out?"
-                    className="w-full rounded-2xl border border-blue-500/30 bg-background/60 px-4 py-3 text-sm resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40"
+                    className="w-full border border-border bg-background px-3 py-2 text-sm resize-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary"
                     onKeyDown={e => { if (e.key === "Escape") { setDraft(value); setEditing(false); } }}
                 />
                 <div className="flex gap-2">
-                    <Button size="sm" className="h-7 rounded-xl text-xs gap-1 bg-blue-600 hover:bg-blue-700" onClick={commit} disabled={saving}>
-                        {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />} Save
+                    <Button size="sm" className="h-7 rounded-none text-xs gap-1" onClick={commit} disabled={saving}>
+                        {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
+                        Save
                     </Button>
-                    <Button size="sm" variant="ghost" className="h-7 rounded-xl text-xs" onClick={() => { setDraft(value); setEditing(false); }} disabled={saving}>
+                    <Button size="sm" variant="ghost" className="h-7 rounded-none text-xs" onClick={() => { setDraft(value); setEditing(false); }} disabled={saving}>
                         Cancel
                     </Button>
                 </div>
@@ -159,21 +92,20 @@ function ProblemStatement({ goalId, value, onSaved }: Readonly<ProblemStatementP
             <p className={cn("text-sm leading-relaxed flex-1", value ? "text-foreground/80" : "text-muted-foreground/50 italic")}>
                 {value || "Click to add a problem statement…"}
             </p>
-            <Pencil className="h-3.5 w-3.5 shrink-0 mt-0.5 opacity-0 group-hover:opacity-50 text-muted-foreground transition-opacity" />
+            <Pencil className="h-3.5 w-3.5 shrink-0 mt-0.5 opacity-0 group-hover:opacity-40 text-muted-foreground transition-opacity" />
         </button>
     );
 }
 
-// ── Question card ─────────────────────────────────────────────────────────────
-interface QuestionCardProps {
+// ── Question row ──────────────────────────────────────────────────────────────
+
+function QuestionRow({ question, index, goalId, onUpdated, onDeleted }: Readonly<{
     question: AnalysisQuestion;
     index: number;
     goalId: number;
     onUpdated: (q: AnalysisQuestion) => void;
     onDeleted: (id: number) => void;
-}
-
-function QuestionCard({ question, index, goalId, onUpdated, onDeleted }: Readonly<QuestionCardProps>) {
+}>) {
     const [editing, setEditing] = useState(false);
     const [draft, setDraft] = useState(question.question);
     const [saving, setSaving] = useState(false);
@@ -210,10 +142,11 @@ function QuestionCard({ question, index, goalId, onUpdated, onDeleted }: Readonl
 
     return (
         <div className={cn(
-            "group flex items-start gap-3 rounded-2xl border px-4 py-3 transition-all",
-            "bg-background/40 border-border/20 hover:border-border/40"
+            "group flex items-start gap-3 px-4 py-3 border-b border-border/50 last:border-0 transition-colors hover:bg-muted/20"
         )}>
-            <span className="text-[10px] font-black text-blue-500/60 mt-0.5 shrink-0 w-5 text-right">Q{index + 1}</span>
+            <span className="text-xs font-mono text-muted-foreground/40 mt-0.5 shrink-0 w-6 text-right tabular-nums">
+                {index + 1}.
+            </span>
 
             {editing ? (
                 <div className="flex-1 flex flex-col gap-2">
@@ -221,17 +154,18 @@ function QuestionCard({ question, index, goalId, onUpdated, onDeleted }: Readonl
                         ref={inputRef}
                         value={draft}
                         onChange={e => setDraft(e.target.value)}
-                        className="h-7 rounded-xl text-xs border-blue-500/30"
+                        className="h-7 rounded-none text-xs"
                         onKeyDown={e => {
                             if (e.key === "Enter") commit();
                             if (e.key === "Escape") { setDraft(question.question); setEditing(false); }
                         }}
                     />
                     <div className="flex gap-1.5">
-                        <Button size="sm" className="h-6 rounded-xl text-[10px] gap-1 bg-blue-600 hover:bg-blue-700 px-2" onClick={commit} disabled={saving}>
-                            {saving ? <Loader2 className="h-2.5 w-2.5 animate-spin" /> : <Check className="h-2.5 w-2.5" />} Save
+                        <Button size="sm" className="h-6 rounded-none text-[10px] gap-1 px-2" onClick={commit} disabled={saving}>
+                            {saving ? <Loader2 className="h-2.5 w-2.5 animate-spin" /> : <Check className="h-2.5 w-2.5" />}
+                            Save
                         </Button>
-                        <Button size="sm" variant="ghost" className="h-6 rounded-xl text-[10px] px-2" onClick={() => { setDraft(question.question); setEditing(false); }} disabled={saving}>
+                        <Button size="sm" variant="ghost" className="h-6 rounded-none text-[10px] px-2" onClick={() => { setDraft(question.question); setEditing(false); }} disabled={saving}>
                             <X className="h-2.5 w-2.5" />
                         </Button>
                     </div>
@@ -242,14 +176,14 @@ function QuestionCard({ question, index, goalId, onUpdated, onDeleted }: Readonl
 
             <div className="flex items-center gap-1 shrink-0">
                 {question.source === "ai" && (
-                    <Badge className="text-[9px] font-black px-1.5 py-0 border-blue-500/20 text-blue-500 bg-blue-500/8 gap-0.5">
+                    <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 gap-0.5 rounded-none border-border/50 text-muted-foreground font-normal">
                         <Bot className="h-2.5 w-2.5" /> AI
                     </Badge>
                 )}
                 {!editing && (
                     <button
                         onClick={() => setEditing(true)}
-                        className="h-6 w-6 flex items-center justify-center rounded-lg text-muted-foreground/40 hover:text-muted-foreground hover:bg-secondary/60 transition-all opacity-0 group-hover:opacity-100"
+                        className="h-6 w-6 flex items-center justify-center text-muted-foreground/30 hover:text-muted-foreground hover:bg-muted/40 transition-all opacity-0 group-hover:opacity-100"
                     >
                         <Pencil className="h-3 w-3" />
                     </button>
@@ -257,7 +191,7 @@ function QuestionCard({ question, index, goalId, onUpdated, onDeleted }: Readonl
                 <button
                     onClick={handleDelete}
                     disabled={deleting}
-                    className="h-6 w-6 flex items-center justify-center rounded-lg text-muted-foreground/40 hover:text-destructive hover:bg-destructive/10 transition-all opacity-0 group-hover:opacity-100"
+                    className="h-6 w-6 flex items-center justify-center text-muted-foreground/30 hover:text-destructive hover:bg-destructive/10 transition-all opacity-0 group-hover:opacity-100"
                 >
                     {deleting ? <Loader2 className="h-3 w-3 animate-spin" /> : <Trash2 className="h-3 w-3" />}
                 </button>
@@ -267,6 +201,7 @@ function QuestionCard({ question, index, goalId, onUpdated, onDeleted }: Readonl
 }
 
 // ── Add question row ──────────────────────────────────────────────────────────
+
 function AddQuestionRow({ goalId, nextOrder, onAdded, disabled }: Readonly<{
     goalId: number;
     nextOrder: number;
@@ -294,7 +229,7 @@ function AddQuestionRow({ goalId, nextOrder, onAdded, disabled }: Readonly<{
 
     if (disabled) {
         return (
-            <p className="text-[10px] text-muted-foreground/50 text-center py-1">
+            <p className="px-4 py-2 text-xs text-muted-foreground/50">
                 Maximum {MAX_QUESTIONS} questions reached.
             </p>
         );
@@ -302,73 +237,144 @@ function AddQuestionRow({ goalId, nextOrder, onAdded, disabled }: Readonly<{
 
     if (!open) {
         return (
-            <button
-                onClick={() => setOpen(true)}
-                className="flex items-center gap-2 text-[11px] font-bold text-muted-foreground/60 hover:text-blue-500 transition-colors py-1"
-            >
-                <Plus className="h-3.5 w-3.5" /> Add question manually
-            </button>
+            <div className="px-4 py-2">
+                <button
+                    onClick={() => setOpen(true)}
+                    className="flex items-center gap-1.5 text-xs text-muted-foreground/60 hover:text-primary transition-colors"
+                >
+                    <Plus className="h-3.5 w-3.5" />
+                    Add question manually
+                </button>
+            </div>
         );
     }
 
     return (
-        <div className="flex items-center gap-2">
+        <div className="px-4 py-2 flex items-center gap-2 border-t border-border/50">
             <Input
                 autoFocus
                 value={text}
                 onChange={e => setText(e.target.value)}
                 placeholder="Type your question…"
-                className="h-8 rounded-xl text-xs flex-1 border-blue-500/30"
+                className="h-8 rounded-none text-xs flex-1"
                 onKeyDown={e => {
                     if (e.key === "Enter") handleAdd();
                     if (e.key === "Escape") { setText(""); setOpen(false); }
                 }}
             />
-            <Button size="sm" className="h-8 rounded-xl text-xs bg-blue-600 hover:bg-blue-700 px-3 gap-1" onClick={handleAdd} disabled={saving}>
+            <Button size="sm" className="h-8 rounded-none text-xs px-3 gap-1" onClick={handleAdd} disabled={saving}>
                 {saving ? <Loader2 className="h-3 w-3 animate-spin" /> : <Check className="h-3 w-3" />}
             </Button>
-            <Button size="sm" variant="ghost" className="h-8 rounded-xl text-xs px-2" onClick={() => { setText(""); setOpen(false); }} disabled={saving}>
+            <Button size="sm" variant="ghost" className="h-8 rounded-none text-xs px-2" onClick={() => { setText(""); setOpen(false); }} disabled={saving}>
                 <X className="h-3.5 w-3.5" />
             </Button>
         </div>
     );
 }
 
-// ── Streaming panel ───────────────────────────────────────────────────────────
-function StreamingPanel({ text }: Readonly<{ text: string }>) {
+// ── Skeleton while AI generates ──────────────────────────────────────────────
+
+const SKELETON_ROWS: { id: string; width: string }[] = [
+    { id: "sq-1", width: "w-full"  },
+    { id: "sq-2", width: "w-4/5"  },
+    { id: "sq-3", width: "w-3/4"  },
+    { id: "sq-4", width: "w-full"  },
+    { id: "sq-5", width: "w-5/6"  },
+    { id: "sq-6", width: "w-2/3"  },
+];
+
+function SkeletonQuestions() {
     return (
-        <Card className="bg-background/60 backdrop-blur-xl border border-blue-500/30 rounded-4xl overflow-hidden">
-            <CardHeader className="p-5 pb-3 border-b border-border/10 flex flex-row items-center gap-2">
-                <div className="w-7 h-7 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                    <Sparkles className="h-3.5 w-3.5 text-blue-500 animate-pulse" />
+        <div>
+            <div className="flex items-center gap-2 px-4 py-2.5 border-b border-border/50 bg-muted/10">
+                <Sparkles className="h-3 w-3 text-primary animate-pulse" />
+                <span className="text-xs text-muted-foreground">Generating questions…</span>
+            </div>
+            {SKELETON_ROWS.map(({ id, width }) => (
+                <div key={id} className="flex items-start gap-3 px-4 py-3 border-b border-border/50 last:border-0">
+                    <Skeleton className="h-3 w-4 mt-1 shrink-0 rounded-none" />
+                    <Skeleton className={cn("h-3.5 rounded-none flex-1", width)} />
+                    <Skeleton className="h-4 w-7 shrink-0 rounded-none" />
                 </div>
-                <span className="text-sm font-black tracking-tight">AI is suggesting questions…</span>
-                <Badge variant="outline" className="ml-auto text-[9px] font-black capitalize tracking-widest border-blue-500/20 text-blue-500 bg-blue-500/8">
-                    Live <span className="ml-1.5 w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse inline-block" />
-                </Badge>
+            ))}
+        </div>
+    );
+}
+
+// ── Create goal form ──────────────────────────────────────────────────────────
+
+function CreateGoalForm({ datasetId, onCreated, onCancel }: Readonly<{
+    datasetId: number;
+    onCreated: (goal: AnalysisGoalDetail) => void;
+    onCancel?: () => void;
+}>) {
+    const [statement, setStatement] = useState("");
+    const [saving, setSaving] = useState(false);
+
+    async function handleCreate() {
+        setSaving(true);
+        try {
+            const goal = await goalsApi.create({ dataset: datasetId, problem_statement: statement.trim() || undefined });
+            onCreated(goal);
+        } catch {
+            toast.error("Failed to create goal.");
+        } finally {
+            setSaving(false);
+        }
+    }
+
+    return (
+        <Card className="rounded-none shadow-sm">
+            <CardHeader className="px-5 py-3 border-b border-border bg-muted/40">
+                <div className="flex items-center gap-2">
+                    <BrainCircuit className="h-3.5 w-3.5 text-muted-foreground" />
+                    <CardTitle className="text-sm font-semibold font-mono">New Analysis Goal</CardTitle>
+                </div>
             </CardHeader>
-            <CardContent className="p-5">
-                <div className="space-y-2">
-                    {text.split('\n').filter(Boolean).map((line) => (
-                        <p key={line} className="text-sm text-foreground/80 leading-relaxed">{line}</p>
-                    ))}
-                    <span className="inline-block w-2 h-4 ml-0.5 bg-blue-500 animate-pulse rounded-sm" />
+            <CardContent className="p-5 flex flex-col gap-4">
+                <div className="flex flex-col gap-1.5">
+                    <label htmlFor="goal-statement" className="text-xs font-medium text-muted-foreground">
+                        What are you trying to find out? <span className="text-muted-foreground/50">(optional)</span>
+                    </label>
+                    <textarea
+                        id="goal-statement"
+                        autoFocus
+                        value={statement}
+                        onChange={e => setStatement(e.target.value)}
+                        rows={3}
+                        placeholder="e.g. Why did Q3 revenue drop 18% compared to last year?"
+                        className="w-full border border-border bg-background px-3 py-2 text-sm resize-none focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-primary placeholder:text-muted-foreground/50"
+                    />
+                </div>
+                <div className="flex gap-2">
+                    <Button
+                        onClick={handleCreate}
+                        disabled={saving}
+                        size="sm"
+                        className="h-8 rounded-none gap-1.5 text-xs"
+                    >
+                        {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Plus className="h-3.5 w-3.5" />}
+                        Create Goal
+                    </Button>
+                    {onCancel && (
+                        <Button variant="outline" size="sm" className="h-8 rounded-none text-xs" onClick={onCancel} disabled={saving}>
+                            Cancel
+                        </Button>
+                    )}
                 </div>
             </CardContent>
         </Card>
     );
 }
 
-// ── Active goal detail ────────────────────────────────────────────────────────
-interface GoalDetailProps {
+// ── Goal detail panel ─────────────────────────────────────────────────────────
+
+function GoalDetail({ goal, isStreaming, onGoalUpdated, onSuggest }: Readonly<{
     goal: AnalysisGoalDetail;
     isStreaming: boolean;
-    streamingText: string;
     onGoalUpdated: (patch: Partial<AnalysisGoalDetail>) => void;
     onSuggest: () => void;
-}
-
-function GoalDetail({ goal, isStreaming, streamingText, onGoalUpdated, onSuggest }: Readonly<GoalDetailProps>) {
+}>) {
     const questions = [...(goal.questions ?? [])].sort((a, b) => a.order - b.order);
     const atLimit = questions.length >= MAX_QUESTIONS;
 
@@ -385,16 +391,13 @@ function GoalDetail({ goal, isStreaming, streamingText, onGoalUpdated, onSuggest
     }
 
     return (
-        <div className="lg:col-span-3 space-y-5">
-
+        <div className="space-y-4">
             {/* Problem statement */}
-            <Card className="bg-background/60 backdrop-blur-xl border border-border/20 rounded-4xl overflow-hidden">
-                <CardHeader className="p-5 pb-3 border-b border-border/10">
+            <Card className="rounded-none shadow-sm">
+                <CardHeader className="px-5 py-3 border-b border-border bg-muted/40">
                     <div className="flex items-center gap-2">
-                        <div className="w-7 h-7 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                            <BrainCircuit className="h-3.5 w-3.5 text-blue-500" />
-                        </div>
-                        <p className="text-[10px] font-black tracking-widest text-muted-foreground capitalize">Problem Statement</p>
+                        <BrainCircuit className="h-3.5 w-3.5 text-muted-foreground" />
+                        <CardTitle className="text-sm font-semibold font-mono">Problem Statement</CardTitle>
                     </div>
                 </CardHeader>
                 <CardContent className="p-5">
@@ -407,46 +410,43 @@ function GoalDetail({ goal, isStreaming, streamingText, onGoalUpdated, onSuggest
             </Card>
 
             {/* Questions */}
-            <Card className="bg-background/60 backdrop-blur-xl border border-border/20 rounded-4xl overflow-hidden">
-                <CardHeader className="p-5 pb-3 border-b border-border/10">
+            <Card className="rounded-none shadow-sm overflow-hidden">
+                <CardHeader className="px-5 py-3 border-b border-border bg-muted/40">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                            <div className="w-7 h-7 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                                <FileText className="h-3.5 w-3.5 text-blue-500" />
-                            </div>
-                            <p className="text-[10px] font-black tracking-widest text-muted-foreground capitalize">Research Questions</p>
-                            <Badge variant="outline" className="text-[9px] font-black border-border/30">
+                            <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+                            <CardTitle className="text-sm font-semibold font-mono">Research Questions</CardTitle>
+                            <span className="text-xs text-muted-foreground font-mono">
                                 {questions.length}/{MAX_QUESTIONS}
-                            </Badge>
+                            </span>
                         </div>
                         <Button
                             size="sm"
                             disabled={isStreaming || atLimit}
                             onClick={onSuggest}
-                            className="rounded-2xl h-8 px-4 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] capitalize tracking-widest shadow-sm shadow-blue-500/20 transition-all"
+                            className="h-7 rounded-none gap-1.5 text-xs"
                         >
                             {isStreaming
-                                ? <><Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" /> Generating…</>
-                                : <><Sparkles className="mr-2 h-3.5 w-3.5" /> Suggest with AI</>
+                                ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Generating…</>
+                                : <><Sparkles className="h-3.5 w-3.5" /> Suggest with AI</>
                             }
                         </Button>
                     </div>
                 </CardHeader>
-                <CardContent className="p-5 space-y-3">
-                    {/* Streaming panel */}
-                    {isStreaming && <StreamingPanel text={streamingText} />}
 
-                    {/* Saved questions */}
+                <CardContent className="p-0">
+                    {isStreaming && <SkeletonQuestions />}
+
                     {!isStreaming && questions.length === 0 && (
-                        <div className="text-center py-8 text-muted-foreground/50">
-                            <Sparkles className="h-7 w-7 mx-auto mb-2 opacity-20" />
-                            <p className="text-xs font-medium">No questions yet</p>
-                            <p className="text-[11px] opacity-60 mt-0.5">Click "Suggest with AI" or add one manually below</p>
+                        <div className="flex flex-col items-center justify-center py-16 text-muted-foreground gap-2">
+                            <Sparkles className="h-7 w-7 opacity-20" />
+                            <p className="text-sm font-medium">No questions yet</p>
+                            <p className="text-xs opacity-60">Click "Suggest with AI" or add one manually below</p>
                         </div>
                     )}
 
                     {!isStreaming && questions.map((q, i) => (
-                        <QuestionCard
+                        <QuestionRow
                             key={q.id}
                             question={q}
                             index={i}
@@ -470,73 +470,73 @@ function GoalDetail({ goal, isStreaming, streamingText, onGoalUpdated, onSuggest
     );
 }
 
-// ── Create goal form ──────────────────────────────────────────────────────────
-interface CreateGoalFormProps {
-    datasetId: number;
-    onCreated: (goal: AnalysisGoalDetail) => void;
-    onCancel?: () => void;
-}
+// ── Goals sidebar ─────────────────────────────────────────────────────────────
 
-function CreateGoalForm({ datasetId, onCreated, onCancel }: Readonly<CreateGoalFormProps>) {
-    const [statement, setStatement] = useState("");
-    const [saving, setSaving] = useState(false);
-
-    async function handleCreate() {
-        setSaving(true);
-        try {
-            const goal = await goalsApi.create({ dataset: datasetId, problem_statement: statement.trim() || undefined });
-            onCreated(goal);
-        } catch {
-            toast.error("Failed to create goal.");
-        } finally {
-            setSaving(false);
-        }
-    }
-
+function GoalsSidebar({ goals, activeId, isStreaming, onSelect, onNew }: Readonly<{
+    goals: AnalysisGoal[];
+    activeId: number | null;
+    isStreaming: boolean;
+    onSelect: (g: AnalysisGoal) => void;
+    onNew: () => void;
+}>) {
     return (
-        <Card className="bg-background/60 backdrop-blur-xl border border-blue-500/30 rounded-4xl overflow-hidden">
-            <CardHeader className="p-5 pb-3 border-b border-border/10 flex flex-row items-center gap-2">
-                <div className="w-7 h-7 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                    <BrainCircuit className="h-3.5 w-3.5 text-blue-500" />
-                </div>
-                <p className="text-sm font-black tracking-tight">New Analysis Goal</p>
-            </CardHeader>
-            <CardContent className="p-5 flex flex-col gap-4">
-                <div className="flex flex-col gap-1.5">
-                    <label htmlFor="goal-statement" className="text-[10px] font-black tracking-widest text-muted-foreground capitalize">
-                        What are you trying to find out?
-                    </label>
-                    <textarea
-                        id="goal-statement"
-                        autoFocus
-                        value={statement}
-                        onChange={e => setStatement(e.target.value)}
-                        rows={3}
-                        placeholder="e.g. Why did Q3 revenue drop 18% compared to last year?"
-                        className="w-full rounded-2xl border border-border/30 bg-background/60 px-4 py-3 text-sm resize-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 placeholder:text-muted-foreground/50"
-                    />
-                </div>
-                <div className="flex gap-2">
-                    <Button
-                        onClick={handleCreate}
-                        disabled={saving}
-                        className="rounded-2xl h-9 px-5 bg-blue-600 hover:bg-blue-700 text-white font-black text-[10px] capitalize tracking-widest shadow-sm shadow-blue-500/20"
+        <Card className="rounded-none shadow-sm overflow-hidden h-fit">
+            <CardHeader className="px-4 py-3 border-b border-border bg-muted/40">
+                <div className="flex items-center justify-between">
+                    <CardTitle className="text-xs font-semibold font-mono text-muted-foreground">Goals</CardTitle>
+                    <button
+                        onClick={onNew}
+                        title="New Goal"
+                        className="h-5 w-5 flex items-center justify-center text-muted-foreground/50 hover:text-primary hover:bg-primary/5 transition-colors"
                     >
-                        {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Plus className="mr-2 h-4 w-4" />}
-                        Create Goal
-                    </Button>
-                    {onCancel && (
-                        <Button variant="ghost" className="rounded-2xl h-9 px-5 font-black text-[10px] capitalize tracking-widest" onClick={onCancel} disabled={saving}>
-                            Cancel
-                        </Button>
-                    )}
+                        <Plus className="h-3.5 w-3.5" />
+                    </button>
                 </div>
+            </CardHeader>
+            <CardContent className="p-0">
+                {goals.length === 0 ? (
+                    <p className="text-xs text-muted-foreground/50 text-center py-6">No goals yet</p>
+                ) : (
+                    <div className="divide-y divide-border/50">
+                        {goals.map((g, idx) => {
+                            const isActive = activeId === g.id && !isStreaming;
+                            return (
+                                <button
+                                    key={g.id}
+                                    onClick={() => onSelect(g)}
+                                    className={cn(
+                                        "w-full text-left px-4 py-3 transition-colors border-l-2",
+                                        isActive
+                                            ? "bg-primary/5 border-l-primary"
+                                            : "border-l-transparent hover:bg-muted/30"
+                                    )}
+                                >
+                                    <div className="flex items-center gap-1.5 mb-0.5">
+                                        <span className={cn("text-[10px] font-semibold font-mono", isActive ? "text-primary" : "text-muted-foreground")}>
+                                            Goal {idx + 1}
+                                        </span>
+                                        {idx === 0 && (
+                                            <span className="text-[9px] font-medium text-muted-foreground/50 ml-auto">latest</span>
+                                        )}
+                                    </div>
+                                    <p className="text-[11px] text-muted-foreground/70 leading-relaxed line-clamp-2">
+                                        {g.problem_statement || <span className="italic opacity-50">No problem statement</span>}
+                                    </p>
+                                    <p className="text-[10px] text-muted-foreground/40 mt-1 font-mono">
+                                        {g.question_count} {g.question_count === 1 ? "question" : "questions"}
+                                    </p>
+                                </button>
+                            );
+                        })}
+                    </div>
+                )}
             </CardContent>
         </Card>
     );
 }
 
 // ── Page ──────────────────────────────────────────────────────────────────────
+
 export function FramingPage() {
     const [datasets, setDatasets] = useState<Dataset[]>([]);
     const [selectedDataset, setSelectedDataset] = useState<Dataset | null>(null);
@@ -545,30 +545,25 @@ export function FramingPage() {
     const [loadingDatasets, setLoadingDatasets] = useState(true);
     const [loadingGoals, setLoadingGoals] = useState(false);
     const [loadingGoalDetail, setLoadingGoalDetail] = useState(false);
-    const [streamingText, setStreamingText] = useState("");
     const [isStreaming, setIsStreaming] = useState(false);
     const [showCreateForm, setShowCreateForm] = useState(false);
 
-    // Load datasets
     useEffect(() => {
-        setLoadingDatasets(true);
         datasetApi.listDatasets()
             .then(data => setDatasets(Array.isArray(data) ? data : (data as { results: Dataset[] }).results ?? []))
             .catch(() => toast.error("Failed to load datasets."))
             .finally(() => setLoadingDatasets(false));
     }, []);
 
-    // Load goals for selected dataset
     const loadGoals = useCallback(async (dataset: Dataset) => {
         setLoadingGoals(true);
         setActiveGoal(null);
         setShowCreateForm(false);
-        setStreamingText("");
         try {
             const all = await goalsApi.list();
-            const filtered = all.filter(g => g.dataset === dataset.id).sort(
-                (a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-            );
+            const filtered = all
+                .filter(g => g.dataset === dataset.id)
+                .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
             setGoals(filtered);
             if (filtered.length > 0) {
                 await selectGoal(filtered[0]);
@@ -584,7 +579,6 @@ export function FramingPage() {
 
     async function selectGoal(goal: AnalysisGoal) {
         setLoadingGoalDetail(true);
-        setStreamingText("");
         try {
             const detail = await goalsApi.get(goal.id);
             setActiveGoal(detail);
@@ -611,7 +605,9 @@ export function FramingPage() {
         setActiveGoal(prev => prev ? { ...prev, ...patch } : prev);
         if (patch.problem_statement !== undefined || patch.question_count !== undefined) {
             setGoals(prev => prev.map(g =>
-                g.id === activeGoal?.id ? { ...g, ...patch, question_count: patch.question_count ?? (patch.questions?.length ?? g.question_count) } : g
+                g.id === activeGoal?.id
+                    ? { ...g, ...patch, question_count: patch.question_count ?? (patch.questions?.length ?? g.question_count) }
+                    : g
             ));
         }
     }
@@ -619,16 +615,14 @@ export function FramingPage() {
     async function runSuggest() {
         if (!activeGoal || isStreaming) return;
         setIsStreaming(true);
-        setStreamingText("");
         try {
             await goalsApi.suggest(
                 activeGoal.id,
-                token => setStreamingText(prev => prev ? `${prev}\n${token}` : token),
+                () => {},
                 async () => {
                     const detail = await goalsApi.get(activeGoal.id);
                     setActiveGoal(detail);
                     setGoals(prev => applyGoalQuestionCount(prev, detail));
-                    setStreamingText("");
                     setIsStreaming(false);
                 },
                 err => {
@@ -644,127 +638,155 @@ export function FramingPage() {
 
     const datasetGoals = selectedDataset ? goals.filter(g => g.dataset === selectedDataset.id) : [];
     const hasGoals = datasetGoals.length > 0;
+    const selectedName = selectedDataset?.file_name ?? null;
 
     return (
-        <main className="min-h-screen pb-20 px-6 md:px-10 bg-background relative z-0">
+        <div className="flex flex-col gap-6 p-4 sm:p-6 lg:p-8">
 
-            {/* Background */}
-            <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-                <div className="absolute inset-0 bg-background" />
-                <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[32px_32px]" />
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-200 h-80 bg-blue-500/5 blur-[100px] rounded-full" />
+            {/* ── Header ── */}
+            <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                    <BrainCircuit className="h-6 w-6 text-primary shrink-0" />
+                    <div className="flex items-baseline gap-2.5 flex-wrap">
+                        <h1 className="text-2xl font-bold tracking-tight font-mono leading-none">Framing</h1>
+                        <span className="text-sm text-muted-foreground leading-none">/ Define your analysis goals and research questions</span>
+                    </div>
+                </div>
             </div>
 
-            <div className="max-w-7xl mx-auto space-y-8 pt-8">
+            {/* ── Toolbar ── */}
+            <div className="flex items-center gap-3 border-b border-border pb-4">
 
-                {/* Header */}
-                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }} className="space-y-2">
-                    <div className="flex items-center gap-2">
-                        <BrainCircuit size={13} className="text-blue-500" />
-                        <span className="text-[10px] font-black capitalize tracking-widest text-blue-600 dark:text-blue-400">Analysis Goals</span>
-                    </div>
-                    <h1 className="text-3xl md:text-4xl font-black tracking-tight leading-none">Problem Framing</h1>
-                    <p className="text-sm text-muted-foreground font-medium">
-                        Define what you're investigating and break it into focused research questions.
-                    </p>
-                </motion.div>
+                {/* New goal button — only when dataset selected */}
+                {selectedDataset && (
+                    <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8 rounded-none gap-1.5 text-xs"
+                        onClick={() => { setShowCreateForm(true); setActiveGoal(null); }}
+                        disabled={loadingGoals || isStreaming}
+                    >
+                        <Plus className="h-3.5 w-3.5" />
+                        New Goal
+                    </Button>
+                )}
 
-                {/* Dataset picker */}
-                <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} className="flex items-center gap-3">
+                {/* Dataset picker — mirrors DataLab style, pushed to right */}
+                <div className="ml-auto">
                     <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="outline"
+                                size="sm"
+                                className="h-8 gap-2 w-full sm:w-auto sm:min-w-44 min-w-0 justify-between text-xs rounded-none"
                                 disabled={loadingDatasets}
-                                className="w-full sm:w-80 justify-between rounded-2xl h-10 border-border/30 bg-background/60 hover:bg-secondary/50 font-bold transition-all"
                             >
-                                <DatasetTriggerLabel loading={loadingDatasets} selected={selectedDataset} />
-                                <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground ml-2" />
+                                <div className="flex items-center gap-1.5 min-w-0">
+                                    <Database className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                                    <span className="truncate max-w-36">
+                                        {loadingDatasets ? "Loading…" : (selectedName ?? "Select dataset")}
+                                    </span>
+                                </div>
+                                <ChevronDown className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
                             </Button>
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-80 rounded-2xl">
-                            {datasets.length === 0 ? (
-                                <div className="px-3 py-4 text-sm text-muted-foreground text-center">No datasets found.</div>
-                            ) : datasets.map(d => (
-                                <DropdownMenuItem key={d.id} onClick={() => handleSelectDataset(d)} className="flex items-center gap-2 rounded-xl">
-                                    <FileText className="h-4 w-4 text-muted-foreground shrink-0" />
-                                    <span className="truncate text-sm">{d.file_name}</span>
-                                    <Badge variant="secondary" className="ml-auto shrink-0 text-[10px] font-black">{d.file_format.toLowerCase()}</Badge>
-                                </DropdownMenuItem>
-                            ))}
+                        <DropdownMenuContent align="end" className="w-64 rounded-none shadow-md">
+                            <DropdownMenuLabel className="text-[13px] font-semibold text-muted-foreground">
+                                Dataset
+                            </DropdownMenuLabel>
+                            <DropdownMenuSeparator />
+                            <DropdownMenuRadioGroup
+                                value={selectedDataset ? String(selectedDataset.id) : ""}
+                                onValueChange={id => {
+                                    const d = datasets.find(d => String(d.id) === id);
+                                    if (d) handleSelectDataset(d);
+                                }}
+                            >
+                                {datasets.length === 0
+                                    ? <DropdownMenuRadioItem value="" disabled className="text-sm opacity-50">No datasets found</DropdownMenuRadioItem>
+                                    : datasets.map(d => (
+                                        <DropdownMenuRadioItem key={d.id} value={String(d.id)} className="text-sm truncate cursor-pointer">
+                                            {d.file_name}
+                                        </DropdownMenuRadioItem>
+                                    ))
+                                }
+                            </DropdownMenuRadioGroup>
                         </DropdownMenuContent>
                     </DropdownMenu>
-                </motion.div>
+                </div>
+            </div>
 
-                {/* Main content */}
-                {selectedDataset && (
-                    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.15 }}>
-                        {loadingGoals ? (
-                            <div className="flex flex-col items-center justify-center py-32 gap-3">
-                                <div className="h-7 w-7 rounded-full border-2 border-blue-500 border-t-transparent animate-spin" />
-                                <p className="text-xs font-bold text-muted-foreground capitalize tracking-widest">Loading goals…</p>
-                            </div>
-                        ) : (
-                            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                                {/* Sidebar */}
-                                <GoalsSidebar
-                                    goals={datasetGoals}
-                                    activeId={activeGoal?.id ?? null}
-                                    isStreaming={isStreaming}
-                                    onSelect={g => selectGoal(g)}
-                                    onNew={() => { setShowCreateForm(true); setActiveGoal(null); }}
-                                />
+            {/* ── No dataset selected ── */}
+            {!selectedDataset && (
+                <div className="border bg-muted/5 h-105 flex flex-col items-center justify-center gap-3 text-muted-foreground">
+                    <DatabaseZap className="h-10 w-10 opacity-30" />
+                    <p className="text-sm font-medium">No dataset selected</p>
+                    <p className="text-xs opacity-70">Select a dataset from the dropdown above to get started</p>
+                </div>
+            )}
 
-                                {/* Main panel */}
-                                <div className="lg:col-span-3">
-                                    {showCreateForm && (
-                                        <CreateGoalForm
-                                            datasetId={selectedDataset.id}
-                                            onCreated={handleGoalCreated}
-                                            onCancel={hasGoals ? () => {
-                                                setShowCreateForm(false);
-                                                if (datasetGoals[0]) selectGoal(datasetGoals[0]);
-                                            } : undefined}
-                                        />
-                                    )}
+            {/* ── Loading goals ── */}
+            {selectedDataset && loadingGoals && (
+                <div className="flex items-center justify-center h-80 gap-2 text-muted-foreground">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <span className="text-sm">Loading goals…</span>
+                </div>
+            )}
 
-                                    {loadingGoalDetail && (
-                                        <div className="flex items-center justify-center py-24 gap-3 text-muted-foreground">
-                                            <Loader2 className="h-5 w-5 animate-spin" />
-                                            <span className="text-sm">Loading goal…</span>
-                                        </div>
-                                    )}
+            {/* ── Main content ── */}
+            {selectedDataset && !loadingGoals && (
+                <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
 
-                                    {!showCreateForm && !loadingGoalDetail && activeGoal && (
-                                        <GoalDetail
-                                            goal={activeGoal}
-                                            isStreaming={isStreaming}
-                                            streamingText={streamingText}
-                                            onGoalUpdated={handleGoalUpdated}
-                                            onSuggest={runSuggest}
-                                        />
-                                    )}
-                                </div>
+                    {/* Goals sidebar */}
+                    <div className="lg:col-span-1">
+                        <GoalsSidebar
+                            goals={datasetGoals}
+                            activeId={activeGoal?.id ?? null}
+                            isStreaming={isStreaming}
+                            onSelect={g => selectGoal(g)}
+                            onNew={() => { setShowCreateForm(true); setActiveGoal(null); }}
+                        />
+                    </div>
+
+                    {/* Right panel */}
+                    <div className="lg:col-span-3">
+
+                        {showCreateForm && (
+                            <CreateGoalForm
+                                datasetId={selectedDataset.id}
+                                onCreated={handleGoalCreated}
+                                onCancel={hasGoals ? () => {
+                                    setShowCreateForm(false);
+                                    if (datasetGoals[0]) selectGoal(datasetGoals[0]);
+                                } : undefined}
+                            />
+                        )}
+
+                        {loadingGoalDetail && (
+                            <div className="flex items-center justify-center h-80 gap-2 text-muted-foreground">
+                                <Loader2 className="h-5 w-5 animate-spin" />
+                                <span className="text-sm">Loading goal…</span>
                             </div>
                         )}
-                    </motion.div>
-                )}
 
-                {/* No dataset selected */}
-                {!selectedDataset && (
-                    <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }}>
-                        <div className="flex flex-col items-center justify-center py-32 text-center border border-dashed border-border/30 rounded-4xl bg-background/40 backdrop-blur-xl">
-                            <div className="w-16 h-16 rounded-3xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-5">
-                                <BrainCircuit className="h-7 w-7 text-blue-500/60" />
+                        {!showCreateForm && !loadingGoalDetail && activeGoal && (
+                            <GoalDetail
+                                goal={activeGoal}
+                                isStreaming={isStreaming}
+                                onGoalUpdated={handleGoalUpdated}
+                                onSuggest={runSuggest}
+                            />
+                        )}
+
+                        {!showCreateForm && !loadingGoalDetail && !activeGoal && (
+                            <div className="border bg-muted/5 h-80 flex flex-col items-center justify-center gap-3 text-muted-foreground">
+                                <BrainCircuit className="h-10 w-10 opacity-20" />
+                                <p className="text-sm font-medium">Select a goal to view</p>
                             </div>
-                            <h3 className="text-lg font-black tracking-tight mb-1">Select a dataset to begin</h3>
-                            <p className="text-sm text-muted-foreground font-medium max-w-sm">
-                                Choose a dataset above, then define your analysis goal and research questions.
-                            </p>
-                        </div>
-                    </motion.div>
-                )}
-            </div>
-        </main>
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
     );
 }
