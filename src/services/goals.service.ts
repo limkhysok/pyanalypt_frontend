@@ -136,4 +136,9 @@ export const goalsApi = {
   async deleteQuestion(goalId: number, questionId: number): Promise<void> {
     await apiClient.delete(`goals/${goalId}/questions/${questionId}/`);
   },
+
+  async bulkDeleteQuestions(goalId: number, ids: number[]): Promise<{ deleted: number }> {
+    const res = await apiClient.delete(`goals/${goalId}/questions/bulk-delete/`, { data: { ids } });
+    return res.data;
+  },
 };

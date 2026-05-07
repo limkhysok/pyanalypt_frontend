@@ -183,12 +183,13 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
         [rows]
     );
 
-    // Clear row-index-based selection when search changes (indices shift)
+    // Clear row-index-based selection and any active edit when search changes (indices shift)
     React.useEffect(() => {
         setSelectedRows(new Set());
         setSelectedCols(new Set());
         setAnchorRow(null);
         setAnchorColIdx(null);
+        setEditingCell(null);
     }, [search]);
 
     function toggleCol(col: string) {

@@ -327,13 +327,13 @@ export default function DataLabPage() {
                         <TabsContent value="inspect">
                             {inspect && preview
                                 ? <InspectTab data={inspect} preview={preview} datasetId={Number(selectedId)} onRefetchAll={refetchAll} />
-                                : <div className="border bg-muted/5 h-105" />
+                                : <InspectTabSkeleton />
                             }
                         </TabsContent>
                         <TabsContent value="describe">
                             {describe && preview
                                 ? <DescribeTab data={describe} preview={preview} />
-                                : <div className="border bg-muted/5 h-105" />
+                                : <DescribeTabSkeleton />
                             }
                         </TabsContent>
                         <TabsContent value="drop-dups">

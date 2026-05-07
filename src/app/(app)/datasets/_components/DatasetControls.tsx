@@ -92,7 +92,7 @@ export function DatasetControls({
                             {getFilterLabel(filterType)}
                         </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="end" className="rounded-none border-border shadow-none min-w-455">
+                    <DropdownMenuContent align="end" className="rounded-none border-border shadow-none min-w-45 p-1.5">
                         <DropdownMenuRadioGroup value={filterType} onValueChange={onFilterChange}>
                             <DropdownMenuRadioItem className="rounded-none text-xs font-semibold h-8 lowercase" value="all">all formats</DropdownMenuRadioItem>
                             <DropdownMenuRadioItem className="rounded-none text-xs font-semibold h-8 lowercase" value="csv">csv</DropdownMenuRadioItem>

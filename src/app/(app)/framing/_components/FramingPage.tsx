@@ -377,6 +377,7 @@ function GoalDetail({ goal, isStreaming, onGoalUpdated, onSuggest }: Readonly<{
 }>) {
     const questions = [...(goal.questions ?? [])].sort((a, b) => a.order - b.order);
     const atLimit = questions.length >= MAX_QUESTIONS;
+    const [clearingAll, setClearingAll] = useState(false);
 
     function handleQuestionUpdated(updated: AnalysisQuestion) {
         onGoalUpdated({ questions: questions.map(q => q.id === updated.id ? updated : q) });
@@ -388,6 +389,19 @@ function GoalDetail({ goal, isStreaming, onGoalUpdated, onSuggest }: Readonly<{
 
     function handleQuestionAdded(q: AnalysisQuestion) {
         onGoalUpdated({ questions: [...questions, q], question_count: goal.question_count + 1 });
+    }
+
+    async function handleClearAll() {
+        if (questions.length === 0) return;
+        setClearingAll(true);
+        try {
+            await goalsApi.bulkDeleteQuestions(goal.id, questions.map(q => q.id));
+            onGoalUpdated({ questions: [], question_count: 0 });
+        } catch {
+            toast.error("Failed to clear questions.");
+        } finally {
+            setClearingAll(false);
+        }
     }
 
     return (
@@ -420,17 +434,33 @@ function GoalDetail({ goal, isStreaming, onGoalUpdated, onSuggest }: Readonly<{
                                 {questions.length}/{MAX_QUESTIONS}
                             </span>
                         </div>
-                        <Button
-                            size="sm"
-                            disabled={isStreaming || atLimit}
-                            onClick={onSuggest}
-                            className="h-7 rounded-none gap-1.5 text-xs"
-                        >
-                            {isStreaming
-                                ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Generating…</>
-                                : <><Sparkles className="h-3.5 w-3.5" /> Suggest with AI</>
-                            }
-                        </Button>
+                        <div className="flex items-center gap-2">
+                            {questions.length > 0 && !isStreaming && (
+                                <Button
+                                    size="sm"
+                                    variant="ghost"
+                                    disabled={clearingAll}
+                                    onClick={handleClearAll}
+                                    className="h-7 rounded-none gap-1.5 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                                >
+                                    {clearingAll
+                                        ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Clearing…</>
+                                        : <><Trash2 className="h-3.5 w-3.5" /> Clear all</>
+                                    }
+                                </Button>
+                            )}
+                            <Button
+                                size="sm"
+                                disabled={isStreaming || atLimit}
+                                onClick={onSuggest}
+                                className="h-7 rounded-none gap-1.5 text-xs"
+                            >
+                                {isStreaming
+                                    ? <><Loader2 className="h-3.5 w-3.5 animate-spin" /> Generating…</>
+                                    : <><Sparkles className="h-3.5 w-3.5" /> Suggest with AI</>
+                                }
+                            </Button>
+                        </div>
                     </div>
                 </CardHeader>
 
