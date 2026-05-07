@@ -219,7 +219,7 @@ export default function DashboardsListPage() {
               <Plus className="h-3.5 w-3.5" /> New dashboard
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px] rounded-none border-2 border-foreground shadow-[8px_8px_0px_0px_rgba(0,0,0,0.1)]">
+          <DialogContent className="sm:max-w-106.25 rounded-none border-2 border-foreground shadow-[8px_8px_0px_0px_rgba(0,0,0,0.1)]">
             <DialogHeader>
               <DialogTitle className="text-xl font-bold font-mono lowercase">Create New Dashboard</DialogTitle>
               <DialogDescription className="text-xs lowercase">

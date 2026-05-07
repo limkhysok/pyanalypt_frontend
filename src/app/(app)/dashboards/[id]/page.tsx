@@ -16,6 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { dashboardsApi, type DashboardDetail } from "@/services/dashboards.service";
 import { DashboardGrid } from "../_components/DashboardGrid";
+import { AddWidgetDialog } from "../_components/AddWidgetDialog";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -25,6 +26,7 @@ export default function DashboardDetailPage() {
   const [dashboard, setDashboard] = useState<DashboardDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [isEditMode, setIsEditMode] = useState(false);
+  const [isAddWidgetOpen, setIsAddWidgetOpen] = useState(false);
 
 
   const loadDashboard = React.useCallback(async () => {
@@ -59,7 +61,7 @@ export default function DashboardDetailPage() {
 
   if (loading) {
     return (
-      <div className="h-[calc(100vh-theme(spacing.12))] flex items-center justify-center">
+      <div className="h-[calc(100vh-(--spacing(12)))] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <RefreshCw className="h-8 w-8 animate-spin text-primary" />
           <p className="text-[10px] font-bold capitalize tracking-widest text-muted-foreground font-mono">Initializing Workspace...</p>
@@ -78,7 +80,7 @@ export default function DashboardDetailPage() {
           <Button variant="ghost" size="icon" className="rounded-none hover:bg-muted/80" onClick={() => router.push("/dashboards")}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div className="h-6 w-[2px] bg-foreground/10 mx-1" />
+          <div className="h-6 w-0.5 bg-foreground/10 mx-1" />
           <div>
             <h1 className="text-base font-bold tracking-tight leading-none font-mono lowercase">{dashboard.title}</h1>
             <p className="text-[9px] font-bold text-muted-foreground/60 capitalize tracking-widest mt-1.5">Dashboard Viewer • {dashboard.widgets.length} components</p>
@@ -134,7 +136,7 @@ export default function DashboardDetailPage() {
 
       {/* Main Grid Area */}
       <main className="flex-1 p-6 md:p-8">
-        <div className="max-w-[1600px] mx-auto">
+        <div className="max-w-400 mx-auto">
            {dashboard.widgets.length === 0 ? (
              <div className="h-[60vh] flex flex-col items-center justify-center text-center space-y-6">
                <div className="h-20 w-20 rounded-none bg-slate-50 border-2 border-slate-200 flex items-center justify-center">
@@ -146,7 +148,7 @@ export default function DashboardDetailPage() {
                    this dashboard doesn&apos;t have any widgets yet. add your visualizations from the datalab or eda modules.
                  </p>
                </div>
-               <Button className="rounded-none px-8 h-10 font-bold bg-foreground text-background shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:bg-foreground/90 transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none lowercase">add component</Button>
+               <Button onClick={() => setIsAddWidgetOpen(true)} className="rounded-none px-8 h-10 font-bold bg-foreground text-background shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] hover:bg-foreground/90 transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none lowercase">add component</Button>
              </div>
            ) : (
              <DashboardGrid 
@@ -161,13 +163,20 @@ export default function DashboardDetailPage() {
 
       {/* Floating Action Button for adding widgets in edit mode */}
       {isEditMode && (
-        <Button 
+        <Button
           className="fixed bottom-8 right-8 h-12 w-12 rounded-none border-2 border-foreground shadow-[6px_6px_0px_0px_rgba(0,0,0,1)] bg-foreground hover:bg-foreground text-background group transition-all active:translate-x-0.5 active:translate-y-0.5 active:shadow-none"
-          onClick={() => toast.info("Select a visualization from Datalab to add to dashboard")}
+          onClick={() => setIsAddWidgetOpen(true)}
         >
           <Plus className="h-5 w-5 transition-transform group-hover:rotate-90" />
         </Button>
       )}
+
+      <AddWidgetDialog
+        dashboardId={dashboard.id}
+        open={isAddWidgetOpen}
+        onOpenChange={setIsAddWidgetOpen}
+        onAdded={loadDashboard}
+      />
     </div>
   );
 }

@@ -99,7 +99,7 @@ export function DashboardGrid({ dashboardId, widgets, onRefresh, isEditMode }: R
   };
 
   return (
-    <div ref={containerRef} className="w-full h-full min-h-[500px]">
+    <div ref={containerRef} className="w-full h-full min-h-125">
       {mounted && (
         <Responsive
           width={width}
