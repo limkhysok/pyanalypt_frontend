@@ -97,7 +97,7 @@ export function DescribeTab({ data, preview }: Readonly<{
                                 <span className="text-xs font-semibold text-muted-foreground tracking-wider capitalize">Numeric</span>
                                 <span className="text-xs text-muted-foreground/40 font-mono">({numericNames.length})</span>
                             </div>
-                            <ScrollArea className="w-full max-h-[400px]">
+                            <ScrollArea className="w-full max-h-100">
                                 <table className="border-collapse min-w-full relative">
                                     <thead className="sticky top-0 z-20 bg-background shadow-sm">
                                         <tr className="bg-muted/40 border-b border-border">
@@ -140,7 +140,7 @@ export function DescribeTab({ data, preview }: Readonly<{
                                 <span className="text-xs font-semibold text-muted-foreground tracking-wider capitalize">Categorical / String</span>
                                 <span className="text-xs text-muted-foreground/40 font-mono">({categoricalNames.length})</span>
                             </div>
-                            <ScrollArea className="w-full max-h-[300px]">
+                            <ScrollArea className="w-full max-h-75">
                                 <table className="border-collapse min-w-full relative">
                                     <thead className="sticky top-0 z-20 bg-background shadow-sm">
                                         <tr className="bg-muted/40 border-b border-border">

@@ -79,8 +79,8 @@ export function ColumnToolsDialog({
             toast.success(`Dropped ${res.columns_dropped.length} column(s): ${res.columns_dropped.join(", ")}`);
             onRefetchAll();
             setDropSelected([]);
-        } catch (err: any) {
-            toast.error(err.response?.data?.detail ?? "Failed to drop columns.");
+        } catch (err: unknown) {
+            toast.error((err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? "Failed to drop columns.");
             return;
         } finally {
             setLoading(false);
@@ -101,8 +101,8 @@ export function ColumnToolsDialog({
             toast.success(`Added column "${res.new_column}". Dataset now has ${res.total_columns} columns.`);
             onRefetchAll();
             setNewName(""); setOperandA(""); setOperandB("");
-        } catch (err: any) {
-            toast.error(err.response?.data?.detail ?? "Failed to add column.");
+        } catch (err: unknown) {
+            toast.error((err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? "Failed to add column.");
             return;
         } finally {
             setLoading(false);
@@ -122,8 +122,8 @@ export function ColumnToolsDialog({
                 onRefetchAll();
             }
             onOpenChange(false);
-        } catch (err: any) {
-            toast.error(err.response?.data?.detail ?? "Failed to normalize column names.");
+        } catch (err: unknown) {
+            toast.error((err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? "Failed to normalize column names.");
         } finally {
             setLoading(false);
         }

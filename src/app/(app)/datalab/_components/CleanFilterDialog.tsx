@@ -35,7 +35,7 @@ const OPERATORS: { value: FilterOperator; label: string; needsValue: boolean }[]
 const STRING_OPS: { value: CleanStringOperation; label: string; desc: string }[] = [
     { value: "strip", label: "Strip whitespace", desc: "Remove leading and trailing spaces" },
     { value: "lower", label: "Lowercase",        desc: "Convert all text to lowercase"     },
-    { value: "upper", label: "capitalize",        desc: "Convert all text to capitalize"     },
+    { value: "upper", label: "Uppercase",           desc: "Convert all text to uppercase"       },
     { value: "title", label: "Title Case",       desc: "Capitalize the first letter of each word" },
 ];
 
@@ -104,8 +104,8 @@ export function CleanFilterDialog({
                 onRefetchAll();
             }
             setFilterCol(""); setFilterVal("");
-        } catch (err: any) {
-            toast.error(err.response?.data?.detail ?? "Failed to filter rows.");
+        } catch (err: unknown) {
+            toast.error((err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? "Failed to filter rows.");
             return;
         } finally {
             setLoading(false);
@@ -131,8 +131,8 @@ export function CleanFilterDialog({
                 onRefetchAll();
             }
             onOpenChange(false);
-        } catch (err: any) {
-            toast.error(err.response?.data?.detail ?? "Failed to clean string columns.");
+        } catch (err: unknown) {
+            toast.error((err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? "Failed to clean string columns.");
         } finally {
             setLoading(false);
         }
@@ -157,7 +157,7 @@ export function CleanFilterDialog({
             {/* Main */}
             <div className="flex-1 flex flex-col bg-background">
                 <div className="p-6 pb-4 flex flex-col space-y-1.5 text-center sm:text-left">
-                    <h2 className="text-lg font-semibold leading-none tracking-tight text-sm font-bold">
+                    <h2 className="text-sm font-bold leading-none tracking-tight">
                         {step === "filter" && "Step 1 — Filter Rows"}
                         {step === "string" && "Step 2 — Clean Text Columns"}
                     </h2>

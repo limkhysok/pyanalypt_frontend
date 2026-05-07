@@ -139,7 +139,7 @@ export function NullHandlingDialog({
                 toast.info("No matching values found.");
             } else {
                 toast.success(`Replaced ${res.cells_replaced} values.`);
-                onRefetchInspect();
+                onRefetchAll();
             }
             setStep("drop");
             setSelectedCols([]); // Reset selection for next step
@@ -168,7 +168,7 @@ export function NullHandlingDialog({
                 toast.info("No null values found to fill with this formula.");
             } else {
                 toast.success(`Filled ${res.cells_filled} null values in '${res.target}'.`);
-                onRefetchInspect();
+                onRefetchAll();
             }
             setStep("drop");
             setSelectedCols([]);
@@ -233,7 +233,7 @@ export function NullHandlingDialog({
                         description: res.skipped_columns.join(", ")
                     });
                 }
-                onRefetchInspect();
+                onRefetchAll();
             }
             onOpenChange(false);
         } catch (err: unknown) {

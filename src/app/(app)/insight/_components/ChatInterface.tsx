@@ -182,7 +182,7 @@ export default function ChatInterface() {
   );
 
   return (
-    <div className="flex h-[calc(100vh-theme(spacing.12)-1px)] overflow-hidden bg-background">
+    <div className="flex h-[calc(100vh-(--spacing(12))-1px)] overflow-hidden bg-background">
       {/* Sidebar */}
       <div className="w-80 border-r border-border/60 bg-muted/20 flex flex-col">
         <div className="p-4 border-b border-border/60">
@@ -372,9 +372,9 @@ export default function ChatInterface() {
             {/* Input Footer */}
             <div className="p-6 border-t border-border/60 bg-background">
               <div className="max-w-4xl mx-auto relative">
-                <div className="absolute inset-x-0 bottom-full h-12 bg-gradient-to-t from-background to-transparent pointer-events-none" />
+                <div className="absolute inset-x-0 bottom-full h-12 bg-linear-to-t from-background to-transparent pointer-events-none" />
                 <div className="relative flex items-end gap-2 bg-muted/30 border border-border/60 rounded-2xl p-2 transition-all focus-within:border-primary/40 focus-within:ring-1 focus-within:ring-primary/20 focus-within:bg-background shadow-sm">
-                  <div className="flex-1 min-h-[44px] flex items-center px-3 py-1">
+                  <div className="flex-1 min-h-11 flex items-center px-3 py-1">
                     <textarea
                       rows={1}
                       placeholder={`Ask anything about ${currentSession.dataset_name}...`}

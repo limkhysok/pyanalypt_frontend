@@ -490,7 +490,7 @@ export function PreviewTab({ data, datasetId, inspect, onRefetchAll, onLimitChan
                 )}
 
                 {/* ── Table ── */}
-                <ScrollArea className="w-full h-[calc(100vh-340px)] min-h-[400px]">
+                <ScrollArea className="w-full h-[calc(100vh-340px)] min-h-100">
                     <table className="w-full text-left border-collapse text-xs relative">
                         <thead className="sticky top-0 z-30 bg-background shadow-sm">
                             {/* Excel letter row */}
