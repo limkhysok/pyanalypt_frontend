@@ -320,6 +320,7 @@ export interface AddColumnRequest {
   formula: ArithmeticFormula;
   operand_a: string;
   operand_b: string;
+  decimal_places?: number;
 }
 
 export interface AddColumnResponse {
@@ -345,7 +346,7 @@ export type FilterOperator =
 export interface FilterRowsRequest {
   column: string;
   operator: FilterOperator;
-  value?: string;
+  value?: string | number;
 }
 
 export interface FilterRowsResponse {

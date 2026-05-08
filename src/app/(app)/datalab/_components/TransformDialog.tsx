@@ -75,7 +75,7 @@ export function TransformDialog({
     }, [open]);
 
     const numericCols = columns.filter(
-        (c) => c.dtype.includes("int") || c.dtype.includes("float")
+        (c) => c.dtype.toLowerCase().includes("int") || c.dtype.toLowerCase().includes("float")
     );
     const categoricalCols = columns.filter(
         (c) => c.dtype === "object" || c.dtype.includes("string") || c.dtype === "category"

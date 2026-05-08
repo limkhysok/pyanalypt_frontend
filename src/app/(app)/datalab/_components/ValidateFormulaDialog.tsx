@@ -127,7 +127,7 @@ export function ValidateFormulaDialog({
         }
     }
 
-    const numericCols = columns.filter(c => c.dtype.includes("int") || c.dtype.includes("float"));
+    const numericCols = columns.filter(c => c.dtype.toLowerCase().includes("int") || c.dtype.toLowerCase().includes("float"));
 
     const inner = (
         <>

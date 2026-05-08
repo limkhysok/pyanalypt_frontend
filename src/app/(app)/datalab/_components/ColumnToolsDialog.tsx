@@ -44,6 +44,7 @@ export function ColumnToolsDialog({
     const [formula, setFormula] = React.useState<ArithmeticFormula>("multiply");
     const [operandA, setOperandA] = React.useState("");
     const [operandB, setOperandB] = React.useState("");
+    const [decimalPlaces, setDecimalPlaces] = React.useState<string>("2");
 
     React.useEffect(() => {
         if (open) {
@@ -58,7 +59,7 @@ export function ColumnToolsDialog({
     }, [open]);
 
     const numericCols = columns.filter(
-        (c) => c.dtype.includes("int") || c.dtype.includes("float")
+        (c) => c.dtype.toLowerCase().includes("int") || c.dtype.toLowerCase().includes("float")
     );
 
     const filteredCols = columns.filter((c) =>
@@ -95,12 +96,14 @@ export function ColumnToolsDialog({
         }
         setLoading(true);
         try {
+            const dp = Number.parseInt(decimalPlaces);
             const res = await datalabApi.addColumn(datasetId, {
                 new_name: newName, formula, operand_a: operandA, operand_b: operandB,
+                decimal_places: Number.isNaN(dp) ? undefined : dp,
             });
             toast.success(`Added column "${res.new_column}". Dataset now has ${res.total_columns} columns.`);
             onRefetchAll();
-            setNewName(""); setOperandA(""); setOperandB("");
+            setNewName(""); setOperandA(""); setOperandB(""); setDecimalPlaces("2");
         } catch (err: unknown) {
             toast.error((err as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? "Failed to add column.");
             return;
@@ -288,6 +291,18 @@ export function ColumnToolsDialog({
                                         {formula === "divide" && (
                                             <p className="text-[13px] text-muted-foreground mt-1">Rows where {operandB || "B"} = 0 will produce null.</p>
                                         )}
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <Label className="text-sm font-semibold shrink-0">Round to</Label>
+                                        <Input
+                                            type="number"
+                                            min="0"
+                                            max="10"
+                                            value={decimalPlaces}
+                                            onChange={(e) => setDecimalPlaces(e.target.value)}
+                                            className="h-8 w-20 rounded-none font-mono text-sm"
+                                        />
+                                        <span className="text-[13px] text-muted-foreground">decimal places</span>
                                     </div>
                                 </div>
                             )}

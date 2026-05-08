@@ -57,11 +57,7 @@ export const datasetApi = {
   async uploadDataset(file: File): Promise<Dataset> {
     const formData = new FormData();
     formData.append('file', file);
-    const response = await apiClient.post<Dataset>('datasets/upload/', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
+    const response = await apiClient.post<Dataset>('datasets/upload/', formData);
     return response.data;
   },
 
@@ -79,7 +75,7 @@ export const datasetApi = {
 
       const disposition = response.headers['content-disposition'] as string | undefined;
       const filenamePattern = /filename\*=UTF-8''([^;]+)|filename="?([^";]+)"?/i;
-      const filenameMatch = disposition != null ? filenamePattern.exec(disposition) : null;
+      const filenameMatch = disposition ? filenamePattern.exec(disposition) : null;
       const filename = filenameMatch?.[1] ?? filenameMatch?.[2] ?? null;
       const contentType = (response.headers['content-type'] as string | undefined) ?? null;
 

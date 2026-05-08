@@ -74,7 +74,7 @@ export function CleanFilterDialog({
         }
     }, [open]);
 
-    const stringCols = columns.filter((c) => c.dtype === "object" || c.dtype.includes("string"));
+    const stringCols = columns.filter((c) => c.dtype === "object" || c.dtype.includes("string") || c.dtype === "category" || c.dtype === "str");
     const filteredStrCols = stringCols.filter((c) =>
         c.column.toLowerCase().includes(strSearch.toLowerCase())
     );
@@ -92,10 +92,16 @@ export function CleanFilterDialog({
         if (!filterCol) { setStep("string"); return; }
         setLoading(true);
         try {
+            const selectedCol = columns.find((c) => c.column === filterCol);
+            const isNumeric = selectedCol && (selectedCol.dtype.toLowerCase().includes("int") || selectedCol.dtype.toLowerCase().includes("float"));
+            let coercedValue: string | number | undefined;
+            if (needsValue) {
+                coercedValue = isNumeric ? Number(filterVal) : filterVal;
+            }
             const res = await datalabApi.filterRows(datasetId, {
                 column: filterCol,
                 operator: filterOp,
-                value: needsValue ? filterVal : undefined,
+                value: coercedValue,
             });
             if (res.rows_removed === 0) {
                 toast.info(res.detail ?? "No rows were removed.");

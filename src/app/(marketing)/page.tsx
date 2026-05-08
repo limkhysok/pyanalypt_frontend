@@ -2,23 +2,27 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
-  ArrowRight, Sparkles,
-  CheckCircle2, Database, Code2, Search, Settings, Filter
+  ArrowRight, Sparkles, ShieldCheck,
+  CheckCircle2, Database, Code2, Search, Settings, Filter,
+  FileSpreadsheet, FileCode, FileType, FileArchive
 } from "lucide-react";
+
+import { cn } from "@/lib/utils";
 
 // UI Components
 import { Button } from "@/components/ui/button";
-import { GithubIcon } from "@/components/ui/Icons";
-
-const GITHUB_URL = "https://github.com/soklimkhy/pyanalypt";
 
 // --- Hero Section ---
 function HeroSection() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const init = async () => {
+      setMounted(true);
+    };
+    init();
   }, []);
 
   if (!mounted) return <div className="min-h-screen" />;
@@ -52,7 +56,7 @@ function HeroSection() {
             <div className="space-y-4 md:space-y-6">
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter leading-[1.1] md:leading-[0.95] text-foreground">
                 Analytics As Fast As{" "}
-                <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 via-blue-400 dark:from-blue-400 dark:via-blue-300 to-muted-foreground/30">
+                <span className="text-transparent bg-clip-text bg-linear-to-br from-blue-500 via-blue-300 to-white drop-shadow-[0_0_20px_rgba(59,130,246,0.3)]">
                   Your Decision Making.
                 </span>
               </h1>
@@ -66,21 +70,29 @@ function HeroSection() {
               <Link href="/dashboard" className="w-full sm:w-auto">
                 <Button
                   size="lg"
-                  className="w-full sm:w-auto h-12 md:h-14 px-8 md:px-10 text-sm font-black gap-3 rounded-xl bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-400 hover:scale-[1.03] hover:shadow-2xl hover:shadow-blue-500/25 active:scale-95 transition-all duration-300"
+                  className="w-full sm:w-auto h-12 md:h-14 px-8 md:px-10 text-sm font-black gap-3 rounded-xl bg-blue-600 dark:bg-blue-600 text-white shadow-[0_10px_20px_-5px_rgba(37,99,235,0.4)] hover:bg-blue-700 dark:hover:bg-blue-500 hover:scale-[1.03] hover:shadow-[0_15px_30px_-5px_rgba(37,99,235,0.5)] active:scale-95 transition-all duration-300"
                 >
                   Launch Dashboard <ArrowRight size={16} />
                 </Button>
               </Link>
-              {/* Secondary — Gray outline */}
-              <Link href={GITHUB_URL} target="_blank" className="w-full sm:w-auto">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="w-full sm:w-auto h-12 md:h-14 px-8 md:px-10 text-sm font-black gap-3 rounded-xl border-border/60 hover:bg-muted hover:border-foreground/20 active:scale-95 transition-all duration-300"
-                >
-                  <GithubIcon size={16} /> View Source
-                </Button>
-              </Link>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 md:gap-6 pt-2">
+              <div className="group relative flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/5 border border-emerald-500/10 cursor-help transition-colors hover:bg-emerald-500/10">
+                <ShieldCheck size={14} className="text-emerald-500" />
+                <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Secure local processing</span>
+                
+                {/* Tooltip */}
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-background border border-border shadow-xl rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none w-56 z-50">
+                   <p className="text-[10px] font-bold leading-relaxed text-foreground/80">
+                      Your data never leaves your computer. We process everything in your browser for 100% privacy.
+                   </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500/40 animate-pulse" />
+                <span className="text-[11px] font-bold text-muted-foreground/80 italic">Free while in Beta</span>
+              </div>
             </div>
           </div>
 
@@ -193,13 +205,110 @@ function HeroSection() {
   );
 }
 
+function BeforeAfterSection() {
+  return (
+    <section className="py-24 md:py-32 relative overflow-hidden bg-muted/20">
+      <div className="container mx-auto px-6 max-w-7xl relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="space-y-8 text-center lg:text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-800/50">
+               <span className="text-[10px] font-black text-blue-700 dark:text-blue-300 tracking-tight uppercase">Visual Proof</span>
+            </div>
+            <div className="space-y-4">
+              <h2 className="text-4xl md:text-5xl font-black tracking-tighter leading-[1.1]">
+                 From Chaos <br />
+                 <span className="text-blue-600 dark:text-blue-400">to Professional Clarity.</span>
+              </h2>
+              <p className="text-lg text-muted-foreground font-medium max-w-lg mx-auto lg:mx-0 leading-relaxed">
+                 Stop wrestling with messy spreadsheets and complex formulas. PyAnalypt automatically cleans, 
+                 structures, and visualizes your data into boardroom-ready dashboards in seconds.
+              </p>
+            </div>
+          </div>
+
+          <div className="relative group">
+            {/* Decorative Glow */}
+            <div className="absolute -inset-4 bg-blue-500/10 rounded-[2.5rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+            
+            <div className="relative rounded-[2rem] border border-border bg-background shadow-2xl overflow-hidden aspect-video">
+               <Image 
+                 src="/spreadsheet_to_dashboard_comparison.png" 
+                 alt="Spreadsheet to Dashboard Comparison" 
+                 fill
+                 className="object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
+               />
+               
+               {/* Label Overlays */}
+               <div className="absolute top-4 left-4 px-3 py-1.5 rounded-lg bg-black/40 backdrop-blur-md border border-white/10 text-[10px] font-black text-white uppercase tracking-widest">
+                  Before: Messy Data
+               </div>
+               <div className="absolute bottom-4 right-4 px-3 py-1.5 rounded-lg bg-blue-600/80 backdrop-blur-md border border-blue-400/20 text-[10px] font-black text-white uppercase tracking-widest">
+                  After: PyAnalypt
+               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+
+function BuiltForSection() {
+  const personas = [
+    { title: "Founders", desc: "Get boardroom-ready reports in 30 seconds, not 3 hours.", icon: Sparkles },
+    { title: "Marketing Leads", desc: "Analyze campaign attribution without touching a single line of SQL.", icon: Database },
+    { title: "Data Analysts", desc: "Prototype complex visualizations instantly before committing to production.", icon: Code2 },
+  ];
+
+  return (
+    <section className="py-24 bg-muted/30 relative">
+      <div className="container mx-auto px-6 max-w-7xl">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+          {personas.map((p) => (
+            <div key={p.title} className="space-y-4 p-8 rounded-3xl bg-background border border-border hover:border-blue-500/40 transition-all group">
+               <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
+                  <p.icon size={20} />
+               </div>
+               <h3 className="text-xl font-black tracking-tight">Built for {p.title}</h3>
+               <p className="text-sm text-muted-foreground font-medium leading-relaxed">{p.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function IntelTeaser() {
+  return (
+    <section className="py-24 relative overflow-hidden bg-background">
+      <div className="absolute inset-0 bg-blue-600 dark:bg-blue-600 opacity-[0.02]" />
+      <div className="container mx-auto px-6 max-w-4xl text-center space-y-8 relative z-10">
+        <div className="space-y-4">
+          <h2 className="text-3xl md:text-4xl font-black tracking-tighter">Want deeper insights?</h2>
+          <p className="text-lg text-muted-foreground font-medium max-w-2xl mx-auto">
+            Explore PyAnalypt Intel for predictive trends and automated strategy suggestions.
+          </p>
+        </div>
+        <Link href="/about">
+          <Button size="lg" className="rounded-full font-black text-xs h-12 px-10 bg-foreground text-background hover:scale-105 transition-all">
+            Explore Intel OS
+          </Button>
+        </Link>
+      </div>
+    </section>
+  );
+}
+
 function ProductStory() {
   const checkmarks = [
+    "Secure local processing — Your data stays yours",
     "No python, no sql, no terminal — Ever",
     "Works with Excel, JSON, CSV & Parquet",
     "Instant results — No developer, no setup, no wait",
     "Boardroom-ready charts, always",
-    "Secure local processing — Your data stays yours",
     "One-click PDF & image exports",
   ];
 
@@ -224,7 +333,7 @@ function ProductStory() {
           <div className="space-y-6 max-w-3xl">
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter leading-[0.95] text-foreground">
               Stop waiting for reports. <br />
-              <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 via-blue-400 dark:from-blue-400 dark:via-blue-300 to-muted-foreground/30">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 via-blue-400 dark:from-blue-400 dark:via-blue-200 to-foreground/80">
                 Start leading with data.
               </span>
             </h2>
@@ -249,6 +358,27 @@ function ProductStory() {
               </div>
             ))}
           </div>
+
+          {/* Integrations Row */}
+          <div className="pt-16 pb-8 space-y-8 w-full">
+            <div className="flex flex-col items-center gap-3">
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/50">Supported Ecosystem</span>
+              <div className="h-px w-12 bg-border/40" />
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16 opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+              {[
+                { name: "Excel", icon: FileSpreadsheet, color: "group-hover:text-emerald-500" },
+                { name: "CSV", icon: FileType, color: "group-hover:text-blue-500" },
+                { name: "JSON", icon: FileCode, color: "group-hover:text-amber-500" },
+                { name: "Parquet", icon: FileArchive, color: "group-hover:text-indigo-500" },
+              ].map((format) => (
+                <div key={format.name} className="flex items-center gap-3 group cursor-default">
+                  <format.icon size={20} className={cn("transition-colors duration-300", format.color)} />
+                  <span className="text-xs font-black tracking-widest">{format.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -260,7 +390,10 @@ export default function Home() {
     <main className="min-h-screen bg-background relative selection:bg-blue-500/20 overflow-x-hidden">
       <div className="relative z-0">
         <HeroSection />
+        <BeforeAfterSection />
+        <BuiltForSection />
         <ProductStory />
+        <IntelTeaser />
       </div>
     </main>
   );

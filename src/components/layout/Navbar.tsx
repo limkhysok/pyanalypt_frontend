@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, LogOut, LayoutDashboard, User as UserIcon, Home, BarChart2, FlaskConical, Info, ChevronRight } from "lucide-react";
+import { Menu, X, LogOut, LayoutDashboard, User as UserIcon, Home, BarChart2, FlaskConical, Info, ChevronRight, ArrowRight } from "lucide-react";
 import { GithubIcon } from "@/components/ui/Icons";
 import { Logo } from "@/components/ui/Logo";
 import { cn, getInitials } from "@/lib/utils";
@@ -108,6 +108,18 @@ export function Navbar() {
                     <ModeToggle className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all" />
 
                     <div className="w-px h-4 bg-border/40 mx-1 hidden sm:block" />
+
+                    {/* Sticky CTA */}
+                    {scrolled && (
+                        <Link
+                            href="/dashboard"
+                            className="hidden lg:flex items-center gap-2 px-4 py-1.5 bg-blue-600 dark:bg-blue-600 text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 hover:scale-105 transition-all shadow-lg shadow-blue-500/25 animate-in fade-in slide-in-from-right-4 duration-300"
+                        >
+                            Launch Dashboard <ArrowRight size={12} />
+                        </Link>
+                    )}
+
+                    <div className={cn("w-px h-4 bg-border/40 mx-1 hidden sm:block", !scrolled && "sm:hidden", scrolled && "lg:block")} />
 
                     {/* User / Auth */}
                     {!isLoading && isAuthenticated ? (

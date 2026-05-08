@@ -2,8 +2,9 @@
 
 import * as React from "react";
 import {
-  Sparkles, Mail, MapPin, Send
+  Sparkles, Mail, MapPin, Send, Sun, Clock, Cpu, ChevronDown, ShieldCheck, Zap
 } from "lucide-react";
+import { motion } from "framer-motion";
 
 // UI Components
 import { Button } from "@/components/ui/button";
@@ -11,9 +12,24 @@ import { GithubIcon } from "@/components/ui/Icons";
 
 export default function AboutPage() {
   const [mounted, setMounted] = React.useState(false);
+  const [time, setTime] = React.useState("");
 
   React.useEffect(() => {
     setMounted(true);
+    const updateTime = () => {
+      const now = new Date();
+      const options: Intl.DateTimeFormatOptions = {
+        timeZone: 'Asia/Phnom_Penh',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false
+      };
+      setTime(new Intl.DateTimeFormat('en-GB', options).format(now));
+    };
+    updateTime();
+    const timer = setInterval(updateTime, 1000);
+    return () => clearInterval(timer);
   }, []);
 
   if (!mounted) return <div className="min-h-screen" />;
@@ -51,6 +67,72 @@ export default function AboutPage() {
             <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-medium max-w-2xl mx-auto">
               PyAnalypt was born from a simple observation: Data is easy to collect but hard to understand. We bridged the gap between raw data and actionable strategy with high-fidelity analytics.
             </p>
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="flex flex-col items-center space-y-4 pt-6"
+          >
+            <div className="flex -space-x-2">
+              <div className="w-12 h-12 rounded-full border-2 border-background bg-blue-500 flex items-center justify-center text-white font-black text-xs shadow-xl">
+                SK
+              </div>
+            </div>
+            <div className="text-center">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400">Founder & Architect</p>
+              <h3 className="text-xl font-serif italic text-foreground tracking-tight">Limkhy Sok</h3>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* --- SECTION: UNDER THE HOOD --- */}
+        <div className="py-24 space-y-16">
+          <div className="space-y-4 text-center">
+            <h2 className="text-3xl md:text-4xl font-black tracking-tighter capitalize">Under The Hood</h2>
+            <p className="text-muted-foreground font-medium max-w-xl mx-auto">Built for the high-performance crowd who demands speed and absolute data sovereignty.</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {[
+              { icon: Cpu, label: "Core Architecture", value: "Rust / WASM", desc: "Native-speed data processing directly in your browser thread." },
+              { icon: Zap, label: "Visual Engine", value: "ECharts / D3", desc: "Precision rendering with zero-latency interactive animations." },
+              { icon: ShieldCheck, label: "Privacy Protocol", value: "Local Storage", desc: "Encrypted persistence with no cloud transmission of user data." },
+            ].map((tech) => (
+              <div key={tech.label} className="p-8 rounded-3xl bg-muted/20 border border-border/40 space-y-4 hover:border-blue-500/30 transition-colors">
+                <tech.icon size={24} className="text-blue-600 dark:text-blue-400" />
+                <div className="space-y-1">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-60">{tech.label}</p>
+                  <h4 className="text-xl font-black tracking-tight">{tech.value}</h4>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed font-medium">{tech.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* --- SECTION: UNDER THE HOOD --- */}
+        <div className="py-24 space-y-16">
+          <div className="space-y-4 text-center">
+            <h2 className="text-3xl md:text-4xl font-black tracking-tighter capitalize">Under The Hood</h2>
+            <p className="text-muted-foreground font-medium max-w-xl mx-auto">Built for the high-performance crowd who demands speed and absolute data sovereignty.</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {[
+              { icon: Cpu, label: "Core Architecture", value: "Rust / WASM", desc: "Native-speed data processing directly in your browser thread." },
+              { icon: Zap, label: "Visual Engine", value: "ECharts / D3", desc: "Precision rendering with zero-latency interactive animations." },
+              { icon: ShieldCheck, label: "Privacy Protocol", value: "Local Storage", desc: "Encrypted persistence with no cloud transmission of user data." },
+            ].map((tech) => (
+              <div key={tech.label} className="p-8 rounded-3xl bg-muted/20 border border-border/40 space-y-4 hover:border-blue-500/30 transition-colors">
+                <tech.icon size={24} className="text-blue-600 dark:text-blue-400" />
+                <div className="space-y-1">
+                  <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-60">{tech.label}</p>
+                  <h4 className="text-xl font-black tracking-tight">{tech.value}</h4>
+                </div>
+                <p className="text-[11px] text-muted-foreground leading-relaxed font-medium">{tech.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
 
@@ -101,6 +183,16 @@ export default function AboutPage() {
                   className="w-full bg-muted/30 border border-border/60 rounded-xl px-5 py-3 text-sm font-bold focus:outline-none focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:bg-blue-50/20 dark:focus:bg-blue-950/20 transition-colors"
                 />
               </div>
+              <div className="relative">
+                <select className="w-full bg-muted/30 border border-border/60 rounded-xl px-5 py-3 text-sm font-bold focus:outline-none focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:bg-blue-50/20 dark:focus:bg-blue-950/20 transition-colors appearance-none cursor-pointer">
+                  <option value="" disabled selected>Reason for Inquiry</option>
+                  <option value="feature">Feature Request</option>
+                  <option value="bug">Bug Report</option>
+                  <option value="partnership">Partnership</option>
+                  <option value="other">Other</option>
+                </select>
+                <ChevronDown size={14} className="absolute right-5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+              </div>
               <textarea
                 placeholder="How can we help?"
                 rows={4}
@@ -145,9 +237,25 @@ export default function AboutPage() {
                     <div className="w-10 h-10 rounded-lg bg-muted border border-border/60 flex items-center justify-center group-hover:bg-blue-50 dark:group-hover:bg-blue-950/50 group-hover:border-blue-400/50 dark:group-hover:border-blue-400/50 transition-colors">
                       <MapPin size={18} className="text-muted-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
                     </div>
-                    <div>
-                      <p className="text-[10px] font-black capitalize tracking-tighter text-muted-foreground">HQ</p>
-                      <p className="text-sm font-bold">Phnom Penh, KH</p>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <p className="text-[10px] font-black capitalize tracking-tighter text-muted-foreground">HQ</p>
+                        <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-500 border border-emerald-500/20">
+                          <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                          <span className="text-[7px] font-black uppercase">Live</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between mt-0.5">
+                        <p className="text-sm font-bold">Phnom Penh, KH</p>
+                        <div className="flex items-center gap-2 opacity-60">
+                          <Clock size={10} className="text-muted-foreground" />
+                          <span className="text-[9px] font-black font-mono">{time}</span>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 mt-1 opacity-40">
+                        <Sun size={10} className="text-amber-500" />
+                        <span className="text-[8px] font-black uppercase tracking-widest">32°C Clear</span>
+                      </div>
                     </div>
                   </div>
                 </div>

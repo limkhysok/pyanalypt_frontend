@@ -56,12 +56,12 @@ export type ValueCountsResponse = Record<string, ValueCountsColumnStats>;
 export type CrosstabRow = Record<string, string | number>;
 
 export interface CrosstabResponse {
-  gender?: string[];
-  department?: string[];
+  col_a: string;
+  col_b: string;
+  index_vals: string[];
+  col_vals: string[];
   normalize: boolean;
   table: CrosstabRow[];
-  col_a?: string;
-  col_b?: string;
 }
 
 // ─── Outlier Summary ──────────────────────────────────────────────────────────

@@ -224,12 +224,16 @@ export function NullHandlingDialog({
                 columns: selectedCols.length > 0 ? selectedCols : undefined,
             });
 
-            if (res.cells_filled === 0) {
+            if (res.cells_filled === 0 && res.skipped_columns.length > 0) {
+                toast.warning(`No values filled — ${res.skipped_columns.length} column(s) skipped (incompatible type).`, {
+                    description: `Try "Most common value" or "Custom value" for text/date columns. Skipped: ${res.skipped_columns.join(", ")}`
+                });
+            } else if (res.cells_filled === 0) {
                 toast.info("No null values found to fill.");
             } else {
                 toast.success(`Filled ${res.cells_filled} null values.`);
                 if (res.skipped_columns.length > 0) {
-                    toast.warning(`Skipped ${res.skipped_columns.length} columns (incompatible dtype).`, {
+                    toast.warning(`Skipped ${res.skipped_columns.length} columns (incompatible type).`, {
                         description: res.skipped_columns.join(", ")
                     });
                 }
@@ -447,7 +451,7 @@ export function NullHandlingDialog({
                                 }}
                                 disabled={loading
                                     || (step === "fill" && fillStrategy === "constant" && !fillValue)
-                                    || (step === "derive" && deriveTarget !== "" && !columns.some(c => c.column === deriveTarget && (c.dtype.includes("int") || c.dtype.includes("float"))))
+                                    || (step === "derive" && deriveTarget !== "" && !columns.some(c => c.column === deriveTarget && (c.dtype.toLowerCase().includes("int") || c.dtype.toLowerCase().includes("float"))))
                                 }
                             >
                                 {loading && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
@@ -509,7 +513,7 @@ function DeriveStep({
                             <SelectValue placeholder="Select target column..." />
                         </SelectTrigger>
                         <SelectContent className="rounded-none">
-                            {columns.filter(c => c.dtype.includes("int") || c.dtype.includes("float")).map(c => (
+                            {columns.filter(c => c.dtype.toLowerCase().includes("int") || c.dtype.toLowerCase().includes("float")).map(c => (
                                 <SelectItem key={c.column} value={c.column} className="font-mono rounded-none text-[13px]">
                                     {c.column} {c.null_count > 0 && `(${c.null_count} nulls)`}
                                 </SelectItem>
@@ -526,7 +530,7 @@ function DeriveStep({
                                 <SelectValue placeholder="Select column..." />
                             </SelectTrigger>
                             <SelectContent className="rounded-none">
-                                {columns.filter(c => c.dtype.includes("int") || c.dtype.includes("float")).map(c => (
+                                {columns.filter(c => c.dtype.toLowerCase().includes("int") || c.dtype.toLowerCase().includes("float")).map(c => (
                                     <SelectItem key={c.column} value={c.column} className="font-mono rounded-none text-[13px]">
                                         {c.column}
                                     </SelectItem>
@@ -557,7 +561,7 @@ function DeriveStep({
                                 <SelectValue placeholder="Select column..." />
                             </SelectTrigger>
                             <SelectContent className="rounded-none">
-                                {columns.filter(c => c.dtype.includes("int") || c.dtype.includes("float")).map(c => (
+                                {columns.filter(c => c.dtype.toLowerCase().includes("int") || c.dtype.toLowerCase().includes("float")).map(c => (
                                     <SelectItem key={c.column} value={c.column} className="font-mono rounded-none text-[13px]">
                                         {c.column}
                                     </SelectItem>

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import {
-    Home, BarChart3, FlaskConical, Info,
+    Home, BarChart3, LayoutGrid, Info,
     Mail, Globe
 } from "lucide-react";
 import { Logo } from "@/components/ui/Logo";
@@ -38,7 +38,7 @@ export function Footer() {
                         <ul className="grid grid-cols-2 md:flex md:items-center justify-center gap-x-8 gap-y-6 md:gap-x-12 text-[10px] font-black capitalize tracking-[0.2em] text-muted-foreground">
                             <li className="flex justify-center md:justify-start"><Link href="/" className="hover:text-foreground transition-all flex items-center gap-2.5 group/link"><Home size={12} className="opacity-40 group-hover/link:opacity-100 transition-opacity" /> Home</Link></li>
                             <li className="flex justify-center md:justify-start"><Link href="/visuals" className="hover:text-foreground transition-all flex items-center gap-2.5 group/link"><BarChart3 size={12} className="opacity-40 group-hover/link:opacity-100 transition-opacity" /> Visuals</Link></li>
-                            <li className="flex justify-center md:justify-start"><Link href="/playground" className="hover:text-foreground transition-all flex items-center gap-2.5 group/link"><FlaskConical size={12} className="opacity-40 group-hover/link:opacity-100 transition-opacity" /> Lab</Link></li>
+                            <li className="flex justify-center md:justify-start"><Link href="/playground" className="hover:text-foreground transition-all flex items-center gap-2.5 group/link"><LayoutGrid size={12} className="opacity-40 group-hover/link:opacity-100 transition-opacity" /> Playground</Link></li>
                             <li className="flex justify-center md:justify-start"><Link href="/about" className="hover:text-foreground transition-all flex items-center gap-2.5 group/link"><Info size={12} className="opacity-40 group-hover/link:opacity-100 transition-opacity" /> Intel</Link></li>
                         </ul>
                     </nav>
