@@ -6,6 +6,7 @@ import { Download, RefreshCw } from "lucide-react";
 import { downloadCsv } from "@/lib/download-csv";
 import { Button } from "@/components/ui/button";
 import EChart from "@/components/ui/EChart";
+import * as echarts from "echarts";
 import type { AssociationResponse } from "@/services/api";
 import { edaApi } from "@/services/api";
 import { toast } from "sonner";
@@ -30,7 +31,7 @@ export function AssociationTab({ datasetId, data, onUpdate, loading, setLoading 
             .finally(() => setLoading(false));
     }
 
-    const option = useMemo(() => {
+    const option = useMemo<echarts.EChartsOption>(() => {
         const cols = data.columns ?? [];
         const values: [number, number, number][] = [];
         (data.matrix ?? []).forEach((row, ri) => {
@@ -51,14 +52,15 @@ export function AssociationTab({ datasetId, data, onUpdate, loading, setLoading 
                 backgroundColor: tooltipBg,
                 borderColor: tooltipBorder,
                 textStyle: { color: tooltipText, fontSize: 12 },
-                formatter: (p: { data: [number, number, number] }) => {
+                formatter: (params: unknown) => {
+                    const p = params as { data: [number, number, number] };
                     const [ci, ri, v] = p.data;
                     return `${cols[ri]} × ${cols[ci]}<br/><b>${v}</b>`;
                 },
             },
             grid: { top: 20, right: 20, bottom: 60, left: 100 },
             xAxis: {
-                type: "category",
+                type: "category" as const,
                 data: cols,
                 splitArea: { show: true },
                 axisLabel: { color: labelColor, fontSize: 11, rotate: 30 },
@@ -66,7 +68,7 @@ export function AssociationTab({ datasetId, data, onUpdate, loading, setLoading 
                 axisTick: { show: false },
             },
             yAxis: {
-                type: "category",
+                type: "category" as const,
                 data: cols,
                 splitArea: { show: true },
                 axisLabel: { color: labelColor, fontSize: 11 },
@@ -86,11 +88,14 @@ export function AssociationTab({ datasetId, data, onUpdate, loading, setLoading 
                 textStyle: { color: labelColor, fontSize: 10 },
             },
             series: [{
-                type: "heatmap",
+                type: "heatmap" as const,
                 data: values,
                 label: {
                     show: cols.length <= 12,
-                    formatter: (p: { data: [number, number, number] }) => String(p.data[2]),
+                    formatter: (params: unknown) => {
+                        const p = params as { data: [number, number, number] };
+                        return String(p.data[2]);
+                    },
                     fontSize: 10,
                     color: isDark ? "#e4e4e7" : "#18181b",
                 },
