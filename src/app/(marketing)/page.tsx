@@ -67,7 +67,7 @@ function HeroSection() {
 
             <div className="flex flex-col sm:flex-row items-center gap-3 md:gap-4 w-full sm:w-auto pt-2">
               {/* Primary — Blue */}
-              <Link href="/dashboard" className="w-full sm:w-auto">
+              <Link href="/datasets" className="w-full sm:w-auto">
                 <Button
                   size="lg"
                   className="w-full sm:w-auto h-12 md:h-14 px-8 md:px-10 text-sm font-black gap-3 rounded-xl bg-blue-600 dark:bg-blue-600 text-white shadow-[0_10px_20px_-5px_rgba(37,99,235,0.4)] hover:bg-blue-700 dark:hover:bg-blue-500 hover:scale-[1.03] hover:shadow-[0_15px_30px_-5px_rgba(37,99,235,0.5)] active:scale-95 transition-all duration-300"

@@ -7,6 +7,7 @@ import { downloadCsv } from "@/lib/download-csv";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import EChart from "@/components/ui/EChart";
+import * as echarts from "echarts";
 import type { MissingHeatmapResponse } from "@/services/eda.service";
 import { edaApi } from "@/services/eda.service";
 import { toast } from "sonner";
@@ -37,7 +38,7 @@ export function MissingHeatmapTab({ datasetId, data, onUpdate, loading, setLoadi
     const colEntries = Object.entries(data.per_column ?? {})
         .sort((a, b) => b[1].null_pct - a[1].null_pct);
 
-    const option = useMemo(() => {
+    const option = useMemo<echarts.EChartsOption>(() => {
         const labelColor = isDark ? "#71717a" : "#a1a1aa";
         const tooltipBg = isDark ? "#09090b" : "#ffffff";
         const tooltipBorder = isDark ? "#27272a" : "#e4e4e7";
@@ -52,32 +53,34 @@ export function MissingHeatmapTab({ datasetId, data, onUpdate, loading, setLoadi
                 backgroundColor: tooltipBg,
                 borderColor: tooltipBorder,
                 textStyle: { color: tooltipText, fontSize: 11 },
-                formatter: (params: Array<{ name: string; value: number; data: number }>) => {
-                    const entry = colEntries.find(([c]) => c === params[0].name);
+                formatter: (params: unknown) => {
+                    const p = params as Array<{ name: string; value: number; data: number }>;
+                    const entry = colEntries.find(([c]) => c === p[0].name);
                     const pct = entry ? entry[1].null_pct.toFixed(2) : "0";
-                    return `${params[0].name}<br/><b>${params[0].value.toLocaleString()}</b> nulls (${pct}%)`;
+                    return `${p[0].name}<br/><b>${p[0].value.toLocaleString()}</b> nulls (${pct}%)`;
                 },
             },
             grid: { top: 8, right: 60, bottom: 8, left: 8, containLabel: true },
             xAxis: {
-                type: "value",
+                type: "value" as const,
                 axisLabel: { color: labelColor, fontSize: 10 },
                 splitLine: { lineStyle: { color: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)" } },
             },
             yAxis: {
-                type: "category",
+                type: "category" as const,
                 data: reversed.map(([c]) => c),
                 axisLabel: { color: isDark ? "#a1a1aa" : "#52525b", fontSize: 11 },
                 axisLine: { show: false },
                 axisTick: { show: false },
             },
             series: [{
-                type: "bar",
+                type: "bar" as const,
                 data: reversed.map(([, s]) => s.null_count),
                 barMaxWidth: 28,
                 itemStyle: {
                     borderRadius: [0, 2, 2, 0],
-                    color: (p: { dataIndex: number }) => {
+                    color: (params: unknown) => {
+                        const p = params as { dataIndex: number };
                         const pct = reversed[p.dataIndex][1].null_pct;
                         if (pct >= 20) return "#ef4444";
                         if (pct >= 5) return "#f59e0b";
@@ -87,7 +90,10 @@ export function MissingHeatmapTab({ datasetId, data, onUpdate, loading, setLoadi
                 label: {
                     show: true,
                     position: "right",
-                    formatter: (p: { dataIndex: number }) => `${reversed[p.dataIndex][1].null_pct.toFixed(1)}%`,
+                    formatter: (params: unknown) => {
+                        const p = params as { dataIndex: number };
+                        return `${reversed[p.dataIndex][1].null_pct.toFixed(1)}%`;
+                    },
                     color: labelColor,
                     fontSize: 10,
                 },

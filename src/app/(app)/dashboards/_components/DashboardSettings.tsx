@@ -11,6 +11,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { dashboardsApi, type Dashboard } from "@/services/dashboards.service";
 import { toast } from "sonner";
 import { Copy, Globe, Lock, ExternalLink } from "lucide-react";
@@ -79,9 +80,12 @@ export function DashboardSettings({ dashboard, open, onOpenChange, onUpdated }: 
             <div className="space-y-3 animate-in fade-in slide-in-from-top-1 duration-300">
               <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Share Link</Label>
               <div className="flex gap-2">
-                <div className="flex-1 px-3 py-2 bg-background border border-foreground/20 text-[11px] font-mono truncate select-all">
-                  {publicLink}
-                </div>
+                <Input
+                  readOnly
+                  value={publicLink}
+                  className="flex-1 h-9 rounded-none border-2 border-border font-mono text-[11px] bg-muted/10 focus-visible:ring-0 focus-visible:border-foreground"
+                  onClick={(e: React.MouseEvent<HTMLInputElement>) => (e.target as HTMLInputElement).select()}
+                />
                 <Button variant="outline" size="icon" className="h-9 w-9 rounded-none border-2 border-border hover:border-foreground" onClick={copyLink}>
                   <Copy className="h-3.5 w-3.5" />
                 </Button>

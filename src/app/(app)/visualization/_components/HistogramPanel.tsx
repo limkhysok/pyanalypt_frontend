@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import EChart, { type EChartInstance } from "@/components/ui/EChart";
+import * as echarts from "echarts";
 import { vizApi, type VizHistogramColumn, type VizHistogramStats } from "@/services/viz.service";
 import { toast } from "sonner";
 import { SaveToReportModal } from "@/components/reports/SaveToReportModal";
@@ -37,12 +38,14 @@ function buildOption(col: string, data: VizHistogramColumn, isDark: boolean) {
     return {
         backgroundColor: "transparent",
         tooltip: {
-            trigger: "axis",
+            trigger: "axis" as const,
             backgroundColor: tooltipBg,
             borderColor: tooltipBorder,
             textStyle: { color: tooltipText, fontSize: 11 },
-            formatter: (params: Array<{ name: string; value: number }>) =>
-                `${params[0].name}<br/><b>${params[0].value} rows</b>`,
+            formatter: (params: unknown) => {
+                const p = params as Array<{ name: string; value: number }>;
+                return `${p[0].name}<br/><b>${p[0].value} rows</b>`;
+            },
         },
         grid: { top: 10, right: 10, bottom: 44, left: 50 },
         xAxis: {

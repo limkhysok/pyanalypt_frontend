@@ -59,10 +59,11 @@ export default function Login() {
 				return;
 			}
 
-			router.push("/dashboard");
-		} catch (err: any) {
-			if (err.response?.status === 403 && err.response?.data?.requires_verification) {
-				const unverifiedEmail = err.response.data.email || email;
+					router.push("/datasets");
+		} catch (err: unknown) {
+			const axiosErr = err as { response?: { status: number; data?: { requires_verification?: boolean; email?: string } } };
+			if (axiosErr.response?.status === 403 && axiosErr.response?.data?.requires_verification) {
+				const unverifiedEmail = axiosErr.response.data.email || email;
 				sessionStorage.setItem('otp_pending_email', unverifiedEmail.toLowerCase());
 				router.push(`/verify-otp?email=${encodeURIComponent(unverifiedEmail)}`);
 				return;
@@ -88,10 +89,11 @@ export default function Login() {
 				return;
 			}
 
-			router.push("/dashboard");
-		} catch (err: any) {
+					router.push("/datasets");
+		} catch (err: unknown) {
+			const axiosErr = err as { response?: { status: number } };
 			// 429 and token-expired both require restarting from the login screen
-			if (err?.response?.status === 429) {
+			if (axiosErr.response?.status === 429) {
 				setStep("credentials");
 				setTotpToken("");
 				setTotpCode("");
@@ -144,10 +146,11 @@ export default function Login() {
 						return;
 					}
 
-					router.push("/dashboard");
-				} catch (err: any) {
-					if (err.response?.status === 403 && err.response?.data?.requires_verification) {
-						const unverifiedEmail = err.response.data.email || email;
+							router.push("/datasets");
+				} catch (err: unknown) {
+					const axiosErr = err as { response?: { status: number; data?: { requires_verification?: boolean; email?: string } } };
+					if (axiosErr.response?.status === 403 && axiosErr.response?.data?.requires_verification) {
+						const unverifiedEmail = axiosErr.response.data.email || email;
 						router.push(`/verify-otp?email=${encodeURIComponent(unverifiedEmail)}`);
 						return;
 					}

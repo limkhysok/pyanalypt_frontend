@@ -5,6 +5,7 @@ import Image from "next/image";
 import { reportsApi, type ReportDetail, type ReportItem } from "@/services/reports.service";
 import { RefreshCw, FileText } from "lucide-react";
 import EChart from "@/components/ui/EChart";
+import * as echarts from "echarts";
 
 interface ReportWidgetProps {
   reportId: number;

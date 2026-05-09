@@ -28,6 +28,7 @@ import { mlStudioApi, type MLModel, type PredictionResponse, type PredictionItem
 import { datasetApi } from "@/services/dataset.service";
 import { type Dataset } from "@/types/dataset";
 import EChart from "@/components/ui/EChart";
+import * as echarts from "echarts";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useTheme } from "next-themes";
@@ -134,7 +135,7 @@ export default function MLModelDetailPage() {
     }
   }
 
-  const importanceOption = useMemo(() => {
+  const importanceOption = useMemo<echarts.EChartsOption | null>(() => {
     if (!model?.feature_importance || !Array.isArray(model.feature_importance)) return null;
     const data = [...model.feature_importance]
       .sort((a, b) => b.importance - a.importance)
@@ -143,20 +144,20 @@ export default function MLModelDetailPage() {
     return {
       backgroundColor: "transparent",
       tooltip: { 
-        trigger: "axis", 
-        axisPointer: { type: "shadow" },
+        trigger: "axis" as const, 
+        axisPointer: { type: "shadow" as const },
         backgroundColor: isDark ? "#09090b" : "#ffffff",
         borderColor: isDark ? "#27272a" : "#e4e4e7",
         textStyle: { color: isDark ? "#f4f4f5" : "#18181b", fontSize: 11 },
       },
       grid: { left: "3%", right: "4%", bottom: "3%", containLabel: true },
       xAxis: { 
-        type: "value", 
+        type: "value" as const, 
         splitLine: { lineStyle: { color: isDark ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)" } },
         axisLabel: { color: "#71717a", fontSize: 10 }
       },
       yAxis: { 
-        type: "category", 
+        type: "category" as const, 
         data: data.map(d => d.feature).reverse(),
         axisLabel: { color: isDark ? "#a1a1aa" : "#3f3f46", fontSize: 11, fontWeight: "bold" },
         axisLine: { show: false }
@@ -164,7 +165,7 @@ export default function MLModelDetailPage() {
       series: [
         {
           name: "Importance",
-          type: "bar",
+          type: "bar" as const,
           data: data.map(d => d.importance).reverse(),
           itemStyle: {
             borderRadius: [0, 6, 6, 0],

@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import EChart from "@/components/ui/EChart";
+import * as echarts from "echarts";
 import type { DistributionResponse } from "@/services/eda.service";
 import { edaApi } from "@/services/eda.service";
 import { toast } from "sonner";
@@ -37,7 +38,7 @@ function HistogramCard({ col, stats, isDark }: Readonly<{ col: string; stats: Di
     const skew = skewLabel(stats.skewness ?? 0);
     const kurt = kurtLabel(stats.kurtosis ?? 0);
 
-    const option = useMemo(() => {
+    const option = useMemo<echarts.EChartsOption>(() => {
         const labelColor = isDark ? "#71717a" : "#a1a1aa";
         const tooltipBg = isDark ? "#09090b" : "#ffffff";
         const tooltipBorder = isDark ? "#27272a" : "#e4e4e7";
@@ -50,24 +51,26 @@ function HistogramCard({ col, stats, isDark }: Readonly<{ col: string; stats: Di
                 backgroundColor: tooltipBg,
                 borderColor: tooltipBorder,
                 textStyle: { color: tooltipText, fontSize: 11 },
-                formatter: (params: Array<{ name: string; value: number }>) =>
-                    `${params[0].name}<br/><b>${params[0].value} rows</b>`,
+                formatter: (params: unknown) => {
+                    const p = params as Array<{ name: string; value: number }>;
+                    return `${p[0].name}<br/><b>${p[0].value} rows</b>`;
+                },
             },
             grid: { top: 10, right: 10, bottom: 40, left: 50 },
             xAxis: {
-                type: "category",
+                type: "category" as const,
                 data: (stats.bins ?? []).map((b) => b.range_start.toLocaleString()),
                 axisLabel: { color: labelColor, fontSize: 9, rotate: 30 },
                 axisLine: { lineStyle: { color: isDark ? "rgba(255,255,255,0.08)" : "rgba(0,0,0,0.08)" } },
                 axisTick: { show: false },
             },
             yAxis: {
-                type: "value",
+                type: "value" as const,
                 axisLabel: { color: labelColor, fontSize: 10 },
                 splitLine: { lineStyle: { color: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)" } },
             },
             series: [{
-                type: "bar",
+                type: "bar" as const,
                 data: (stats.bins ?? []).map((b) => b.count),
                 barMaxWidth: 40,
                 itemStyle: { color: "#3b82f6", borderRadius: [2, 2, 0, 0] },

@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import EChart from "@/components/ui/EChart";
+import * as echarts from "echarts";
 import type { ValueCountsResponse } from "@/services/eda.service";
 import { edaApi } from "@/services/eda.service";
 import { toast } from "sonner";
@@ -20,7 +21,7 @@ interface Props {
 }
 
 function ValueCountsCard({ col, stats, isDark }: Readonly<{ col: string; stats: ValueCountsResponse[string]; isDark: boolean }>) {
-    const option = useMemo(() => {
+    const option = useMemo<echarts.EChartsOption>(() => {
         const tooltipBg = isDark ? "#09090b" : "#ffffff";
         const tooltipBorder = isDark ? "#27272a" : "#e4e4e7";
         const tooltipText = isDark ? "#f4f4f5" : "#18181b";
@@ -35,24 +36,26 @@ function ValueCountsCard({ col, stats, isDark }: Readonly<{ col: string; stats: 
                 backgroundColor: tooltipBg,
                 borderColor: tooltipBorder,
                 textStyle: { color: tooltipText, fontSize: 11 },
-                formatter: (params: Array<{ name: string; value: number }>) =>
-                    `${params[0].name}<br/><b>${params[0].value.toLocaleString()}</b> rows`,
+                formatter: (params: unknown) => {
+                    const p = params as Array<{ name: string; value: number }>;
+                    return `${p[0].name}<br/><b>${p[0].value.toLocaleString()}</b> rows`;
+                },
             },
             grid: { top: 8, right: 60, bottom: 8, left: 8, containLabel: true },
             xAxis: {
-                type: "value",
+                type: "value" as const,
                 axisLabel: { color: labelColor, fontSize: 10 },
                 splitLine: { lineStyle: { color: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)" } },
             },
             yAxis: {
-                type: "category",
+                type: "category" as const,
                 data: items.map((v) => v.value === null ? "(null)" : String(v.value)),
                 axisLabel: { color: isDark ? "#a1a1aa" : "#52525b", fontSize: 11, width: 120, overflow: "truncate" },
                 axisLine: { show: false },
                 axisTick: { show: false },
             },
             series: [{
-                type: "bar",
+                type: "bar" as const,
                 data: items.map((v) => v.count),
                 barMaxWidth: 28,
                 itemStyle: { color: "#8b5cf6", borderRadius: [0, 2, 2, 0] },
@@ -60,7 +63,7 @@ function ValueCountsCard({ col, stats, isDark }: Readonly<{ col: string; stats: 
                 label: {
                     show: true,
                     position: "right",
-                    formatter: (p: { dataIndex: number }) => `${items[p.dataIndex].pct.toFixed(1)}%`,
+                    formatter: (p: unknown) => `${items[(p as { dataIndex: number }).dataIndex].pct.toFixed(1)}%`,
                     color: labelColor,
                     fontSize: 10,
                 },

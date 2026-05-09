@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import EChart from "@/components/ui/EChart";
+import * as echarts from "echarts";
 import type { PairwiseResponse } from "@/services/eda.service";
 import { edaApi } from "@/services/eda.service";
 import { toast } from "sonner";
@@ -63,7 +64,7 @@ export function PairwiseTab({ datasetId, numericColumns }: Readonly<Props>) {
             .finally(() => setLocalLoading(false));
     }
 
-    const option = useMemo(() => {
+    const option = useMemo<echarts.EChartsOption>(() => {
         if (!result) return {};
         const tooltipBg = isDark ? "#09090b" : "#ffffff";
         const tooltipBorder = isDark ? "#27272a" : "#e4e4e7";
@@ -77,11 +78,14 @@ export function PairwiseTab({ datasetId, numericColumns }: Readonly<Props>) {
                 backgroundColor: tooltipBg,
                 borderColor: tooltipBorder,
                 textStyle: { color: tooltipText, fontSize: 11 },
-                formatter: (p: { value: [number, number] }) => `${result.col_x}: <b>${p.value[0]}</b><br/>${result.col_y}: <b>${p.value[1]}</b>`,
+                formatter: (params: unknown) => {
+                    const p = params as { value: [number, number] };
+                    return `${result.col_x}: <b>${p.value[0]}</b><br/>${result.col_y}: <b>${p.value[1]}</b>`;
+                },
             },
             grid: { top: 16, right: 20, bottom: 48, left: 60 },
             xAxis: {
-                type: "value",
+                type: "value" as const,
                 name: result.col_x,
                 nameLocation: "middle",
                 nameGap: 28,
@@ -90,7 +94,7 @@ export function PairwiseTab({ datasetId, numericColumns }: Readonly<Props>) {
                 splitLine: { lineStyle: { color: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)" } },
             },
             yAxis: {
-                type: "value",
+                type: "value" as const,
                 name: result.col_y,
                 nameLocation: "middle",
                 nameGap: 44,
@@ -99,7 +103,7 @@ export function PairwiseTab({ datasetId, numericColumns }: Readonly<Props>) {
                 splitLine: { lineStyle: { color: isDark ? "rgba(255,255,255,0.04)" : "rgba(0,0,0,0.04)" } },
             },
             series: [{
-                type: "scatter",
+                type: "scatter" as const,
                 data: result.points.map((p) => [p.x, p.y]),
                 symbolSize: 5,
                 itemStyle: { color: "#3b82f6", opacity: 0.6 },

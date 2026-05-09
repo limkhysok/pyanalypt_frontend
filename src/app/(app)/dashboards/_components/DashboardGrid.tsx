@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Trash2, FileText, Type } from "lucide-react";
 import EChart from "@/components/ui/EChart";
+import * as echarts from "echarts";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { ReportWidget } from "./ReportWidget";

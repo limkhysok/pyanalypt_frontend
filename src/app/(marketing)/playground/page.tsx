@@ -8,6 +8,7 @@ const EChart = dynamic(() => import("@/components/ui/EChart"), { ssr: false });
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { EChartInstance } from "@/components/ui/EChart";
+import * as echarts from "echarts";
 
 // --- Default Sample Data ---
 const DEFAULT_CSV = `Month,Revenue,Users\nJan,1200,450\nFeb,2100,890\nMar,1800,1200\nApr,2400,1500\nMay,2900,1800\nJun,3500,2200`;
@@ -121,7 +122,7 @@ export default function Playground() {
         return "line";
     }, [parsedData]);
 
-    const option = useMemo(() => {
+    const option = useMemo<echarts.EChartsOption>(() => {
         if (!parsedData) return {};
         const { categories, series } = parsedData;
 
@@ -129,7 +130,7 @@ export default function Playground() {
 
         return {
             animationDuration: 1000,
-            animationEasing: 'cubicOut',
+            animationEasing: 'cubicOut' as const,
             backgroundColor: 'transparent',
             tooltip: {
                 trigger: isPie ? 'item' : 'axis',
@@ -145,21 +146,21 @@ export default function Playground() {
             },
             grid: isPie ? undefined : { left: '3%', right: '4%', bottom: '3%', containLabel: true },
             xAxis: isPie ? { show: false } : {
-                type: 'category',
+                type: 'category' as const,
                 data: categories,
                 axisLine: { show: false },
                 axisTick: { show: false },
                 axisLabel: { color: '#71717a', fontSize: 9 }
             },
             yAxis: isPie ? { show: false } : {
-                type: 'value',
+                type: 'value' as const,
                 splitLine: { lineStyle: { color: 'rgba(59,130,246,0.05)' } },
                 axisLabel: { color: '#71717a', fontSize: 9 }
             },
             series: isPie
                 ? [{
                     name: series[0]?.name || 'Data',
-                    type: 'pie',
+                    type: 'pie' as const,
                     radius: ['40%', '70%'],
                     avoidLabelOverlap: false,
                     itemStyle: {
@@ -167,9 +168,9 @@ export default function Playground() {
                         borderColor: '#09090b',
                         borderWidth: 2
                     },
-                    label: { show: false, position: 'center' },
+                    label: { show: false, position: 'center' as const },
                     emphasis: {
-                        label: { show: true, fontSize: 14, fontWeight: 'bold', color: '#ffffff' }
+                        label: { show: true, fontSize: 14, fontWeight: 'bold' as const, color: '#ffffff' }
                     },
                     labelLine: { show: false },
                     data: categories.map((cat: string, idx: number) => ({
@@ -186,12 +187,12 @@ export default function Playground() {
                         type: chartType,
                         data: s.data,
                         smooth: true,
-                        itemStyle: { color: itemColor, borderRadius: chartType === 'bar' ? [3, 3, 0, 0] : 0 },
+                        itemStyle: { color: itemColor, borderRadius: (chartType === 'bar' ? [3, 3, 0, 0] : 0) as number | number[] },
                         ...(chartType === 'line' ? {
                             lineStyle: { width: 2 },
                             areaStyle: {
                                 color: {
-                                    type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+                                    type: 'linear' as const, x: 0, y: 0, x2: 0, y2: 1,
                                     colorStops: [{ offset: 0, color: itemColor + '30' }, { offset: 1, color: itemColor + '00' }]
                                 }
                             }

@@ -18,7 +18,7 @@ export default function CompleteProfile() {
 	// Redirect immediately if profile is already complete
 	React.useEffect(() => {
 		if (user?.full_name && user?.birthday) {
-			router.replace("/dashboard");
+			router.replace("/datasets");
 		}
 	}, [user, router]);
 	
@@ -90,12 +90,13 @@ export default function CompleteProfile() {
 				birthday
 			});
 			await refreshUser();
-			router.push("/dashboard");
-		} catch (err: any) {
+			router.push("/datasets");
+		} catch (err: unknown) {
+			const axiosErr = err as { response?: { status: number; data?: { detail?: string } } };
 			// Profile already complete — treat as success and redirect
-			if (err?.response?.status === 400 &&
-				err?.response?.data?.detail === "Profile has already been completed.") {
-				router.replace("/dashboard");
+			if (axiosErr.response?.status === 400 &&
+				axiosErr.response?.data?.detail === "Profile has already been completed.") {
+				router.replace("/datasets");
 				return;
 			}
 			const formattedErrors = formatFieldErrors(err);

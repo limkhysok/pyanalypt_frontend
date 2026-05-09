@@ -3,7 +3,7 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Menu, X, LogOut, LayoutDashboard, User as UserIcon, Home, BarChart2, FlaskConical, Info, ChevronRight, ArrowRight } from "lucide-react";
+import { Menu, X, LogOut, User as UserIcon, Home, BarChart2, FlaskConical, Info, ChevronRight } from "lucide-react";
 import { GithubIcon } from "@/components/ui/Icons";
 import { Logo } from "@/components/ui/Logo";
 import { cn, getInitials } from "@/lib/utils";
@@ -110,15 +110,6 @@ export function Navbar() {
                     <div className="w-px h-4 bg-border/40 mx-1 hidden sm:block" />
 
                     {/* Sticky CTA */}
-                    {scrolled && (
-                        <Link
-                            href="/dashboard"
-                            className="hidden lg:flex items-center gap-2 px-4 py-1.5 bg-blue-600 dark:bg-blue-600 text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-blue-700 hover:scale-105 transition-all shadow-lg shadow-blue-500/25 animate-in fade-in slide-in-from-right-4 duration-300"
-                        >
-                            Launch Dashboard <ArrowRight size={12} />
-                        </Link>
-                    )}
-
                     <div className={cn("w-px h-4 bg-border/40 mx-1 hidden sm:block", !scrolled && "sm:hidden", scrolled && "lg:block")} />
 
                     {/* User / Auth */}
@@ -145,12 +136,12 @@ export function Navbar() {
                                     )}
                                 </DropdownMenuLabel>
                                 <DropdownMenuSeparator className="bg-border/40" />
-                                <DropdownMenuItem asChild className="rounded-xl px-3 py-2 cursor-pointer text-[12px] gap-2">
+                                {/* <DropdownMenuItem asChild className="rounded-xl px-3 py-2 cursor-pointer text-[12px] gap-2">
                                     <Link href="/dashboard" className="flex items-center justify-between w-full">
                                         <span>Dashboard</span>
                                         <LayoutDashboard size={13} className="opacity-40" />
                                     </Link>
-                                </DropdownMenuItem>
+                                </DropdownMenuItem> */}
                                 <DropdownMenuItem asChild className="rounded-xl px-3 py-2 cursor-pointer text-[12px] gap-2">
                                     <Link href="/profile" className="flex items-center justify-between w-full">
                                         <span>Profile</span>
@@ -265,14 +256,14 @@ export function Navbar() {
                                             {user?.email && <p className="text-xs text-muted-foreground truncate">{user.email}</p>}
                                         </div>
                                     </div>
-                                    <Link
+                                    {/* <Link
                                         href="/dashboard"
                                         onClick={() => setMobileMenuOpen(false)}
                                         className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-bold text-foreground/70 hover:bg-muted hover:text-foreground transition-all"
                                     >
                                         <span>Dashboard</span>
                                         <LayoutDashboard size={14} className="opacity-40" />
-                                    </Link>
+                                    </Link> */}
                                     <Link
                                         href="/profile"
                                         onClick={() => setMobileMenuOpen(false)}

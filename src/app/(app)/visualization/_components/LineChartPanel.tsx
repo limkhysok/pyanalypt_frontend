@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import EChart, { type EChartInstance } from "@/components/ui/EChart";
+import * as echarts from "echarts";
 import { vizApi, type VizLineResponse } from "@/services/viz.service";
 import { toast } from "sonner";
 import { SaveToReportModal } from "@/components/reports/SaveToReportModal";
@@ -17,7 +18,7 @@ interface Props {
     allColumns: string[];
 }
 
-function buildOption(data: VizLineResponse, isDark: boolean) {
+function buildOption(data: VizLineResponse, isDark: boolean): echarts.EChartsOption {
     const labelColor = isDark ? "#71717a" : "#a1a1aa";
     const tooltipBg = isDark ? "#09090b" : "#ffffff";
     const tooltipBorder = isDark ? "#27272a" : "#e4e4e7";
@@ -28,7 +29,7 @@ function buildOption(data: VizLineResponse, isDark: boolean) {
     return {
         backgroundColor: "transparent",
         color: ["#3b82f6", "#10b981", "#f59e0b", "#ef4444", "#8b5cf6", "#06b6d4", "#f97316", "#84cc16"],
-        tooltip: { trigger: "axis", backgroundColor: tooltipBg, borderColor: tooltipBorder, textStyle: { color: tooltipText, fontSize: 11 } },
+        tooltip: { trigger: "axis" as const, backgroundColor: tooltipBg, borderColor: tooltipBorder, textStyle: { color: tooltipText, fontSize: 11 } },
         legend: data.series.length > 1 ? { textStyle: { color: labelColor, fontSize: 11 }, top: 4 } : undefined,
         grid: { top: data.series.length > 1 ? 44 : 16, right: 20, bottom: 64, left: 60 },
         xAxis: {

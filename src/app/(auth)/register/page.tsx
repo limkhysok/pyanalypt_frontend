@@ -92,7 +92,7 @@ export default function Register() {
 
 					setAuthUser(response.user);
 					await refreshUser();
-					router.push("/dashboard");
+					router.push("/datasets");
 				} catch (err) {
 					setError(getErrorMessage(err));
 					triggerShake();

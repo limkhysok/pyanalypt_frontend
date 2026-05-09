@@ -22,7 +22,7 @@ export interface VizBarResponse {
 export interface VizLineResponse {
   chart_type: 'line';
   xAxis: VizAxis;
-  yAxis: { type: string };
+  yAxis: VizAxis;
   series: VizSeries[];
 }
 

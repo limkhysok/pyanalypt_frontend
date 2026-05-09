@@ -43,12 +43,12 @@ type NavItemDef = {
 };
 
 const WORKSPACE_ITEMS: NavItemDef[] = [
-    { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, shortcut: "G D" },
+// { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard, shortcut: "G D" },
     { label: "Datasets",  href: "/datasets",  icon: Database,         shortcut: "G S" },
     { label: "Framing",   href: "/framing",   icon: BrainCircuit,     shortcut: "G F" },
     { label: "DataLab",   href: "/datalab",   icon: FlaskConical,     shortcut: "G L" },
     { label: "EDA",       href: "/eda",       icon: TrendingUp,       shortcut: "G E" },
-    { label: "ML Studio", href: "/mlstudio",  icon: Cpu,              shortcut: "G M" },
+// { label: "ML Studio", href: "/mlstudio",  icon: Cpu,              shortcut: "G M" },
 ];
 
 const RESULTS_ITEMS: NavItemDef[] = [
@@ -59,12 +59,12 @@ const RESULTS_ITEMS: NavItemDef[] = [
 
 /** G + key → route */
 const SHORTCUT_MAP: Record<string, string> = {
-    D: "/dashboard",
+// D: "/dashboard",
     S: "/datasets",
     F: "/framing",
     L: "/datalab",
     E: "/eda",
-    M: "/mlstudio",
+// M: "/mlstudio",
     V: "/visualization",
     B: "/dashboards",
     R: "/reports",
@@ -272,7 +272,7 @@ export function AppSidebar() {
             {/* ── Header ── */}
             <SidebarHeader className="flex flex-col gap-2 h-12 shrink-0 border-b border-sidebar-border px-4 group-data-[collapsible=icon]:px-0">
                 <Link
-                    href="/dashboard"
+                    href="/datasets"
                     className="flex h-full items-center gap-2.5 group/logo group-data-[collapsible=icon]:justify-center"
                 >
                     <div className="shrink-0 flex h-6 w-6 items-center justify-center rounded-full bg-sidebar-foreground/5 ring-1 ring-sidebar-foreground/10 transition-all duration-300 group-hover/logo:ring-sidebar-foreground/25 group-data-[collapsible=icon]:mx-auto">
