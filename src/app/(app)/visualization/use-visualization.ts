@@ -7,9 +7,9 @@ import type { Dataset } from "@/types/dataset";
 import { toast } from "sonner";
 
 const NUMERIC_DTYPES = new Set([
-    'int8', 'int16', 'int32', 'int64',
+    'int8', 'int16', 'int32', 'int64', 'int', 'long',
     'uint8', 'uint16', 'uint32', 'uint64',
-    'float16', 'float32', 'float64',
+    'float16', 'float32', 'float64', 'float', 'double', 'decimal', 'number',
     'Int8', 'Int16', 'Int32', 'Int64',
     'Float32', 'Float64',
 ]);
@@ -36,11 +36,26 @@ export function useVisualization() {
     );
 
     React.useEffect(() => {
-        const params = new URLSearchParams(searchParams.toString());
-        if (selectedId) params.set("dataset", selectedId); else params.delete("dataset");
-        if (chartType !== "bar") params.set("chart", chartType); else params.delete("chart");
-        router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-    }, [selectedId, chartType]);
+        const currentParamsStr = searchParams.toString();
+        const params = new URLSearchParams(currentParamsStr);
+        
+        if (selectedId) {
+            params.set("dataset", selectedId);
+        } else {
+            params.delete("dataset");
+        }
+        
+        if (chartType === "bar") {
+            params.delete("chart");
+        } else {
+            params.set("chart", chartType);
+        }
+        
+        const newParamsStr = params.toString();
+        if (newParamsStr !== currentParamsStr) {
+            router.replace(`${pathname}?${newParamsStr}`, { scroll: false });
+        }
+    }, [selectedId, chartType, pathname, router, searchParams]);
 
     React.useEffect(() => {
         datasetApi.listDatasets()

@@ -54,8 +54,8 @@ export function LineChartPanel({ datasetId, numericColumns, allColumns }: Readon
     const { resolvedTheme } = useTheme();
     const isDark = resolvedTheme === "dark";
 
-    const [xCol, setXCol] = useState(allColumns[0] ?? "");
-    const [yCols, setYCols] = useState<string[]>(numericColumns.slice(0, 1));
+    const [xCol, setXCol] = useState(() => allColumns[0] ?? "");
+    const [yCols, setYCols] = useState<string[]>(() => numericColumns.slice(0, 1));
     const [sort, setSort] = useState(true);
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<VizLineResponse | null>(null);
@@ -63,6 +63,7 @@ export function LineChartPanel({ datasetId, numericColumns, allColumns }: Readon
     const chartRef = useRef<EChartInstance>(null);
 
     const option = useMemo(() => result ? buildOption(result, isDark) : null, [result, isDark]);
+
 
     function getChartImage() {
         return chartRef.current?.getEchartsInstance()?.getDataURL({ type: "png", pixelRatio: 2, backgroundColor: "#fff" }) ?? null;
@@ -140,7 +141,7 @@ export function LineChartPanel({ datasetId, numericColumns, allColumns }: Readon
             </div>
 
             {option
-                ? <div className="border border-slate-200 bg-card"><EChart ref={chartRef} option={option} style={{ height: "420px" }} /></div>
+                ? <div className="border border-slate-200 bg-card p-[10px]"><EChart ref={chartRef} option={option} style={{ height: "420px" }} /></div>
                 : <div className="border border-slate-200 bg-muted/5 h-80 flex items-center justify-center text-xs text-muted-foreground">Configure options above and click Run</div>
             }
 

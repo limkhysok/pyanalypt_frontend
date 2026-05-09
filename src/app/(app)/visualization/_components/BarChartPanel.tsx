@@ -16,7 +16,7 @@ const LIMIT_OPTIONS = [10, 20, 50, 100];
 interface Props {
     datasetId: number;
     numericColumns: string[];
-    categoricalColumns: string[];
+    allColumns: string[];
 }
 
 function buildOption(data: VizBarResponse, isDark: boolean) {
@@ -53,12 +53,12 @@ function buildOption(data: VizBarResponse, isDark: boolean) {
     };
 }
 
-export function BarChartPanel({ datasetId, numericColumns, categoricalColumns }: Readonly<Props>) {
+export function BarChartPanel({ datasetId, numericColumns, allColumns }: Readonly<Props>) {
     const { resolvedTheme } = useTheme();
     const isDark = resolvedTheme === "dark";
 
-    const [xCol, setXCol] = useState(categoricalColumns[0] ?? "");
-    const [yCol, setYCol] = useState(numericColumns[0] ?? "");
+    const [xCol, setXCol] = useState(() => allColumns[0] ?? "");
+    const [yCol, setYCol] = useState(() => numericColumns[0] ?? "");
     const [agg, setAgg] = useState("sum");
     const [groupBy, setGroupBy] = useState("__none__");
     const [limit, setLimit] = useState(20);
@@ -95,9 +95,9 @@ export function BarChartPanel({ datasetId, numericColumns, categoricalColumns }:
             <div className="flex flex-wrap items-center gap-3">
                 <span className="text-xs font-medium">X axis</span>
                 <Select value={xCol} onValueChange={setXCol}>
-                    <SelectTrigger className="h-8 w-44 rounded-none text-xs"><SelectValue placeholder="Categorical col" /></SelectTrigger>
+                    <SelectTrigger className="h-8 w-44 rounded-none text-xs"><SelectValue placeholder="Any column" /></SelectTrigger>
                     <SelectContent className="rounded-none">
-                        {categoricalColumns.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                        {allColumns.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                     </SelectContent>
                 </Select>
 
@@ -122,7 +122,7 @@ export function BarChartPanel({ datasetId, numericColumns, categoricalColumns }:
                     <SelectTrigger className="h-8 w-44 rounded-none text-xs"><SelectValue /></SelectTrigger>
                     <SelectContent className="rounded-none">
                         <SelectItem value="__none__">None</SelectItem>
-                        {categoricalColumns.filter(c => c !== xCol).map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                        {allColumns.filter(c => c !== xCol).map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                     </SelectContent>
                 </Select>
 
@@ -146,7 +146,7 @@ export function BarChartPanel({ datasetId, numericColumns, categoricalColumns }:
             </div>
 
             {option
-                ? <div className="border border-slate-200 bg-card"><EChart ref={chartRef} option={option} style={{ height: "420px" }} /></div>
+                ? <div className="border border-slate-200 bg-card p-[10px]"><EChart ref={chartRef} option={option} style={{ height: "420px" }} /></div>
                 : <div className="border border-slate-200 bg-muted/5 h-80 flex items-center justify-center text-xs text-muted-foreground">Configure options above and click Run</div>
             }
 

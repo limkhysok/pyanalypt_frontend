@@ -2,12 +2,12 @@ import apiClient from '@/lib/axios';
 
 export interface VizSeries {
   name: string;
-  type: string;
+  type: 'bar' | 'line' | 'scatter' | 'pie';
   data: (number | [number, number])[];
 }
 
 export interface VizAxis {
-  type: string;
+  type: 'category' | 'value' | 'time' | 'log';
   name: string;
   data?: string[];
 }
@@ -103,7 +103,8 @@ export const vizApi = {
     params.columns?.forEach(c => q.append('columns', c));
     if (params.bins !== undefined) q.set('bins', String(params.bins));
     const qs = q.toString();
-    const res = await apiClient.get(`/viz/histogram/${datasetId}/${qs ? `?${qs}` : ''}`);
+    const queryPart = qs ? `?${qs}` : '';
+    const res = await apiClient.get(`/viz/histogram/${datasetId}/${queryPart}`);
     return res.data;
   },
 };

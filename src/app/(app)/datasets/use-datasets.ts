@@ -95,8 +95,19 @@ export function useDatasets() {
     const handleRename = async () => {
         if (!selectedDataset || !newName.trim()) return;
 
-        const ext = selectedDataset.file_name.split('.').pop();
-        const finalName = ext ? `${newName.trim()}.${ext}` : newName.trim();
+        const fileName = selectedDataset.file_name;
+        const lastDotIndex = fileName.lastIndexOf('.');
+        
+        let finalName = newName.trim();
+        
+        // Only attempt to append extension if the original file had one
+        if (lastDotIndex !== -1 && lastDotIndex !== 0) {
+            const ext = fileName.slice(lastDotIndex + 1);
+            // Don't append if the user already typed it (case-insensitive)
+            if (!finalName.toLowerCase().endsWith(`.${ext.toLowerCase()}`)) {
+                finalName = `${finalName}.${ext}`;
+            }
+        }
 
         try {
             await datasetApi.renameDataset(selectedDataset.id, { file_name: finalName });

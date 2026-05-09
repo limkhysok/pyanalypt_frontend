@@ -1,0 +1,12 @@
+node_modules
+.next
+.git
+.env*.local
+*.log
+README.md
+API_DOC.md
+NEW_UPDATE.MD
+debug.txt
+tmp
+wholesale_pharmaceuticals_messy_data.csv
+client_secret_*.json

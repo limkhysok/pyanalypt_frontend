@@ -184,8 +184,11 @@ export default function AboutPage() {
                 />
               </div>
               <div className="relative">
-                <select className="w-full bg-muted/30 border border-border/60 rounded-xl px-5 py-3 text-sm font-bold focus:outline-none focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:bg-blue-50/20 dark:focus:bg-blue-950/20 transition-colors appearance-none cursor-pointer">
-                  <option value="" disabled selected>Reason for Inquiry</option>
+                <select 
+                  defaultValue=""
+                  className="w-full bg-muted/30 border border-border/60 rounded-xl px-5 py-3 text-sm font-bold focus:outline-none focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:bg-blue-50/20 dark:focus:bg-blue-950/20 transition-colors appearance-none cursor-pointer"
+                >
+                  <option value="" disabled>Reason for Inquiry</option>
                   <option value="feature">Feature Request</option>
                   <option value="bug">Bug Report</option>
                   <option value="partnership">Partnership</option>

@@ -170,7 +170,7 @@ export function DatasetTable({
 
                                         <td className="px-6 py-5">
                                             <span className="font-bold text-foreground text-[13px] tracking-tight truncate max-w-sm block">
-                                                {dataset.file_name}
+                                                {dataset.file_name.replace(/\.[^/.]+$/, "")}
                                             </span>
                                         </td>
 

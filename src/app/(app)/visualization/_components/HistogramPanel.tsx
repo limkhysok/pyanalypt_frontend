@@ -63,7 +63,7 @@ function buildOption(col: string, data: VizHistogramColumn, isDark: boolean) {
             itemStyle: { color: "#3b82f6", borderRadius: [2, 2, 0, 0] },
             emphasis: { itemStyle: { color: "#60a5fa" } },
         })),
-    };
+    } as echarts.EChartsOption;
 }
 
 function StatsRow({ stats }: Readonly<{ stats: VizHistogramStats }>) {
@@ -113,7 +113,9 @@ function HistogramCard({ col, data, bins, isDark }: Readonly<HistogramCardProps>
                     <BookmarkPlus className="h-3 w-3" /> Save
                 </Button>
             </div>
-            <EChart ref={chartRef} option={option} style={{ height: "180px" }} />
+            <div className="p-[10px] bg-card border border-slate-100/50">
+                <EChart ref={chartRef} option={option} style={{ height: "180px" }} />
+            </div>
             <StatsRow stats={data.stats} />
 
             <SaveToReportModal
@@ -131,10 +133,11 @@ export function HistogramPanel({ datasetId, numericColumns }: Readonly<Props>) {
     const { resolvedTheme } = useTheme();
     const isDark = resolvedTheme === "dark";
 
-    const [selectedCols, setSelectedCols] = useState<string[]>(numericColumns.slice(0, 3));
+    const [selectedCols, setSelectedCols] = useState<string[]>(() => numericColumns.slice(0, 3));
     const [bins, setBins] = useState(20);
     const [loading, setLoading] = useState(false);
     const [result, setResult] = useState<Record<string, VizHistogramColumn> | null>(null);
+
 
     let colLabel: string;
     if (selectedCols.length === 0) colLabel = "Select columns";

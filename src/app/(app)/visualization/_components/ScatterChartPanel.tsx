@@ -69,8 +69,8 @@ export function ScatterChartPanel({ datasetId, numericColumns, categoricalColumn
     const { resolvedTheme } = useTheme();
     const isDark = resolvedTheme === "dark";
 
-    const [colX, setColX] = useState(numericColumns[0] ?? "");
-    const [colY, setColY] = useState(numericColumns[1] ?? numericColumns[0] ?? "");
+    const [colX, setColX] = useState(() => numericColumns[0] ?? "");
+    const [colY, setColY] = useState(() => numericColumns[1] ?? numericColumns[0] ?? "");
     const [colorBy, setColorBy] = useState("__none__");
     const [sample, setSample] = useState(500);
     const [loading, setLoading] = useState(false);
@@ -79,6 +79,7 @@ export function ScatterChartPanel({ datasetId, numericColumns, categoricalColumn
     const chartRef = useRef<EChartInstance>(null);
 
     const option = useMemo(() => result ? buildOption(result, isDark) : null, [result, isDark]);
+
 
     function getChartImage() {
         return chartRef.current?.getEchartsInstance()?.getDataURL({ type: "png", pixelRatio: 2, backgroundColor: "#fff" }) ?? null;
@@ -154,7 +155,7 @@ export function ScatterChartPanel({ datasetId, numericColumns, categoricalColumn
             </div>
 
             {option
-                ? <div className="border border-slate-200 bg-card"><EChart ref={chartRef} option={option} style={{ height: "420px" }} /></div>
+                ? <div className="border border-slate-200 bg-card p-[10px]"><EChart ref={chartRef} option={option} style={{ height: "420px" }} /></div>
                 : <div className="border border-slate-200 bg-muted/5 h-80 flex items-center justify-center text-xs text-muted-foreground">Configure options above and click Run</div>
             }
 

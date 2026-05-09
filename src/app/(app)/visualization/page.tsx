@@ -132,16 +132,16 @@ export default function VisualizationPage() {
                 {selectedId && !isLoading && hasColumns && (
                     <>
                         <TabsContent value="bar">
-                            <BarChartPanel datasetId={datasetId} numericColumns={numericColumns} categoricalColumns={categoricalColumns} />
+                            <BarChartPanel key={datasetId} datasetId={datasetId} numericColumns={numericColumns} allColumns={allColumns} />
                         </TabsContent>
                         <TabsContent value="line">
-                            <LineChartPanel datasetId={datasetId} numericColumns={numericColumns} allColumns={allColumns} />
+                            <LineChartPanel key={datasetId} datasetId={datasetId} numericColumns={numericColumns} allColumns={allColumns} />
                         </TabsContent>
                         <TabsContent value="scatter">
-                            <ScatterChartPanel datasetId={datasetId} numericColumns={numericColumns} categoricalColumns={categoricalColumns} />
+                            <ScatterChartPanel key={datasetId} datasetId={datasetId} numericColumns={numericColumns} categoricalColumns={categoricalColumns} />
                         </TabsContent>
                         <TabsContent value="histogram">
-                            <HistogramPanel datasetId={datasetId} numericColumns={numericColumns} />
+                            <HistogramPanel key={datasetId} datasetId={datasetId} numericColumns={numericColumns} />
                         </TabsContent>
                     </>
                 )}
