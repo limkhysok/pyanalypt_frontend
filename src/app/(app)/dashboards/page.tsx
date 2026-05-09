@@ -133,12 +133,12 @@ export default function DashboardsListPage() {
   function renderDashboardGrid() {
     if (loading) {
       return [1, 2, 3].map(i => (
-        <Card key={i} className="h-48 rounded-none border-slate-200 animate-pulse bg-slate-50/50" />
+        <Card key={i} className="h-48 rounded-none border-border animate-pulse bg-muted/20" />
       ));
     }
     if (filteredDashboards.length === 0) {
       return (
-        <div className="col-span-full py-20 border border-dashed border-slate-300 flex flex-col items-center justify-center text-center">
+        <div className="col-span-full py-20 border border-dashed border-border flex flex-col items-center justify-center text-center">
           <p className="text-sm font-bold text-muted-foreground/60 lowercase">no boards found in this view</p>
         </div>
       );
@@ -150,11 +150,11 @@ export default function DashboardsListPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: i * 0.05 }}
       >
-        <Card className="group bg-background border border-slate-200 rounded-none shadow-none hover:border-slate-400 transition-all">
+        <Card className="group bg-background border border-border rounded-none shadow-none hover:border-foreground/40 transition-all">
           <CardContent className="p-0">
-            <div className="p-5 border-b border-slate-100">
+            <div className="p-5 border-b border-border/60">
               <div className="flex justify-between items-start mb-3">
-                <div className="h-10 w-10 border border-slate-200 flex items-center justify-center text-slate-400 group-hover:text-primary transition-colors">
+                <div className="h-10 w-10 border border-border flex items-center justify-center text-muted-foreground group-hover:text-primary transition-colors">
                   <BarChart3 className="h-5 w-5" />
                 </div>
                 <DropdownMenu>
@@ -177,7 +177,7 @@ export default function DashboardsListPage() {
               </p>
             </div>
 
-            <div className="p-5 bg-slate-50 group-hover:bg-white transition-colors flex items-center justify-between">
+            <div className="p-5 bg-muted/30 group-hover:bg-muted/50 transition-colors flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="flex flex-col">
                   <span className="text-[9px] font-bold text-muted-foreground/40 capitalize tracking-widest mb-1">widgets</span>
@@ -188,7 +188,7 @@ export default function DashboardsListPage() {
                   <span className="text-xs font-bold lowercase text-muted-foreground">{format(new Date(dash.updated_at), "MMM d")}</span>
                 </div>
               </div>
-              <Button asChild size="sm" variant="outline" className="rounded-none h-8 px-4 text-xs font-bold lowercase border-slate-200 hover:border-slate-800 transition-all">
+              <Button asChild size="sm" variant="outline" className="rounded-none h-8 px-4 text-xs font-bold lowercase border-border hover:border-foreground transition-all">
                 <Link href={`/dashboards/${dash.id}`}>
                   view board
                 </Link>
@@ -215,7 +215,7 @@ export default function DashboardsListPage() {
 
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
-            <Button size="sm" className="h-8 gap-2 text-xs rounded-none capitalize bg-blue-600 hover:bg-blue-700 dark:bg-blue-500 dark:hover:bg-blue-600 text-white border-0">
+            <Button size="sm" className="h-8 gap-2 text-xs rounded-none capitalize bg-primary hover:bg-primary/90 text-primary-foreground border-0">
               <Plus className="h-3.5 w-3.5" /> New dashboard
             </Button>
           </DialogTrigger>
@@ -282,9 +282,9 @@ export default function DashboardsListPage() {
 
       {/* ── Stats Row ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-         <Card className="bg-background border border-slate-200 rounded-none shadow-none overflow-hidden group">
+         <Card className="bg-background border border-border rounded-none shadow-none overflow-hidden group">
             <CardContent className="p-5 flex items-center gap-5">
-                <div className="h-11 w-11 border border-slate-200 flex items-center justify-center bg-slate-50 group-hover:bg-white">
+                <div className="h-11 w-11 border border-border flex items-center justify-center bg-muted/30 group-hover:bg-muted/50">
                     <Layout className="h-5 w-5 text-muted-foreground/80" />
                 </div>
                 <div>
@@ -296,9 +296,9 @@ export default function DashboardsListPage() {
                 </div>
             </CardContent>
          </Card>
-         <Card className="bg-background border border-slate-200 rounded-none shadow-none overflow-hidden group">
+         <Card className="bg-background border border-border rounded-none shadow-none overflow-hidden group">
             <CardContent className="p-5 flex items-center gap-5">
-                <div className="h-11 w-11 border border-slate-200 flex items-center justify-center bg-slate-50 group-hover:bg-white">
+                <div className="h-11 w-11 border border-border flex items-center justify-center bg-muted/30 group-hover:bg-muted/50">
                     <BarChart3 className="h-5 w-5 text-muted-foreground/80" />
                 </div>
                 <div>
@@ -312,9 +312,9 @@ export default function DashboardsListPage() {
                 </div>
             </CardContent>
          </Card>
-         <Card className="bg-background border border-slate-200 rounded-none shadow-none overflow-hidden group">
+         <Card className="bg-background border border-border rounded-none shadow-none overflow-hidden group">
             <CardContent className="p-5 flex items-center gap-5">
-                <div className="h-11 w-11 border border-slate-200 flex items-center justify-center bg-slate-50 group-hover:bg-white">
+                <div className="h-11 w-11 border border-border flex items-center justify-center bg-muted/30 group-hover:bg-muted/50">
                     <Clock className="h-5 w-5 text-muted-foreground/80" />
                 </div>
                 <div>
@@ -358,19 +358,19 @@ export default function DashboardsListPage() {
         </div>
 
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-slate-50/50 p-3 border border-slate-200 rounded-none">
+          <div className="flex flex-col sm:flex-row gap-4 items-center justify-between bg-muted/30 p-3 border border-border rounded-none">
             <div className="relative w-full sm:w-80 group">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-              <Input 
-                placeholder="search boards..." 
-                className="pl-9 h-9 bg-background border-slate-200 rounded-none text-xs lowercase"
+              <Input
+                placeholder="search boards..."
+                className="pl-9 h-9 bg-background border-border rounded-none text-xs lowercase"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
             <div className="flex items-center gap-2">
                <span className="text-[10px] font-bold text-muted-foreground/40 lowercase mr-2">{filteredDashboards.length} boards found</span>
-               <Button variant="outline" size="icon" className="h-9 w-9 rounded-none border-slate-200" onClick={loadInitialData}>
+               <Button variant="outline" size="icon" className="h-9 w-9 rounded-none border-border" onClick={loadInitialData}>
                  <RefreshCw className="h-3.5 w-3.5" />
                </Button>
             </div>

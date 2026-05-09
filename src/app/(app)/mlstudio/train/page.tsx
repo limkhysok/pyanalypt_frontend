@@ -199,7 +199,7 @@ export default function MLStudioTrainPage() {
           <Button variant="ghost" size="icon" className="rounded-none hover:bg-muted/80" onClick={() => router.push("/mlstudio")}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
-          <div className="h-8 w-[1px] bg-border/60 mx-2" />
+          <div className="h-8 w-px bg-border/60 mx-2" />
           <div>
             <h1 className="text-lg font-black tracking-tight leading-none">Train New Model</h1>
             <p className="text-[10px] font-bold text-muted-foreground capitalize tracking-widest mt-1">
@@ -257,7 +257,7 @@ export default function MLStudioTrainPage() {
                     {isCompleted ? <Check className="h-5 w-5" /> : <StepIcon className="h-5 w-5" />}
                   </div>
                   <span className={cn(
-                    "text-[10px] font-black capitalize tracking-[0.1em] transition-colors duration-500",
+                    "text-[10px] font-black capitalize tracking-widest transition-colors duration-500",
                     labelStyle
                   )}>
                     {step.label}
@@ -275,7 +275,7 @@ export default function MLStudioTrainPage() {
                   <Label className="text-xl font-black tracking-tight">Name your model</Label>
                   <Input 
                     placeholder="e.g. Sales Forecast Model 2026" 
-                    className="h-14 text-lg font-bold rounded-none bg-slate-50 border-2 border-foreground/20 focus-visible:ring-0 focus-visible:border-foreground transition-all"
+                    className="h-14 text-lg font-bold rounded-none bg-muted/30 border-2 border-foreground/20 focus-visible:ring-0 focus-visible:border-foreground transition-all"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                   />
@@ -288,12 +288,12 @@ export default function MLStudioTrainPage() {
                         key={ds.id} 
                         className={cn(
                           "cursor-pointer transition-all duration-300 rounded-none border-2 hover:border-foreground/40",
-                          selectedDatasetId === ds.id.toString() ? "border-foreground bg-slate-50 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]" : "border-slate-200 bg-background"
+                          selectedDatasetId === ds.id.toString() ? "border-foreground bg-muted/50 shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]" : "border-border bg-background"
                         )}
                         onClick={() => setSelectedDatasetId(ds.id.toString())}
                       >
                         <CardContent className="p-5 flex items-center gap-4">
-                          <div className={cn("h-12 w-12 rounded-none flex items-center justify-center border-2", selectedDatasetId === ds.id.toString() ? "bg-foreground text-background border-foreground" : "bg-slate-50 text-slate-400 border-slate-200")}>
+                          <div className={cn("h-12 w-12 rounded-none flex items-center justify-center border-2", selectedDatasetId === ds.id.toString() ? "bg-foreground text-background border-foreground" : "bg-muted/30 text-muted-foreground border-border")}>
                             <Database className="h-6 w-6" />
                           </div>
                           <div className="flex-1 min-w-0">
@@ -321,10 +321,10 @@ export default function MLStudioTrainPage() {
                         onClick={() => setTaskType(type)}
                         className={cn(
                           "flex flex-col items-center gap-4 p-8 rounded-none border-2 transition-all duration-300",
-                          taskType === type ? "border-foreground bg-slate-50 text-foreground shadow-[6px_6px_0px_0px_rgba(0,0,0,0.1)] scale-105" : "border-slate-200 hover:border-slate-300 text-slate-400 hover:bg-slate-50"
+                          taskType === type ? "border-foreground bg-muted/50 text-foreground shadow-[6px_6px_0px_0px_rgba(0,0,0,0.1)] scale-105" : "border-border hover:border-border/80 text-muted-foreground hover:bg-muted/50"
                         )}
                       >
-                        <div className={cn("h-16 w-16 rounded-none flex items-center justify-center transition-all border-2", taskType === type ? "bg-foreground text-background border-foreground" : "bg-slate-50 text-slate-400 border-slate-100")}>
+                        <div className={cn("h-16 w-16 rounded-none flex items-center justify-center transition-all border-2", taskType === type ? "bg-foreground text-background border-foreground" : "bg-muted/30 text-muted-foreground border-border/60")}>
                            {type === 'regression' && <Activity className="h-8 w-8" />}
                            {type === 'classification' && <ListTodo className="h-8 w-8" />}
                            {type === 'clustering' && <Sparkles className="h-8 w-8" />}
@@ -341,7 +341,7 @@ export default function MLStudioTrainPage() {
                     {loadingAlgorithms && <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />}
                   </div>
                   <Select value={selectedAlgorithm} onValueChange={setSelectedAlgorithm} disabled={loadingAlgorithms}>
-                    <SelectTrigger className="h-14 rounded-none bg-slate-50 border-2 border-foreground/20 font-bold text-lg focus:ring-0 focus:border-foreground">
+                    <SelectTrigger className="h-14 rounded-none bg-muted/30 border-2 border-foreground/20 font-bold text-lg focus:ring-0 focus:border-foreground">
                       <SelectValue placeholder={loadingAlgorithms ? "Loading..." : "Select algorithm"} />
                     </SelectTrigger>
                     <SelectContent className="rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
@@ -359,7 +359,7 @@ export default function MLStudioTrainPage() {
                 </div>
 
                 {selectedAlgorithm && algorithms.find(a => a.id === selectedAlgorithm)?.hyperparams && Object.keys(algorithms.find(a => a.id === selectedAlgorithm)!.hyperparams).length > 0 && (
-                  <div className="space-y-6 pt-4 border-t border-slate-100">
+                  <div className="space-y-6 pt-4 border-t border-border/60">
                     <Label className="text-xl font-black tracking-tight flex items-center gap-2">
                        <Settings2 className="h-5 w-5 text-primary" /> Fine-tune Parameters
                     </Label>
@@ -371,7 +371,7 @@ export default function MLStudioTrainPage() {
                             type={type === 'int' || type === 'float' ? 'number' : 'text'}
                             step={type === 'float' ? '0.01' : '1'}
                             placeholder={`Enter ${key}`}
-                            className="h-12 rounded-none bg-slate-50 border-2 border-foreground/10 font-bold focus:border-foreground"
+                            className="h-12 rounded-none bg-muted/30 border-2 border-foreground/10 font-bold focus:border-foreground"
                             value={hyperparameters[key] || ""}
                             onChange={(e) => {
                               const val = e.target.value;
@@ -385,7 +385,7 @@ export default function MLStudioTrainPage() {
                               }));
                             }}
                           />
-                          <p className="text-[10px] font-medium text-slate-400 italic">Expected type: {type}</p>
+                          <p className="text-[10px] font-medium text-muted-foreground italic">Expected type: {type}</p>
                         </div>
                       ))}
                     </div>
@@ -403,7 +403,7 @@ export default function MLStudioTrainPage() {
                        <Target className="h-5 w-5 text-primary" /> Select Target Column (Label)
                     </Label>
                     <Select value={targetColumn} onValueChange={setTargetColumn}>
-                      <SelectTrigger className="h-14 rounded-none bg-slate-50 border-2 border-foreground/20 font-bold text-lg focus:ring-0 focus:border-foreground">
+                      <SelectTrigger className="h-14 rounded-none bg-muted/30 border-2 border-foreground/20 font-bold text-lg focus:ring-0 focus:border-foreground">
                         <SelectValue placeholder="Which column to predict?" />
                       </SelectTrigger>
                       <SelectContent className="rounded-none border-2 border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)]">
@@ -429,7 +429,7 @@ export default function MLStudioTrainPage() {
                         onClick={() => toggleFeature(col)}
                         className={cn(
                           "p-4 rounded-none border-2 transition-all flex items-center justify-between outline-none focus:ring-0 text-left",
-                          selectedFeatures.includes(col) ? "border-foreground bg-slate-50 text-foreground font-bold shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]" : "border-slate-200 hover:bg-slate-50 text-slate-400"
+                          selectedFeatures.includes(col) ? "border-foreground bg-muted/50 text-foreground font-bold shadow-[2px_2px_0px_0px_rgba(0,0,0,1)]" : "border-border hover:bg-muted/50 text-muted-foreground"
                         )}
                       >
                         <span className="text-sm truncate lowercase font-mono">{col}</span>
@@ -457,10 +457,10 @@ export default function MLStudioTrainPage() {
                 </div>
 
                 <div className="grid grid-cols-2 gap-6">
-                  <div className="p-6 rounded-none bg-slate-50 border-2 border-foreground space-y-4">
+                  <div className="p-6 rounded-none bg-muted/50 border-2 border-foreground space-y-4">
                     <div className="flex items-center gap-2 text-foreground">
                        <Settings2 className="h-4 w-4" />
-                       <span className="text-[10px] font-black capitalize tracking-[0.1em] font-mono">General Info</span>
+                       <span className="text-[10px] font-black capitalize tracking-widest font-mono">General Info</span>
                     </div>
                     <div className="space-y-3">
                        <div className="flex justify-between text-xs lowercase font-mono">
@@ -474,10 +474,10 @@ export default function MLStudioTrainPage() {
                     </div>
                   </div>
 
-                  <div className="p-6 rounded-none bg-slate-50 border-2 border-foreground space-y-4">
+                  <div className="p-6 rounded-none bg-muted/50 border-2 border-foreground space-y-4">
                     <div className="flex items-center gap-2 text-foreground">
                        <BrainCircuit className="h-4 w-4" />
-                       <span className="text-[10px] font-black capitalize tracking-[0.1em] font-mono">Architecture</span>
+                       <span className="text-[10px] font-black capitalize tracking-widest font-mono">Architecture</span>
                     </div>
                     <div className="space-y-3">
                        <div className="flex justify-between text-xs lowercase font-mono">
@@ -496,7 +496,7 @@ export default function MLStudioTrainPage() {
                    <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2 text-foreground">
                          <Target className="h-4 w-4" />
-                         <span className="text-[10px] font-black capitalize tracking-[0.1em] font-mono">Target & Features</span>
+                         <span className="text-[10px] font-black capitalize tracking-widest font-mono">Target & Features</span>
                       </div>
                       <span className="text-[10px] font-bold text-muted-foreground/60 lowercase">{selectedFeatures.length} features selected</span>
                    </div>
@@ -505,9 +505,9 @@ export default function MLStudioTrainPage() {
                         <Badge variant="default" className="rounded-none border-2 border-foreground bg-foreground text-background text-[10px] py-1 px-3 lowercase font-mono">Target: {targetColumn}</Badge>
                       )}
                       {selectedFeatures.slice(0, 12).map(f => (
-                        <Badge key={f} variant="outline" className="rounded-none border-2 border-slate-200 text-[10px] py-1 px-3 text-slate-400 lowercase font-mono">{f}</Badge>
+                        <Badge key={f} variant="outline" className="rounded-none border-2 border-border text-[10px] py-1 px-3 text-muted-foreground lowercase font-mono">{f}</Badge>
                       ))}
-                      {selectedFeatures.length > 12 && <span className="text-[10px] text-slate-400 font-bold lowercase">+{selectedFeatures.length - 12} more</span>}
+                      {selectedFeatures.length > 12 && <span className="text-[10px] text-muted-foreground font-bold lowercase">+{selectedFeatures.length - 12} more</span>}
                    </div>
                 </div>
               </motion.div>
@@ -525,7 +525,7 @@ export default function MLStudioTrainPage() {
              {currentStep < 4 && (
                <Button 
                 variant="outline" 
-                className="rounded-none h-12 px-8 font-bold gap-2 border-2 border-foreground hover:bg-slate-50 transition-all"
+                className="rounded-none h-12 px-8 font-bold gap-2 border-2 border-foreground hover:bg-muted/50 transition-all"
                 onClick={handleNext}
                >
                  Continue <ChevronRight className="h-4 w-4" />

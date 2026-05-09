@@ -112,20 +112,20 @@ export function CrosstabTab({ datasetId, columns }: Readonly<Props>) {
                         Export CSV
                     </Button>
                 </div>
-                <div className="border border-slate-200 bg-card">
+                <div className="border border-border bg-card">
                     <ScrollArea className="w-full">
                         <table className="w-full text-sm">
                             <thead>
-                                <tr className="border-b border-slate-100 bg-slate-50">
+                                <tr className="border-b border-border bg-muted/50">
                                     <th className="px-3 py-2" />
-                                    <th colSpan={valCols.length} className="px-3 py-1 text-center text-xs font-semibold text-gray-500 font-mono border-b border-slate-100">
+                                    <th colSpan={valCols.length} className="px-3 py-1 text-center text-xs font-semibold text-muted-foreground font-mono border-b border-border">
                                         {result?.col_b}
                                     </th>
                                 </tr>
-                                <tr className="border-b border-slate-200 bg-slate-50">
-                                    <th className="px-3 py-2 text-left font-semibold text-xs text-gray-600 font-mono">{rowKey}</th>
+                                <tr className="border-b border-border bg-muted/50">
+                                    <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground font-mono">{rowKey}</th>
                                     {valCols.map((c) => (
-                                        <th key={c} className="px-3 py-2 text-right font-semibold text-xs text-gray-600 font-mono">{c}</th>
+                                        <th key={c} className="px-3 py-2 text-right font-semibold text-xs text-muted-foreground font-mono">{c}</th>
                                     ))}
                                 </tr>
                             </thead>
@@ -133,7 +133,7 @@ export function CrosstabTab({ datasetId, columns }: Readonly<Props>) {
                                 {result.table.map((row) => {
                                     const rowLabel = String(row[rowKey] ?? "");
                                     return (
-                                        <tr key={rowLabel} className="border-b border-slate-200 last:border-0 hover:bg-blue-50 even:bg-gray-50 transition-colors">
+                                        <tr key={rowLabel} className="border-b border-border last:border-0 hover:bg-muted/50 even:bg-muted/20 transition-colors">
                                             <td className="px-3 py-2 font-medium font-mono text-xs">{rowLabel}</td>
                                             {valCols.map((c) => {
                                                 const val = row[c];

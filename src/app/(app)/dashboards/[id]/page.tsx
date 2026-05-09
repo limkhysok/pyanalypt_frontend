@@ -104,7 +104,7 @@ export default function DashboardDetailPage() {
               "h-8 px-4 rounded-none gap-2 text-xs font-bold transition-all border-2",
               isEditMode 
                 ? "bg-foreground text-background border-foreground shadow-[4px_4px_0px_0px_rgba(0,0,0,0.1)] active:translate-x-0.5 active:translate-y-0.5 active:shadow-none" 
-                : "border-slate-200 hover:border-foreground"
+                : "border-border hover:border-foreground"
             )}
             onClick={() => setIsEditMode(!isEditMode)}
           >
@@ -122,7 +122,7 @@ export default function DashboardDetailPage() {
           <Button 
             variant="ghost" 
             size="icon" 
-            className="h-8 w-8 rounded-none border-2 border-slate-200 hover:border-foreground hover:bg-slate-50 transition-all"
+            className="h-8 w-8 rounded-none border-2 border-border hover:border-foreground hover:bg-muted/50 transition-all"
             onClick={handleGlobalRefresh}
           >
             <RefreshCw className="h-3.5 w-3.5" />
@@ -139,8 +139,8 @@ export default function DashboardDetailPage() {
         <div className="max-w-400 mx-auto">
            {dashboard.widgets.length === 0 ? (
              <div className="h-[60vh] flex flex-col items-center justify-center text-center space-y-6">
-               <div className="h-20 w-20 rounded-none bg-slate-50 border-2 border-slate-200 flex items-center justify-center">
-                 <Layout className="h-10 w-10 text-slate-400" />
+               <div className="h-20 w-20 rounded-none bg-muted/30 border-2 border-border flex items-center justify-center">
+                 <Layout className="h-10 w-10 text-muted-foreground" />
                </div>
                <div className="space-y-3">
                  <h2 className="text-xl font-bold tracking-tight lowercase">empty dashboard</h2>

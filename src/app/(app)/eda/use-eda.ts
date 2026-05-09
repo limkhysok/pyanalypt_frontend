@@ -32,6 +32,7 @@ export function useEda() {
 
     // All column names for the selected dataset (used by CrosstabTab / PairwiseTab)
     const [allColumns, setAllColumns] = React.useState<string[]>([]);
+    const [numericColumnNames, setNumericColumnNames] = React.useState<string[]>([]);
 
     // Per-tab cached data — only fetched once per dataset (user can re-run via controls)
     const [correlation, setCorrelation] = React.useState<CorrelationResponse | null>(null);
@@ -49,6 +50,7 @@ export function useEda() {
         setMissingHeatmap(null);
         setAssociation(null);
         setAllColumns([]);
+        setNumericColumnNames([]);
         setSelectedId(id);
     }
 
@@ -80,7 +82,14 @@ export function useEda() {
     React.useEffect(() => {
         if (!selectedId) return;
         datalabApi.inspect(Number(selectedId))
-            .then((res) => setAllColumns(res.info.columns.map((c) => c.column)))
+            .then((res) => {
+                setAllColumns(res.info.columns.map((c) => c.column));
+                setNumericColumnNames(
+                    res.info.columns
+                        .filter((c) => c.dtype.toLowerCase().includes("int") || c.dtype.toLowerCase().includes("float"))
+                        .map((c) => c.column)
+                );
+            })
             .catch(() => toast.error("Failed to load column metadata — cross-tabulation and scatter may be unavailable."));
     }, [selectedId]);
 
@@ -149,7 +158,7 @@ export function useEda() {
     ]);
 
     const selectedName = datasets.find((d) => String(d.id) === selectedId)?.file_name;
-    const numericColumns = correlation?.columns ?? [];
+    const numericColumns = numericColumnNames.length > 0 ? numericColumnNames : (correlation?.columns ?? []);
 
     return {
         datasets,

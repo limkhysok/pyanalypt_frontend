@@ -201,7 +201,7 @@ export default function MLModelDetailPage() {
           <Button variant="ghost" size="icon" className="rounded-xl h-10 w-10" onClick={() => router.push("/mlstudio")}>
             <ArrowLeft className="h-5 w-5" />
           </Button>
-          <div className="h-10 w-[1px] bg-border/60 mx-1" />
+          <div className="h-10 w-px bg-border/60 mx-1" />
           <div>
             <div className="flex items-center gap-2 mb-0.5">
                <h1 className="text-xl font-black tracking-tight">{model.name}</h1>
@@ -326,11 +326,11 @@ export default function MLModelDetailPage() {
                       </CardHeader>
                       <CardContent>
                          {importanceOption ? (
-                           <div className="h-[400px] w-full">
+                           <div className="h-100 w-full">
                               <EChart option={importanceOption} style={{ height: '100%', width: '100%' }} />
                            </div>
                          ) : (
-                           <div className="h-[300px] flex flex-col items-center justify-center text-muted-foreground/40 italic">
+                           <div className="h-75 flex flex-col items-center justify-center text-muted-foreground/40 italic">
                               <BarChart3 className="h-12 w-12 mb-3" />
                               <p>Feature importance data not generated for this model type.</p>
                            </div>
@@ -437,7 +437,7 @@ export default function MLModelDetailPage() {
                                 Predictions have been generated based on the model trained with target column <b>{batchResults.target_column}</b>.
                               </p>
                               <div className="pt-4 border-t border-border/10">
-                                 <div className="max-h-[200px] overflow-y-auto rounded-xl border border-border/40">
+                                 <div className="max-h-50 overflow-y-auto rounded-xl border border-border/40">
                                     <table className="w-full text-[10px] font-mono">
                                        <thead className="bg-muted/50 sticky top-0">
                                           <tr>

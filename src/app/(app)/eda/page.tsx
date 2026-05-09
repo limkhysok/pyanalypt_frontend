@@ -275,7 +275,7 @@ export default function EDAPage() {
                         </TabsContent>
 
                         <TabsContent value="pairwise">
-                            <PairwiseTab datasetId={Number(selectedId)} numericColumns={numericColumns} loading={tabLoading("pairwise")} setLoading={setTabLoading("pairwise")} />
+                            <PairwiseTab datasetId={Number(selectedId)} numericColumns={numericColumns} />
                         </TabsContent>
                     </>
                 )}

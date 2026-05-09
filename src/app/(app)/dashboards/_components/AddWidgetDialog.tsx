@@ -40,7 +40,7 @@ const CHART_TYPES: { value: WidgetType; label: string; icon: React.ReactNode; ne
   { value: "histogram", label: "histogram", icon: <BarChartHorizontal className="h-5 w-5" />, needsY: false },
 ];
 
-export function AddWidgetDialog({ dashboardId, open, onOpenChange, onAdded }: AddWidgetDialogProps) {
+export function AddWidgetDialog({ dashboardId, open, onOpenChange, onAdded }: Readonly<AddWidgetDialogProps>) {
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [columns, setColumns] = useState<string[]>([]);
   const [loadingDatasets, setLoadingDatasets] = useState(false);
@@ -85,7 +85,7 @@ export function AddWidgetDialog({ dashboardId, open, onOpenChange, onAdded }: Ad
     setColumns([]);
   }
 
-  async function handleSubmit(e: React.FormEvent) {
+  async function handleSubmit(e: React.SyntheticEvent<HTMLFormElement>) {
     e.preventDefault();
     if (!title.trim()) { toast.error("Widget title is required"); return; }
     if (!datasetId) { toast.error("Please select a dataset"); return; }
@@ -113,7 +113,7 @@ export function AddWidgetDialog({ dashboardId, open, onOpenChange, onAdded }: Ad
 
   return (
     <Dialog open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) reset(); }}>
-      <DialogContent className="sm:max-w-[480px] rounded-none border-2 border-foreground shadow-[8px_8px_0px_0px_rgba(0,0,0,0.1)]">
+      <DialogContent className="sm:max-w-120 rounded-none border-2 border-foreground shadow-[8px_8px_0px_0px_rgba(0,0,0,0.1)]">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold font-mono lowercase">add component</DialogTitle>
           <DialogDescription className="text-xs lowercase">
@@ -135,7 +135,7 @@ export function AddWidgetDialog({ dashboardId, open, onOpenChange, onAdded }: Ad
                     "flex flex-col items-center gap-1.5 p-3 border-2 text-xs font-bold lowercase transition-all",
                     widgetType === ct.value
                       ? "border-foreground bg-foreground text-background"
-                      : "border-slate-200 hover:border-foreground bg-background text-foreground"
+                      : "border-border hover:border-foreground bg-background text-foreground"
                   )}
                 >
                   {ct.icon}

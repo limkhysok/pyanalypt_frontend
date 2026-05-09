@@ -83,30 +83,30 @@ export function OutlierSummaryTab({ datasetId, data, onUpdate, loading, setLoadi
                     { label: "Columns with outliers", value: data.columns_with_outliers ?? 0 },
                     { label: "Total outlier cells", value: (data.total_outlier_cells ?? 0).toLocaleString() },
                 ].map(({ label, value }) => (
-                    <div key={label} className="border border-slate-200 bg-slate-50 p-3">
-                        <div className="text-xs text-gray-400">{label}</div>
-                        <div className="text-xl font-bold font-mono mt-0.5 text-gray-900">{value}</div>
+                    <div key={label} className="border border-border bg-muted/50 p-3">
+                        <div className="text-xs text-muted-foreground">{label}</div>
+                        <div className="text-xl font-bold font-mono mt-0.5 text-foreground">{value}</div>
                     </div>
                 ))}
             </div>
 
             {/* Per-column table */}
-            <div className="border border-slate-200 bg-card">
+            <div className="border border-border bg-card">
                 <table className="w-full text-sm">
                     <thead>
-                        <tr className="border-b border-slate-200 bg-slate-50">
-                            <th className="px-3 py-2 text-left text-xs font-semibold text-gray-600">Column</th>
-                            <th className="px-3 py-2 text-right text-xs font-semibold text-gray-600">Outliers</th>
-                            <th className="px-3 py-2 text-right text-xs font-semibold text-gray-600">%</th>
-                            <th className="px-3 py-2 text-right text-xs font-semibold text-gray-600">Lower bound</th>
-                            <th className="px-3 py-2 text-right text-xs font-semibold text-gray-600">Upper bound</th>
-                            <th className="px-3 py-2 text-right text-xs font-semibold text-gray-600">Mean</th>
-                            <th className="px-3 py-2 text-right text-xs font-semibold text-gray-600">Std</th>
+                        <tr className="border-b border-border bg-muted/50">
+                            <th className="px-3 py-2 text-left text-xs font-semibold text-muted-foreground">Column</th>
+                            <th className="px-3 py-2 text-right text-xs font-semibold text-muted-foreground">Outliers</th>
+                            <th className="px-3 py-2 text-right text-xs font-semibold text-muted-foreground">%</th>
+                            <th className="px-3 py-2 text-right text-xs font-semibold text-muted-foreground">Lower bound</th>
+                            <th className="px-3 py-2 text-right text-xs font-semibold text-muted-foreground">Upper bound</th>
+                            <th className="px-3 py-2 text-right text-xs font-semibold text-muted-foreground">Mean</th>
+                            <th className="px-3 py-2 text-right text-xs font-semibold text-muted-foreground">Std</th>
                         </tr>
                     </thead>
                     <tbody>
                         {perCol.map(([col, stats]) => (
-                            <tr key={col} className="border-b border-slate-200 last:border-0 hover:bg-blue-50 even:bg-gray-50 transition-colors">
+                            <tr key={col} className="border-b border-border last:border-0 hover:bg-muted/50 even:bg-muted/20 transition-colors">
                                 <td className="px-3 py-2 font-mono text-xs font-medium">{col}</td>
                                 <td className="px-3 py-2 text-right font-mono text-xs">
                                     {stats.outlier_count > 0

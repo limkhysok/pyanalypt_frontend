@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useTheme } from "next-themes";
-import { Search } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -14,8 +14,6 @@ import { toast } from "sonner";
 interface Props {
     datasetId: number;
     numericColumns: string[];
-    loading: boolean;
-    setLoading: (v: boolean) => void;
 }
 
 function pearsonColor(r: number): string {
@@ -34,7 +32,7 @@ function pearsonLabel(r: number): string {
     return "no correlation";
 }
 
-export function PairwiseTab({ datasetId, numericColumns, loading, setLoading }: Readonly<Props>) {
+export function PairwiseTab({ datasetId, numericColumns }: Readonly<Props>) {
     const { resolvedTheme } = useTheme();
     const isDark = resolvedTheme === "dark";
     const [colX, setColX] = useState(numericColumns[0] ?? "");
@@ -50,18 +48,19 @@ export function PairwiseTab({ datasetId, numericColumns, loading, setLoading }: 
     }
     const [sample, setSample] = useState(500);
     const [result, setResult] = useState<PairwiseResponse | null>(null);
+    const [localLoading, setLocalLoading] = useState(false);
 
     function run() {
         if (!colX || !colY) return;
         if (colX === colY) { toast.error("Pick two different columns."); return; }
-        setLoading(true);
+        setLocalLoading(true);
         edaApi.pairwise(datasetId, { col_x: colX, col_y: colY, sample })
             .then(setResult)
             .catch((err: unknown) => {
                 const status = (err as { response?: { status?: number } })?.response?.status;
                 toast.error(status === 500 ? "Analysis failed. Try again or contact support." : "Failed to load scatter data.");
             })
-            .finally(() => setLoading(false));
+            .finally(() => setLocalLoading(false));
     }
 
     const option = useMemo(() => {
@@ -139,8 +138,8 @@ export function PairwiseTab({ datasetId, numericColumns, loading, setLoading }: 
                         {[200, 500, 1000, 2000, 5000].map((n) => <SelectItem key={n} value={String(n)}>{n.toLocaleString()}</SelectItem>)}
                     </SelectContent>
                 </Select>
-                <Button variant="outline" size="sm" className="h-8 gap-1.5 rounded-none" onClick={run} disabled={loading || !colX || !colY}>
-                    <Search className="h-3 w-3" />
+                <Button variant="outline" size="sm" className="h-8 gap-1.5 rounded-none" onClick={run} disabled={localLoading || !colX || !colY}>
+                    {localLoading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Search className="h-3 w-3" />}
                     Plot
                 </Button>
             </div>

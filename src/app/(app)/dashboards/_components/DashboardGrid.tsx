@@ -119,20 +119,20 @@ export function DashboardGrid({ dashboardId, widgets, onRefresh, isEditMode }: R
         >
           {widgets.map((widget) => (
             <div key={widget.id} className="relative group">
-              <Card className="h-full w-full bg-background border-2 border-slate-200 shadow-none overflow-hidden flex flex-col rounded-none group-hover:border-slate-400 transition-all">
+              <Card className="h-full w-full bg-background border-2 border-border shadow-none overflow-hidden flex flex-col rounded-none group-hover:border-foreground/40 transition-all">
                 <CardHeader className={cn(
-                  "p-3 flex flex-row items-center justify-between border-b-2 border-slate-100",
-                  isEditMode && "drag-handle cursor-move bg-slate-50"
+                  "p-3 flex flex-row items-center justify-between border-b-2 border-border/60",
+                  isEditMode && "drag-handle cursor-move bg-muted/30"
                 )}>
                   <CardTitle className="text-[11px] font-bold truncate pr-4 lowercase font-mono">
                     {widget.title}
                   </CardTitle>
                   <div className="flex items-center gap-1">
-                     <Button variant="ghost" size="icon" className="h-6 w-6 rounded-none hover:bg-slate-100" onClick={() => handleRefreshWidget(widget.id)}>
+                     <Button variant="ghost" size="icon" className="h-6 w-6 rounded-none hover:bg-muted/50" onClick={() => handleRefreshWidget(widget.id)}>
                        <RefreshCw className="h-3 w-3" />
                      </Button>
                      {isEditMode && (
-                       <Button variant="ghost" size="icon" className="h-6 w-6 rounded-none text-rose-600 hover:bg-rose-50" onClick={() => handleDeleteWidget(widget.id)}>
+                       <Button variant="ghost" size="icon" className="h-6 w-6 rounded-none text-rose-600 hover:bg-rose-500/10" onClick={() => handleDeleteWidget(widget.id)}>
                          <Trash2 className="h-3 w-3" />
                        </Button>
                      )}

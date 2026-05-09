@@ -81,7 +81,7 @@ export function DatasetTable({
 
     if (isLoading) {
         return (
-            <Card className="bg-background border border-slate-200 rounded-none shadow-none overflow-hidden">
+            <Card className="bg-background border border-border rounded-none shadow-none overflow-hidden">
                 <div className="p-4 space-y-3">
                     {[1, 2, 3, 4, 5].map((i) => (
                         <div key={i} className="h-12 bg-muted/40 animate-pulse rounded-none" />
@@ -95,8 +95,8 @@ export function DatasetTable({
 
     if (datasets.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center py-24 text-center border border-slate-200 rounded-none bg-background shadow-none px-4">
-                <div className="w-16 h-16 rounded-none border border-slate-200 flex items-center justify-center mb-6 bg-slate-50">
+            <div className="flex flex-col items-center justify-center py-24 text-center border border-border rounded-none bg-background shadow-none px-4">
+                <div className="w-16 h-16 rounded-none border border-border flex items-center justify-center mb-6 bg-muted/50">
                     <Database className="h-8 w-8 text-muted-foreground/40" strokeWidth={1} />
                 </div>
                 <h3 className="text-lg font-bold tracking-tight mb-2 text-muted-foreground/80">No datasets found</h3>
@@ -134,20 +134,20 @@ export function DatasetTable({
     // ── Table ─────────────────────────────────────────────────────────────────
 
     return (
-        <Card className="bg-background border border-slate-200 rounded-none shadow-none overflow-hidden">
+        <Card className="bg-background border border-border rounded-none shadow-none overflow-hidden">
             <div className="overflow-x-auto">
                 <table className="w-full text-xs text-left border-collapse">
-                    <thead className="border-b border-slate-200 bg-slate-50">
+                    <thead className="border-b border-border bg-muted/50">
                         <tr>
-                            <th className="px-6 py-4 w-14 text-center text-xs font-semibold text-gray-600">#</th>
-                            <th className="px-6 py-4 text-xs font-semibold text-gray-600">File name</th>
-                            <th className="px-6 py-4 text-xs font-semibold text-gray-600">Format</th>
-                            <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600">Size</th>
-                            <th className="px-6 py-4 text-xs font-semibold text-gray-600 hidden md:table-cell text-right">Date added</th>
-                            <th className="px-6 py-4 text-right text-xs font-semibold text-gray-600">Actions</th>
+                            <th className="px-6 py-4 w-14 text-center text-xs font-semibold text-muted-foreground">#</th>
+                            <th className="px-6 py-4 text-xs font-semibold text-muted-foreground">File name</th>
+                            <th className="px-6 py-4 text-xs font-semibold text-muted-foreground">Format</th>
+                            <th className="px-6 py-4 text-right text-xs font-semibold text-muted-foreground">Size</th>
+                            <th className="px-6 py-4 text-xs font-semibold text-muted-foreground hidden md:table-cell text-right">Date added</th>
+                            <th className="px-6 py-4 text-right text-xs font-semibold text-muted-foreground">Actions</th>
                         </tr>
                     </thead>
-                    <tbody className="divide-y divide-slate-200">
+                    <tbody className="divide-y divide-border">
                         <AnimatePresence mode="popLayout">
                             {filteredDatasets.length > 0 ? (
                                 filteredDatasets.map((dataset, idx) => (
@@ -182,7 +182,7 @@ export function DatasetTable({
                                             {formatFileSize(dataset.file_size)}
                                         </td>
 
-                                        <td className="px-6 py-5 text-xs text-gray-400 hidden md:table-cell font-bold text-right font-mono">
+                                        <td className="px-6 py-5 text-xs text-muted-foreground hidden md:table-cell font-bold text-right font-mono">
                                             {new Date(dataset.uploaded_date).toLocaleDateString(undefined, {
                                                 year: 'numeric',
                                                 month: '2-digit',
