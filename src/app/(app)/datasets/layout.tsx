@@ -1,14 +1,11 @@
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
-import { AppShell } from "@/components/layout/AppShell";
+import type { Metadata } from "next";
+import type { ReactNode } from "react";
 
-export default async function DatasetsLayout({
-    children,
-}: Readonly<{ children: React.ReactNode }>) {
-    const cookieStore = await cookies();
-    if (!cookieStore.get("auth_session")?.value) {
-        redirect("/login");
-    }
+export const metadata: Metadata = {
+    title: "Datasets | PyAnalypt",
+    description: "Manage and explore your data assets with PyAnalypt.",
+};
 
-    return <AppShell>{children}</AppShell>;
+export default function DatasetsLayout({ children }: Readonly<{ children: ReactNode }>) {
+    return <>{children}</>;
 }

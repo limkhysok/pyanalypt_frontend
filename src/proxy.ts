@@ -2,11 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 
 const PROTECTED_PREFIXES = [
     "/dashboard",
-    "/analysis",
     "/clean",
     "/datasets",
+    "/datalab",
+    "/framing",
     "/insight",
     "/issues",
+    "/settings",
     "/visualization",
     "/profile",
 ];

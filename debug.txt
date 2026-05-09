@@ -1,0 +1,517 @@
+================================================================================
+  PYANALYPT FRONTEND — FULL PAGE & COMPONENT INVENTORY
+  Generated: 2026-05-06
+================================================================================
+
+
+────────────────────────────────────────────────────────────────────────────────
+  LAYOUTS
+────────────────────────────────────────────────────────────────────────────────
+
+ROOT LAYOUT  (src/app/layout.tsx)
+  - HTML shell with Outfit font applied
+  - Providers wrapper (context, auth, query, etc.)
+  - Toaster notification system (bottom-right)
+
+MARKETING LAYOUT  (src/app/(marketing)/layout.tsx)
+  - SmoothScroll wrapper (Lenis)
+  - Public Navbar
+  - Page content area
+  - Footer
+
+AUTH LAYOUT  (src/app/(auth)/layout.tsx)
+  - Public Navbar
+  - Centered auth card shell (AuthShell)
+
+APP LAYOUT  (src/app/(app)/layout.tsx)
+  - AppShell
+    └─ Sidebar navigation
+    └─ Authenticated top navbar
+    └─ Main content area
+
+
+────────────────────────────────────────────────────────────────────────────────
+  LAYOUT COMPONENTS
+────────────────────────────────────────────────────────────────────────────────
+
+PUBLIC NAVBAR  (src/components/layout/Navbar.tsx)
+  - Logo / brand mark
+  - Navigation links (Home, Visuals, Playground, About)
+  - Login button
+  - Sign Up button
+
+SIDEBAR  (inside AppShell — src/components/layout/AppShell.tsx)
+  - Logo / brand
+  - Nav links:
+      Dashboard, Datasets, DataLab, EDA, Visualization,
+      Dashboards, Reports, ML Studio, Framing, Insight
+  - Collapse / expand toggle
+  - User avatar + name at bottom
+  - Logout button
+
+AUTH NAVBAR  (same Navbar.tsx used in auth layout)
+  - Logo / brand mark
+  - Back-to-home link
+
+FOOTER  (src/components/layout/Footer.tsx)
+  - Brand tagline
+  - Links column (About, Visuals, Playground)
+  - Legal / copyright line
+
+
+────────────────────────────────────────────────────────────────────────────────
+  MARKETING PAGES
+────────────────────────────────────────────────────────────────────────────────
+
+LANDING PAGE  (src/app/(marketing)/page.tsx)
+  - "Now in Beta" badge
+  - Hero headline + subheading
+  - "Launch Dashboard" button  (primary CTA → /dashboard)
+  - "View Source" button  (secondary → GitHub)
+  - Terminal mockup (animated preview):
+      └─ Terminal header with traffic-light buttons
+      └─ Search bar with "Attribution: Active" filter chip
+      └─ Growth Attribution chart title
+      └─ Bar chart (12 color-coded bars)
+      └─ Processing status badge (worker active)
+  - Product story section
+  - Feature cards grid (6 cards):
+      1. No Python, no SQL, no terminal
+      2. Works with Excel, JSON, CSV & Parquet
+      3. Instant results
+      4. Boardroom-ready charts
+      5. Secure local processing
+      6. One-click PDF & image exports
+
+ABOUT PAGE  (src/app/(marketing)/about/page.tsx)
+  - "The Mission & Story" badge
+  - Mission / tagline headline
+  - Two-column story cards:
+      └─ Card: "The Origin"
+      └─ Card: "The Vision"
+  - Contact form:
+      └─ Full Name input
+      └─ Email Address input
+      └─ Message textarea
+      └─ Send Message button
+  - Contact info sidebar:
+      └─ Email (hello@pyanalypt.com)
+      └─ GitHub link
+      └─ Location (Phnom Penh, KH)
+      └─ Support info text
+
+VISUALS PAGE  (src/app/(marketing)/visuals/page.tsx)
+  - Page heading + description
+  - Control HUD:
+      └─ Search input (filter by keyword)
+      └─ Scenario dropdown filter
+  - Chart architecture card grid (dynamic, filtered):
+      └─ Each card: icon, title, description, scenario tags
+      └─ Hover reveals "View Architecture" action
+
+PLAYGROUND PAGE  (src/app/(marketing)/playground/page.tsx)
+  - Two-column split layout:
+  - Left — Input Console Panel:
+      └─ "telemetry.csv" header
+      └─ CSV data textarea (pre-loaded sample)
+      └─ Error display zone
+      └─ Engine Mode selector (3 buttons: BAR / LINE / PIE)
+      └─ Privacy note
+  - Right — Live Renderer Panel:
+      └─ Export buttons (SVG, PNG Snapshot)
+      └─ Chart title "Growth Telemetry"
+      └─ Status indicator badge
+      └─ Chart legend (Projected vs Actual)
+      └─ ECharts visualization canvas
+
+
+────────────────────────────────────────────────────────────────────────────────
+  AUTH PAGES
+────────────────────────────────────────────────────────────────────────────────
+
+LOGIN  (src/app/(auth)/login/page.tsx)
+  Step 1 — Credentials:
+      - Error alert (conditional)
+      - Email input (Mail icon)
+      - Password input (Lock icon + show/hide toggle)
+      - Forgot password link
+      - Remember me checkbox
+      - Sign in button
+      - Divider "or"
+      - Continue with Google button
+      - Sign up link
+  Step 2 — 2FA TOTP:
+      - Error alert (conditional)
+      - 6-digit authentication code input
+      - Auto-submit note
+      - Verify Code button
+      - Back to sign in link
+
+REGISTER  (src/app/(auth)/register/page.tsx)
+  - Error alert (conditional)
+  - Email input (Mail icon)
+  - Email field error display
+  - Password input (Lock icon + show/hide toggle)
+  - Password strength meter (5-segment bar)
+  - Strength label (Weak / Fair / Good / Strong / Very Strong)
+  - Password field error display
+  - Create account button
+  - Divider "or"
+  - Continue with Google button
+  - Sign in link
+
+VERIFY EMAIL  (src/app/(auth)/verify-email/page.tsx)
+  - MailCheck icon in circle badge
+  - Email display (from URL params)
+  - Verification instructions text
+  - Resend verification email button
+  - Already verified? Log in link
+  - Wrong email? Register again link
+
+VERIFY OTP  (src/app/(auth)/verify-otp/page.tsx)
+  - Error alert (conditional)
+  - Resend success alert (conditional)
+  - 6-digit numeric code input
+  - Field error display
+  - Verify Account button
+  - Resend Code button (with cooldown countdown)
+  - Back to registration link
+
+COMPLETE PROFILE  (src/app/(auth)/complete-profile/page.tsx)
+  - Error alert (conditional)
+  - Full Name input (User icon)
+  - Full Name field error
+  - Username input (Fingerprint icon)
+  - Username helper text
+  - Username field error
+  - Date of Birth dropdowns (Month / Day / Year)
+  - Birthday field error
+  - Complete Profile button
+
+FORGOT PASSWORD  (src/app/(auth)/forgot-password/page.tsx)
+  Initial state:
+      - Instruction text
+      - Error alert (conditional)
+      - Email input (Mail icon)
+      - Send Reset Link button
+      - Back to Login link
+  Sent state:
+      - CheckCircle2 icon badge
+      - "Check your inbox" heading
+      - Confirmation message with email display
+      - Back to Login button
+
+RESET PASSWORD  (src/app/(auth)/reset-password/[uid]/[token]/page.tsx)
+  Form state:
+      - Instruction text
+      - Error alert (conditional)
+      - New Password input (Lock icon + show/hide toggle)
+      - Confirm Password input (Lock icon + show/hide toggle)
+      - Set New Password button
+      - Request new link recovery link
+  Success state:
+      - CheckCircle2 icon badge
+      - Confirmation message
+      - Go to Login button
+
+
+────────────────────────────────────────────────────────────────────────────────
+  APP PAGES (Authenticated)
+────────────────────────────────────────────────────────────────────────────────
+
+DASHBOARD  (src/app/(app)/dashboard/page.tsx)
+  Header:
+      - Command Center icon + badge
+      - "Welcome back, [Name]" greeting
+      - Current date display
+      - Workspace status indicator
+      - View Data button (outline)
+      - Import button (primary)
+  Stats cards row (4 cards):
+      - Total Datasets
+      - Analyses Run
+      - Insights Found
+      - Storage Used
+  Weekly Activity chart:
+      - Bar chart (Mon–Sun, 7 bars)
+      - Live Trend badge
+  Recent Activity sidebar:
+      - Activity icon header
+      - Event list with icons + timestamps
+      - Empty state fallback
+  Recent Datasets table:
+      - Columns: File Name, Rows, Status, Last Sync, Actions
+      - Status badges (Ready / Processing / Error)
+      - Open row action link
+      - View All link
+
+────────────────────────────────────────────────────────────────────────────────
+
+DATASETS  (src/app/(app)/datasets/page.tsx)
+  - DatasetHeader:
+      └─ Page title + icon
+      └─ Import Dataset button (opens file picker)
+  - Tab bar:
+      └─ Datasets tab (Database icon)
+      └─ Activity Logs tab (Activity icon)
+  Datasets tab content:
+      - DatasetControls:
+          └─ Search input
+          └─ Sort dropdown
+          └─ Filter dropdown
+          └─ Dataset count label
+      - DatasetTable:
+          └─ Columns: File Name, Rows, Status, Updated, Actions
+          └─ Rename action → Rename dialog (inline input + confirm)
+          └─ Duplicate action
+          └─ Delete action → Delete confirm dialog
+          └─ Open/Explore action
+          └─ Hidden file upload input
+  Activity Logs tab content:
+      - DatasetLogs component (timestamped event log)
+
+────────────────────────────────────────────────────────────────────────────────
+
+DATALAB  (src/app/(app)/datalab/page.tsx)
+  Header:
+      - Page icon + title "DataLab"
+      - Description text
+  ActionBar:
+      - Group A — Exploration tabs:
+          └─ Data Preview
+          └─ Inspect
+          └─ Describe
+      - Divider
+      - Group B — Cleaning dropdown:
+          └─ Drop Duplicates
+          └─ Handle Nulls
+          └─ Handle Outliers
+      - Divider
+      - Group C — Advanced dropdown:
+          └─ Column Tools
+          └─ Clean & Filter
+          └─ Formula Audit
+          └─ Transform
+      - Undo button
+      - Dataset selector dropdown
+  Tab / panel content:
+      - PreviewTab    — scrollable data table preview
+      - InspectTab    — column types, nulls, unique counts
+      - DescribeTab   — statistical summary (mean, std, min, max, etc.)
+      - DropDuplicatesDialog  — configure and run dedup
+      - NullHandlingDialog    — fill / drop null strategies
+      - OutlierDialog         — IQR / z-score outlier handling
+      - ValidateFormulaDialog — formula audit panel
+      - ColumnToolsDialog     — rename, reorder, drop columns
+      - CleanFilterDialog     — row filter / clean rules
+      - TransformDialog       — apply column transformations
+  States:
+      - Empty state (no dataset selected)
+      - Loading skeleton
+      - No columns error state
+
+────────────────────────────────────────────────────────────────────────────────
+
+EDA (Exploratory Data Analysis)  (src/app/(app)/eda/page.tsx)
+  Header:
+      - Page icon + title "EDA"
+      - Description text
+  Tab bar:
+      Primary tabs:
+          └─ Correlation
+          └─ Association
+          └─ Distribution
+          └─ Value Counts
+          └─ Cross-tab
+      More dropdown:
+          └─ Outliers
+          └─ Missing Heatmap
+          └─ Scatter (Pairwise)
+      - Dataset selector dropdown
+  Tab content:
+      - CorrelationTab      — heatmap matrix
+      - AssociationTab      — categorical association chart
+      - DistributionTab     — histogram / KDE per column
+      - ValueCountsTab      — bar chart of top values
+      - CrosstabTab         — pivot-style cross-tabulation
+      - OutlierSummaryTab   — outlier count summary per column
+      - MissingHeatmapTab   — missing value heatmap
+      - PairwiseTab         — scatter matrix
+  States:
+      - Empty state (no dataset)
+      - Loading spinner
+      - No data fallback
+
+────────────────────────────────────────────────────────────────────────────────
+
+VISUALIZATION  (src/app/(app)/visualization/page.tsx)
+  Header:
+      - Page icon + title "Visualization"
+      - Description text
+  Tab bar (chart type selector):
+      └─ Bar
+      └─ Line
+      └─ Scatter
+      └─ Histogram
+      - Dataset selector dropdown
+  Chart panels:
+      - BarChartPanel       — axis selectors + ECharts bar
+      - LineChartPanel      — axis selectors + ECharts line
+      - ScatterChartPanel   — X/Y selectors + ECharts scatter
+      - HistogramPanel      — column selector + bin control + ECharts histogram
+  States:
+      - Empty state (no dataset)
+      - Loading spinner
+      - No columns error
+
+────────────────────────────────────────────────────────────────────────────────
+
+DASHBOARDS  (src/app/(app)/dashboards/page.tsx)
+  Header:
+      - LayoutDashboard icon + "Dashboards" title
+      - Description text
+      - New Dashboard button (opens create dialog)
+  Stats row (3 cards):
+      - Total Boards
+      - Total Widgets
+      - Updated Today
+  Tab bar:
+      └─ My Boards
+      └─ Shared with Me
+  Controls:
+      - Search input
+      - Filtered count display
+      - Refresh button
+  Dashboard card grid:
+      - Each card:
+          └─ Icon + title + description
+          └─ Widget count badge
+          └─ Last updated date
+          └─ View Board button
+          └─ Dropdown menu (Rename, Delete)
+  New Dashboard Dialog:
+      - Dataset selector
+      - Title input
+      - Description input
+      - Cancel / Create buttons
+  States:
+      - Empty state (no boards)
+
+────────────────────────────────────────────────────────────────────────────────
+
+REPORTS  (src/app/(app)/reports/page.tsx)
+  Header:
+      - BookOpen icon + "Reports" title
+      - New Report button (opens create dialog)
+  New Report Dialog:
+      - Title input
+      - Description textarea
+      - Cancel / Create buttons
+  Report card grid:
+      - Each card:
+          └─ FileText icon
+          └─ Title + description
+          └─ Item count + dataset name + updated date
+          └─ Delete button (visible on hover)
+  Delete confirm dialog
+  States:
+      - Empty state with create CTA
+
+────────────────────────────────────────────────────────────────────────────────
+
+ML STUDIO  (src/app/(app)/mlstudio/page.tsx)
+  Header:
+      - BrainCircuit icon + "ML Studio" title
+      - Train New Model button
+  Stats row (3 cards):
+      - Total Models
+      - Active Models
+      - Training Models
+  Tab bar:
+      └─ Models
+      └─ Activity Logs
+  Controls (Models tab):
+      - Search input
+      - Model count display
+      - Refresh button
+  Model card grid:
+      - Each card:
+          └─ CPU icon
+          └─ Model name
+          └─ Algorithm + task type labels
+          └─ Dataset name
+          └─ Created date
+          └─ Status badge (Training / Completed / Failed)
+          └─ Dropdown menu (View Details, Delete)
+          └─ Action button (Predict / Open)
+  States:
+      - Empty state (no models)
+
+────────────────────────────────────────────────────────────────────────────────
+
+PROFILE  (src/app/(app)/profile/page.tsx)
+  Delegates to PersonalDetails component:
+      - Avatar display
+      - Full Name field
+      - Username field
+      - Email field (read-only)
+      - Date of Birth display
+      - Edit / Save / Cancel buttons
+
+────────────────────────────────────────────────────────────────────────────────
+
+SETTINGS  (src/app/(app)/settings/page.tsx)
+  Header: "Settings"
+  Two-column layout:
+      Left sidebar nav:
+          └─ General
+          └─ Security
+          └─ Active Sessions
+          └─ Notifications
+          └─ Billing
+          └─ Profile
+      Right content panel:
+          Profile tab:
+              Public Profile card:
+                  └─ Avatar image
+                  └─ Upload avatar button
+                  └─ Change Image button
+                  └─ Delete Photo button
+                  └─ Username input
+                  └─ Email input
+                  └─ Bio textarea
+                  └─ Discard Changes button
+                  └─ Save Profile button
+              Advanced Settings card:
+                  └─ Reset Dashboard Layout button
+
+────────────────────────────────────────────────────────────────────────────────
+
+FRAMING  (src/app/(app)/framing/page.tsx)
+  Delegates to FramingPage component:
+      - (map out sub-components here during debug)
+
+────────────────────────────────────────────────────────────────────────────────
+
+INSIGHT  (src/app/(app)/insight/page.tsx)
+  Delegates to ChatInterface component:
+      - Chat message list / history
+      - Message input textarea
+      - Send button
+      - (map out sub-components here during debug)
+
+
+================================================================================
+  SUMMARY
+================================================================================
+
+  Marketing pages : 4   (Landing, About, Visuals, Playground)
+  Auth pages      : 7   (Login, Register, Verify Email, Verify OTP,
+                         Complete Profile, Forgot Password, Reset Password)
+  App pages       : 11  (Dashboard, Datasets, DataLab, EDA, Visualization,
+                         Dashboards, Reports, ML Studio, Profile, Settings,
+                         Framing, Insight)
+  Layout files    : 4   (Root, Marketing, Auth, App)
+  Layout components: 4  (Public Navbar, AppShell/Sidebar, AuthShell, Footer)
+
+================================================================================

@@ -69,7 +69,7 @@ function VerifyEmailContent() {
 
 					<Button
 						variant="outline"
-						className="w-full"
+						className="w-full rounded-xl border-border/60 hover:border-blue-500/30 dark:hover:border-blue-400/30 hover:bg-muted transition-all"
 						disabled={isResending || resendStatus === "sent"}
 						onClick={handleResend}
 					>

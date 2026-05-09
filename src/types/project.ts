@@ -34,6 +34,8 @@ export interface Dataset {
     file_format: string;
     file_size?: number;
     uploaded_at: string;
+    datalab_issues?: any[];
+    wrangle_ops?: any[];
 }
 
 export interface UploadDatasetRequest {
@@ -58,13 +60,13 @@ export interface DatasetPreview {
     };
     summary?: Record<string, any>;
     total_rows_hint: number;
-    dataset_id?: number | string; // Returned in cleaning response
-    name?: string;               // Returned in cleaning response
+    dataset_id?: number | string; // Returned in wrangling response
+    name?: string;               // Returned in wrangling response
 }
 
 export type DataOperation = 'handle_na' | 'drop_duplicates' | 'astype';
 
-export interface CleanDatasetRequest {
+export interface WrangleDatasetRequest {
     pipeline: {
         operation: DataOperation;
         params: Record<string, any>;

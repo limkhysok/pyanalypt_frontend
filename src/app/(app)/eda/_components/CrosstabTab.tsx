@@ -1,0 +1,166 @@
+"use client";
+
+import { useState } from "react";
+import { Download, Search } from "lucide-react";
+import { downloadCsv } from "@/lib/download-csv";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { ScrollArea, ScrollBar } from "@/components/ui/scroll-area";
+import type { CrosstabResponse } from "@/services/eda.service";
+import { edaApi } from "@/services/eda.service";
+import { toast } from "sonner";
+
+interface Props {
+    datasetId: number;
+    columns: string[];
+    loading?: boolean;
+    setLoading?: (v: boolean) => void;
+}
+
+export function CrosstabTab({ datasetId, columns }: Readonly<Props>) {
+    const [colA, setColA] = useState(columns[0] ?? "");
+    const [colB, setColB] = useState(columns[1] ?? "");
+
+    function handleColAChange(v: string) {
+        setColA(v);
+        if (v === colB) setColB(columns.find((c) => c !== v) ?? "");
+    }
+    function handleColBChange(v: string) {
+        setColB(v);
+        if (v === colA) setColA(columns.find((c) => c !== v) ?? "");
+    }
+    const [normalize, setNormalize] = useState(false);
+    const [result, setResult] = useState<CrosstabResponse | null>(null);
+    const [error, setError] = useState<string | null>(null);
+    const [isRunning, setIsRunning] = useState(false);
+
+    function run() {
+        if (!colA || !colB) return;
+        if (colA === colB) { toast.error("Pick two different columns."); return; }
+        setError(null);
+        setIsRunning(true);
+        edaApi.crosstab(datasetId, { col_a: colA, col_b: colB, normalize })
+            .then((r) => { setResult(r); })
+            .catch((e: unknown) => {
+                const status = (e as { response?: { status?: number } })?.response?.status;
+                const msg = status === 500
+                    ? "Analysis failed. Try again or contact support."
+                    : ((e as { response?: { data?: { detail?: string } } })?.response?.data?.detail ?? "Failed to compute cross-tabulation.");
+                setError(msg);
+                toast.error(msg);
+            })
+            .finally(() => setIsRunning(false));
+    }
+
+    const rowKey = result?.col_a ?? colA;
+    const valCols = result?.col_vals ?? [];
+
+    return (
+        <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-3 flex-wrap">
+                <span className="text-xs font-medium">Row axis</span>
+                <Select value={colA} onValueChange={handleColAChange}>
+                    <SelectTrigger className="h-8 w-44 rounded-none text-sm">
+                        <SelectValue placeholder="Column A" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-none">
+                        {columns.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    </SelectContent>
+                </Select>
+                <span className="text-xs font-medium">Column axis</span>
+                <Select value={colB} onValueChange={handleColBChange}>
+                    <SelectTrigger className="h-8 w-44 rounded-none text-sm">
+                        <SelectValue placeholder="Column B" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-none">
+                        {columns.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    </SelectContent>
+                </Select>
+                <div className="flex items-center gap-2">
+                    <Switch id="normalize" checked={normalize} onCheckedChange={setNormalize} />
+                    <Label htmlFor="normalize" className="text-xs cursor-pointer">Show %</Label>
+                </div>
+                <Button variant="outline" size="sm" className="h-8 gap-1.5 rounded-none" onClick={run} disabled={isRunning || !colA || !colB}>
+                    <Search className="h-3 w-3" />
+                    Run
+                </Button>
+            </div>
+
+            {error && (
+                <div className="border border-red-500/20 bg-red-500/5 p-3 text-sm text-red-500 rounded-none">
+                    {error}
+                </div>
+            )}
+
+            {!result && !error && (
+                <div className="border bg-muted/5 h-48 flex items-center justify-center text-sm text-muted-foreground">
+                    Select two columns and click Run to see the cross-tabulation.
+                </div>
+            )}
+
+            {result && (
+                <>
+                <div className="flex justify-end">
+                    <Button variant="outline" size="sm" className="h-8 gap-1.5 rounded-none" onClick={() => {
+                        const headers = [rowKey, ...valCols];
+                        const rows = result.table.map((row) => [row[rowKey], ...valCols.map((c) => row[c] ?? null)] as (string | number | null)[]);
+                        downloadCsv(`crosstab_${colA}_${colB}.csv`, headers, rows);
+                    }}>
+                        <Download className="h-3 w-3" />
+                        Export CSV
+                    </Button>
+                </div>
+                <div className="border border-border bg-card">
+                    <ScrollArea className="w-full">
+                        <table className="w-full text-sm">
+                            <thead>
+                                <tr className="border-b border-border bg-muted/50">
+                                    <th className="px-3 py-2" />
+                                    <th colSpan={valCols.length} className="px-3 py-1 text-center text-xs font-semibold text-muted-foreground font-mono border-b border-border">
+                                        {result?.col_b}
+                                    </th>
+                                </tr>
+                                <tr className="border-b border-border bg-muted/50">
+                                    <th className="px-3 py-2 text-left font-semibold text-xs text-muted-foreground font-mono">{rowKey}</th>
+                                    {valCols.map((c) => (
+                                        <th key={c} className="px-3 py-2 text-right font-semibold text-xs text-muted-foreground font-mono">{c}</th>
+                                    ))}
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {result.table.map((row) => {
+                                    const rowLabel = String(row[rowKey] ?? "");
+                                    return (
+                                        <tr key={rowLabel} className="border-b border-border last:border-0 hover:bg-muted/50 even:bg-muted/20 transition-colors">
+                                            <td className="px-3 py-2 font-medium font-mono text-xs">{rowLabel}</td>
+                                            {valCols.map((c) => {
+                                                const val = row[c];
+                                                let display: string;
+                                                if (typeof val === "number") {
+                                                    display = normalize ? `${(val * 100).toFixed(1)}%` : val.toLocaleString();
+                                                } else {
+                                                    display = String(val ?? "");
+                                                }
+                                                return (
+                                                    <td key={c} className="px-3 py-2 text-right font-mono text-xs">{display}</td>
+                                                );
+                                            })}
+                                        </tr>
+                                    );
+                                })}
+                            </tbody>
+                        </table>
+                        <ScrollBar orientation="horizontal" />
+                    </ScrollArea>
+                </div>
+                </>
+            )}
+
+            <p className="text-xs text-muted-foreground">
+                Columns with more than 50 unique values are not supported — use Value Counts instead.
+            </p>
+        </div>
+    );
+}

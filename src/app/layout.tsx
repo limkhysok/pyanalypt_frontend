@@ -1,9 +1,8 @@
 import type { Metadata } from "next";
 import "@/styles/globals.css";
-import { outfit } from "@/styles/fonts";
-import { CursorFollower } from "@/components/ui/cursor-follower";
+import { outfit, fredoka } from "@/styles/fonts";
 import { Providers } from "@/context/providers";
-import { Toaster } from "sonner";
+import { Toaster } from "@/components/ui/sonner";
 
 export const metadata: Metadata = {
     title: "PyAnalypt",
@@ -14,10 +13,9 @@ export default function RootLayout({
     children,
 }: Readonly<{ children: React.ReactNode }>) {
     return (
-        <html lang="en" suppressHydrationWarning className={outfit.variable}>
+        <html lang="en" suppressHydrationWarning className={`${outfit.variable} ${fredoka.variable}`}>
             <body className={`${outfit.className} antialiased VscScrollbar bg-background text-foreground relative`}>
                 <Providers>
-                    <CursorFollower />
                     {children}
                     <Toaster position="bottom-right" richColors closeButton />
                 </Providers>

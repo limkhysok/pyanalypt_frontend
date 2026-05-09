@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', 'motion'],
   },
-  // @ts-ignore
+  output: 'standalone',
   allowedDevOrigins: [
     "localhost:3000",
     "192.168.0.101:3000",

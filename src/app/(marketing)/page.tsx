@@ -2,404 +2,398 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { motion } from "motion/react";
+import Image from "next/image";
 import {
-  BarChart2, Search,
-  TrendingUp, Database, ArrowRight, Sparkles,
-  CheckCircle2, Quote,
+  ArrowRight, Sparkles, ShieldCheck,
+  CheckCircle2, Database, Code2, Search, Settings, Filter,
+  FileSpreadsheet, FileCode, FileType, FileArchive
 } from "lucide-react";
-import dynamic from "next/dynamic";
+
+import { cn } from "@/lib/utils";
 
 // UI Components
 import { Button } from "@/components/ui/button";
-import { Logo } from "@/components/ui/Logo";
-import { ScrollReveal } from "@/components/ui/scroll-reveal";
-import { LogoTicker } from "@/components/ui/logo-ticker";
-import { GithubIcon } from "@/components/ui/Icons";
 
-const EChart = dynamic(() => import("@/components/ui/EChart"), { ssr: false });
-
-// --- REDESIGNED Hero Section ---
-interface HeroSectionProps {
-  onStart: () => void;
-}
-
-function HeroSection({ onStart }: Readonly<HeroSectionProps>) {
+// --- Hero Section ---
+function HeroSection() {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true);
+    const init = async () => {
+      setMounted(true);
+    };
+    init();
   }, []);
 
-  if (!mounted) return <div className="min-h-[85vh]" />;
+  if (!mounted) return <div className="min-h-screen" />;
 
   return (
-    <section className="relative min-h-[85vh] flex flex-col items-center justify-center pt-24 pb-4 overflow-hidden border-b border-border/10">
+    <section className="relative min-h-[85vh] flex flex-col justify-center pt-26 pb-10 md:pt-34 md:pb-16 overflow-hidden bg-background">
 
+      {/* Grid Background */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-size-[40px_40px] pointer-events-none" />
+      <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-border/50 to-transparent" />
 
-      <div className="container relative z-10 mx-auto px-6 max-w-325">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      {/* Subtle Blue Glow — top-right */}
+      <div className="absolute top-0 right-0 w-150 h-125 bg-blue-500/5 dark:bg-blue-500/10 blur-[120px] rounded-full pointer-events-none" />
+      {/* Subtle Gray Glow — bottom-left */}
+      <div className="absolute bottom-1/4 left-1/4 w-87.5 h-87.5 bg-foreground opacity-[0.02] blur-[120px] rounded-full pointer-events-none" />
 
-          {/* Text Content - Left Side */}
-          <div className="space-y-8 text-center lg:text-left flex flex-col items-center lg:items-start max-w-2xl mx-auto lg:mx-0">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6 }}
-              className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-muted border border-border shadow-sm"
-            >
-              <Logo className="w-3.5 h-3.5" />
-              <span className="text-[10px] font-black uppercase tracking-widest text-foreground">
-                Next-Gen Data Engine
+      <div className="container relative z-10 mx-auto px-6 max-w-7xl">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-center">
+
+          {/* Left Column */}
+          <div className="flex flex-col items-center lg:items-start text-center lg:text-left space-y-8 md:space-y-10">
+
+            {/* Badge */}
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-800/50">
+              <span className="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400" />
+              <span className="text-[10px] font-black text-blue-700 dark:text-blue-300 tracking-tight capitalize">
+                Now in Beta
               </span>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.1 }}
-              className="space-y-4"
-            >
-              <h1 className="text-4xl md:text-6xl xl:text-7xl font-black tracking-tight leading-[1.05] text-foreground">
-                Turn Raw Data <br />
-                Into <span className="text-foreground italic">Actionable</span> <br />
-                Intelligence.
-              </h1>
-              <p className="text-lg md:text-xl text-muted-foreground font-medium max-w-xl mx-auto lg:mx-0 leading-relaxed pt-2">
-                PyAnalypt is the bridge between complex data science and intuitive business decisions. No configuration, just insights.
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.3 }}
-              className="flex flex-col sm:flex-row items-center gap-4 pt-4"
-            >
-              <Button
-                size="lg"
-                onClick={onStart}
-                aria-label="Get Started for Free"
-                className="w-full sm:w-auto gap-2"
-              >
-                Get Started Free <ArrowRight size={16} aria-hidden="true" />
-              </Button>
-
-              <Link href="https://github.com/soklimkhy/pyanalypt" target="_blank" className="w-full sm:w-auto">
-                <Button variant="outline" size="lg" className="w-full sm:w-auto gap-2">
-                  <GithubIcon size={16} /> Repository
-                </Button>
-              </Link>
-            </motion.div>
-          </div>
-
-          {/* Visual Content - Right Side */}
-          <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.9, delay: 0.2 }}
-            className="relative w-full max-w-2xl mx-auto"
-          >
-            {/* Main card */}
-            <div className="relative rounded-xl bg-background/70  border border-border/10 shadow-md p-6 space-y-5">
-
-
-              {/* Card header */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Logo className="w-9 h-9" />
-                  <div>
-                    <p className="text-sm font-black tracking-tight leading-none">PyAnalypt</p>
-                    <p className="text-[10px] font-bold text-foreground uppercase tracking-widest mt-0.5">AI Analyst · Active</p>
-                  </div>
-                </div>
-                <div className="flex gap-1.5 items-center">
-                  <span className="w-2 h-2 rounded-full bg-foreground animate-pulse" aria-hidden="true" />
-                  <span className="w-2 h-2 rounded-full bg-border/40" aria-hidden="true" />
-                  <span className="w-2 h-2 rounded-full bg-border/40" aria-hidden="true" />
-                </div>
-              </div>
-
-              {/* Raw → Chart transform */}
-              <div className="grid grid-cols-[1fr_36px_1fr] gap-3 items-center">
-
-                {/* Raw CSV */}
-                <div className="rounded-2xl bg-secondary/30 border border-border/10 p-4 space-y-2 relative overflow-hidden">
-                  {/* Scanning highlight */}
-                  <motion.div
-                    className="absolute left-0 right-0 h-5 bg-muted pointer-events-none will-change-transform"
-                    animate={{ y: [10, 28, 46, 64, 82] }}
-                    transition={{ duration: 2.5, repeat: Infinity, repeatDelay: 2, ease: "linear" }}
-                  />
-                  <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-50 mb-2">Raw CSV</p>
-                  {["Jan, 1200", "Feb, 2100", "Mar, 1800", "Apr, 2400"].map((row) => (
-                    <div key={row} className="flex items-center gap-2">
-                      <span className="w-1 h-1 rounded-full bg-muted-foreground/50 shrink-0" aria-hidden="true" />
-                      <span className="text-[10px] font-mono text-muted-foreground opacity-60">{row}</span>
-                    </div>
-                  ))}
-                  <div className="flex items-center gap-2 opacity-25">
-                    <span className="w-1 h-1 rounded-full bg-border shrink-0" aria-hidden="true" />
-                    <span className="text-[10px] font-mono text-muted-foreground">···</span>
-                  </div>
-                </div>
-
-                {/* Transform icon */}
-                <div className="flex justify-center">
-                  <motion.div
-                    animate={{ rotate: [0, 20, -20, 0], scale: [1, 1.2, 1.2, 1] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", repeatDelay: 1.5 }}
-                    className="w-9 h-9 flex items-center justify-center"
-                    aria-hidden="true"
-                  >
-                    <Logo className="w-full h-full" />
-                  </motion.div>
-                </div>
-
-                {/* Animated bar chart */}
-                <div className="rounded-2xl bg-secondary/30 border border-border/10 p-4">
-                  <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-50 mb-3">Visual Output</p>
-                  <div className="flex items-end gap-1 h-14" role="img" aria-label="Bar chart preview">
-                    {[
-                      { pct: 40, month: "Jan" },
-                      { pct: 72, month: "Feb" },
-                      { pct: 55, month: "Mar" },
-                      { pct: 88, month: "Apr" },
-                      { pct: 62, month: "May" },
-                      { pct: 95, month: "Jun" },
-                      { pct: 78, month: "Jul" },
-                    ].map((bar, i) => (
-                      <motion.div
-                        key={bar.month}
-                        initial={{ scaleY: 0 }}
-                        animate={{ scaleY: 1 }}
-                        transition={{ delay: 1.1 + i * 0.08, duration: 0.6, ease: "easeOut" }}
-                        style={{ height: `${bar.pct}%`, transformOrigin: "bottom" }}
-                        className="flex-1 rounded-t bg-zinc-800 dark:bg-zinc-200"
-                      />
-                    ))}
-                  </div>
-                </div>
-              </div>
-
-              {/* AI Insight callout */}
-              <motion.div
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1, duration: 0.5 }}
-                className="flex items-start gap-3 p-4 rounded-2xl bg-muted/50 border border-border"
-              >
-                <Logo className="w-6 h-6 shrink-0 mt-0.5" />
-                <p className="text-xs font-bold text-foreground/80 leading-relaxed">
-                  Revenue peaked in <span className="text-foreground font-black">April (+12.5%)</span>. North America is the primary growth driver this quarter.
-                </p>
-              </motion.div>
-
-              {/* Stat chips */}
-              <div className="grid grid-cols-3 gap-3">
-                {[
-                  { icon: TrendingUp, label: "Growth", value: "+12.5%", color: "text-foreground", bg: "bg-muted" },
-                  { icon: Database, label: "Records", value: "2.4M", color: "text-foreground/80", bg: "bg-secondary/60" },
-                  { icon: Search, label: "Insight", value: "3 sec", color: "text-foreground/80", bg: "bg-secondary/60" },
-                ].map((s, i) => (
-                  <motion.div
-                    key={s.label}
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1.5 + i * 0.1, duration: 0.4 }}
-                    className="p-3 rounded-2xl bg-background/60 border border-border/10 space-y-1.5"
-                  >
-                    <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${s.bg}`}>
-                      <s.icon size={12} className={s.color} aria-hidden="true" />
-                    </div>
-                    <p className={`text-base font-black ${s.color}`}>{s.value}</p>
-                    <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-50">{s.label}</p>
-                  </motion.div>
-                ))}
-              </div>
             </div>
 
-            {/* Floating badges */}
-            <motion.div
-              animate={{ y: [0, -12, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute -top-5 -right-4 px-4 py-2.5 rounded-2xl bg-background border border-border/20 shadow-sm z-20 hidden md:flex items-center gap-2"
-            >
-              <span className="w-1.5 h-1.5 rounded-full bg-foreground animate-pulse" aria-hidden="true" />
-              <span className="text-[10px] font-black text-foreground/70 uppercase tracking-widest">Live Analysis</span>
-            </motion.div>
+            <div className="space-y-4 md:space-y-6">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter leading-[1.1] md:leading-[0.95] text-foreground">
+                Analytics As Fast As{" "}
+                <span className="text-transparent bg-clip-text bg-linear-to-br from-blue-500 via-blue-300 to-white drop-shadow-[0_0_20px_rgba(59,130,246,0.3)]">
+                  Your Decision Making.
+                </span>
+              </h1>
+              <p className="text-base md:text-lg text-muted-foreground max-w-lg mx-auto lg:mx-0 leading-relaxed font-medium tracking-tight">
+                PyAnalypt bridges the gap between raw data and actionable strategy. No code, no complexity. Just results.
+              </p>
+            </div>
 
-            <motion.div
-              animate={{ y: [0, 12, 0] }}
-              transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-              className="absolute -bottom-5 -left-4 px-4 py-2.5 rounded-2xl bg-background border border-border/20 shadow-sm z-20 hidden md:flex items-center gap-2"
-            >
-              <BarChart2 size={13} className="text-foreground" aria-hidden="true" />
-              <span className="text-[10px] font-black text-foreground/70 uppercase tracking-widest">50+ Chart Types</span>
-            </motion.div>
-          </motion.div>
+            <div className="flex flex-col sm:flex-row items-center gap-3 md:gap-4 w-full sm:w-auto pt-2">
+              {/* Primary — Blue */}
+              <Link href="/datasets" className="w-full sm:w-auto">
+                <Button
+                  size="lg"
+                  className="w-full sm:w-auto h-12 md:h-14 px-8 md:px-10 text-sm font-black gap-3 rounded-xl bg-blue-600 dark:bg-blue-600 text-white shadow-[0_10px_20px_-5px_rgba(37,99,235,0.4)] hover:bg-blue-700 dark:hover:bg-blue-500 hover:scale-[1.03] hover:shadow-[0_15px_30px_-5px_rgba(37,99,235,0.5)] active:scale-95 transition-all duration-300"
+                >
+                  Launch Dashboard <ArrowRight size={16} />
+                </Button>
+              </Link>
+            </div>
+
+            <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 md:gap-6 pt-2">
+              <div className="group relative flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500/5 border border-emerald-500/10 cursor-help transition-colors hover:bg-emerald-500/10">
+                <ShieldCheck size={14} className="text-emerald-500" />
+                <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">Secure local processing</span>
+                
+                {/* Tooltip */}
+                <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2 bg-background border border-border shadow-xl rounded-xl opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none w-56 z-50">
+                   <p className="text-[10px] font-bold leading-relaxed text-foreground/80">
+                      Your data never leaves your computer. We process everything in your browser for 100% privacy.
+                   </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500/40 animate-pulse" />
+                <span className="text-[11px] font-bold text-muted-foreground/80 italic">Free while in Beta</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Column — Dashboard Mockup */}
+          <div className="relative w-full max-w-2xl mx-auto lg:ml-auto">
+            <div className="relative rounded-2xl md:rounded-3xl bg-background border border-border shadow-[0_20px_40px_-15px_rgba(0,0,0,0.1)] md:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.15)] dark:shadow-[0_40px_80px_-15px_rgba(0,0,0,0.4)] overflow-hidden group/card hover:scale-[1.01] transition-all duration-700 ease-out">
+
+              {/* Terminal Header */}
+              <div className="h-10 md:h-12 border-b border-border/60 bg-muted/40 flex items-center justify-between px-4 md:px-6">
+                <div className="flex items-center gap-3 md:gap-4">
+                  <div className="flex gap-1.5 md:gap-2">
+                    <div className="w-2 md:w-3 h-2 md:h-3 rounded-full bg-border/60 group-hover/card:bg-red-500/50 transition-colors" />
+                    <div className="w-2 md:w-3 h-2 md:h-3 rounded-full bg-border/60 group-hover/card:bg-amber-500/50 transition-colors" />
+                    <div className="w-2 md:w-3 h-2 md:h-3 rounded-full bg-border/60 group-hover/card:bg-blue-500/60 transition-colors" />
+                  </div>
+                  <span className="text-[10px] md:text-[11px] font-bold text-muted-foreground/60 tracking-tight truncate max-w-30 md:max-w-none">dist/v1.0/performance_snapshot.json</span>
+                </div>
+                <div className="flex items-center gap-3 md:gap-4 text-muted-foreground/40">
+                  <div className="p-1 hover:bg-background hover:text-foreground rounded-lg transition-colors cursor-pointer">
+                    <Settings size={14} />
+                  </div>
+                  <div className="p-1 hover:bg-background hover:text-blue-500 rounded-lg transition-colors cursor-pointer">
+                    <Database size={14} />
+                  </div>
+                </div>
+              </div>
+
+              {/* Mockup Toolbar */}
+              <div className="h-12 md:h-14 border-b border-border/60 bg-background/50 backdrop-blur-sm flex items-center justify-between px-4 md:px-6">
+                <div className="flex items-center gap-2 md:gap-3">
+                  <div className="flex items-center gap-2 md:gap-3 px-2 md:px-3 py-1.5 bg-muted/30 border border-border/60 rounded-lg text-[10px] font-bold text-muted-foreground/80 hover:border-blue-500/30 dark:hover:border-blue-400/30 transition-colors cursor-text min-w-27.5 md:min-w-35">
+                    <Search size={12} className="opacity-40" /> <span className="hidden sm:inline">Search Telemetry...</span><span className="sm:hidden">Search...</span>
+                  </div>
+                  <div className="h-6 w-px bg-border/60" />
+                  <div className="flex items-center gap-2 text-[10px] font-black text-muted-foreground hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer group/filter">
+                    <Filter size={12} className="group-hover/filter:scale-90 transition-transform" /> <span className="hidden sm:inline">Attribution: Active</span><span className="sm:hidden">Active</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Dashboard Content */}
+              <div className="p-6 md:p-10 space-y-8 md:space-y-12">
+                {/* Chart */}
+                <div className="space-y-6 md:space-y-8">
+                  <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                    <div className="space-y-1">
+                      <h3 className="text-sm md:text-base font-black tracking-tighter">Growth Attribution</h3>
+                      <p className="text-[10px] font-bold text-muted-foreground flex items-center gap-2">
+                        <span className="flex h-1.5 w-1.5 rounded-full bg-blue-500 dark:bg-blue-400 shadow-[0_0_8px_rgba(59,130,246,0.5)]" aria-hidden="true" />
+                        <span>Real-time Stream Active</span>
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-4 md:gap-6">
+                      <div className="flex items-center gap-2 group/legend cursor-help">
+                        <div className="w-2 h-2 rounded-full border-2 border-border group-hover:border-blue-400 transition-colors" />
+                        <span className="text-[11px] font-black text-muted-foreground group-hover:text-foreground transition-colors">Projected</span>
+                      </div>
+                      <div className="flex items-center gap-2 group/legend cursor-help">
+                        <div className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400 shadow-sm" />
+                        <span className="text-[11px] font-black text-blue-600 dark:text-blue-400">Actual</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bar Chart */}
+                  <div className="h-40 md:h-44 flex items-end gap-1 md:gap-2 border-b border-border/80 pb-3 relative group/chart">
+                    {[35, 65, 52, 88, 60, 95, 75, 90, 62, 84, 68, 98].map((h, i) => {
+                      const colorMap = [
+                        'bg-zinc-200 dark:bg-zinc-700/60 border-zinc-300 dark:border-zinc-600',
+                        'bg-blue-500/25 dark:bg-blue-500/30 border-blue-400/30 dark:border-blue-400/40',
+                        'bg-zinc-300/60 dark:bg-zinc-600/40 border-zinc-400/40 dark:border-zinc-500/40',
+                      ];
+                      const colorClass = colorMap[i % 3];
+
+                      return (
+                        <div
+                          key={`bar-${i}-${h}`}
+                          style={{ height: `${h}%` }}
+                          className={`flex-1 transition-all duration-500 border-x border-t hover:brightness-110 hover:shadow-[0_0_12px_rgba(59,130,246,0.12)] cursor-pointer group/bar ${colorClass} relative`}
+                        >
+                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover/bar:opacity-100 transition-opacity text-[8px] font-black text-blue-600 dark:text-blue-400">{h}%</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Processing Status */}
+                <div className="p-4 md:p-5 rounded-xl md:rounded-2xl border border-dashed border-border/80 bg-transparent backdrop-blur-sm flex items-center justify-between hover:border-blue-500/30 dark:hover:border-blue-400/30 hover:bg-blue-50/30 dark:hover:bg-blue-950/20 transition-all duration-300">
+                  <div className="flex items-center gap-3 md:gap-4">
+                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-background border border-border shadow-sm flex items-center justify-center text-blue-500/60 dark:text-blue-400/60 group-hover/card:text-blue-500 dark:group-hover/card:text-blue-400 transition-colors">
+                      <Code2 className="w-4.5 h-4.5 md:w-5 md:h-5" />
+                    </div>
+                    <div className="space-y-0.5 md:space-y-1">
+                      <p className="text-xs md:text-sm font-black text-foreground">Worker Active</p>
+                      <p className="text-[10px] md:text-[11px] font-bold text-muted-foreground lowercase opacity-70">instance: px-9802</p>
+                    </div>
+                  </div>
+                  <div className="h-8 md:h-10 px-3 md:px-4 rounded-lg md:rounded-xl border border-blue-200/60 dark:border-blue-800/40 bg-blue-50/50 dark:bg-blue-950/30 flex items-center text-[10px] font-black tracking-widest text-blue-700 dark:text-blue-300 capitalize shadow-sm">
+                    0.4s
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
         </div>
       </div>
     </section>
   );
 }
-function ProductStory() {
-  const checkmarks = [
-    "No Python, No SQL, No terminal — ever",
-    "Works with Excel, JSON, CSV & Parquet",
-    "Instant results — no setup, no wait",
-    "Boardroom-ready charts, always",
+
+function BeforeAfterSection() {
+  return (
+    <section className="py-24 md:py-32 relative overflow-hidden bg-muted/20">
+      <div className="container mx-auto px-6 max-w-7xl relative z-10">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="space-y-8 text-center lg:text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-800/50">
+               <span className="text-[10px] font-black text-blue-700 dark:text-blue-300 tracking-tight uppercase">Visual Proof</span>
+            </div>
+            <div className="space-y-4">
+              <h2 className="text-4xl md:text-5xl font-black tracking-tighter leading-[1.1]">
+                 From Chaos <br />
+                 <span className="text-blue-600 dark:text-blue-400">to Professional Clarity.</span>
+              </h2>
+              <p className="text-lg text-muted-foreground font-medium max-w-lg mx-auto lg:mx-0 leading-relaxed">
+                 Stop wrestling with messy spreadsheets and complex formulas. PyAnalypt automatically cleans, 
+                 structures, and visualizes your data into boardroom-ready dashboards in seconds.
+              </p>
+            </div>
+          </div>
+
+          <div className="relative group">
+            {/* Decorative Glow */}
+            <div className="absolute -inset-4 bg-blue-500/10 rounded-[2.5rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-700" />
+            
+            <div className="relative rounded-[2rem] border border-border bg-background shadow-2xl overflow-hidden aspect-video">
+               <Image 
+                 src="/spreadsheet_to_dashboard_comparison.png" 
+                 alt="Spreadsheet to Dashboard Comparison" 
+                 fill
+                 className="object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
+               />
+               
+               {/* Label Overlays */}
+               <div className="absolute top-4 left-4 px-3 py-1.5 rounded-lg bg-black/40 backdrop-blur-md border border-white/10 text-[10px] font-black text-white uppercase tracking-widest">
+                  Before: Messy Data
+               </div>
+               <div className="absolute bottom-4 right-4 px-3 py-1.5 rounded-lg bg-blue-600/80 backdrop-blur-md border border-blue-400/20 text-[10px] font-black text-white uppercase tracking-widest">
+                  After: PyAnalypt
+               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+
+
+function BuiltForSection() {
+  const personas = [
+    { title: "Founders", desc: "Get boardroom-ready reports in 30 seconds, not 3 hours.", icon: Sparkles },
+    { title: "Marketing Leads", desc: "Analyze campaign attribution without touching a single line of SQL.", icon: Database },
+    { title: "Data Analysts", desc: "Prototype complex visualizations instantly before committing to production.", icon: Code2 },
   ];
 
   return (
-    <section className="py-0 relative overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-border/30 to-transparent" />
-        <div className="absolute bottom-0 left-0 right-0 h-px bg-linear-to-r from-transparent via-border/30 to-transparent" />
-      </div>
-
-      <div className="container mx-auto px-6 max-w-325 space-y-28">
-
-        {/* ── Part 1: The Problem + Solution narrative ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
-          <ScrollReveal>
-            <div className="space-y-8 max-w-xl">
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-500/10 border border-zinc-500/20 shadow-sm">
-                <Sparkles size={14} className="text-zinc-500" aria-hidden="true" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-zinc-600 dark:text-zinc-400">
-                  Built for Real People
-                </span>
-              </div>
-
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.05]">
-                Your data has answers. <br />
-                <span className="text-zinc-600 dark:text-zinc-400">You just need the right translator.</span>
-              </h2>
-
-              <div className="space-y-5 text-lg text-muted-foreground leading-relaxed font-medium">
-                <p>
-                  Most business owners have data. Sales reports. Customer records. Inventory logs. But it&apos;s all{" "}
-                  <span className="text-foreground font-bold">trapped in spreadsheets</span>, disconnected tools, and dashboards that take a PhD to understand.
-                </p>
-                <p>
-                  We built PyAnalypt so every business owner gets the same analytical power that Fortune 500 companies
-                  pay data teams{" "}
-                  <span className="text-foreground font-bold">hundreds of thousands of dollars</span> for — without
-                  writing a single line of code.
-                </p>
-                <p>
-                  Import your file. Ask a question. Get the answer.{" "}
-                  <span className="text-foreground font-bold">No technical knowledge required — ever.</span>
-                </p>
-              </div>
-
-              {/* Checkmarks */}
-              <ul className="space-y-3 pt-2" aria-label="Key benefits">
-                {checkmarks.map((item) => (
-                  <li key={item} className="flex items-center gap-3 text-sm font-bold text-foreground/80">
-                    <div className="w-5 h-5 rounded-full bg-zinc-500/10 border border-zinc-500/30 flex items-center justify-center shrink-0">
-                      <CheckCircle2 size={12} className="text-zinc-500" aria-hidden="true" />
-                    </div>
-                    {item}
-                  </li>
-                ))}
-              </ul>
-
-              {/* Mini stats */}
-              <div className="flex gap-8 pt-6 border-t border-border/10">
-                {[
-                  { value: "10K+", label: "Businesses" },
-                  { value: "< 5 min", label: "First Insight" },
-                  { value: "0", label: "Lines of Code" },
-                ].map((stat) => (
-                  <div key={stat.label} className="space-y-1">
-                    <p className="text-2xl font-black text-foreground">{stat.value}</p>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">{stat.label}</p>
-                  </div>
-                ))}
-              </div>
+    <section className="py-24 bg-muted/30 relative">
+      <div className="container mx-auto px-6 max-w-7xl">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
+          {personas.map((p) => (
+            <div key={p.title} className="space-y-4 p-8 rounded-3xl bg-background border border-border hover:border-blue-500/40 transition-all group">
+               <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center text-blue-500 group-hover:scale-110 transition-transform">
+                  <p.icon size={20} />
+               </div>
+               <h3 className="text-xl font-black tracking-tight">Built for {p.title}</h3>
+               <p className="text-sm text-muted-foreground font-medium leading-relaxed">{p.desc}</p>
             </div>
-          </ScrollReveal>
-
-          {/* Right: Testimonial + stat chips */}
-          <ScrollReveal>
-            <div className="relative w-full max-w-md mx-auto lg:ml-auto space-y-4">
-
-              {/* Testimonial card */}
-              <div className="relative p-8 rounded-xl bg-background/60  border border-border/10 shadow-md">
-                <Quote size={32} className="text-zinc-500/30 mb-4" aria-hidden="true" />
-                <p className="text-lg font-bold leading-relaxed text-foreground/80 italic">
-                  &ldquo;I spent 3 days every month building reports in Excel. With PyAnalypt I get the same output in
-                  4 minutes — and the charts actually look good.&rdquo;
-                </p>
-                <div className="flex items-center gap-3 mt-6 pt-6 border-t border-border/10">
-                  <div className="w-10 h-10 rounded-full bg-linear-to-br from-zinc-800 dark:from-zinc-200 to-zinc-500 flex items-center justify-center text-white text-xs font-black" aria-hidden="true">
-                    SL
-                  </div>
-                  <div>
-                    <p className="text-sm font-black tracking-tight">Sarah L.</p>
-                    <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest opacity-60">E-Commerce Owner</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Stat chips */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="p-5 rounded-2xl bg-background/60  border border-border/10 shadow-sm space-y-2">
-                  <p className="text-3xl font-black text-foreground">97%</p>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Less setup time</p>
-                </div>
-                <div className="p-5 rounded-2xl bg-background/60  border border-border/10 shadow-sm space-y-2">
-                  <p className="text-3xl font-black text-zinc-500">30+</p>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground opacity-60">Chart types ready</p>
-                </div>
-              </div>
-            </div>
-          </ScrollReveal>
+          ))}
         </div>
-
-        {/* ── CTA to Tutorials ── */}
-        <ScrollReveal>
-          <div className="flex justify-center pt-4">
-            <Link href="/tutorials" aria-label="See the full step-by-step tutorial guide">
-              <Button variant="outline" size="lg" className="gap-2">
-                See the Full Step-by-Step Guide <ArrowRight size={16} aria-hidden="true" />
-              </Button>
-            </Link>
-          </div>
-        </ScrollReveal>
-
       </div>
     </section>
   );
 }
 
+function IntelTeaser() {
+  return (
+    <section className="py-24 relative overflow-hidden bg-background">
+      <div className="absolute inset-0 bg-blue-600 dark:bg-blue-600 opacity-[0.02]" />
+      <div className="container mx-auto px-6 max-w-4xl text-center space-y-8 relative z-10">
+        <div className="space-y-4">
+          <h2 className="text-3xl md:text-4xl font-black tracking-tighter">Want deeper insights?</h2>
+          <p className="text-lg text-muted-foreground font-medium max-w-2xl mx-auto">
+            Explore PyAnalypt Intel for predictive trends and automated strategy suggestions.
+          </p>
+        </div>
+        <Link href="/about">
+          <Button size="lg" className="rounded-full font-black text-xs h-12 px-10 bg-foreground text-background hover:scale-105 transition-all">
+            Explore Intel OS
+          </Button>
+        </Link>
+      </div>
+    </section>
+  );
+}
 
-
-// --- Main Assembly ---
-export default function Home() {
-  const scrollToVisuals = () => {
-    const element = document.getElementById('visuals-section');
-    element?.scrollIntoView({ behavior: 'smooth' });
-  };
+function ProductStory() {
+  const checkmarks = [
+    "Secure local processing — Your data stays yours",
+    "No python, no sql, no terminal — Ever",
+    "Works with Excel, JSON, CSV & Parquet",
+    "Instant results — No developer, no setup, no wait",
+    "Boardroom-ready charts, always",
+    "One-click PDF & image exports",
+  ];
 
   return (
-    <main className="min-h-screen bg-background relative selection:bg-foreground/30 overflow-x-hidden">
+    <section className="py-32 relative overflow-hidden bg-background">
+      {/* Backdrop */}
+      <div className="absolute inset-x-0 top-0 h-24 bg-linear-to-b from-secondary/10 to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808005_1px,transparent_1px),linear-gradient(to_bottom,#80808005_1px,transparent_1px)] bg-size-[60px_60px] pointer-events-none" />
+      {/* Subtle blue glow center */}
+      <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-100 bg-blue-500/8 dark:bg-blue-500/10 blur-[120px] pointer-events-none" />
 
+      <div className="container mx-auto px-6 max-w-5xl relative z-10">
+        <div className="flex flex-col items-center text-center space-y-10">
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-800/50">
+            <Sparkles size={14} className="text-blue-500 dark:text-blue-400" aria-hidden="true" />
+            <span className="text-[10px] font-black text-blue-700 dark:text-blue-300 tracking-tight">
+              For Business Owners & Non-Coders
+            </span>
+          </div>
 
+          <div className="space-y-6 max-w-3xl">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-black tracking-tighter leading-[0.95] text-foreground">
+              Stop waiting for reports. <br />
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 via-blue-400 dark:from-blue-400 dark:via-blue-200 to-foreground/80">
+                Start leading with data.
+              </span>
+            </h2>
+            <p className="text-lg md:text-xl text-muted-foreground leading-relaxed font-medium max-w-2xl mx-auto">
+              We built PyAnalypt for leaders who need answers, not code. Upload your data and get professional insights in seconds — completely free.
+            </p>
+          </div>
 
-      <div className="relative z-0">
-        <HeroSection onStart={scrollToVisuals} />
+          {/* Feature Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 pt-8 w-full">
+            {checkmarks.map((item) => (
+              <div
+                key={item}
+                className="flex flex-col items-center gap-4 text-center p-6 rounded-2xl border border-border/40 bg-zinc-50/10 dark:bg-zinc-900/20 hover:border-blue-500/30 dark:hover:border-blue-400/30 hover:bg-blue-50/20 dark:hover:bg-blue-950/20 transition-all duration-300 group"
+              >
+                <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200/60 dark:border-blue-800/50 flex items-center justify-center group-hover:border-blue-400/50 dark:group-hover:border-blue-400/50 transition-colors">
+                  <CheckCircle2 size={16} className="text-blue-500 dark:text-blue-400" aria-hidden="true" />
+                </div>
+                <span className="text-xs md:text-sm font-black text-foreground/70 group-hover:text-foreground transition-colors">
+                  {item}
+                </span>
+              </div>
+            ))}
+          </div>
 
-        <div className="relative bg-background/50  py-2 border-y border-border/20 will-change-transform">
-          <LogoTicker />
+          {/* Integrations Row */}
+          <div className="pt-16 pb-8 space-y-8 w-full">
+            <div className="flex flex-col items-center gap-3">
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/50">Supported Ecosystem</span>
+              <div className="h-px w-12 bg-border/40" />
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-8 md:gap-16 opacity-40 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
+              {[
+                { name: "Excel", icon: FileSpreadsheet, color: "group-hover:text-emerald-500" },
+                { name: "CSV", icon: FileType, color: "group-hover:text-blue-500" },
+                { name: "JSON", icon: FileCode, color: "group-hover:text-amber-500" },
+                { name: "Parquet", icon: FileArchive, color: "group-hover:text-indigo-500" },
+              ].map((format) => (
+                <div key={format.name} className="flex items-center gap-3 group cursor-default">
+                  <format.icon size={20} className={cn("transition-colors duration-300", format.color)} />
+                  <span className="text-xs font-black tracking-widest">{format.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
+      </div>
+    </section>
+  );
+}
 
+export default function Home() {
+  return (
+    <main className="min-h-screen bg-background relative selection:bg-blue-500/20 overflow-x-hidden">
+      <div className="relative z-0">
+        <HeroSection />
+        <BeforeAfterSection />
+        <BuiltForSection />
         <ProductStory />
-
-
-
-
+        <IntelTeaser />
       </div>
     </main>
   );

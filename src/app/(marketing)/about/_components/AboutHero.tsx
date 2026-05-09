@@ -6,7 +6,7 @@ export function AboutHero() {
         <div className="animate-in fade-in slide-in-from-bottom-6 duration-500 text-center space-y-8 max-w-3xl mx-auto">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 shadow-sm">
                 <Sparkles size={13} className="text-blue-500" aria-hidden="true" />
-                <span className="text-[10px] font-black uppercase tracking-widest text-blue-600 dark:text-blue-400">
+                <span className="text-[10px] font-black capitalize tracking-widest text-blue-600 dark:text-blue-400">
                     Our Story
                 </span>
             </div>

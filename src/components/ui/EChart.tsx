@@ -4,7 +4,7 @@ import React, { useEffect, useRef, useImperativeHandle, forwardRef } from 'react
 import * as echarts from 'echarts';
 
 interface EChartProps {
-    option: any;
+    option: echarts.EChartsOption;
     theme?: string | object;
     style?: React.CSSProperties;
     className?: string;
@@ -45,9 +45,15 @@ const EChart = forwardRef<EChartInstance, EChartProps>(({ option, theme, style, 
             chartInstance.current?.resize();
         };
 
+        const resizeObserver = new ResizeObserver(() => {
+            handleResize();
+        });
+        resizeObserver.observe(chartRef.current);
+
         globalThis.addEventListener('resize', handleResize);
 
         return () => {
+            resizeObserver.disconnect();
             globalThis.removeEventListener('resize', handleResize);
         };
     }, [option, theme]);

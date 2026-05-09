@@ -10,16 +10,13 @@ const API_VERSION = '/api/v1/';
 const apiClient: AxiosInstance = axios.create({
     baseURL: `${API_BASE_URL}${API_VERSION}`,
     timeout: 10000,
-    headers: {
-        'Content-Type': 'application/json',
-    },
 });
 
 // Flag to prevent multiple refresh token requests
 let isRefreshing = false;
 let failedQueue: Array<{
-    resolve: (value?: unknown) => void;
-    reject: (reason?: unknown) => void;
+    resolve: (value: string | null) => void;
+    reject: (reason: AxiosError) => void;
 }> = [];
 
 const processQueue = (error: AxiosError | null, token: string | null = null) => {
@@ -107,10 +104,10 @@ apiClient.interceptors.response.use(
 
         if (error.response?.status === 401 && !originalRequest._retry) {
             if (isRefreshing) {
-                return new Promise((resolve, reject) => {
-                    failedQueue.push({ resolve, reject });
+                return new Promise<string | null>((resolve, reject) => {
+                    failedQueue.push({ resolve, reject: reject as (reason: AxiosError) => void });
                 }).then((token) => {
-                    if (originalRequest.headers) {
+                    if (token && originalRequest.headers) {
                         originalRequest.headers.Authorization = `Bearer ${token}`;
                     }
                     return apiClient(originalRequest);

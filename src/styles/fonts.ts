@@ -1,4 +1,5 @@
 import localFont from "next/font/local";
+import { Fredoka } from "next/font/google";
 
 export const outfit = localFont({
   src: [
@@ -9,5 +10,12 @@ export const outfit = localFont({
     },
   ],
   variable: "--font-outfit",
+  display: "swap",
+});
+
+export const fredoka = Fredoka({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-fredoka",
   display: "swap",
 });

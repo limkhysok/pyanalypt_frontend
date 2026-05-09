@@ -1,8 +1,8 @@
-// App layout — passthrough for authenticated routes.
-// Each route (dashboard, datasets, analysis, etc.) owns its own layout.tsx
-// with its AppNavbar + AppSidebar configuration.
+import * as React from "react";
+import { AppShell } from "@/components/layout/AppShell";
+
 export default function AppLayout({
     children,
 }: Readonly<{ children: React.ReactNode }>) {
-    return <>{children}</>;
+    return <AppShell>{children}</AppShell>;
 }

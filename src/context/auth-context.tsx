@@ -79,7 +79,7 @@ export function AuthProvider({ children }: Readonly<{ children: React.ReactNode 
                 console.log("[AuthContext] User data sync success:", userData.username);
                 // Fallback for missing username
                 if (!userData.username) {
-                    userData.username = userData.full_name || userData.first_name || (userData.email ? userData.email.split('@')[0] : "User");
+                    userData.username = userData.full_name || (userData.email ? userData.email.split('@')[0] : "User");
                 }
                 setUser(userData);
                 localStorage.setItem('user_data', JSON.stringify(userData));

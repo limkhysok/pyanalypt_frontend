@@ -2,9 +2,11 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { Menu, X, LogOut, LayoutDashboard, User as UserIcon, Settings } from "lucide-react";
+import { usePathname } from "next/navigation";
+import { Menu, X, LogOut, User as UserIcon, Home, BarChart2, FlaskConical, Info, ChevronRight } from "lucide-react";
+import { GithubIcon } from "@/components/ui/Icons";
 import { Logo } from "@/components/ui/Logo";
-import { cn } from "@/lib/utils";
+import { cn, getInitials } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/ui/ModeToggle";
 import {
@@ -18,196 +20,288 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/context/auth-context";
 
-import { motion, useScroll, useMotionValueEvent, AnimatePresence } from "motion/react";
-
 const NAV_ITEMS = [
-    { label: "Home", href: "/" },
-    { label: "Tutorials", href: "/tutorials" },
-    { label: "Visuals", href: "/visuals" },
-    { label: "Playground", href: "/playground" },
-    { label: "About Us", href: "/about" },
-    { label: "Contact Us", href: "/contact" },
-    { label: "Docs", href: "/docs" },
+    { label: "Home",       href: "/",           icon: Home        },
+    { label: "Visuals",    href: "/visuals",    icon: BarChart2   },
+    { label: "Playground", href: "/playground", icon: FlaskConical},
+    { label: "Intel",      href: "/about",      icon: Info        },
 ];
+
+const GITHUB_URL = "https://github.com/soklimkhy/pyanalypt";
 
 export function Navbar() {
     const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
     const [scrolled, setScrolled] = React.useState(false);
+    const pathname = usePathname();
     const { user, isAuthenticated, isLoading, logout } = useAuth();
-    const { scrollY } = useScroll();
 
-    useMotionValueEvent(scrollY, "change", (latest) => {
-        setScrolled(latest > 50);
-    });
+    React.useEffect(() => {
+        const handleScroll = () => setScrolled(window.scrollY > 20);
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        return () => window.removeEventListener("scroll", handleScroll);
+    }, []);
+
+    const displayName = user?.full_name || user?.username || "";
+    const initials = user ? getInitials(user) : "";
 
     return (
-        <div className="fixed top-0 inset-x-0 z-50 flex justify-center pt-6 px-6 pointer-events-none">
-            <motion.div
-                initial={{ y: -100, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.8, type: "spring", stiffness: 100, damping: 20 }}
+        <div className="fixed top-0 inset-x-0 z-50 pointer-events-none">
+
+            {/* ── Bar Navbar ── */}
+            <header
                 className={cn(
-                    "relative pointer-events-auto flex items-center justify-between pl-4 pr-3 h-14 transition-all duration-700 rounded-full border border-border mx-auto w-full max-w-325",
+                    "font-sans relative pointer-events-auto flex items-center justify-between px-4 sm:px-6 h-14 transition-all duration-300 border-b w-full",
                     scrolled
-                        ? "bg-background/80 backdrop-blur-md shadow-sm"
-                        : "bg-background/40 backdrop-blur-sm shadow-none"
+                        ? "bg-background/95 backdrop-blur-2xl border-foreground/10"
+                        : "bg-background/70 backdrop-blur-md border-border/50"
                 )}
             >
-                {/* Logo & Brand */}
-                <Link href="/" className="flex items-center gap-3 group shrink-0">
-                    <Logo className="transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3" />
-                    <span className="text-lg font-black tracking-tight text-foreground/90 hidden sm:block">
+                {/* Brand */}
+                <Link href="/" className="flex items-center gap-2.5 group shrink-0">
+                    <Logo className="w-6 h-6 transition-all duration-500 group-hover:rotate-12 grayscale group-hover:grayscale-0" />
+                    <span className="text-sm sm:text-base font-black tracking-tight text-foreground hidden sm:block">
                         PyAnalypt
                     </span>
                 </Link>
 
-                {/* Center Menu - Desktop */}
-                <div className="hidden lg:flex items-center gap-1">
-                    {NAV_ITEMS.map((item) => (
-                        <Link
-                            key={item.label}
-                            href={item.href}
-                            className="px-4 py-2 rounded-full text-[11px] font-black tracking-widest uppercase text-foreground/70 hover:text-blue-500 hover:bg-blue-500/5 transition-all text-center flex items-center"
-                        >
-                            {item.label}
-                        </Link>
-                    ))}
-                </div>
+                <div className="h-4 w-px bg-border/40 mx-1 hidden md:block" />
 
-                {/* Right Actions */}
-                <div className="flex items-center gap-2 shrink-0">
+                {/* Nav links */}
+                <nav className="hidden md:flex items-center gap-1">
+                    {NAV_ITEMS.map((item) => {
+                        const isActive = pathname === item.href;
+                        return (
+                            <Link
+                                key={item.label}
+                                href={item.href}
+                                className={cn(
+                                    "px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold tracking-tight transition-all duration-200",
+                                    isActive
+                                        ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40"
+                                        : "text-foreground/70 hover:text-foreground hover:bg-muted"
+                                )}
+                            >
+                                {item.label}
+                            </Link>
+                        );
+                    })}
+                </nav>
+
+                <div className="h-4 w-px bg-border/40 mx-1 hidden md:block" />
+
+                {/* Actions */}
+                <div className="flex items-center gap-0.5 pl-2">
+
+                    {/* GitHub */}
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground hidden sm:flex"
+                        asChild
+                    >
+                        <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                            <GithubIcon size={15} />
+                        </a>
+                    </Button>
+
+                    {/* Theme toggle */}
+                    <ModeToggle className="h-8 w-8 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted/60 transition-all" />
+
+                    <div className="w-px h-4 bg-border/40 mx-1 hidden sm:block" />
+
+                    {/* Sticky CTA */}
+                    <div className={cn("w-px h-4 bg-border/40 mx-1 hidden sm:block", !scrolled && "sm:hidden", scrolled && "lg:block")} />
+
+                    {/* User / Auth */}
                     {!isLoading && isAuthenticated ? (
                         <DropdownMenu modal={false}>
                             <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" className="relative flex items-center gap-2.5 h-9 rounded-full px-2 hover:bg-blue-500/5">
-                                    {/* Greeting — hidden on small screens */}
-                                    <span className="hidden sm:flex flex-col items-end leading-tight">
-                                        <span className="text-[9px] font-black tracking-widest uppercase text-muted-foreground/60">Hello!</span>
-                                        <span className="text-[11px] font-black tracking-tight text-foreground/80 max-w-25 truncate">
-                                            {user?.full_name || user?.username}
-                                        </span>
-                                    </span>
-                                    <Avatar className="h-8 w-8 shrink-0 border border-border/10 transition-all duration-300 hover:border-blue-500/30">
-                                        <AvatarImage src={user?.profile_picture ?? undefined} alt={user?.username} />
-                                        <AvatarFallback className="bg-blue-500/10 text-blue-500 text-xs font-black">
-                                            {user?.username?.substring(0, 2).toUpperCase()}
+                                <button className="flex items-center outline-none rounded-full focus-visible:ring-2 focus-visible:ring-ring">
+                                    <Avatar className="h-8 w-8 border border-border/60 hover:border-blue-500/40 dark:hover:border-blue-400/40 transition-colors">
+                                        <AvatarImage src={user?.profile_picture ?? undefined} />
+                                        <AvatarFallback className="bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 text-[10px] font-bold">
+                                            {initials}
                                         </AvatarFallback>
                                     </Avatar>
-                                </Button>
+                                </button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent className="w-56 rounded-2xl p-2 bg-background/90 backdrop-blur-xl border-border/10 shadow-sm" align="end">
-                                <DropdownMenuLabel className="px-4 py-3">
-                                    <p className="text-sm font-black tracking-tight truncate">{user?.full_name || user?.username}</p>
-                                    <p className="text-[10px] font-bold text-muted-foreground truncate">@{user?.username}</p>
+                            <DropdownMenuContent
+                                className="w-52 bg-background/95 backdrop-blur-2xl border border-border/80 rounded-2xl p-2 shadow-2xl mt-4"
+                                align="end"
+                            >
+                                <DropdownMenuLabel className="px-3 py-3">
+                                    <p className="text-[12px] font-semibold text-foreground truncate">{displayName}</p>
+                                    {user?.email && (
+                                        <p className="text-[11px] text-muted-foreground mt-0.5 truncate">{user.email}</p>
+                                    )}
                                 </DropdownMenuLabel>
-                                <DropdownMenuSeparator className="bg-border/5" />
-                                <DropdownMenuItem asChild className="rounded-xl px-4 py-2 hover:bg-blue-500/5 hover:text-blue-500 cursor-pointer transition-colors font-bold text-sm">
-                                    <Link href="/dashboard" className="flex items-center">
-                                        <LayoutDashboard className="mr-3 h-4 w-4 opacity-40" />
+                                <DropdownMenuSeparator className="bg-border/40" />
+                                {/* <DropdownMenuItem asChild className="rounded-xl px-3 py-2 cursor-pointer text-[12px] gap-2">
+                                    <Link href="/dashboard" className="flex items-center justify-between w-full">
                                         <span>Dashboard</span>
+                                        <LayoutDashboard size={13} className="opacity-40" />
                                     </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuItem asChild className="rounded-xl px-4 py-2 hover:bg-blue-500/5 hover:text-blue-500 cursor-pointer transition-colors font-bold text-sm">
-                                    <Link href="/profile" className="flex items-center">
-                                        <UserIcon className="mr-3 h-4 w-4 opacity-40" />
+                                </DropdownMenuItem> */}
+                                <DropdownMenuItem asChild className="rounded-xl px-3 py-2 cursor-pointer text-[12px] gap-2">
+                                    <Link href="/profile" className="flex items-center justify-between w-full">
                                         <span>Profile</span>
+                                        <UserIcon size={13} className="opacity-40" />
                                     </Link>
                                 </DropdownMenuItem>
-                                <DropdownMenuItem asChild className="rounded-xl px-4 py-2 hover:bg-blue-500/5 hover:text-blue-500 cursor-pointer transition-colors font-bold text-sm">
-                                    <Link href="/settings" className="flex items-center">
-                                        <Settings className="mr-3 h-4 w-4 opacity-40" />
-                                        <span>Settings</span>
-                                    </Link>
-                                </DropdownMenuItem>
-                                <DropdownMenuSeparator className="bg-border/5" />
+                                <DropdownMenuSeparator className="bg-border/40" />
                                 <DropdownMenuItem
-                                    className="text-red-500 focus:text-red-500 focus:bg-red-500/5 cursor-pointer rounded-xl px-4 py-2 font-bold text-sm transition-colors"
+                                    className="rounded-xl px-3 py-2 cursor-pointer text-[12px] text-red-500/80 focus:text-red-500 focus:bg-red-500/5 gap-2"
                                     onClick={logout}
                                 >
-                                    <LogOut className="mr-3 h-4 w-4 opacity-40" />
-                                    <span>Log out</span>
+                                    <div className="flex items-center justify-between w-full">
+                                        <span>Sign out</span>
+                                        <LogOut size={13} className="opacity-40" />
+                                    </div>
                                 </DropdownMenuItem>
                             </DropdownMenuContent>
                         </DropdownMenu>
                     ) : !isLoading && (
-                        <div className="hidden lg:flex items-center gap-1 text-[11px] font-black tracking-widest text-foreground/70">
-                            <Link href="/login" className="hover:text-blue-500 transition-colors uppercase">LOGIN</Link>
-                            <span className="opacity-30">/</span>
-                            <Link href="/register" className="hover:text-blue-500 transition-colors uppercase">REGISTER</Link>
-                        </div>
-                    )}
-
-                    {/* Theme toggle — always visible on all breakpoints */}
-                    <div className="scale-90">
-                        <ModeToggle />
-                    </div>
-
-                    {/* Burger — visible below lg */}
-                    <Button variant="ghost" size="icon" className="lg:hidden h-9 w-9 rounded-full" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label={mobileMenuOpen ? "Close menu" : "Open menu"} aria-expanded={mobileMenuOpen}>
-                        {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-                    </Button>
-                </div>
-            </motion.div>
-
-            {/* Mobile Menu Dropdown */}
-            <AnimatePresence>
-            {mobileMenuOpen && (
-                <motion.div
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                    className="lg:hidden absolute top-[calc(100%+12px)] inset-x-6 z-40 bg-background/90 backdrop-blur-xl border border-border rounded-2xl p-4 flex flex-col gap-1 shadow-md pointer-events-auto"
-                >
-                    {NAV_ITEMS.map((item) => (
-                        <Link
-                            key={item.label}
-                            href={item.href}
-                            onClick={() => setMobileMenuOpen(false)}
-                            className="p-4 hover:bg-blue-500/5 rounded-xl text-muted-foreground hover:text-blue-500 transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase"
-                        >
-                            {item.label}
-                        </Link>
-                    ))}
-
-                    <div className="h-px bg-border/10 my-2 mx-4" />
-
-                    {!isLoading && isAuthenticated ? (
-                        <div className="space-y-1">
-                            <Link
-                                href="/dashboard"
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="p-4 hover:bg-blue-500/5 rounded-xl text-muted-foreground hover:text-blue-500 transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase"
-                            >
-                                Dashboard
-                            </Link>
-                            <button
-                                onClick={() => { logout(); setMobileMenuOpen(false); }}
-                                className="w-full p-4 hover:bg-red-500/5 rounded-xl text-red-500/70 hover:text-red-500 transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase"
-                            >
-                                Log out
-                            </button>
-                        </div>
-                    ) : (
-                        <div className="flex gap-2 px-2 pb-2">
+                        <div className="hidden md:flex items-center gap-1">
                             <Link
                                 href="/login"
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="flex-1 p-4 hover:bg-blue-500/5 rounded-xl text-muted-foreground hover:text-blue-500 transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase border border-border/20"
+                                className="px-3 py-1.5 text-xs sm:text-sm font-bold tracking-tight text-foreground/70 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
                             >
-                                LOGIN
+                                Login
                             </Link>
                             <Link
                                 href="/register"
-                                onClick={() => setMobileMenuOpen(false)}
-                                className="flex-1 p-4 bg-blue-600 hover:bg-blue-700 rounded-xl text-white transition-all flex items-center justify-center text-xs font-black tracking-widest uppercase"
+                                className="px-4 py-2 bg-blue-600 dark:bg-blue-500 text-white flex items-center justify-center rounded-full text-xs sm:text-sm font-bold tracking-tight hover:bg-blue-700 dark:hover:bg-blue-400 hover:scale-105 transition-all shadow-lg shadow-blue-500/20"
                             >
-                                REGISTER
+                                Get started <UserIcon size={12} className="ml-1.5" />
                             </Link>
                         </div>
                     )}
-                </motion.div>
+
+                    {/* Mobile menu toggle */}
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className="md:hidden h-8 w-8 rounded-full hover:bg-muted ml-1"
+                        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                    >
+                        {mobileMenuOpen ? <X size={16} /> : <Menu size={16} />}
+                    </Button>
+                </div>
+            </header>
+
+            {/* ── Mobile menu ── */}
+            {mobileMenuOpen && (
+                <div className="md:hidden absolute top-full inset-x-0 z-40 bg-background/98 backdrop-blur-3xl border-b border-border/80 overflow-hidden shadow-lg pointer-events-auto animate-in fade-in slide-in-from-top-2 duration-200">
+
+                    {/* Header row */}
+                    <div className="flex items-center justify-between px-3 py-2 border-b border-border/20">
+                        <div className="flex items-center gap-2">
+                            <Logo className="w-4 h-4 grayscale" />
+                            <span className="text-sm font-black tracking-tight text-foreground">PyAnalypt</span>
+                        </div>
+                        <div className="flex items-center gap-0.5">
+                            <Button variant="ghost" size="icon" className="h-7 w-7 rounded-full" asChild>
+                                <a href={GITHUB_URL} target="_blank" rel="noopener noreferrer" aria-label="GitHub">
+                                    <GithubIcon size={13} />
+                                </a>
+                            </Button>
+                            <ModeToggle className="h-7 w-7" />
+                        </div>
+                    </div>
+
+                    {/* Nav links */}
+                    <div className="p-1.5 space-y-0.5">
+                        {NAV_ITEMS.map((item) => {
+                            const isActive = pathname === item.href;
+                            const Icon = item.icon;
+                            return (
+                                <Link
+                                    key={item.label}
+                                    href={item.href}
+                                    onClick={() => setMobileMenuOpen(false)}
+                                    className={cn(
+                                        "flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-bold transition-all",
+                                        isActive
+                                            ? "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400"
+                                            : "text-foreground/70 hover:bg-muted hover:text-foreground"
+                                    )}
+                                >
+                                    <Icon size={13} className={cn("shrink-0", isActive ? "" : "opacity-40")} />
+                                    <span className="flex-1">{item.label}</span>
+                                    {isActive
+                                        ? <div className="w-1 h-1 rounded-full bg-blue-500 dark:bg-blue-400" />
+                                        : <ChevronRight size={12} className="opacity-20" />
+                                    }
+                                </Link>
+                            );
+                        })}
+                    </div>
+
+                    {/* Auth section */}
+                    {!isLoading && (
+                        <>
+                            <div className="h-px bg-border/30 mx-2" />
+                            {isAuthenticated ? (
+                                <div className="p-1.5 space-y-0.5">
+                                    {/* User card */}
+                                    <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-muted/40 mb-0.5">
+                                        <Avatar className="h-6 w-6 shrink-0 border border-border/60">
+                                            <AvatarImage src={user?.profile_picture ?? undefined} />
+                                            <AvatarFallback className="bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 text-[9px] font-bold">
+                                                {initials}
+                                            </AvatarFallback>
+                                        </Avatar>
+                                        <div className="min-w-0">
+                                            <p className="text-sm font-bold truncate leading-tight text-foreground">{displayName}</p>
+                                            {user?.email && <p className="text-xs text-muted-foreground truncate">{user.email}</p>}
+                                        </div>
+                                    </div>
+                                    {/* <Link
+                                        href="/dashboard"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-bold text-foreground/70 hover:bg-muted hover:text-foreground transition-all"
+                                    >
+                                        <span>Dashboard</span>
+                                        <LayoutDashboard size={14} className="opacity-40" />
+                                    </Link> */}
+                                    <Link
+                                        href="/profile"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className="flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-bold text-foreground/70 hover:bg-muted hover:text-foreground transition-all"
+                                    >
+                                        <span>Profile</span>
+                                        <UserIcon size={14} className="opacity-40" />
+                                    </Link>
+                                    <button
+                                        onClick={() => { logout(); setMobileMenuOpen(false); }}
+                                        className="w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-sm font-bold text-red-500/70 hover:bg-red-500/5 hover:text-red-500 transition-all"
+                                    >
+                                        <span>Sign out</span>
+                                        <LogOut size={14} className="opacity-50" />
+                                    </button>
+                                </div>
+                            ) : (
+                                <div className="p-1.5 flex flex-col gap-1">
+                                    <Link
+                                        href="/login"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className="w-full py-3 text-center text-sm font-bold text-foreground/70 hover:text-foreground rounded-lg hover:bg-muted transition-all"
+                                    >
+                                        Sign in
+                                    </Link>
+                                    <Link
+                                        href="/register"
+                                        onClick={() => setMobileMenuOpen(false)}
+                                        className="w-full py-3 text-center text-sm font-bold text-white bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 rounded-lg transition-all shadow-md shadow-blue-500/20"
+                                    >
+                                        Get started
+                                    </Link>
+                                </div>
+                            )}
+                        </>
+                    )}
+                </div>
             )}
-            </AnimatePresence>
         </div>
     );
 }
