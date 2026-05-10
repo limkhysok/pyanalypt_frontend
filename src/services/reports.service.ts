@@ -1,6 +1,6 @@
 import apiClient from '@/lib/axios';
 
-export type ChartType = 'bar' | 'line' | 'scatter' | 'histogram' | 'text';
+export type ChartType = 'bar' | 'line' | 'scatter' | 'histogram' | 'pie' | 'treemap' | 'kpi' | 'text';
 
 export interface Report {
   id: number;

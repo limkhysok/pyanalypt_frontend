@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -24,21 +25,25 @@ import { datasetApi, type Dataset } from "@/services/dataset.service";
 import { reportsApi, type Report } from "@/services/reports.service";
 import { datalabApi } from "@/services/datalab.service";
 import { toast } from "sonner";
-import { BarChart2, LineChart, ScatterChart, BarChartHorizontal, FileText, Type } from "lucide-react";
+import { BarChart2, LineChart, ScatterChart, BarChartHorizontal, FileText, Type, PieChart, Box, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface AddWidgetDialogProps {
   dashboardId: number;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  onAdded: () => void;
+  datasetId: string;
+  isOpen: boolean;
+  onClose: () => void;
+  onRefresh: () => void;
 }
 
 const CHART_TYPES: { value: ChartType; label: string; icon: React.ReactNode; category: 'chart' | 'special' }[] = [
   { value: "bar", label: "bar chart", icon: <BarChart2 className="h-4 w-4" />, category: 'chart' },
   { value: "line", label: "line chart", icon: <LineChart className="h-4 w-4" />, category: 'chart' },
+  { value: "pie", label: "pie chart", icon: <PieChart className="h-4 w-4" />, category: 'chart' },
   { value: "scatter", label: "scatter plot", icon: <ScatterChart className="h-4 w-4" />, category: 'chart' },
   { value: "histogram", label: "histogram", icon: <BarChartHorizontal className="h-4 w-4" />, category: 'chart' },
+  { value: "treemap", label: "treemap", icon: <Box className="h-4 w-4" />, category: 'chart' },
+  { value: "kpi", label: "KPI metric", icon: <Activity className="h-4 w-4" />, category: 'special' },
   { value: "report", label: "report", icon: <FileText className="h-4 w-4" />, category: 'special' },
   { value: "text", label: "text block", icon: <Type className="h-4 w-4" />, category: 'special' },
 ];
@@ -47,7 +52,7 @@ function isNumericDtype(dtype: string) {
   return /int|float/i.test(dtype);
 }
 
-export function AddWidgetDialog({ dashboardId, open, onOpenChange, onAdded }: Readonly<AddWidgetDialogProps>) {
+export function AddWidgetDialog({ dashboardId, datasetId: initialDatasetId, isOpen, onClose, onRefresh }: Readonly<AddWidgetDialogProps>) {
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
   const [columns, setColumns] = useState<string[]>([]);
@@ -66,14 +71,15 @@ export function AddWidgetDialog({ dashboardId, open, onOpenChange, onAdded }: Re
   const [yCol, setYCol] = useState("");
   const [agg, setAgg] = useState("sum");
 
-  const needsDataset = ['bar', 'line', 'scatter', 'histogram'].includes(chartType);
-  const needsY = ['bar', 'line', 'scatter'].includes(chartType);
+  const needsDataset = ['bar', 'line', 'scatter', 'histogram', 'pie', 'treemap', 'kpi'].includes(chartType);
+  const needsY = ['bar', 'line', 'scatter', 'pie', 'treemap', 'kpi'].includes(chartType);
   const numericXRequired = ['scatter', 'histogram'].includes(chartType);
   const xColOptions = numericXRequired ? numericColumns : columns;
-  const showAgg = chartType === 'bar';
+  const showAgg = ['bar', 'pie', 'treemap', 'kpi'].includes(chartType);
 
   useEffect(() => {
-    if (!open) return;
+    if (!isOpen) return;
+    setDatasetId(initialDatasetId);
     
     if (needsDataset) {
       setLoadingDatasets(true);
@@ -90,7 +96,7 @@ export function AddWidgetDialog({ dashboardId, open, onOpenChange, onAdded }: Re
         .catch(() => toast.error("Failed to load reports"))
         .finally(() => setLoadingReports(false));
     }
-  }, [open, chartType, needsDataset]);
+  }, [isOpen, chartType, needsDataset, initialDatasetId]);
 
   useEffect(() => {
     if (!datasetId || !needsDataset) { setColumns([]); setNumericColumns([]); return; }
@@ -141,6 +147,16 @@ export function AddWidgetDialog({ dashboardId, open, onOpenChange, onAdded }: Re
     if (!validate()) return;
 
     setSubmitting(true);
+    let gridWidth = 4;
+    let gridHeight = 4;
+    if (chartType === 'report') {
+      gridWidth = 6;
+      gridHeight = 6;
+    } else if (chartType === 'kpi') {
+      gridWidth = 3;
+      gridHeight = 2;
+    }
+
     try {
       await dashboardsApi.addWidget(dashboardId, {
         title: title.trim(),
@@ -154,13 +170,14 @@ export function AddWidgetDialog({ dashboardId, open, onOpenChange, onAdded }: Re
         text_content: chartType === 'text' ? textContent : undefined,
         grid_col: 0,
         grid_row: 0,
-        grid_width: chartType === 'report' ? 6 : 4,
-        grid_height: chartType === 'report' ? 6 : 4,
+        grid_width: gridWidth,
+        grid_height: gridHeight
       });
+
       toast.success("Widget added to dashboard");
-      onOpenChange(false);
+      onRefresh();
+      onClose();
       reset();
-      onAdded();
     } catch {
       toast.error("Failed to add widget");
     } finally {
@@ -237,52 +254,82 @@ export function AddWidgetDialog({ dashboardId, open, onOpenChange, onAdded }: Re
   };
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { onOpenChange(v); if (!v) reset(); }}>
-      <DialogContent className="sm:max-w-140 rounded-none border-2 border-foreground shadow-[8px_8px_0px_0px_rgba(0,0,0,0.1)]">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold font-mono lowercase">add component</DialogTitle>
-          <DialogDescription className="text-xs lowercase">configure your widget.</DialogDescription>
-        </DialogHeader>
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[600px] rounded-none border-2 border-foreground p-0 overflow-hidden">
+        <form onSubmit={handleSubmit} className="flex flex-col">
+          <DialogHeader className="p-6 border-b-2 border-foreground bg-muted/30">
+            <DialogTitle className="text-[12px] font-bold uppercase tracking-[0.2em]">Add Component</DialogTitle>
+            <DialogDescription className="text-[10px] uppercase tracking-wider font-medium opacity-60">
+              Select a visualization type and configure your data.
+            </DialogDescription>
+          </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="grid gap-6 py-4">
-          <div className="grid gap-2">
-            <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">type</Label>
-            <div className="grid grid-cols-3 gap-2">
-              {CHART_TYPES.map((ct) => (
-                <button key={ct.value} type="button" onClick={() => setChartType(ct.value)} className={cn("flex flex-col items-center gap-2 p-3 border-2 text-[10px] font-bold transition-all", chartType === ct.value ? "border-foreground bg-foreground text-background" : "border-border hover:border-foreground")}>
-                  {ct.icon} {ct.label}
-                </button>
-              ))}
+          <ScrollArea className="max-h-[60vh] p-6">
+            <div className="grid gap-6">
+              <div className="grid gap-2">
+                <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">type</Label>
+                <div className="grid grid-cols-3 gap-2">
+                  {CHART_TYPES.map((ct) => (
+                    <button 
+                      key={ct.value} 
+                      type="button" 
+                      onClick={() => setChartType(ct.value)} 
+                      className={cn(
+                        "flex flex-col items-center gap-2 p-3 border-2 text-[10px] font-bold transition-all", 
+                        chartType === ct.value ? "border-foreground bg-foreground text-background" : "border-border hover:border-foreground"
+                      )}
+                    >
+                      {ct.icon} {ct.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="grid gap-2">
+                <Label htmlFor="widget-title" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">title</Label>
+                <Input id="widget-title" value={title} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)} placeholder="Title" className="rounded-none border-foreground/20 h-10" />
+              </div>
+
+              {renderDatasetConfig()}
+
+              {chartType === 'report' && (
+                <div className="grid gap-2">
+                  <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">report</Label>
+                  <Select value={reportId} onValueChange={setReportId} disabled={loadingReports}>
+                    <SelectTrigger className="rounded-none border-foreground/20 h-10"><SelectValue placeholder="choose report..." /></SelectTrigger>
+                    <SelectContent className="rounded-none border-foreground">
+                      {reports.map((r) => <SelectItem key={r.id} value={r.id.toString()} className="rounded-none text-xs">{r.title}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {chartType === 'text' && (
+                <div className="grid gap-2">
+                  <Label htmlFor="text-content" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">content</Label>
+                  <textarea id="text-content" value={textContent} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setTextContent(e.target.value)} placeholder="Notes..." className="flex min-h-20 w-full rounded-none border border-foreground/20 bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
+                </div>
+              )}
             </div>
-          </div>
+          </ScrollArea>
 
-          <div className="grid gap-2">
-            <Label htmlFor="widget-title" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">title</Label>
-            <Input id="widget-title" value={title} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setTitle(e.target.value)} placeholder="Title" className="rounded-none border-foreground/20 h-10" />
-          </div>
-
-          {renderDatasetConfig()}
-
-          {chartType === 'report' && (
-            <div className="grid gap-2">
-              <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">report</Label>
-              <Select value={reportId} onValueChange={setReportId} disabled={loadingReports}>
-                <SelectTrigger className="rounded-none border-foreground/20 h-10"><SelectValue placeholder="choose report..." /></SelectTrigger>
-                <SelectContent className="rounded-none border-foreground">
-                  {reports.map((r) => <SelectItem key={r.id} value={r.id.toString()} className="rounded-none text-xs">{r.title}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          {chartType === 'text' && (
-            <div className="grid gap-2">
-              <Label htmlFor="text-content" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">content</Label>
-              <textarea id="text-content" value={textContent} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setTextContent(e.target.value)} placeholder="Notes..." className="flex min-h-20 w-full rounded-none border border-foreground/20 bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
-            </div>
-          )}
-
-          <DialogFooter><Button type="submit" disabled={submitting} className="rounded-none w-full bg-foreground text-background font-bold h-12 uppercase text-xs">{submitting ? "adding..." : "add widget"}</Button></DialogFooter>
+          <DialogFooter className="p-4 border-t-2 border-foreground bg-muted/10 gap-3">
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={onClose}
+              className="rounded-none border-2 border-foreground font-bold uppercase text-[10px] tracking-widest px-6"
+            >
+              Cancel
+            </Button>
+            <Button 
+              type="submit" 
+              disabled={submitting} 
+              className="rounded-none bg-foreground text-background font-bold uppercase text-[10px] tracking-widest flex-1 h-11"
+            >
+              {submitting ? "adding..." : "add widget"}
+            </Button>
+          </DialogFooter>
         </form>
       </DialogContent>
     </Dialog>

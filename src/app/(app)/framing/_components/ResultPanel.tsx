@@ -89,7 +89,7 @@ function StreamingPanel({
             </CardHeader>
             <CardContent className="p-6">
                 <div className="space-y-0">
-                    <ReactMarkdown components={MD_COMPONENTS}>{streamingText}</ReactMarkdown>
+                    <ReactMarkdown components={MD_COMPONENTS}>{streamingText.replaceAll(String.raw`\n`, "\n")}</ReactMarkdown>
                     {isStreaming && (
                         <span className="inline-block w-2 h-4 ml-0.5 bg-blue-500 animate-pulse rounded-sm" />
                     )}
@@ -126,7 +126,7 @@ function SavedFramePanel({ frame }: Readonly<{ frame: DatasetFrame }>) {
             <Separator className="opacity-10" />
             <CardContent className="p-6">
                 <div className="space-y-0">
-                    <ReactMarkdown components={MD_COMPONENTS}>{frame.result}</ReactMarkdown>
+                    <ReactMarkdown components={MD_COMPONENTS}>{frame.result.replaceAll(String.raw`\n`, "\n")}</ReactMarkdown>
                 </div>
             </CardContent>
         </Card>

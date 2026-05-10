@@ -104,10 +104,21 @@ export function DashboardGrid({ dashboardId, widgets, onRefresh, isEditMode }: R
       if (!item) return;
       // The dropped data should contain the report ID
       const dragEvent = e as DragEvent;
-      const dragData = dragEvent.dataTransfer?.getData("application/json") || dragEvent.dataTransfer?.getData("text/plain");
+      const jsonStr = dragEvent.dataTransfer?.getData("application/json");
+      const textStr = dragEvent.dataTransfer?.getData("text/plain");
+      
+      const dragData = jsonStr || textStr;
       if (!dragData) return;
 
-      const { type, id, title } = JSON.parse(dragData);
+      let data;
+      try {
+        data = JSON.parse(dragData);
+      } catch (parseErr) {
+        console.warn("Dropped data is not valid JSON, skipping...", parseErr);
+        return;
+      }
+
+      const { type, id, title } = data;
       
       if (type === 'report') {
         dashboardsApi.addWidget(dashboardId, {
@@ -144,7 +155,7 @@ export function DashboardGrid({ dashboardId, widgets, onRefresh, isEditMode }: R
       );
     }
     
-    if (['bar', 'line', 'scatter', 'histogram'].includes(widget.chart_type)) {
+    if (['bar', 'line', 'scatter', 'histogram', 'pie', 'treemap', 'kpi'].includes(widget.chart_type)) {
       return <ChartWidget chartType={widget.chart_type} chartParams={widget.chart_params} />;
     }
 
@@ -175,7 +186,7 @@ export function DashboardGrid({ dashboardId, widgets, onRefresh, isEditMode }: R
 
     return (
       <CardHeader className={cn(
-        "p-3 flex flex-row items-center justify-between border-b-2 border-border/60",
+        "p-3 flex flex-row items-center justify-between border-t-2 border-border/60",
         isEditMode && "drag-handle cursor-move bg-muted/30"
       )}>
         <div className="flex items-center gap-2 min-w-0">
@@ -238,15 +249,15 @@ export function DashboardGrid({ dashboardId, widgets, onRefresh, isEditMode }: R
                 className="h-full w-full"
               >
                 <Card className={cn(
-                  "h-full w-full bg-background border-2 border-border shadow-none overflow-hidden flex flex-col rounded-none transition-colors",
+                  "text-card-foreground h-full w-full bg-background border-2 border-border shadow-none overflow-hidden flex flex-col rounded-none transition-colors",
                   !isEditMode && "hover:border-primary/50 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,0.05)]",
                   isEditMode ? "group-hover:border-foreground/40" : ""
                 )}>
-                  {renderWidgetHeader(widget)}
                   <CardContent className="flex-1 p-0 relative min-h-0 overflow-hidden">
                      {renderWidgetContent(widget)}
                      {renderAnnotationOverlay(widget)}
                   </CardContent>
+                  {renderWidgetHeader(widget)}
                 </Card>
               </motion.div>
             </div>
