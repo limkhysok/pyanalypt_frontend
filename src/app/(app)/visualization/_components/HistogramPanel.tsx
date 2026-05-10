@@ -97,9 +97,10 @@ interface HistogramCardProps {
     data: VizHistogramColumn;
     bins: number;
     isDark: boolean;
+    datasetId: number;
 }
 
-function HistogramCard({ col, data, bins, isDark }: Readonly<HistogramCardProps>) {
+function HistogramCard({ col, data, bins, isDark, datasetId }: Readonly<HistogramCardProps>) {
     const option = buildOption(col, data, isDark);
     const chartRef = useRef<EChartInstance>(null);
     const [saveOpen, setSaveOpen] = useState(false);
@@ -127,6 +128,7 @@ function HistogramCard({ col, data, bins, isDark }: Readonly<HistogramCardProps>
                 chartType="histogram"
                 chartParams={{ columns: [col], bins }}
                 getChartImage={getChartImage}
+                datasetId={datasetId}
             />
         </div>
     );
@@ -203,7 +205,7 @@ export function HistogramPanel({ datasetId, numericColumns }: Readonly<Props>) {
                 ? (
                     <div className="grid gap-4 grid-cols-1 lg:grid-cols-2">
                         {entries.map(([col, data]) => (
-                            <HistogramCard key={col} col={col} data={data} bins={bins} isDark={isDark} />
+                            <HistogramCard key={col} col={col} data={data} bins={bins} isDark={isDark} datasetId={datasetId} />
                         ))}
                     </div>
                 )

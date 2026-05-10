@@ -19,9 +19,10 @@ interface Props {
     chartType: ChartType;
     chartParams: Record<string, unknown>;
     getChartImage: () => string | null;
+    datasetId?: number;
 }
 
-export function SaveToReportModal({ open, onOpenChange, chartType, chartParams, getChartImage }: Readonly<Props>) {
+export function SaveToReportModal({ open, onOpenChange, chartType, chartParams, getChartImage, datasetId }: Readonly<Props>) {
     const [reports, setReports] = useState<Report[]>([]);
     const [loadingReports, setLoadingReports] = useState(false);
     const [mode, setMode] = useState<"existing" | "new">("existing");
@@ -67,7 +68,10 @@ export function SaveToReportModal({ open, onOpenChange, chartType, chartParams, 
         try {
             let reportId: number;
             if (mode === "new") {
-                const report = await reportsApi.create({ title: newTitle.trim() });
+                const report = await reportsApi.create({
+                    title: newTitle.trim(),
+                    dataset: datasetId,
+                });
                 reportId = report.id;
             } else {
                 reportId = Number(selectedId);

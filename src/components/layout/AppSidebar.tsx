@@ -4,12 +4,10 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import React, { useEffect } from "react";
 import {
-    LayoutDashboard,
     Database,
     Settings,
     BarChart3,
     BrainCircuit,
-    Cpu,
     FlaskConical,
     TrendingUp,
     PieChart,

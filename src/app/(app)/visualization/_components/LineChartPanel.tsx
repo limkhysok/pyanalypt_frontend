@@ -152,6 +152,7 @@ export function LineChartPanel({ datasetId, numericColumns, allColumns }: Readon
                 chartType="line"
                 chartParams={chartParams}
                 getChartImage={getChartImage}
+                datasetId={datasetId}
             />
         </div>
     );

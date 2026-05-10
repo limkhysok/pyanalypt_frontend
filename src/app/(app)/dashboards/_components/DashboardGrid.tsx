@@ -14,6 +14,8 @@ import { toast } from "sonner";
 import { ReportWidget } from "./ReportWidget";
 import { ChartWidget } from "./ChartWidget";
 
+import { motion } from "framer-motion";
+
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
 
@@ -220,15 +222,33 @@ export function DashboardGrid({ dashboardId, widgets, onRefresh, isEditMode }: R
           onResizeStop={(layout) => handleLayoutUpdate(layout)}
           droppingItem={{ i: "__dropping__", w: 4, h: 4, x: 0, y: 0, moved: false }}
         >
-          {widgets.map((widget) => (
+          {widgets.map((widget, i) => (
             <div key={widget.id} className="relative group">
-              <Card className="h-full w-full bg-background border-2 border-border shadow-none overflow-hidden flex flex-col rounded-none group-hover:border-foreground/40 transition-all">
-                {renderWidgetHeader(widget)}
-                <CardContent className="flex-1 p-0 relative min-h-0 overflow-hidden">
-                   {renderWidgetContent(widget)}
-                   {renderAnnotationOverlay(widget)}
-                </CardContent>
-              </Card>
+              <motion.div
+                layout
+                initial={{ opacity: 0, scale: 0.98, y: 5 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ 
+                  delay: i * 0.05,
+                  type: "spring",
+                  damping: 20,
+                  stiffness: 100
+                }}
+                whileHover={isEditMode ? {} : { y: -4, transition: { duration: 0.2 } }}
+                className="h-full w-full"
+              >
+                <Card className={cn(
+                  "h-full w-full bg-background border-2 border-border shadow-none overflow-hidden flex flex-col rounded-none transition-colors",
+                  !isEditMode && "hover:border-primary/50 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,0.05)]",
+                  isEditMode ? "group-hover:border-foreground/40" : ""
+                )}>
+                  {renderWidgetHeader(widget)}
+                  <CardContent className="flex-1 p-0 relative min-h-0 overflow-hidden">
+                     {renderWidgetContent(widget)}
+                     {renderAnnotationOverlay(widget)}
+                  </CardContent>
+                </Card>
+              </motion.div>
             </div>
           ))}
         </ResponsiveGridLayout>

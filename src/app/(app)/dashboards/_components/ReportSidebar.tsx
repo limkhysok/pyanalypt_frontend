@@ -2,20 +2,40 @@
 
 import React, { useEffect, useState } from "react";
 import { reportsApi, type Report } from "@/services/reports.service";
+import { datasetApi } from "@/services/dataset.service";
 import { FileText, GripVertical, Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 export function ReportSidebar() {
   const [reports, setReports] = useState<Report[]>([]);
+  const [datasetMap, setDatasetMap] = useState<Record<number, string>>({});
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    reportsApi.list().then(res => {
-      setReports(res);
-      setLoading(false);
-    });
+    async function loadData() {
+      try {
+        const [reportsData, datasetsData] = await Promise.all([
+          reportsApi.list(),
+          datasetApi.listDatasets()
+        ]);
+        
+        // Map datasets for quick lookup
+        const map: Record<number, string> = {};
+        (datasetsData.results || []).forEach(ds => {
+          map[ds.id] = ds.file_name;
+        });
+        
+        setDatasetMap(map);
+        setReports(reportsData);
+      } catch (err) {
+        console.error("Failed to load sidebar data", err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
   }, []);
 
   const filteredReports = reports.filter(r => 
@@ -43,20 +63,22 @@ export function ReportSidebar() {
     }
 
     return (
-      <ul className="space-y-1">
+      <ul className="divide-y divide-border/40">
         {filteredReports.map(report => (
           <li key={report.id}>
             <button
               draggable
               onDragStart={(e) => onDragStart(e, report)}
               type="button"
-              className="w-full flex items-center gap-2 p-2 bg-background border border-border/40 hover:border-foreground cursor-grab active:cursor-grabbing transition-all group outline-none focus-visible:ring-1 focus-visible:ring-foreground text-left"
+              className="w-full flex items-center gap-3 p-4 bg-background hover:bg-muted/50 cursor-grab active:cursor-grabbing transition-all group outline-none focus-visible:ring-1 focus-visible:ring-foreground text-left"
             >
-              <GripVertical className="h-3 w-3 text-muted-foreground/40 group-hover:text-foreground/60" />
-              <FileText className="h-3.5 w-3.5 text-primary" />
-              <div className="min-w-0 flex-1">
-                <p className="text-[11px] font-bold truncate lowercase">{report.title}</p>
-                <p className="text-[9px] text-muted-foreground truncate capitalize">{report.dataset_name || 'No dataset'}</p>
+              <GripVertical className="h-3.5 w-3.5 text-muted-foreground/30 group-hover:text-foreground/60 shrink-0" />
+              <FileText className="h-4 w-4 text-primary shrink-0" />
+              <div className="min-w-0 flex-1 ml-0.5">
+                <p className="text-[11px] font-bold lowercase leading-snug line-clamp-2 whitespace-normal">{report.title}</p>
+                <p className="text-[9px] text-muted-foreground truncate capitalize mt-1">
+                  {report.dataset_name || (report.dataset ? datasetMap[report.dataset] : null) || 'No dataset'}
+                </p>
               </div>
             </button>
           </li>
@@ -66,21 +88,21 @@ export function ReportSidebar() {
   };
 
   return (
-    <div className="w-64 border-r-2 border-foreground bg-muted/30 flex flex-col h-full">
+    <div className="w-72 border-r-2 border-foreground bg-muted/30 flex flex-col h-full">
       <div className="p-4 border-b-2 border-foreground/10 bg-background">
-        <h3 className="text-[10px] font-bold uppercase tracking-widest mb-3">Available Reports</h3>
+        <h3 className="text-[10px] font-bold uppercase tracking-widest mb-4 ml-0.5">Available Reports</h3>
         <div className="relative">
-          <Search className="absolute left-2 top-2.5 h-3 w-3 text-muted-foreground" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
           <Input 
             placeholder="Search reports..." 
-            className="pl-8 h-8 text-xs rounded-none border-foreground/20 focus-visible:ring-0 focus-visible:border-foreground"
+            className="pl-10 h-10 text-xs rounded-none border-foreground/20 focus-visible:ring-0 focus-visible:border-foreground"
             value={search}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSearch(e.target.value)}
           />
         </div>
       </div>
       <ScrollArea className="flex-1">
-        <div className="p-2">
+        <div className="p-0">
           {renderContent()}
         </div>
       </ScrollArea>

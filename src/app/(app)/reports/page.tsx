@@ -9,8 +9,13 @@ import { Button } from "@/components/ui/button";
 import {
     Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter,
 } from "@/components/ui/dialog";
+import {
+    Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { reportsApi, type Report } from "@/services/reports.service";
+import { datasetApi } from "@/services/dataset.service";
+import type { Dataset } from "@/types/dataset";
 import { toast } from "sonner";
 
 function formatDate(iso: string) {
@@ -22,15 +27,17 @@ interface NewReportDialogProps {
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onCreated: (report: Report) => void;
+    datasets: { id: number; file_name: string }[];
 }
 
-function NewReportDialog({ open, onOpenChange, onCreated }: Readonly<NewReportDialogProps>) {
+function NewReportDialog({ open, onOpenChange, onCreated, datasets }: Readonly<NewReportDialogProps>) {
     const [title, setTitle] = useState("");
     const [description, setDescription] = useState("");
+    const [datasetId, setDatasetId] = useState<string>("");
     const [saving, setSaving] = useState(false);
 
     useEffect(() => {
-        if (!open) { setTitle(""); setDescription(""); }
+        if (!open) { setTitle(""); setDescription(""); setDatasetId(""); }
     }, [open]);
 
     async function handleCreate() {
@@ -40,6 +47,7 @@ function NewReportDialog({ open, onOpenChange, onCreated }: Readonly<NewReportDi
             const report = await reportsApi.create({
                 title: title.trim(),
                 description: description.trim() || undefined,
+                dataset: datasetId ? Number(datasetId) : undefined,
             });
             toast.success("Report created.");
             onCreated(report);
@@ -70,6 +78,24 @@ function NewReportDialog({ open, onOpenChange, onCreated }: Readonly<NewReportDi
                             className="h-8 rounded-none text-xs"
                             onKeyDown={e => { if (e.key === "Enter") handleCreate(); }}
                         />
+                    </div>
+                    <div className="flex flex-col gap-1.5">
+                        <span className="text-xs font-medium">
+                            Source Dataset <span className="text-muted-foreground font-normal">(optional)</span>
+                        </span>
+                        <Select value={datasetId} onValueChange={setDatasetId}>
+                            <SelectTrigger className="h-8 rounded-none text-xs">
+                                <SelectValue placeholder="No dataset selected" />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-none">
+                                <SelectItem value="none" className="text-xs italic text-muted-foreground">None</SelectItem>
+                                {datasets.map(ds => (
+                                    <SelectItem key={ds.id} value={String(ds.id)} className="text-xs">
+                                        {ds.file_name}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
                     <div className="flex flex-col gap-1.5">
                         <span className="text-xs font-medium">
@@ -149,10 +175,11 @@ function DeleteDialog({ report, onClose, onDeleted }: Readonly<DeleteDialogProps
 // ── Report Card ────────────────────────────────────────────────────────────────
 interface ReportCardProps {
     report: Report;
+    datasetMap: Record<number, string>;
     onDelete: (report: Report) => void;
 }
 
-function ReportCard({ report, onDelete }: Readonly<ReportCardProps>) {
+function ReportCard({ report, datasetMap, onDelete }: Readonly<ReportCardProps>) {
     return (
         <div className="group relative border border-border bg-card hover:border-border/80 hover:bg-accent/5 transition-colors flex flex-col gap-0">
             <Link href={`/reports/${report.id}`} className="flex flex-col gap-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1">
@@ -173,8 +200,8 @@ function ReportCard({ report, onDelete }: Readonly<ReportCardProps>) {
                         <LayoutGrid className="h-3 w-3" />
                         {report.item_count} {report.item_count === 1 ? "item" : "items"}
                     </span>
-                    {report.dataset_name && (
-                        <span className="truncate">{report.dataset_name}</span>
+                    {(report.dataset_name || (report.dataset ? datasetMap[report.dataset] : null)) && (
+                        <span className="truncate">{report.dataset_name || (report.dataset ? datasetMap[report.dataset] : null)}</span>
                     )}
                     <span className="ml-auto flex items-center gap-1 shrink-0">
                         <Calendar className="h-3 w-3" />
@@ -199,6 +226,8 @@ function ReportCard({ report, onDelete }: Readonly<ReportCardProps>) {
 // ── Page ───────────────────────────────────────────────────────────────────────
 export default function ReportsPage() {
     const [reports, setReports] = useState<Report[]>([]);
+    const [datasets, setDatasets] = useState<Dataset[]>([]);
+    const [datasetMap, setDatasetMap] = useState<Record<number, string>>({});
     const [loading, setLoading] = useState(true);
     const [newOpen, setNewOpen] = useState(false);
     const [deleteTarget, setDeleteTarget] = useState<Report | null>(null);
@@ -206,8 +235,20 @@ export default function ReportsPage() {
     const load = useCallback(async () => {
         setLoading(true);
         try {
-            const data = await reportsApi.list();
-            setReports(data);
+            const [reportsData, datasetsData] = await Promise.all([
+                reportsApi.list(),
+                datasetApi.listDatasets()
+            ]);
+
+            const map: Record<number, string> = {};
+            const dsList = datasetsData.results || [];
+            dsList.forEach((ds: Dataset) => {
+                map[ds.id] = ds.file_name;
+            });
+            
+            setDatasets(dsList);
+            setDatasetMap(map);
+            setReports(reportsData);
         } catch {
             toast.error("Failed to load reports.");
         } finally {
@@ -252,6 +293,7 @@ export default function ReportsPage() {
                     <ReportCard
                         key={report.id}
                         report={report}
+                        datasetMap={datasetMap}
                         onDelete={setDeleteTarget}
                     />
                 ))}
@@ -279,7 +321,7 @@ export default function ReportsPage() {
             {/* Content */}
             {renderContent()}
 
-            <NewReportDialog open={newOpen} onOpenChange={setNewOpen} onCreated={handleCreated} />
+            <NewReportDialog open={newOpen} onOpenChange={setNewOpen} onCreated={handleCreated} datasets={datasets} />
             <DeleteDialog report={deleteTarget} onClose={() => setDeleteTarget(null)} onDeleted={handleDeleted} />
         </div>
     );
