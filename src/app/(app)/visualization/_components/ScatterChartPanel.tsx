@@ -54,6 +54,7 @@ function buildOption(data: VizScatterResponse, isDark: boolean): echarts.ECharts
         },
         series: data.series.map(s => ({
             ...s,
+            type: "scatter" as const,
             symbolSize: 5,
             opacity: 0.7,
             emphasis: { focus: "series", itemStyle: { opacity: 1 } },

@@ -61,6 +61,7 @@ function buildOption(col: string, data: VizHistogramColumn, isDark: boolean) {
         },
         series: data.series.map(s => ({
             ...s,
+            type: "bar" as const,
             name: col,
             barMaxWidth: 40,
             itemStyle: { color: "#3b82f6", borderRadius: [2, 2, 0, 0] },

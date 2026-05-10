@@ -47,6 +47,7 @@ function buildOption(data: VizBarResponse, isDark: boolean): echarts.EChartsOpti
         },
         series: data.series.map(s => ({
             ...s,
+            type: "bar" as const,
             barMaxWidth: 48,
             itemStyle: { borderRadius: [2, 2, 0, 0] },
             emphasis: { itemStyle: { opacity: 0.85 } },

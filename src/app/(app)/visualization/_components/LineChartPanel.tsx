@@ -45,6 +45,7 @@ function buildOption(data: VizLineResponse, isDark: boolean): echarts.EChartsOpt
         },
         series: data.series.map(s => ({
             ...s,
+            type: "line" as const,
             smooth: true,
             symbol: "none",
         })),
