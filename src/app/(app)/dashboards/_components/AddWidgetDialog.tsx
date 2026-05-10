@@ -43,10 +43,15 @@ const CHART_TYPES: { value: ChartType; label: string; icon: React.ReactNode; cat
   { value: "text", label: "text block", icon: <Type className="h-4 w-4" />, category: 'special' },
 ];
 
+function isNumericDtype(dtype: string) {
+  return /int|float/i.test(dtype);
+}
+
 export function AddWidgetDialog({ dashboardId, open, onOpenChange, onAdded }: Readonly<AddWidgetDialogProps>) {
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [reports, setReports] = useState<Report[]>([]);
   const [columns, setColumns] = useState<string[]>([]);
+  const [numericColumns, setNumericColumns] = useState<string[]>([]);
   const [loadingDatasets, setLoadingDatasets] = useState(false);
   const [loadingReports, setLoadingReports] = useState(false);
   const [loadingColumns, setLoadingColumns] = useState(false);
@@ -63,6 +68,9 @@ export function AddWidgetDialog({ dashboardId, open, onOpenChange, onAdded }: Re
 
   const needsDataset = ['bar', 'line', 'scatter', 'histogram'].includes(chartType);
   const needsY = ['bar', 'line', 'scatter'].includes(chartType);
+  const numericXRequired = ['scatter', 'histogram'].includes(chartType);
+  const xColOptions = numericXRequired ? numericColumns : columns;
+  const showAgg = chartType === 'bar';
 
   useEffect(() => {
     if (!open) return;
@@ -85,15 +93,22 @@ export function AddWidgetDialog({ dashboardId, open, onOpenChange, onAdded }: Re
   }, [open, chartType, needsDataset]);
 
   useEffect(() => {
-    if (!datasetId || !needsDataset) { setColumns([]); return; }
+    if (!datasetId || !needsDataset) { setColumns([]); setNumericColumns([]); return; }
     setLoadingColumns(true);
     setXCol("");
     setYCol("");
-    datalabApi.preview(Number(datasetId), 1)
-      .then((res) => setColumns(res.columns))
+    datalabApi.inspect(Number(datasetId))
+      .then((res) => {
+        const cols = res.info.columns;
+        setColumns(cols.map((c) => c.column));
+        setNumericColumns(cols.filter((c) => isNumericDtype(c.dtype)).map((c) => c.column));
+      })
       .catch(() => toast.error("Failed to load dataset columns"))
       .finally(() => setLoadingColumns(false));
   }, [datasetId, needsDataset]);
+
+  // Clear column selections when chart type changes to avoid stale non-numeric picks.
+  useEffect(() => { setXCol(""); setYCol(""); }, [chartType]);
 
   function reset() {
     setTitle("");
@@ -104,6 +119,7 @@ export function AddWidgetDialog({ dashboardId, open, onOpenChange, onAdded }: Re
     setXCol("");
     setYCol("");
     setColumns([]);
+    setNumericColumns([]);
   }
 
   const validate = () => {
@@ -131,9 +147,9 @@ export function AddWidgetDialog({ dashboardId, open, onOpenChange, onAdded }: Re
         chart_type: chartType,
         report_id: chartType === 'report' ? Number(reportId) : undefined,
         chart_params: chartType === 'report' || chartType === 'text' ? {} : {
+          dataset_id: Number(datasetId),
           x_col: xCol,
-          y_col: yCol,
-          agg: agg
+          ...(needsY ? { y_col: yCol, agg: agg } : {}),
         },
         text_content: chartType === 'text' ? textContent : undefined,
         grid_col: 0,
@@ -180,7 +196,7 @@ export function AddWidgetDialog({ dashboardId, open, onOpenChange, onAdded }: Re
                   <SelectValue placeholder="select..." />
                 </SelectTrigger>
                 <SelectContent className="rounded-none border-foreground">
-                  {columns.map((col) => <SelectItem key={col} value={col} className="rounded-none text-xs">{col}</SelectItem>)}
+                  {xColOptions.map((col) => <SelectItem key={col} value={col} className="rounded-none text-xs">{col}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -192,14 +208,14 @@ export function AddWidgetDialog({ dashboardId, open, onOpenChange, onAdded }: Re
                     <SelectValue placeholder="select..." />
                   </SelectTrigger>
                   <SelectContent className="rounded-none border-foreground">
-                    {columns.map((col) => <SelectItem key={col} value={col} className="rounded-none text-xs">{col}</SelectItem>)}
+                    {numericColumns.map((col) => <SelectItem key={col} value={col} className="rounded-none text-xs">{col}</SelectItem>)}
                   </SelectContent>
                 </Select>
               </div>
             )}
           </div>
         )}
-        {chartType === 'bar' && columns.length > 0 && (
+        {showAgg && columns.length > 0 && (
           <div className="grid gap-2">
             <Label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">aggregation</Label>
             <Select value={agg} onValueChange={setAgg}>
@@ -262,7 +278,7 @@ export function AddWidgetDialog({ dashboardId, open, onOpenChange, onAdded }: Re
           {chartType === 'text' && (
             <div className="grid gap-2">
               <Label htmlFor="text-content" className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">content</Label>
-              <textarea id="text-content" value={textContent} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setTextContent(e.target.value)} placeholder="Notes..." className="flex min-h-[80px] w-full rounded-none border border-foreground/20 bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 min-h-32" />
+              <textarea id="text-content" value={textContent} onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => setTextContent(e.target.value)} placeholder="Notes..." className="flex min-h-20 w-full rounded-none border border-foreground/20 bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50" />
             </div>
           )}
 

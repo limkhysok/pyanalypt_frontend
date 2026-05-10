@@ -9,11 +9,10 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Trash2, FileText, Type } from "lucide-react";
-import EChart from "@/components/ui/EChart";
-import * as echarts from "echarts";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { ReportWidget } from "./ReportWidget";
+import { ChartWidget } from "./ChartWidget";
 
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
@@ -143,15 +142,8 @@ export function DashboardGrid({ dashboardId, widgets, onRefresh, isEditMode }: R
       );
     }
     
-    if (widget.chart_config) {
-      return (
-        <div className="h-full w-full min-h-[300px] p-4">
-          <EChart 
-            option={widget.chart_config as echarts.EChartsOption} 
-            style={{ height: '100%', width: '100%' }}
-          />
-        </div>
-      );
+    if (['bar', 'line', 'scatter', 'histogram'].includes(widget.chart_type)) {
+      return <ChartWidget chartType={widget.chart_type} chartParams={widget.chart_params} />;
     }
 
     return (
@@ -204,7 +196,7 @@ export function DashboardGrid({ dashboardId, widgets, onRefresh, isEditMode }: R
   return (
     <section 
       ref={containerRef} 
-      className="w-full h-full min-h-[500px]"
+      className="w-full h-full min-h-125"
       onDragOver={(e) => e.preventDefault()}
       aria-label="Dashboard interactive grid"
     >
