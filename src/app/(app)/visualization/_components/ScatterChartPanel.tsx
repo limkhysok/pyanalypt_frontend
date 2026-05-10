@@ -168,6 +168,7 @@ export function ScatterChartPanel({ datasetId, numericColumns, categoricalColumn
                 chartType="scatter"
                 chartParams={chartParams}
                 getChartImage={getChartImage}
+                datasetId={datasetId}
             />
         </div>
     );

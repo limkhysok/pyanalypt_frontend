@@ -27,6 +27,7 @@ import {
   SelectValue 
 } from "@/components/ui/select";
 import { cn } from "@/lib/utils";
+import { Skeleton } from "@/components/ui/skeleton";
 import { chatApi, type ChatSession, type ChatMessage } from "@/services/chat.service";
 import { datasetApi, type Dataset } from "@/services/dataset.service";
 import { toast } from "sonner";
@@ -312,14 +313,14 @@ export default function ChatInterface() {
                         msg.role === "user" ? "text-right" : "text-left"
                       )}>
                         <div className={cn(
-                          "inline-block rounded-2xl px-4 py-3 text-[14px] leading-relaxed",
+                          "rounded-2xl px-5 py-4 text-[14.5px] leading-relaxed w-fit max-w-[90%] shadow-sm",
                           msg.role === "assistant" 
-                            ? "bg-muted/50 border border-border/40 text-foreground" 
-                            : "bg-primary text-primary-foreground shadow-lg shadow-primary/10"
+                            ? "bg-muted/40 border border-border/30 text-foreground mr-auto" 
+                            : "bg-primary text-primary-foreground shadow-md shadow-primary/10 ml-auto font-medium"
                         )}>
-                          <div className="prose prose-sm dark:prose-invert max-w-none">
+                          <div className="prose prose-slate dark:prose-invert prose-p:leading-relaxed prose-pre:bg-muted/80 prose-pre:border prose-pre:border-border/40 max-w-none break-words whitespace-pre-wrap text-[14.5px]">
                             <ReactMarkdown>
-                              {msg.content}
+                              {msg.content.replaceAll(String.raw`\n`, "\n")}
                             </ReactMarkdown>
                           </div>
                         </div>
@@ -337,10 +338,10 @@ export default function ChatInterface() {
                         <Bot className="h-4 w-4" />
                       </div>
                       <div className="flex-1 space-y-1.5">
-                        <div className="inline-block rounded-2xl px-4 py-3 text-[14px] leading-relaxed bg-muted/50 border border-border/40 text-foreground">
-                          <div className="prose prose-sm dark:prose-invert max-w-none">
+                        <div className="rounded-2xl px-5 py-4 text-[14.5px] leading-relaxed bg-muted/40 border border-border/30 text-foreground w-fit max-w-[90%] mr-auto shadow-sm">
+                          <div className="prose prose-slate dark:prose-invert prose-p:leading-relaxed prose-pre:bg-muted/80 prose-pre:border prose-pre:border-border/40 max-w-none break-words whitespace-pre-wrap text-[14.5px]">
                             <ReactMarkdown>
-                              {streamingToken}
+                              {streamingToken.replaceAll(String.raw`\n`, "\n")}
                             </ReactMarkdown>
                           </div>
                         </div>
@@ -355,13 +356,20 @@ export default function ChatInterface() {
 
                   {/* Loading more state */}
                   {loading && messages.length > 0 && !streamingToken && (
-                     <div className="flex gap-4 max-w-4xl mx-auto opacity-50">
+                     <div className="flex gap-4 max-w-4xl mx-auto opacity-80">
                         <div className="h-8 w-8 rounded-lg shrink-0 flex items-center justify-center border bg-primary/10 border-primary/20 text-primary">
                           <Bot className="h-4 w-4" />
                         </div>
-                        <div className="h-8 flex items-center gap-1.5">
-                           <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                           <span className="text-xs">Thinking...</span>
+                        <div className="flex-1 space-y-3">
+                           <div className="flex items-center gap-2">
+                              <Skeleton className="h-3 w-24 bg-muted/60" />
+                              <Loader2 className="h-3 w-3 animate-spin text-primary/40" />
+                           </div>
+                           <div className="space-y-2 bg-muted/30 rounded-2xl p-4 border border-border/40">
+                              <Skeleton className="h-3 w-full bg-muted/60" />
+                              <Skeleton className="h-3 w-[90%] bg-muted/60" />
+                              <Skeleton className="h-3 w-[75%] bg-muted/60" />
+                           </div>
                         </div>
                      </div>
                   )}
@@ -460,13 +468,13 @@ export default function ChatInterface() {
                 <p className="font-bold text-foreground/80 flex items-center gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Statistical Analysis
                 </p>
-                <p className="text-muted-foreground">"What was the highest revenue month in 2023?"</p>
+                <p className="text-muted-foreground">&quot;What was the highest revenue month in 2023?&quot;</p>
               </div>
               <div className="p-4 rounded-xl border border-border/40 bg-muted/10 text-left space-y-2">
                 <p className="font-bold text-foreground/80 flex items-center gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-blue-500" /> Data Filtering
                 </p>
-                <p className="text-muted-foreground">"Show me all customers from the North region."</p>
+                <p className="text-muted-foreground">&quot;Show me all customers from the North region.&quot;</p>
               </div>
             </div>
           </div>

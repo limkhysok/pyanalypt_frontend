@@ -157,6 +157,7 @@ export function BarChartPanel({ datasetId, numericColumns, allColumns }: Readonl
                 chartType="bar"
                 chartParams={chartParams}
                 getChartImage={getChartImage}
+                datasetId={datasetId}
             />
         </div>
     );

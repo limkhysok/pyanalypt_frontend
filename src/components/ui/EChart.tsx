@@ -71,7 +71,7 @@ const EChart = forwardRef<EChartInstance, EChartProps>(({ option, theme, style, 
     return (
         <div 
             ref={chartRef} 
-            style={{ width: '100%', height: '300px', ...style }} 
+            style={{ width: '100%', height: '100%', ...style }} 
             className={className} 
         />
     );

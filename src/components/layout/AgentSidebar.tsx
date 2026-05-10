@@ -81,7 +81,7 @@ const MarkdownContent = React.memo(({ content }: { content: string }) => (
       p: MarkdownP
     }}
   >
-    {content}
+    {content.replaceAll(String.raw`\n`, "\n")}
   </ReactMarkdown>
 ));
 MarkdownContent.displayName = "MarkdownContent";
@@ -403,10 +403,12 @@ export function AgentSidebar() {
 
                       {/* Content Bubble */}
                       <div className={cn(
-                        "rounded-none px-3.5 py-2.5 text-xs leading-relaxed w-fit max-w-full shadow-sm",
-                        msg.role === "assistant" ? "bg-muted/30 border border-border/40" : "bg-foreground text-background"
+                        "rounded-2xl px-4 py-3 text-[13px] leading-relaxed w-fit max-w-[95%] shadow-sm",
+                        msg.role === "assistant" 
+                          ? "bg-muted/40 border border-border/30 text-foreground mr-auto" 
+                          : "bg-primary text-primary-foreground shadow-md shadow-primary/10 ml-auto font-medium"
                       )}>
-                        <div className="prose prose-xs dark:prose-invert max-w-none">
+                        <div className="prose prose-slate dark:prose-invert prose-p:leading-relaxed prose-pre:bg-muted/80 prose-pre:border prose-pre:border-border/40 max-w-none break-words whitespace-pre-wrap text-[13px]">
                           <MarkdownContent content={msg.content} />
                         </div>
                       </div>
@@ -417,8 +419,8 @@ export function AgentSidebar() {
                        <div className="h-5 w-5 rounded-none bg-emerald-500/5 border border-emerald-500/20 text-emerald-600 flex items-center justify-center shrink-0">
                           <QwenIcon size={12} />
                        </div>
-                       <div className="rounded-none px-3.5 py-2.5 bg-muted/30 border border-border/40 text-xs w-fit max-w-full shadow-sm">
-                          <div className="prose prose-xs dark:prose-invert max-w-none">
+                       <div className="rounded-2xl px-4 py-3 bg-muted/40 border border-border/30 text-foreground text-[13px] w-fit max-w-[95%] mr-auto shadow-sm">
+                          <div className="prose prose-slate dark:prose-invert prose-p:leading-relaxed prose-pre:bg-muted/80 prose-pre:border prose-pre:border-border/40 max-w-none break-words whitespace-pre-wrap text-[13px]">
                              <MarkdownContent content={streamingToken} />
                           </div>
                        </div>

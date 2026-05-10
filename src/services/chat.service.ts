@@ -1,5 +1,6 @@
 import apiClient from '@/lib/axios';
 import { tokenManager } from '@/lib/token';
+import { authApi } from './auth.service';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://127.0.0.1:8000';
 
@@ -34,8 +35,8 @@ type SSEParsed =
 
 function parseSSELine(line: string): SSEParsed {
   if (!line.startsWith('data: ')) return null;
-  const data = line.slice(6).trim();
-  if (!data) return null;
+  const data = line.slice(6);
+  if (!data && data !== "") return null;
   if (data === '[DONE]') return { type: 'done' };
   if (data.startsWith('[ERROR]')) return { type: 'error', message: data.slice(7).trim() };
   return { type: 'token', data };
@@ -100,21 +101,61 @@ export const chatApi = {
     onError: (err: Error) => void
   ): Promise<void> {
     const url = `${API_BASE_URL}/api/v1/chat/${sessionId}/stream/`;
-    const token = tokenManager.getAccessToken();
+    
+    // Helper to perform the fetch with a specific token
+    const doFetch = async (token: string) => {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ message }),
+      });
+      return response;
+    };
 
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${token ?? ''}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ message }),
-    });
+    let token = tokenManager.getAccessToken();
+    
+    // 1. If no access token, try refreshing immediately
+    if (!token) {
+      const refresh = tokenManager.getRefreshToken();
+      if (refresh) {
+        try {
+          const res = await authApi.refreshToken(refresh);
+          token = res.access;
+        } catch {
+          throw new Error('Session expired. Please log in again.');
+        }
+      } else {
+        throw new Error('Authentication required.');
+      }
+    }
+
+    // 2. Attempt the stream request
+    let response = await doFetch(token);
+
+    // 3. If 401, try refreshing token once and retrying
+    if (response.status === 401) {
+      const refresh = tokenManager.getRefreshToken();
+      if (refresh) {
+        try {
+          const res = await authApi.refreshToken(refresh);
+          token = res.access;
+          response = await doFetch(token);
+        } catch {
+          throw new Error('Session expired. Please log in again.');
+        }
+      } else {
+        throw new Error('Unauthorized. Please log in again.');
+      }
+    }
 
     if (!response.ok || !response.body) {
       throw new Error(`Stream request failed: ${response.status}`);
     }
 
+    console.log(`[ChatService] Stream started successfully: ${url}`);
     await consumeSSEStream(response.body, onToken, onDone, onError);
   },
 };

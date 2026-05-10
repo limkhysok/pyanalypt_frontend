@@ -9,11 +9,12 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Trash2, FileText, Type } from "lucide-react";
-import EChart from "@/components/ui/EChart";
-import * as echarts from "echarts";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { ReportWidget } from "./ReportWidget";
+import { ChartWidget } from "./ChartWidget";
+
+import { motion } from "framer-motion";
 
 import "react-grid-layout/css/styles.css";
 import "react-resizable/css/styles.css";
@@ -103,10 +104,21 @@ export function DashboardGrid({ dashboardId, widgets, onRefresh, isEditMode }: R
       if (!item) return;
       // The dropped data should contain the report ID
       const dragEvent = e as DragEvent;
-      const dragData = dragEvent.dataTransfer?.getData("application/json") || dragEvent.dataTransfer?.getData("text/plain");
+      const jsonStr = dragEvent.dataTransfer?.getData("application/json");
+      const textStr = dragEvent.dataTransfer?.getData("text/plain");
+      
+      const dragData = jsonStr || textStr;
       if (!dragData) return;
 
-      const { type, id, title } = JSON.parse(dragData);
+      let data;
+      try {
+        data = JSON.parse(dragData);
+      } catch (parseErr) {
+        console.warn("Dropped data is not valid JSON, skipping...", parseErr);
+        return;
+      }
+
+      const { type, id, title } = data;
       
       if (type === 'report') {
         dashboardsApi.addWidget(dashboardId, {
@@ -143,15 +155,8 @@ export function DashboardGrid({ dashboardId, widgets, onRefresh, isEditMode }: R
       );
     }
     
-    if (widget.chart_config) {
-      return (
-        <div className="h-full w-full min-h-[300px] p-4">
-          <EChart 
-            option={widget.chart_config as echarts.EChartsOption} 
-            style={{ height: '100%', width: '100%' }}
-          />
-        </div>
-      );
+    if (['bar', 'line', 'scatter', 'histogram', 'pie', 'treemap', 'kpi'].includes(widget.chart_type)) {
+      return <ChartWidget chartType={widget.chart_type} chartParams={widget.chart_params} />;
     }
 
     return (
@@ -181,7 +186,7 @@ export function DashboardGrid({ dashboardId, widgets, onRefresh, isEditMode }: R
 
     return (
       <CardHeader className={cn(
-        "p-3 flex flex-row items-center justify-between border-b-2 border-border/60",
+        "p-3 flex flex-row items-center justify-between border-t-2 border-border/60",
         isEditMode && "drag-handle cursor-move bg-muted/30"
       )}>
         <div className="flex items-center gap-2 min-w-0">
@@ -204,7 +209,7 @@ export function DashboardGrid({ dashboardId, widgets, onRefresh, isEditMode }: R
   return (
     <section 
       ref={containerRef} 
-      className="w-full h-full min-h-[500px]"
+      className="w-full h-full min-h-125"
       onDragOver={(e) => e.preventDefault()}
       aria-label="Dashboard interactive grid"
     >
@@ -228,15 +233,33 @@ export function DashboardGrid({ dashboardId, widgets, onRefresh, isEditMode }: R
           onResizeStop={(layout) => handleLayoutUpdate(layout)}
           droppingItem={{ i: "__dropping__", w: 4, h: 4, x: 0, y: 0, moved: false }}
         >
-          {widgets.map((widget) => (
+          {widgets.map((widget, i) => (
             <div key={widget.id} className="relative group">
-              <Card className="h-full w-full bg-background border-2 border-border shadow-none overflow-hidden flex flex-col rounded-none group-hover:border-foreground/40 transition-all">
-                {renderWidgetHeader(widget)}
-                <CardContent className="flex-1 p-0 relative min-h-0 overflow-hidden">
-                   {renderWidgetContent(widget)}
-                   {renderAnnotationOverlay(widget)}
-                </CardContent>
-              </Card>
+              <motion.div
+                layout
+                initial={{ opacity: 0, scale: 0.98, y: 5 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{ 
+                  delay: i * 0.05,
+                  type: "spring",
+                  damping: 20,
+                  stiffness: 100
+                }}
+                whileHover={isEditMode ? {} : { y: -4, transition: { duration: 0.2 } }}
+                className="h-full w-full"
+              >
+                <Card className={cn(
+                  "text-card-foreground h-full w-full bg-background border-2 border-border shadow-none overflow-hidden flex flex-col rounded-none transition-colors",
+                  !isEditMode && "hover:border-primary/50 hover:shadow-[8px_8px_0px_0px_rgba(0,0,0,0.05)]",
+                  isEditMode ? "group-hover:border-foreground/40" : ""
+                )}>
+                  <CardContent className="flex-1 p-0 relative min-h-0 overflow-hidden">
+                     {renderWidgetContent(widget)}
+                     {renderAnnotationOverlay(widget)}
+                  </CardContent>
+                  {renderWidgetHeader(widget)}
+                </Card>
+              </motion.div>
             </div>
           ))}
         </ResponsiveGridLayout>
