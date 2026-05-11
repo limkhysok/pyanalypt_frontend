@@ -58,7 +58,7 @@ export default function ResetPasswordPage() {
 			{done ? (
 				<div className="space-y-5 text-center">
 					<div className="flex justify-center">
-						<div className="h-14 w-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
+						<div className="h-14 w-14 rounded-none bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-500">
 							<CheckCircle2 size={28} />
 						</div>
 					</div>
@@ -69,7 +69,7 @@ export default function ResetPasswordPage() {
 						</p>
 					</div>
 					<Link href="/login">
-						<Button className="w-full h-11 bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-400 rounded-xl text-[11px] font-black capitalize tracking-[0.2em]">
+						<Button className="w-full h-11 bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-400 rounded-none text-[11px] font-black capitalize tracking-[0.2em]">
 							Go to Login
 						</Button>
 					</Link>
@@ -81,7 +81,7 @@ export default function ResetPasswordPage() {
 					</p>
 
 					{error && (
-						<div className="p-3 rounded-xl bg-red-500/5 text-red-500 text-[10px] font-black capitalize tracking-widest flex items-center gap-3 border border-red-500/10 animate-in fade-in slide-in-from-top-1">
+						<div className="p-3 rounded-none bg-red-500/5 text-red-500 text-[10px] font-black capitalize tracking-widest flex items-center gap-3 border border-red-500/10 animate-in fade-in slide-in-from-top-1">
 							<AlertCircle size={14} />
 							{error}
 						</div>
@@ -102,7 +102,7 @@ export default function ResetPasswordPage() {
 								value={newPassword1}
 								onChange={(e) => setNewPassword1(e.target.value)}
 								placeholder="••••••••"
-								className="h-11 pl-12 pr-12 rounded-xl bg-muted/20 border-border/40 focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:ring-0 transition-all text-[11px] font-medium"
+								className="h-11 pl-12 pr-12 rounded-none bg-muted/20 border-border/40 focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:ring-0 transition-all text-[11px] font-medium"
 								required
 								autoFocus
 								autoComplete="new-password"
@@ -132,7 +132,7 @@ export default function ResetPasswordPage() {
 								value={newPassword2}
 								onChange={(e) => setNewPassword2(e.target.value)}
 								placeholder="••••••••"
-								className="h-11 pl-12 pr-12 rounded-xl bg-muted/20 border-border/40 focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:ring-0 transition-all text-[11px] font-medium"
+								className="h-11 pl-12 pr-12 rounded-none bg-muted/20 border-border/40 focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:ring-0 transition-all text-[11px] font-medium"
 								required
 								autoComplete="new-password"
 							/>
@@ -148,7 +148,7 @@ export default function ResetPasswordPage() {
 
 					<Button
 						disabled={isLoading}
-						className="w-full h-11 bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-400 rounded-xl text-[11px] font-black capitalize tracking-[0.2em] transition-all duration-300 shadow-xl shadow-blue-500/20 hover:scale-[1.01] active:scale-[0.98]"
+						className="w-full h-11 bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-400 rounded-none text-[11px] font-black capitalize tracking-[0.2em] transition-all duration-300 shadow-xl shadow-blue-500/20 hover:scale-[1.01] active:scale-[0.98]"
 					>
 						{isLoading ? (
 							<div className="flex items-center gap-3">

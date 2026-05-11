@@ -35,14 +35,14 @@ export default function AboutPage() {
   if (!mounted) return <div className="min-h-screen" />;
 
   return (
-    <main className="min-h-screen bg-background relative selection:bg-blue-500/20 overflow-x-hidden pt-24 pb-16">
+    <main className="min-h-screen bg-background relative selection:bg-foreground/10 overflow-x-hidden pt-24 pb-16">
 
       {/* Blueprint Grid Background */}
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-size-[40px_40px] pointer-events-none" />
       <div className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-border/50 to-transparent opacity-40" />
 
-      {/* Blue Ambient Glow — top-right */}
-      <div className="fixed top-0 right-0 w-150 h-125 bg-blue-500/5 dark:bg-blue-500/10 blur-[120px] rounded-full pointer-events-none -z-10" />
+      {/* Neutral Ambient Glow — top-right */}
+      <div className="fixed top-0 right-0 w-150 h-125 bg-foreground/5 blur-[120px] rounded-full pointer-events-none -z-10" />
       {/* Gray Glow — bottom-left */}
       <div className="fixed bottom-1/4 left-1/4 w-100 h-100 bg-foreground opacity-[0.015] blur-[120px] rounded-full pointer-events-none -z-10" />
 
@@ -50,9 +50,9 @@ export default function AboutPage() {
 
         {/* --- SECTION 1: MISSION --- */}
         <div className="py-12 md:py-20 space-y-12 text-center">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 dark:bg-blue-950/40 border border-blue-200/60 dark:border-blue-800/50 mx-auto">
-            <Sparkles size={14} className="text-blue-500 dark:text-blue-400" />
-            <span className="text-[10px] font-black text-blue-700 dark:text-blue-300 tracking-tight capitalize">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-none bg-secondary border border-border mx-auto">
+            <Sparkles size={14} className="text-foreground/60" />
+            <span className="text-[10px] font-black text-foreground tracking-tight capitalize">
               The Mission & Story
             </span>
           </div>
@@ -60,7 +60,7 @@ export default function AboutPage() {
           <div className="space-y-6">
             <h1 className="text-4xl md:text-5xl lg:text-7xl font-black tracking-tighter leading-[0.95] text-foreground">
               Built by Analysts. <br />
-              <span className="text-transparent bg-clip-text bg-linear-to-r from-blue-600 via-blue-400 dark:from-blue-400 dark:via-blue-300 to-muted-foreground/30">
+              <span className="text-transparent bg-clip-text bg-linear-to-r from-foreground via-foreground/60 to-muted-foreground/30">
                 Architected for Everyone.
               </span>
             </h1>
@@ -75,12 +75,12 @@ export default function AboutPage() {
             className="flex flex-col items-center space-y-4 pt-6"
           >
             <div className="flex -space-x-2">
-              <div className="w-12 h-12 rounded-full border-2 border-background bg-blue-500 flex items-center justify-center text-white font-black text-xs shadow-xl">
+              <div className="w-12 h-12 rounded-none border-2 border-background bg-foreground flex items-center justify-center text-background font-black text-xs shadow-xl">
                 SK
               </div>
             </div>
             <div className="text-center">
-              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-blue-600 dark:text-blue-400">Founder & Architect</p>
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] text-foreground/40">Founder & Architect</p>
               <h3 className="text-xl font-serif italic text-foreground tracking-tight">Limkhy Sok</h3>
             </div>
           </motion.div>
@@ -99,8 +99,8 @@ export default function AboutPage() {
               { icon: Zap, label: "Visual Engine", value: "ECharts / D3", desc: "Precision rendering with zero-latency interactive animations." },
               { icon: ShieldCheck, label: "Privacy Protocol", value: "Local Storage", desc: "Encrypted persistence with no cloud transmission of user data." },
             ].map((tech) => (
-              <div key={tech.label} className="p-8 rounded-3xl bg-muted/20 border border-border/40 space-y-4 hover:border-blue-500/30 transition-colors">
-                <tech.icon size={24} className="text-blue-600 dark:text-blue-400" />
+              <div key={tech.label} className="p-8 rounded-none bg-muted/20 border border-border/40 space-y-4 hover:border-foreground/20 transition-colors">
+                <tech.icon size={24} className="text-foreground/40" />
                 <div className="space-y-1">
                   <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-60">{tech.label}</p>
                   <h4 className="text-xl font-black tracking-tight">{tech.value}</h4>
@@ -124,8 +124,8 @@ export default function AboutPage() {
               { icon: Zap, label: "Visual Engine", value: "ECharts / D3", desc: "Precision rendering with zero-latency interactive animations." },
               { icon: ShieldCheck, label: "Privacy Protocol", value: "Local Storage", desc: "Encrypted persistence with no cloud transmission of user data." },
             ].map((tech) => (
-              <div key={tech.label} className="p-8 rounded-3xl bg-muted/20 border border-border/40 space-y-4 hover:border-blue-500/30 transition-colors">
-                <tech.icon size={24} className="text-blue-600 dark:text-blue-400" />
+              <div key={tech.label} className="p-8 rounded-none bg-muted/20 border border-border/40 space-y-4 hover:border-foreground/20 transition-colors">
+                <tech.icon size={24} className="text-foreground/40" />
                 <div className="space-y-1">
                   <p className="text-[9px] font-black uppercase tracking-widest text-muted-foreground opacity-60">{tech.label}</p>
                   <h4 className="text-xl font-black tracking-tight">{tech.value}</h4>
@@ -138,18 +138,18 @@ export default function AboutPage() {
 
         {/* --- SECTION 2: BACKSTORY --- */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 py-10 border-y border-border/20">
-          <div className="space-y-4 p-6 rounded-2xl hover:bg-blue-50/20 dark:hover:bg-blue-950/10 hover:border-blue-500/20 dark:hover:border-blue-400/20 border border-transparent transition-all duration-300">
-            <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200/60 dark:border-blue-800/50 flex items-center justify-center mb-4">
-              <span className="text-[10px] font-black text-blue-600 dark:text-blue-400">01</span>
+          <div className="space-y-4 p-6 rounded-none hover:bg-secondary border border-transparent transition-all duration-300">
+            <div className="w-8 h-8 rounded-none bg-secondary border border-border flex items-center justify-center mb-4">
+              <span className="text-[10px] font-black text-foreground">01</span>
             </div>
             <h2 className="text-2xl font-black tracking-tight">The Origin</h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Before PyAnalypt, professional data analysis required deep knowledge of Python, SQL, and Terminal interfaces. Business owners were forced to hire expensive developers just to read their own spreadsheets.
             </p>
           </div>
-          <div className="space-y-4 p-6 rounded-2xl hover:bg-blue-50/20 dark:hover:bg-blue-950/10 hover:border-blue-500/20 dark:hover:border-blue-400/20 border border-transparent transition-all duration-300">
-            <div className="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-950/50 border border-blue-200/60 dark:border-blue-800/50 flex items-center justify-center mb-4">
-              <span className="text-[10px] font-black text-blue-600 dark:text-blue-400">02</span>
+          <div className="space-y-4 p-6 rounded-none hover:bg-secondary border border-transparent transition-all duration-300">
+            <div className="w-8 h-8 rounded-none bg-secondary border border-border flex items-center justify-center mb-4">
+              <span className="text-[10px] font-black text-foreground">02</span>
             </div>
             <h2 className="text-2xl font-black tracking-tight">The Vision</h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
@@ -175,18 +175,18 @@ export default function AboutPage() {
                 <input
                   type="text"
                   placeholder="Full Name"
-                  className="w-full bg-muted/30 border border-border/60 rounded-xl px-5 py-3 text-sm font-bold focus:outline-none focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:bg-blue-50/20 dark:focus:bg-blue-950/20 transition-colors"
+                  className="w-full bg-muted/30 border border-border/60 rounded-none px-5 py-3 text-sm font-bold focus:outline-none focus:border-foreground/20 transition-colors"
                 />
                 <input
                   type="email"
                   placeholder="Email Address"
-                  className="w-full bg-muted/30 border border-border/60 rounded-xl px-5 py-3 text-sm font-bold focus:outline-none focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:bg-blue-50/20 dark:focus:bg-blue-950/20 transition-colors"
+                  className="w-full bg-muted/30 border border-border/60 rounded-none px-5 py-3 text-sm font-bold focus:outline-none focus:border-foreground/20 transition-colors"
                 />
               </div>
               <div className="relative">
                 <select 
                   defaultValue=""
-                  className="w-full bg-muted/30 border border-border/60 rounded-xl px-5 py-3 text-sm font-bold focus:outline-none focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:bg-blue-50/20 dark:focus:bg-blue-950/20 transition-colors appearance-none cursor-pointer"
+                  className="w-full bg-muted/30 border border-border/60 rounded-none px-5 py-3 text-sm font-bold focus:outline-none focus:border-foreground/20 transition-colors appearance-none cursor-pointer"
                 >
                   <option value="" disabled>Reason for Inquiry</option>
                   <option value="feature">Feature Request</option>
@@ -199,11 +199,11 @@ export default function AboutPage() {
               <textarea
                 placeholder="How can we help?"
                 rows={4}
-                className="w-full bg-muted/30 border border-border/60 rounded-xl px-5 py-3 text-sm font-bold focus:outline-none focus:border-blue-500/50 dark:focus:border-blue-400/50 focus:bg-blue-50/20 dark:focus:bg-blue-950/20 transition-colors resize-none"
+                className="w-full bg-muted/30 border border-border/60 rounded-none px-5 py-3 text-sm font-bold focus:outline-none focus:border-foreground/20 transition-colors resize-none"
               />
               <Button
                 size="lg"
-                className="h-14 px-10 rounded-xl gap-3 bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-400 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/20 transition-all font-black text-sm w-full sm:w-auto"
+                className="h-14 px-10 rounded-none gap-3 bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-400 hover:scale-[1.02] hover:shadow-xl hover:shadow-blue-500/20 transition-all font-black text-sm w-full sm:w-auto"
               >
                 Send Message <Send size={16} />
               </Button>
@@ -212,13 +212,13 @@ export default function AboutPage() {
 
           {/* Contact Info Sidebar */}
           <div className="space-y-8">
-            <div className="p-8 rounded-2xl border border-border/40 bg-zinc-50/5 dark:bg-zinc-900/20 backdrop-blur-sm space-y-8">
+            <div className="p-8 rounded-none border border-border/40 bg-zinc-50/5 dark:bg-zinc-900/20 backdrop-blur-sm space-y-8">
               <div className="space-y-6">
                 <h3 className="text-xs font-black capitalize tracking-widest text-muted-foreground opacity-60">Connect</h3>
                 <div className="space-y-5">
                   <div className="flex items-center gap-4 group cursor-pointer">
-                    <div className="w-10 h-10 rounded-lg bg-muted border border-border/60 flex items-center justify-center group-hover:bg-blue-50 dark:group-hover:bg-blue-950/50 group-hover:border-blue-400/50 dark:group-hover:border-blue-400/50 transition-colors">
-                      <Mail size={18} className="text-muted-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
+                    <div className="w-10 h-10 rounded-none bg-muted border border-border/60 flex items-center justify-center group-hover:bg-secondary group-hover:border-foreground/20 transition-colors">
+                      <Mail size={18} className="text-muted-foreground group-hover:text-foreground transition-colors" />
                     </div>
                     <div>
                       <p className="text-[10px] font-black capitalize tracking-tighter text-muted-foreground">General Info</p>
@@ -227,8 +227,8 @@ export default function AboutPage() {
                   </div>
 
                   <a href="https://github.com/soklimkhy/pyanalypt" target="_blank" className="flex items-center gap-4 group">
-                    <div className="w-10 h-10 rounded-lg bg-muted border border-border/60 flex items-center justify-center group-hover:bg-blue-50 dark:group-hover:bg-blue-950/50 group-hover:border-blue-400/50 dark:group-hover:border-blue-400/50 transition-colors">
-                      <GithubIcon size={18} className="text-muted-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
+                    <div className="w-10 h-10 rounded-none bg-muted border border-border/60 flex items-center justify-center group-hover:bg-secondary group-hover:border-foreground/20 transition-colors">
+                      <GithubIcon size={18} className="text-muted-foreground group-hover:text-foreground transition-colors" />
                     </div>
                     <div>
                       <p className="text-[10px] font-black capitalize tracking-tighter text-muted-foreground">Open Source</p>
@@ -237,8 +237,8 @@ export default function AboutPage() {
                   </a>
 
                   <div className="flex items-center gap-4 group">
-                    <div className="w-10 h-10 rounded-lg bg-muted border border-border/60 flex items-center justify-center group-hover:bg-blue-50 dark:group-hover:bg-blue-950/50 group-hover:border-blue-400/50 dark:group-hover:border-blue-400/50 transition-colors">
-                      <MapPin size={18} className="text-muted-foreground group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors" />
+                    <div className="w-10 h-10 rounded-none bg-muted border border-border/60 flex items-center justify-center group-hover:bg-secondary group-hover:border-foreground/20 transition-colors">
+                      <MapPin size={18} className="text-muted-foreground group-hover:text-foreground transition-colors" />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center justify-between">
@@ -267,7 +267,7 @@ export default function AboutPage() {
               <div className="pt-8 border-t border-border/10 space-y-4">
                 <h3 className="text-xs font-black capitalize tracking-widest text-muted-foreground opacity-60">Support</h3>
                 <p className="text-xs font-medium text-muted-foreground leading-relaxed">
-                  We reply to every message personally. Current response time: <span className="text-blue-600 dark:text-blue-400 font-black">~12 hours</span>.
+                  We reply to every message personally. Current response time: <span className="text-foreground font-black">~12 hours</span>.
                 </p>
               </div>
             </div>

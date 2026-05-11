@@ -135,7 +135,7 @@ export default function Playground() {
             tooltip: {
                 trigger: isPie ? 'item' : 'axis',
                 backgroundColor: '#09090b',
-                borderColor: 'rgba(59,130,246,0.2)',
+                borderColor: 'rgba(255,255,255,0.1)',
                 textStyle: { color: '#ffffff', fontSize: 10, fontWeight: 'bold' },
                 borderRadius: 6
             },
@@ -154,7 +154,7 @@ export default function Playground() {
             },
             yAxis: isPie ? { show: false } : {
                 type: 'value' as const,
-                splitLine: { lineStyle: { color: 'rgba(59,130,246,0.05)' } },
+                splitLine: { lineStyle: { color: 'rgba(128,128,128,0.1)' } },
                 axisLabel: { color: '#71717a', fontSize: 9 }
             },
             series: isPie
@@ -177,10 +177,10 @@ export default function Playground() {
                         value: series[0]?.data[idx] || 0,
                         name: cat
                     })),
-                    color: ['#3b82f6', '#60a5fa', '#a1a1aa', '#3f3f46', '#93c5fd']
+                    color: ['#000000', '#27272a', '#52525b', '#71717a', '#a1a1aa']
                 }]
                 : series.map((s: { name: string; data: number[] }, i: number) => {
-                    const colors = ['#3b82f6', '#a1a1aa', '#60a5fa'];
+                    const colors = ['#000000', '#52525b', '#a1a1aa'];
                     const itemColor = colors[i % colors.length];
                     return {
                         name: s.name,
@@ -206,7 +206,7 @@ export default function Playground() {
 
     return (
         <main 
-            className="min-h-screen bg-background relative selection:bg-blue-500/20 overflow-x-hidden pt-26 pb-16"
+            className="min-h-screen bg-background relative selection:bg-foreground/10 overflow-x-hidden pt-26 pb-16"
             onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
             onDragLeave={() => setIsDragging(false)}
             onDrop={handleDrop}
@@ -217,13 +217,13 @@ export default function Playground() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
-                        className="fixed inset-0 z-[100] bg-blue-600/20 backdrop-blur-md flex items-center justify-center p-12 pointer-events-none"
+                        className="fixed inset-0 z-[100] bg-foreground/10 backdrop-blur-md flex items-center justify-center p-12 pointer-events-none"
                     >
-                        <div className="w-full h-full border-4 border-dashed border-blue-500 rounded-[3rem] flex flex-col items-center justify-center space-y-6">
-                            <div className="w-24 h-24 rounded-full bg-blue-500 text-white flex items-center justify-center animate-bounce">
+                        <div className="w-full h-full border-4 border-dashed border-foreground/20 rounded-none flex flex-col items-center justify-center space-y-6">
+                            <div className="w-24 h-24 rounded-none bg-foreground text-background flex items-center justify-center animate-bounce">
                                 <Plus size={48} />
                             </div>
-                            <h2 className="text-4xl font-black text-blue-600 dark:text-blue-400 tracking-tighter">Drop CSV here to analyze.</h2>
+                            <h2 className="text-4xl font-black text-foreground tracking-tighter">Drop CSV here to analyze.</h2>
                         </div>
                     </motion.div>
                 )}
@@ -232,8 +232,8 @@ export default function Playground() {
             {/* Blueprint Grid Backdrop */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808008_1px,transparent_1px),linear-gradient(to_bottom,#80808008_1px,transparent_1px)] bg-size-[32px_32px] pointer-events-none" />
 
-            {/* Blue Ambient Glow */}
-            <div className="fixed top-1/4 left-1/4 w-75 h-75 bg-blue-500/5 dark:bg-blue-500/10 blur-[120px] rounded-full pointer-events-none -z-10" />
+            {/* Neutral Ambient Glow */}
+            <div className="fixed top-1/4 left-1/4 w-75 h-75 bg-foreground/5 blur-[120px] rounded-full pointer-events-none -z-10" />
             <div className="fixed bottom-1/4 right-1/4 w-87.5 h-87.5 bg-foreground opacity-[0.02] blur-[150px] rounded-full pointer-events-none -z-10" />
 
             <div className="container relative z-10 mx-auto px-6 max-w-6xl py-12 md:py-16">
@@ -242,11 +242,11 @@ export default function Playground() {
 
                     {/* Left: Input Console */}
                     <div className="flex flex-col h-full">
-                        <div className="group relative flex-1 rounded-2xl md:rounded-3xl bg-background border border-border shadow-[0_15px_30px_-15px_rgba(0,0,0,0.05)] overflow-hidden transition-all duration-300 flex flex-col">
+                        <div className="group relative flex-1 rounded-none bg-background border border-border shadow-[0_15px_30px_-15px_rgba(0,0,0,0.05)] overflow-hidden transition-all duration-300 flex flex-col">
                             {/* Panel Header */}
                             <div className="h-10 border-b border-border/50 bg-muted/30 flex items-center justify-between px-5 shrink-0">
                                 <div className="flex items-center gap-2">
-                                    <FileText size={12} className="text-blue-500/60 dark:text-blue-400/60" />
+                                    <FileText size={12} className="text-foreground/40" />
                                     <span className="text-[9px] font-black capitalize tracking-widest text-muted-foreground/60">telemetry.csv</span>
                                 </div>
                                 <div className="flex items-center gap-3">
@@ -256,16 +256,16 @@ export default function Playground() {
 
                             <div className="p-0 space-y-6 text-left flex-1 flex flex-col overflow-hidden">
                                 <div className="h-full flex-1 flex flex-col relative group">
-                                    <div className="absolute top-4 right-4 flex bg-background/50 backdrop-blur-md border border-border rounded-lg overflow-hidden z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <div className="absolute top-4 right-4 flex bg-background/50 backdrop-blur-md border border-border rounded-none overflow-hidden z-10 opacity-0 group-hover:opacity-100 transition-opacity">
                                         <button 
                                             onClick={() => setViewMode('raw')}
-                                            className={cn("p-2 transition-colors", viewMode === 'raw' ? "bg-blue-600 text-white" : "hover:bg-muted")}
+                                            className={cn("p-2 transition-colors", viewMode === 'raw' ? "bg-foreground text-background" : "hover:bg-muted")}
                                         >
                                             <FileText size={14} />
                                         </button>
                                         <button 
                                             onClick={() => setViewMode('table')}
-                                            className={cn("p-2 transition-colors", viewMode === 'table' ? "bg-blue-600 text-white" : "hover:bg-muted")}
+                                            className={cn("p-2 transition-colors", viewMode === 'table' ? "bg-foreground text-background" : "hover:bg-muted")}
                                         >
                                             <Table size={14} />
                                         </button>
@@ -288,7 +288,7 @@ export default function Playground() {
                                                         {row.split(',').map((cell, j) => (
                                                             <input 
                                                                 key={`cell-${rowKey}-${j}`}
-                                                                className="flex-1 min-w-[80px] bg-muted/20 border border-border/40 rounded px-2 py-1 text-[10px] focus:bg-background focus:border-blue-500/40 outline-none transition-all"
+                                                                className="flex-1 min-w-[80px] bg-muted/20 border border-border/40 rounded-none px-2 py-1 text-[10px] focus:bg-background focus:border-foreground/20 outline-none transition-all"
                                                                 value={cell}
                                                                 onChange={(e) => {
                                                                     const newRows = csvData.split('\n');
@@ -307,7 +307,7 @@ export default function Playground() {
                                 </div>
 
                                 {error && (
-                                    <div className="p-3 rounded-lg bg-red-500/5 border border-red-500/10">
+                                    <div className="p-3 rounded-none bg-red-500/5 border border-red-500/10">
                                         <p className="text-red-500 text-[9px] font-black capitalize tracking-widest">{error}</p>
                                     </div>
                                 )}
@@ -324,14 +324,14 @@ export default function Playground() {
                                                 key={t.id}
                                                 onClick={() => setChartType(t.id as "bar" | "line" | "pie")}
                                                 className={cn(
-                                                    "relative flex flex-col items-center gap-2 p-3 rounded-xl border transition-all duration-200",
+                                                    "relative flex flex-col items-center gap-2 p-3 rounded-none border transition-all duration-200",
                                                     chartType === t.id
-                                                        ? "bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500 shadow-md scale-[1.02]"
+                                                        ? "bg-foreground text-background border-foreground shadow-md scale-[1.02]"
                                                         : "bg-muted/30 border-border/60 text-muted-foreground/60 hover:bg-muted hover:text-foreground"
                                                 )}
                                             >
                                                 {bestFit === t.id && (
-                                                    <div className="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-full bg-amber-500 text-[6px] font-black text-white shadow-sm animate-pulse">
+                                                    <div className="absolute -top-1 -right-1 px-1.5 py-0.5 rounded-none bg-foreground text-[6px] font-black text-background shadow-sm animate-pulse">
                                                        BEST FIT
                                                     </div>
                                                 )}
@@ -348,9 +348,9 @@ export default function Playground() {
                         <div className="relative">
                             <button 
                                 onClick={() => setShowPrivacy(!showPrivacy)}
-                                className="mt-4 px-5 py-3 rounded-xl bg-blue-50/30 dark:bg-blue-950/20 border border-blue-200/30 dark:border-blue-800/30 backdrop-blur-sm flex items-center justify-center gap-2 group hover:border-blue-500/30 transition-all w-full"
+                                className="mt-4 px-5 py-3 rounded-none bg-secondary border border-border backdrop-blur-sm flex items-center justify-center gap-2 group hover:border-foreground/20 transition-all w-full"
                             >
-                                <Shield size={12} className="text-emerald-500 animate-pulse" />
+                                <Shield size={12} className="text-foreground/40 animate-pulse" />
                                 <p className="text-[9px] text-muted-foreground font-medium leading-relaxed opacity-60 text-center">
                                     Local thread processing — zero data leakage.
                                 </p>
@@ -362,7 +362,7 @@ export default function Playground() {
                                         initial={{ opacity: 0, y: 10, scale: 0.95 }}
                                         animate={{ opacity: 1, y: 0, scale: 1 }}
                                         exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                        className="absolute bottom-full left-0 right-0 mb-4 z-[60] bg-background border border-border/60 rounded-2xl p-4 shadow-2xl"
+                                        className="absolute bottom-full left-0 right-0 mb-4 z-[60] bg-background border border-border/60 rounded-none p-4 shadow-2xl"
                                     >
                                         <button 
                                             onClick={() => setShowPrivacy(false)}
@@ -372,7 +372,7 @@ export default function Playground() {
                                         </button>
                                         <div className="space-y-3">
                                             <div className="flex items-center gap-2">
-                                                <Lock size={14} className="text-emerald-500" />
+                                                <Lock size={14} className="text-foreground" />
                                                 <h4 className="text-xs font-black uppercase tracking-widest">Privacy Guard</h4>
                                             </div>
                                             <p className="text-[10px] text-muted-foreground font-medium leading-relaxed">
@@ -380,7 +380,7 @@ export default function Playground() {
                                             </p>
                                             <div className="pt-2 border-t border-border/40 flex items-center justify-between">
                                                 <span className="text-[8px] font-black text-muted-foreground opacity-40 uppercase tracking-widest">Encrypted Local Storage</span>
-                                                <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                                <div className="w-1.5 h-1.5 rounded-full bg-foreground" />
                                             </div>
                                         </div>
                                     </motion.div>
@@ -390,28 +390,28 @@ export default function Playground() {
                     </div>
 
                     {/* Right: Renderer Viewbox */}
-                    <div className="group relative rounded-2xl md:rounded-3xl bg-background border border-border shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden transition-all duration-500 flex flex-col h-full">
+                    <div className="group relative rounded-none bg-background border border-border shadow-[0_30px_60px_-15px_rgba(0,0,0,0.1)] overflow-hidden transition-all duration-500 flex flex-col h-full">
                         {/* Renderer Controls */}
                         <div className="h-12 border-b border-border/50 bg-muted/20 flex items-center justify-between px-6 shrink-0">
                             <div className="flex items-center gap-4">
                                 <div className="flex gap-1.5">
-                                    <div className="w-2.5 h-2.5 rounded-full bg-border/40 group-hover:bg-red-500/40 transition-colors" />
-                                    <div className="w-2.5 h-2.5 rounded-full bg-border/40 group-hover:bg-amber-500/40 transition-colors" />
-                                    <div className="w-2.5 h-2.5 rounded-full bg-border/40 group-hover:bg-blue-500/60 transition-colors" />
+                                    <div className="w-2.5 h-2.5 rounded-full bg-border/40 group-hover:bg-foreground/20 transition-colors" />
+                                    <div className="w-2.5 h-2.5 rounded-full bg-border/40 group-hover:bg-foreground/10 transition-colors" />
+                                    <div className="w-2.5 h-2.5 rounded-full bg-border/40 group-hover:bg-foreground/30 transition-colors" />
                                 </div>
                                 <span className="text-[10px] font-black capitalize tracking-tight text-muted-foreground opacity-40">Live Renderer v1.02</span>
                             </div>
                             <div className="flex items-center gap-2">
-                                <div className="flex bg-muted/40 border border-border/40 rounded-lg p-0.5">
+                                <div className="flex bg-muted/40 border border-border/40 rounded-none p-0.5">
                                     <button 
                                         onClick={() => setExportTheme('light')}
-                                        className={cn("p-1.5 rounded-md transition-all", exportTheme === 'light' ? "bg-white text-blue-600 shadow-sm" : "text-muted-foreground/40 hover:text-foreground")}
+                                        className={cn("p-1.5 rounded-none transition-all", exportTheme === 'light' ? "bg-background text-foreground shadow-sm" : "text-muted-foreground/40 hover:text-foreground")}
                                     >
                                         <Sun size={12} />
                                     </button>
                                     <button 
                                         onClick={() => setExportTheme('dark')}
-                                        className={cn("p-1.5 rounded-md transition-all", exportTheme === 'dark' ? "bg-zinc-900 text-blue-400 shadow-sm" : "text-muted-foreground/40 hover:text-foreground")}
+                                        className={cn("p-1.5 rounded-none transition-all", exportTheme === 'dark' ? "bg-foreground text-background shadow-sm" : "text-muted-foreground/40 hover:text-foreground")}
                                     >
                                         <Moon size={12} />
                                     </button>
@@ -419,7 +419,7 @@ export default function Playground() {
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    className="h-8 rounded-lg text-[9px] font-black tracking-widest border-border/40 hover:bg-muted hover:border-blue-500/30 dark:hover:border-blue-400/30 capitalize px-4 transition-colors"
+                                    className="h-8 rounded-none text-[9px] font-black tracking-widest border-border/40 hover:bg-muted hover:border-foreground/20 capitalize px-4 transition-colors"
                                     onClick={() => handleExport('svg')}
                                 >
                                     SVG
@@ -427,15 +427,15 @@ export default function Playground() {
                                 <Button
                                     variant="outline"
                                     size="sm"
-                                    className="h-8 rounded-lg text-[9px] font-black tracking-widest border-border/40 hover:bg-muted hover:border-blue-500/30 dark:hover:border-blue-400/30 capitalize px-4 transition-colors gap-2"
+                                    className="h-8 rounded-none text-[9px] font-black tracking-widest border-border/40 hover:bg-muted hover:border-foreground/20 capitalize px-4 transition-colors gap-2"
                                     onClick={handleCopyToClipboard}
                                 >
-                                    {copied ? <Check size={12} className="text-emerald-500" /> : <Copy size={12} />}
+                                    {copied ? <Check size={12} className="text-foreground" /> : <Copy size={12} />}
                                     {copied ? "COPIED" : "COPY"}
                                 </Button>
                                 <Button
                                     size="sm"
-                                    className="h-8 rounded-lg text-[9px] font-black tracking-widest bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-400 hover:scale-105 transition-all capitalize px-4"
+                                    className="h-8 rounded-none text-[9px] font-black tracking-widest bg-blue-600 dark:bg-blue-500 text-white hover:bg-blue-700 dark:hover:bg-blue-400 hover:scale-105 transition-all capitalize px-4"
                                     onClick={() => handleExport('png')}
                                 >
                                     PNG SNAPSHOT
@@ -450,18 +450,18 @@ export default function Playground() {
                                         <div className="space-y-1">
                                             <h3 className="text-lg font-black tracking-tight text-foreground/90">Growth Telemetry</h3>
                                             <p className="text-[9px] font-bold text-muted-foreground/50 capitalize tracking-widest flex items-center gap-2">
-                                                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 dark:bg-blue-400 shadow-[0_0_6px_rgba(59,130,246,0.5)]" />
+                                                <span className="w-1.5 h-1.5 rounded-full bg-foreground/40 shadow-[0_0_6px_rgba(255,255,255,0.2)]" />
                                                 {" "}Client Instance Active
                                             </p>
                                         </div>
                                         <div className="hidden sm:flex items-center gap-6">
                                             <div className="flex items-center gap-2 group/legend cursor-help">
-                                                <div className="w-2 h-2 rounded-full border-2 border-border/60 group-hover:border-blue-400 transition-all" />
+                                                <div className="w-2 h-2 rounded-full border-2 border-border/60 group-hover:border-foreground/40 transition-all" />
                                                 <span className="text-[9px] font-black text-muted-foreground/60 group-hover:text-foreground">Projected</span>
                                             </div>
                                             <div className="flex items-center gap-2 group/legend cursor-help">
-                                                <div className="w-2 h-2 rounded-full bg-blue-600 dark:bg-blue-400" />
-                                                <span className="text-[9px] font-black text-blue-600 dark:text-blue-400 capitalize tracking-widest">Actual</span>
+                                                <div className="w-2 h-2 rounded-full bg-foreground" />
+                                                <span className="text-[9px] font-black text-foreground capitalize tracking-widest">Actual</span>
                                             </div>
                                         </div>
                                     </div>
@@ -477,7 +477,7 @@ export default function Playground() {
                                             option={option}
                                             style={{ height: '300px', width: '100%' }}
                                         />
-                                        <div className="absolute inset-0 pointer-events-none border border-dashed border-blue-500/10 dark:border-blue-400/10 rounded-xl" />
+                                        <div className="absolute inset-0 pointer-events-none border border-dashed border-foreground/10 rounded-none" />
                                     </motion.div>
                                 </>
                             ) : (
@@ -487,7 +487,7 @@ export default function Playground() {
                                     className="flex-1 flex flex-col items-center justify-center space-y-12"
                                 >
                                     <div className="space-y-4 text-center">
-                                        <div className="w-16 h-16 rounded-3xl bg-blue-500/10 flex items-center justify-center text-blue-500 mx-auto">
+                                        <div className="w-16 h-16 rounded-none bg-secondary flex items-center justify-center text-foreground mx-auto">
                                             <Sparkles size={32} />
                                         </div>
                                         <div className="space-y-2">
@@ -501,9 +501,9 @@ export default function Playground() {
                                             <button 
                                                 key={t.name}
                                                 onClick={() => setCsvData(t.data)}
-                                                className="group p-6 rounded-2xl bg-muted/20 border border-border/40 hover:border-blue-500/40 hover:bg-blue-50/10 transition-all text-left space-y-3"
+                                                className="group p-6 rounded-none bg-muted/20 border border-border/40 hover:border-foreground/20 hover:bg-foreground/5 transition-all text-left space-y-3"
                                             >
-                                                <div className="w-8 h-8 rounded-lg bg-background border border-border/60 flex items-center justify-center group-hover:text-blue-500 transition-colors">
+                                                <div className="w-8 h-8 rounded-none bg-background border border-border/60 flex items-center justify-center group-hover:text-foreground transition-colors">
                                                     <LayoutGrid size={16} />
                                                 </div>
                                                 <div className="space-y-1">
@@ -514,7 +514,7 @@ export default function Playground() {
                                         ))}
                                     </div>
 
-                                    <div className="flex items-center gap-3 px-4 py-2 rounded-full border border-dashed border-border/60 bg-muted/10 opacity-40">
+                                    <div className="flex items-center gap-3 px-4 py-2 rounded-none border border-dashed border-border/60 bg-muted/10 opacity-40">
                                         <ImageIcon size={14} />
                                         <span className="text-[10px] font-black uppercase tracking-widest">Supports .csv, .txt, and Drag & Drop</span>
                                     </div>

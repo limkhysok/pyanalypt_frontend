@@ -115,8 +115,8 @@ function ActionBar({ activeTab, onTabChange, datasets, selectedId, onSelectDatas
                             className={cn(
                                 "px-3 inline-flex items-center gap-1.5 text-xs rounded-none transition-all whitespace-nowrap border-b-2 focus-visible:outline-none",
                                 cleanIsActive
-                                    ? "text-orange-600 dark:text-orange-400 font-bold border-orange-500 bg-orange-50/40 dark:bg-orange-950/20"
-                                    : "text-orange-500/80 dark:text-orange-400/70 hover:text-orange-600 dark:hover:text-orange-400 hover:bg-orange-50/40 dark:hover:bg-orange-950/20 border-transparent"
+                                    ? "text-foreground font-bold border-foreground bg-foreground/5"
+                                    : "text-foreground/70 hover:text-foreground hover:bg-muted border-transparent"
                             )}
                         >
                             {cleanIsActive && activeClean
@@ -134,7 +134,7 @@ function ActionBar({ activeTab, onTabChange, datasets, selectedId, onSelectDatas
                                 onClick={() => onTabChange(value)}
                                 className={cn(
                                     "rounded-none gap-2 text-xs cursor-pointer",
-                                    activeTab === value && "text-orange-600 dark:text-orange-400 font-bold bg-orange-50/60 dark:bg-orange-950/20"
+                                    activeTab === value && "text-foreground font-bold bg-foreground/5"
                                 )}
                             >
                                 <Icon className="h-3.5 w-3.5 shrink-0" />

@@ -102,7 +102,7 @@ export function AppNavbar() {
                     variant="ghost"
                     size="icon"
                     onClick={toggleAgent}
-                    className="h-8 w-8 rounded-lg text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-all group"
+                    className="h-8 w-8 rounded-lg text-foreground/60 hover:text-foreground hover:bg-muted transition-all group"
                 >
                     <OllamaIcon size={18} className="group-hover:scale-110 transition-transform" />
                 </Button>

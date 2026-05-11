@@ -118,7 +118,7 @@ export default function CompleteProfile() {
 		>
 			<form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
 				{error && (
-					<div className="p-3 rounded-xl bg-red-500/8 text-red-500 text-xs font-medium flex items-center gap-3 border border-red-500/15 animate-in fade-in slide-in-from-top-1">
+					<div className="p-3 rounded-none bg-red-500/8 text-red-500 text-xs font-medium flex items-center gap-3 border border-red-500/15 animate-in fade-in slide-in-from-top-1">
 						<AlertCircle size={14} className="shrink-0" />
 						{error}
 					</div>
@@ -136,7 +136,7 @@ export default function CompleteProfile() {
 							value={fullName}
 							onChange={(e) => setFullName(e.target.value)}
 							placeholder="John Doe"
-							className="h-11 pl-12 rounded-xl bg-muted/20 border-border/40 focus:border-foreground/25 focus:ring-0 transition-all text-sm"
+							className="h-11 pl-12 rounded-none bg-muted/20 border-border/40 focus:border-foreground/25 focus:ring-0 transition-all text-sm"
 							required
 							autoFocus
 						/>
@@ -158,7 +158,7 @@ export default function CompleteProfile() {
 							value={username}
 							onChange={(e) => setUsername(e.target.value)}
 							placeholder="johndoe"
-							className="h-11 pl-12 rounded-xl bg-muted/20 border-border/40 focus:border-foreground/25 focus:ring-0 transition-all text-sm"
+							className="h-11 pl-12 rounded-none bg-muted/20 border-border/40 focus:border-foreground/25 focus:ring-0 transition-all text-sm"
 							required
 						/>
 					</div>
@@ -189,7 +189,7 @@ export default function CompleteProfile() {
 									if (Number(dobDay) > newDays) setDobDay("");
 								}}
 								required
-								className="h-11 w-full pl-9 pr-2 rounded-xl bg-muted/20 border border-border/40 focus:border-foreground/25 focus:outline-none transition-all text-sm appearance-none text-foreground cursor-pointer"
+								className="h-11 w-full pl-9 pr-2 rounded-none bg-muted/20 border border-border/40 focus:border-foreground/25 focus:outline-none transition-all text-sm appearance-none text-foreground cursor-pointer"
 							>
 								<option value="" disabled className="text-muted-foreground bg-background">Month</option>
 								{months.map((m) => (
@@ -204,7 +204,7 @@ export default function CompleteProfile() {
 								value={dobDay}
 								onChange={(e) => setDobDay(e.target.value)}
 								required
-								className="h-11 w-full px-3 rounded-xl bg-muted/20 border border-border/40 focus:border-foreground/25 focus:outline-none transition-all text-sm appearance-none text-foreground cursor-pointer"
+								className="h-11 w-full px-3 rounded-none bg-muted/20 border border-border/40 focus:border-foreground/25 focus:outline-none transition-all text-sm appearance-none text-foreground cursor-pointer"
 							>
 								<option value="" disabled className="text-muted-foreground bg-background">Day</option>
 								{days.map((d) => (
@@ -226,7 +226,7 @@ export default function CompleteProfile() {
 									}
 								}}
 								required
-								className="h-11 w-full px-3 rounded-xl bg-muted/20 border border-border/40 focus:border-foreground/25 focus:outline-none transition-all text-sm appearance-none text-foreground cursor-pointer"
+								className="h-11 w-full px-3 rounded-none bg-muted/20 border border-border/40 focus:border-foreground/25 focus:outline-none transition-all text-sm appearance-none text-foreground cursor-pointer"
 							>
 								<option value="" disabled className="text-muted-foreground bg-background">Year</option>
 								{years.map((y) => (
@@ -243,7 +243,7 @@ export default function CompleteProfile() {
 				<div className="pt-4">
 					<Button
 						disabled={isLoading}
-						className="w-full h-11 bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 dark:from-blue-500 dark:to-blue-400 dark:hover:from-blue-600 dark:hover:to-blue-500 text-white rounded-xl text-sm font-semibold tracking-wide transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/35 hover:scale-[1.01] active:scale-[0.98]"
+						className="w-full h-11 bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 dark:from-blue-500 dark:to-blue-400 dark:hover:from-blue-600 dark:hover:to-blue-500 text-white rounded-none text-sm font-semibold tracking-wide transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/35 hover:scale-[1.01] active:scale-[0.98]"
 					>
 						{isLoading ? (
 							<div className="flex items-center gap-2.5">

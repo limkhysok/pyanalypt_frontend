@@ -31,12 +31,12 @@ const MD_COMPONENTS = {
         </p>
     ),
     ul: ({ children }: React.HTMLAttributes<HTMLUListElement>) => (
-        <ul className="my-3 ml-5 space-y-2 text-sm text-foreground/70 list-disc marker:text-blue-500">
+        <ul className="my-3 ml-5 space-y-2 text-sm text-foreground/70 list-disc marker:text-foreground/40">
             {children}
         </ul>
     ),
     ol: ({ children }: React.HTMLAttributes<HTMLOListElement>) => (
-        <ol className="my-3 ml-5 space-y-2 text-sm text-foreground/70 list-decimal marker:text-blue-500 marker:font-bold">
+        <ol className="my-3 ml-5 space-y-2 text-sm text-foreground/70 list-decimal marker:text-foreground/40 marker:font-bold">
             {children}
         </ol>
     ),
@@ -50,12 +50,12 @@ const MD_COMPONENTS = {
         <em className="italic text-foreground/80">{children}</em>
     ),
     blockquote: ({ children }: React.HTMLAttributes<HTMLElement>) => (
-        <blockquote className="border-l-2 border-blue-500/40 pl-4 my-4 text-foreground/60 italic text-sm">
+        <blockquote className="border-l-2 border-foreground/20 pl-4 my-4 text-foreground/60 italic text-sm">
             {children}
         </blockquote>
     ),
     code: ({ children }: React.HTMLAttributes<HTMLElement>) => (
-        <code className="bg-blue-500/10 text-blue-600 dark:text-blue-400 px-1.5 py-0.5 rounded-md text-xs font-mono border border-blue-500/20">
+        <code className="bg-foreground/5 text-foreground px-1.5 py-0.5 rounded-md text-xs font-mono border border-foreground/10">
             {children}
         </code>
     ),
@@ -71,19 +71,19 @@ function StreamingPanel({
     isStreaming,
 }: Readonly<{ streamingText: string; isStreaming: boolean }>) {
     return (
-        <Card className="bg-background/60 backdrop-blur-xl border border-blue-500/30 rounded-4xl overflow-hidden">
+        <Card className="bg-background/60 backdrop-blur-xl border border-foreground/20 rounded-4xl overflow-hidden">
             <CardHeader className="p-5 pb-3 border-b border-border/10">
                 <CardTitle className="flex items-center gap-2 text-sm font-black tracking-tight">
-                    <div className="w-7 h-7 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center">
-                        <BrainCircuit className="h-3.5 w-3.5 text-blue-500 animate-pulse" />
+                    <div className="w-7 h-7 rounded-xl bg-foreground/5 border border-foreground/10 flex items-center justify-center">
+                        <BrainCircuit className="h-3.5 w-3.5 text-foreground/60 animate-pulse" />
                     </div>
                     Generating problem statements…
                     <Badge
                         variant="outline"
-                        className="ml-auto text-[9px] font-black capitalize tracking-widest border-blue-500/20 text-blue-500 bg-blue-500/8"
+                        className="ml-auto text-[9px] font-black capitalize tracking-widest border-foreground/20 text-foreground/60 bg-foreground/5"
                     >
                         {"Live "}
-                        <span className="ml-1.5 w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse inline-block" />
+                        <span className="ml-1.5 w-1.5 h-1.5 rounded-full bg-foreground/40 animate-pulse inline-block" />
                     </Badge>
                 </CardTitle>
             </CardHeader>
@@ -91,7 +91,7 @@ function StreamingPanel({
                 <div className="space-y-0">
                     <ReactMarkdown components={MD_COMPONENTS}>{streamingText.replaceAll(String.raw`\n`, "\n")}</ReactMarkdown>
                     {isStreaming && (
-                        <span className="inline-block w-2 h-4 ml-0.5 bg-blue-500 animate-pulse rounded-sm" />
+                        <span className="inline-block w-2 h-4 ml-0.5 bg-foreground/40 animate-pulse rounded-sm" />
                     )}
                 </div>
             </CardContent>
@@ -107,8 +107,8 @@ function SavedFramePanel({ frame }: Readonly<{ frame: DatasetFrame }>) {
             <CardHeader className="p-5 pb-3 border-b border-border/10">
                 <div className="flex items-start justify-between gap-4">
                     <CardTitle className="flex items-center gap-2 text-sm font-black tracking-tight">
-                        <div className="w-7 h-7 rounded-xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center shrink-0">
-                            <BrainCircuit className="h-3.5 w-3.5 text-blue-500" />
+                        <div className="w-7 h-7 rounded-xl bg-foreground/5 border border-foreground/10 flex items-center justify-center shrink-0">
+                            <BrainCircuit className="h-3.5 w-3.5 text-foreground/60" />
                         </div>
                         Problem Framing
                     </CardTitle>
@@ -138,8 +138,8 @@ function SavedFramePanel({ frame }: Readonly<{ frame: DatasetFrame }>) {
 function NoFramesPanel({ onGenerate }: Readonly<{ onGenerate: () => void }>) {
     return (
         <div className="flex flex-col items-center justify-center py-32 text-center border border-dashed border-border/30 rounded-4xl bg-background/40 backdrop-blur-xl">
-            <div className="w-16 h-16 rounded-3xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center mb-5">
-                <Sparkles className="h-7 w-7 text-blue-500/60" />
+            <div className="w-16 h-16 rounded-3xl bg-foreground/5 border border-foreground/10 flex items-center justify-center mb-5">
+                <Sparkles className="h-7 w-7 text-foreground/40" />
             </div>
             <h3 className="text-base font-black tracking-tight mb-1">No frames yet</h3>
             <p className="text-sm text-muted-foreground font-medium mb-5">

@@ -33,7 +33,7 @@ export function AppShell({ children }: Readonly<{ children: React.ReactNode }>) 
     if (isLoading) {
         return (
             <div className="h-screen w-full flex items-center justify-center bg-background">
-                <Loader2 className="h-8 w-8 animate-spin text-blue-500 opacity-20" />
+                <Loader2 className="h-8 w-8 animate-spin text-foreground opacity-20" />
             </div>
         );
     }

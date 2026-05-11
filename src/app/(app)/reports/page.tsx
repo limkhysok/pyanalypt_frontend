@@ -184,7 +184,7 @@ function ReportCard({ report, datasetMap, onDelete }: Readonly<ReportCardProps>)
         <div className="group relative border border-border bg-card hover:border-border/80 hover:bg-accent/5 transition-colors flex flex-col gap-0">
             <Link href={`/reports/${report.id}`} className="flex flex-col gap-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1">
                 <div className="flex items-start gap-3 p-4 pb-3 min-w-0 pr-10">
-                    <div className="mt-0.5 shrink-0 flex h-8 w-8 items-center justify-center bg-blue-50 text-blue-600 border border-blue-100">
+                    <div className="mt-0.5 shrink-0 flex h-8 w-8 items-center justify-center bg-secondary text-foreground border border-border">
                         <FileText className="h-4 w-4" />
                     </div>
                     <div className="min-w-0">
@@ -269,7 +269,7 @@ export default function ReportsPage() {
     function renderContent() {
         if (loading) {
             return (
-                <div className="border border-slate-200 bg-muted/5 h-64 flex items-center justify-center gap-2 text-muted-foreground">
+                <div className="border border-border bg-muted/5 h-64 flex items-center justify-center gap-2 text-muted-foreground">
                     <Loader2 className="h-5 w-5 animate-spin" />
                     <span className="text-sm">Loading reports…</span>
                 </div>
@@ -277,7 +277,7 @@ export default function ReportsPage() {
         }
         if (reports.length === 0) {
             return (
-                <div className="border border-slate-200 bg-muted/5 h-64 flex flex-col items-center justify-center gap-3 text-muted-foreground">
+                <div className="border border-border bg-muted/5 h-64 flex flex-col items-center justify-center gap-3 text-muted-foreground">
                     <BookOpen className="h-10 w-10 opacity-20" />
                     <p className="text-sm font-medium">No reports yet</p>
                     <p className="text-xs opacity-70">Create your first report or save a chart from the Visualization page</p>

@@ -27,8 +27,8 @@ const Toaster = ({ ...props }: ToasterProps) => {
           // Theming the status states with colored icons and subtle backgrounds
           error: "group-[.toaster]:border-red-500 group-[.toaster]:bg-red-500/5 [&&_svg]:text-red-500",
           success: "group-[.toaster]:border-emerald-500 group-[.toaster]:bg-emerald-500/5 [&&_svg]:text-emerald-500",
-          warning: "group-[.toaster]:border-blue-500 group-[.toaster]:bg-blue-500/5 [&&_svg]:text-blue-500",
-          info: "group-[.toaster]:border-blue-500 group-[.toaster]:bg-blue-500/5 [&&_svg]:text-blue-500",
+          warning: "group-[.toaster]:border-foreground group-[.toaster]:bg-foreground/5 [&&_svg]:text-foreground",
+          info: "group-[.toaster]:border-foreground group-[.toaster]:bg-foreground/5 [&&_svg]:text-foreground",
         },
       }}
       {...props}

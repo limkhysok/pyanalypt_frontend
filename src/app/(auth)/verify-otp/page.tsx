@@ -127,14 +127,14 @@ function VerifyOtpContent() {
 		>
 			<form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
 				{error && (
-					<div className="p-3 rounded-xl bg-red-500/8 text-red-500 text-xs font-medium flex items-center gap-3 border border-red-500/15 animate-in fade-in slide-in-from-top-1">
+					<div className="p-3 rounded-none bg-red-500/8 text-red-500 text-xs font-medium flex items-center gap-3 border border-red-500/15 animate-in fade-in slide-in-from-top-1">
 						<AlertCircle size={14} className="shrink-0" />
 						{error}
 					</div>
 				)}
 
 				{resendSuccess && (
-					<div className="p-3 rounded-xl bg-emerald-500/8 text-emerald-500 text-xs font-medium flex items-center gap-3 border border-emerald-500/15 animate-in fade-in slide-in-from-top-1">
+					<div className="p-3 rounded-none bg-emerald-500/8 text-emerald-500 text-xs font-medium flex items-center gap-3 border border-emerald-500/15 animate-in fade-in slide-in-from-top-1">
 						<ShieldCheck size={14} className="shrink-0" />
 						A new code has been sent to your email.
 					</div>
@@ -159,7 +159,7 @@ function VerifyOtpContent() {
 									if (val.length <= 6) setOtp(val);
 								}}
 								placeholder="000000"
-								className="h-12 pl-12 rounded-xl bg-muted/20 border-border/40 focus:border-foreground/25 focus:ring-0 transition-all text-center text-xl tracking-[0.5em] font-mono"
+								className="h-12 pl-12 rounded-none bg-muted/20 border-border/40 focus:border-foreground/25 focus:ring-0 transition-all text-center text-xl tracking-[0.5em] font-mono"
 								autoFocus
 								required
 							/>
@@ -172,7 +172,7 @@ function VerifyOtpContent() {
 
 				<Button
 					disabled={isLoading || otp.length !== 6}
-					className="w-full h-11 bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 dark:from-blue-500 dark:to-blue-400 dark:hover:from-blue-600 dark:hover:to-blue-500 text-white rounded-xl text-sm font-semibold tracking-wide transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/35 hover:scale-[1.01] active:scale-[0.98]"
+					className="w-full h-11 bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 dark:from-blue-500 dark:to-blue-400 dark:hover:from-blue-600 dark:hover:to-blue-500 text-white rounded-none text-sm font-semibold tracking-wide transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/35 hover:scale-[1.01] active:scale-[0.98]"
 				>
 					{isLoading ? (
 						<div className="flex items-center gap-2.5">
