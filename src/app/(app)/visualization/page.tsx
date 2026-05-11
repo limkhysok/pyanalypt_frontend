@@ -113,7 +113,7 @@ export default function VisualizationPage() {
 
                 {/* ── Empty state — no dataset ── */}
                 {!selectedId && (
-                    <div className="border border-slate-200 bg-muted/5 h-80 flex flex-col items-center justify-center gap-3 text-muted-foreground">
+                    <div className="border border-border bg-muted/5 h-80 flex flex-col items-center justify-center gap-3 text-muted-foreground">
                         <DatabaseZap className="h-10 w-10 opacity-30" />
                         <p className="text-sm font-medium">No dataset selected</p>
                         <p className="text-xs opacity-70">Select a dataset from the dropdown above to get started</p>
@@ -122,7 +122,7 @@ export default function VisualizationPage() {
 
                 {/* ── Loading ── */}
                 {selectedId && isLoading && (
-                    <div className="border border-slate-200 bg-muted/5 h-80 flex flex-col items-center justify-center gap-3 text-muted-foreground">
+                    <div className="border border-border bg-muted/5 h-80 flex flex-col items-center justify-center gap-3 text-muted-foreground">
                         <Loader2 className="h-6 w-6 animate-spin opacity-50" />
                         <p className="text-sm">Loading column info…</p>
                     </div>

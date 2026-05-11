@@ -15,7 +15,7 @@ export function AboutCTA() {
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link href="/playground">
                     <Button
-                        className="h-14 px-10 rounded-2xl bg-blue-600 hover:bg-blue-700 text-white font-black text-base transition-all hover:scale-105 active:scale-95 shadow-lg shadow-blue-500/20 flex items-center gap-2"
+                        className="h-14 px-10 rounded-none bg-blue-600 hover:bg-blue-700 text-white font-black text-base transition-all hover:scale-105 active:scale-95 shadow-lg shadow-blue-500/20 flex items-center gap-2"
                         aria-label="Start using PyAnalypt for free"
                     >
                         Start for Free <ArrowRight size={18} aria-hidden="true" />
@@ -24,7 +24,7 @@ export function AboutCTA() {
                 <Link href="/contact">
                     <Button
                         variant="ghost"
-                        className="h-14 px-10 rounded-2xl border border-border/40 hover:bg-muted font-black text-base flex items-center gap-2"
+                        className="h-14 px-10 rounded-none border border-border/40 hover:bg-muted font-black text-base flex items-center gap-2"
                     >
                         Get in Touch
                     </Button>

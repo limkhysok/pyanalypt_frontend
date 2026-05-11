@@ -173,7 +173,7 @@ export default function Login() {
 			<AuthShell title="Verify">
 				<form ref={formRef} onSubmit={handleTotpSubmit} className="space-y-4 sm:space-y-5">
 					{error && (
-						<div className="p-3 rounded-xl bg-red-500/8 text-red-500 text-xs font-medium flex items-center gap-3 border border-red-500/15 animate-in fade-in slide-in-from-top-1">
+						<div className="p-3 rounded-none bg-red-500/8 text-red-500 text-xs font-medium flex items-center gap-3 border border-red-500/15 animate-in fade-in slide-in-from-top-1">
 							<AlertCircle size={14} className="shrink-0" />
 							{error}
 						</div>
@@ -199,7 +199,7 @@ export default function Login() {
 								value={totpCode}
 								onChange={(e) => setTotpCode(e.target.value.replaceAll(/\D/g, ""))}
 								placeholder="000000"
-								className="h-11 pl-12 rounded-xl bg-muted/20 border-border/40 focus:border-foreground/25 focus:ring-0 transition-all text-[15px] font-mono font-medium tracking-[0.4em] text-center"
+								className="h-11 pl-12 rounded-none bg-muted/20 border-border/40 focus:border-foreground/25 focus:ring-0 transition-all text-[15px] font-mono font-medium tracking-[0.4em] text-center"
 								autoFocus
 								required
 							/>
@@ -211,7 +211,7 @@ export default function Login() {
 
 					<Button
 						disabled={isLoading || totpCode.length < 6}
-						className="w-full h-11 bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 dark:from-blue-500 dark:to-blue-400 dark:hover:from-blue-600 dark:hover:to-blue-500 text-white rounded-xl text-sm font-semibold tracking-wide transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/35 hover:scale-[1.01] active:scale-[0.98]"
+						className="w-full h-11 bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 dark:from-blue-500 dark:to-blue-400 dark:hover:from-blue-600 dark:hover:to-blue-500 text-white rounded-none text-sm font-semibold tracking-wide transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/35 hover:scale-[1.01] active:scale-[0.98]"
 					>
 						{isLoading ? (
 							<div className="flex items-center gap-2.5">
@@ -263,7 +263,7 @@ export default function Login() {
 								value={email}
 								onChange={(e) => setEmail(e.target.value)}
 								placeholder="name@example.com"
-								className="h-11 pl-12 rounded-xl bg-muted/20 border-border/40 focus:border-foreground/25 focus:ring-0 transition-all text-sm"
+								className="h-11 pl-12 rounded-none bg-muted/20 border-border/40 focus:border-foreground/25 focus:ring-0 transition-all text-sm"
 								autoFocus
 								required
 							/>
@@ -290,7 +290,7 @@ export default function Login() {
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
 								placeholder="••••••••"
-								className="h-11 pl-12 pr-12 rounded-xl bg-muted/20 border-border/40 focus:border-foreground/25 focus:ring-0 transition-all text-sm"
+								className="h-11 pl-12 pr-12 rounded-none bg-muted/20 border-border/40 focus:border-foreground/25 focus:ring-0 transition-all text-sm"
 								required
 							/>
 							<button
@@ -321,7 +321,7 @@ export default function Login() {
 				<div className="space-y-2">
 					<Button
 						disabled={isLoading}
-						className="w-full h-11 bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 dark:from-blue-500 dark:to-blue-400 dark:hover:from-blue-600 dark:hover:to-blue-500 text-white rounded-xl text-sm font-semibold tracking-wide transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/35 hover:scale-[1.01] active:scale-[0.98]"
+						className="w-full h-11 bg-linear-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 dark:from-blue-500 dark:to-blue-400 dark:hover:from-blue-600 dark:hover:to-blue-500 text-white rounded-none text-sm font-semibold tracking-wide transition-all duration-300 shadow-lg shadow-blue-500/25 hover:shadow-blue-500/35 hover:scale-[1.01] active:scale-[0.98]"
 					>
 						{isLoading ? (
 							<div className="flex items-center gap-2.5">
@@ -347,7 +347,7 @@ export default function Login() {
 					variant="outline"
 					type="button"
 					disabled={isLoading}
-					className="w-full h-11 rounded-xl border-border/60 bg-transparent hover:bg-muted/60 text-sm font-medium tracking-wide transition-all duration-200 hover:border-border"
+					className="w-full h-11 rounded-none border-border/60 bg-transparent hover:bg-muted/60 text-sm font-medium tracking-wide transition-all duration-200 hover:border-border"
 					onClick={() => loginWithGoogle()}
 				>
 					<svg viewBox="0 0 24 24" className="mr-2.5 h-4 w-4 shrink-0" aria-hidden="true">

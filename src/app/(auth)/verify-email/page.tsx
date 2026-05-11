@@ -41,7 +41,7 @@ function VerifyEmailContent() {
 			subtitle="A verification link has been sent to your inbox."
 		>
 			<div className="flex flex-col items-center gap-6 py-2">
-				<div className="p-4 rounded-full bg-blue-500/10 border border-blue-500/20">
+				<div className="p-4 rounded-none bg-blue-500/10 border border-blue-500/20">
 					<MailCheck className="h-8 w-8 text-blue-500" />
 				</div>
 
@@ -69,7 +69,7 @@ function VerifyEmailContent() {
 
 					<Button
 						variant="outline"
-						className="w-full rounded-xl border-border/60 hover:border-blue-500/30 dark:hover:border-blue-400/30 hover:bg-muted transition-all"
+						className="w-full rounded-none border-border/60 hover:border-blue-500/30 dark:hover:border-blue-400/30 hover:bg-muted transition-all"
 						disabled={isResending || resendStatus === "sent"}
 						onClick={handleResend}
 					>

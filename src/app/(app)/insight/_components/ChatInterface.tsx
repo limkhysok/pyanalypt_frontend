@@ -188,7 +188,7 @@ export default function ChatInterface() {
       <div className="w-80 border-r border-border/60 bg-muted/20 flex flex-col">
         <div className="p-4 border-b border-border/60">
           <Button 
-            className="w-full justify-start gap-2 h-11 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20"
+            className="w-full justify-start gap-2 h-11 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/20 rounded-none"
             onClick={() => setCurrentSession(null)}
           >
             <Plus className="h-4 w-4" />
@@ -199,7 +199,7 @@ export default function ChatInterface() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
             <Input 
               placeholder="Search chats..." 
-              className="pl-9 h-9 text-[13px] bg-background/50 border-border/40 focus:bg-background transition-all"
+              className="pl-9 h-9 text-[13px] bg-background/50 border-border/40 focus:bg-background transition-all rounded-none"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -251,7 +251,7 @@ export default function ChatInterface() {
                 
                 <button 
                   onClick={(e) => { e.stopPropagation(); handleDeleteSession(session.id); }}
-                  className="absolute right-2 top-3 opacity-0 group-hover:opacity-100 p-1.5 hover:text-destructive transition-all outline-none rounded-md hover:bg-destructive/10 z-10"
+                  className="absolute right-2 top-3 opacity-0 group-hover:opacity-100 p-1.5 hover:text-destructive transition-all outline-none rounded-none hover:bg-destructive/10 z-10"
                   title="Clear history"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
@@ -267,7 +267,7 @@ export default function ChatInterface() {
             {/* Chat Header */}
             <header className="h-14 border-b border-border/60 bg-background/80 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-10">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                <div className="h-8 w-8 rounded-none bg-primary/10 flex items-center justify-center shrink-0">
                   <Database className="h-4 w-4 text-primary" />
                 </div>
                 <div className="min-w-0">
@@ -301,7 +301,7 @@ export default function ChatInterface() {
                       )}
                     >
                       <div className={cn(
-                        "h-8 w-8 rounded-lg shrink-0 flex items-center justify-center border",
+                        "h-8 w-8 rounded-none shrink-0 flex items-center justify-center border",
                         msg.role === "assistant" 
                           ? "bg-primary/10 border-primary/20 text-primary" 
                           : "bg-muted border-border text-muted-foreground"
@@ -313,7 +313,7 @@ export default function ChatInterface() {
                         msg.role === "user" ? "text-right" : "text-left"
                       )}>
                         <div className={cn(
-                          "rounded-2xl px-5 py-4 text-[14.5px] leading-relaxed w-fit max-w-[90%] shadow-sm",
+                          "rounded-none px-5 py-4 text-[14.5px] leading-relaxed w-fit max-w-[90%] shadow-sm",
                           msg.role === "assistant" 
                             ? "bg-muted/40 border border-border/30 text-foreground mr-auto" 
                             : "bg-primary text-primary-foreground shadow-md shadow-primary/10 ml-auto font-medium"
@@ -334,11 +334,11 @@ export default function ChatInterface() {
                   {/* Streaming Message Indicator */}
                   {streamingToken && (
                     <div className="flex gap-4 max-w-4xl mx-auto">
-                      <div className="h-8 w-8 rounded-lg shrink-0 flex items-center justify-center border bg-primary/10 border-primary/20 text-primary">
+                      <div className="h-8 w-8 rounded-none shrink-0 flex items-center justify-center border bg-primary/10 border-primary/20 text-primary">
                         <Bot className="h-4 w-4" />
                       </div>
                       <div className="flex-1 space-y-1.5">
-                        <div className="rounded-2xl px-5 py-4 text-[14.5px] leading-relaxed bg-muted/40 border border-border/30 text-foreground w-fit max-w-[90%] mr-auto shadow-sm">
+                        <div className="rounded-none px-5 py-4 text-[14.5px] leading-relaxed bg-muted/40 border border-border/30 text-foreground w-fit max-w-[90%] mr-auto shadow-sm">
                           <div className="prose prose-slate dark:prose-invert prose-p:leading-relaxed prose-pre:bg-muted/80 prose-pre:border prose-pre:border-border/40 max-w-none break-words whitespace-pre-wrap text-[14.5px]">
                             <ReactMarkdown>
                               {streamingToken.replaceAll(String.raw`\n`, "\n")}
@@ -357,7 +357,7 @@ export default function ChatInterface() {
                   {/* Loading more state */}
                   {loading && messages.length > 0 && !streamingToken && (
                      <div className="flex gap-4 max-w-4xl mx-auto opacity-80">
-                        <div className="h-8 w-8 rounded-lg shrink-0 flex items-center justify-center border bg-primary/10 border-primary/20 text-primary">
+                        <div className="h-8 w-8 rounded-none shrink-0 flex items-center justify-center border bg-primary/10 border-primary/20 text-primary">
                           <Bot className="h-4 w-4" />
                         </div>
                         <div className="flex-1 space-y-3">
@@ -365,7 +365,7 @@ export default function ChatInterface() {
                               <Skeleton className="h-3 w-24 bg-muted/60" />
                               <Loader2 className="h-3 w-3 animate-spin text-primary/40" />
                            </div>
-                           <div className="space-y-2 bg-muted/30 rounded-2xl p-4 border border-border/40">
+                           <div className="space-y-2 bg-muted/30 rounded-none p-4 border border-border/40">
                               <Skeleton className="h-3 w-full bg-muted/60" />
                               <Skeleton className="h-3 w-[90%] bg-muted/60" />
                               <Skeleton className="h-3 w-[75%] bg-muted/60" />
@@ -381,7 +381,7 @@ export default function ChatInterface() {
             <div className="p-6 border-t border-border/60 bg-background">
               <div className="max-w-4xl mx-auto relative">
                 <div className="absolute inset-x-0 bottom-full h-12 bg-linear-to-t from-background to-transparent pointer-events-none" />
-                <div className="relative flex items-end gap-2 bg-muted/30 border border-border/60 rounded-2xl p-2 transition-all focus-within:border-primary/40 focus-within:ring-1 focus-within:ring-primary/20 focus-within:bg-background shadow-sm">
+                <div className="relative flex items-end gap-2 bg-muted/30 border border-border/60 rounded-none p-2 transition-all focus-within:border-primary/40 focus-within:ring-1 focus-within:ring-primary/20 focus-within:bg-background shadow-sm">
                   <div className="flex-1 min-h-11 flex items-center px-3 py-1">
                     <textarea
                       rows={1}
@@ -401,7 +401,7 @@ export default function ChatInterface() {
                   <Button 
                     size="icon" 
                     className={cn(
-                      "h-9 w-9 rounded-xl transition-all",
+                      "h-9 w-9 rounded-none transition-all",
                       input.trim() ? "bg-primary scale-100" : "bg-muted-foreground/20 scale-90 pointer-events-none"
                     )}
                     onClick={handleSendMessage}
@@ -421,9 +421,9 @@ export default function ChatInterface() {
         ) : (
           <div className="flex-1 flex flex-col items-center justify-center p-8 text-center space-y-6">
             <div className="relative">
-              <div className="absolute inset-0 bg-primary/20 blur-3xl rounded-full" />
-              <div className="relative bg-background border border-border/60 p-5 rounded-2xl shadow-2xl">
-                <Bot className="h-12 w-12 text-primary" />
+              <div className="absolute inset-0 bg-foreground/5 blur-3xl rounded-full" />
+              <div className="relative bg-background border border-border/60 p-5 rounded-none shadow-2xl">
+                <Bot className="h-12 w-12 text-foreground/60" />
               </div>
             </div>
             <div className="max-w-md space-y-2">
@@ -438,12 +438,12 @@ export default function ChatInterface() {
               <div className="space-y-2 text-left">
                 <Label htmlFor="dataset-select" className="text-[12px] font-bold text-muted-foreground capitalize tracking-wider px-1">Select Dataset</Label>
                 <Select value={newChatDataset} onValueChange={setNewChatDataset}>
-                  <SelectTrigger id="dataset-select" className="h-11 rounded-xl border-border/60 bg-muted/20">
+                  <SelectTrigger id="dataset-select" className="h-11 rounded-none border-border/60 bg-muted/20">
                     <SelectValue placeholder="Choose a source dataset..." />
                   </SelectTrigger>
-                  <SelectContent className="rounded-xl border-border/60">
+                  <SelectContent className="rounded-none border-border/60">
                     {datasets.map((d) => (
-                      <SelectItem key={d.id} value={d.id.toString()} className="rounded-lg">
+                      <SelectItem key={d.id} value={d.id.toString()} className="rounded-none">
                         <div className="flex flex-col">
                           <span className="font-medium">{d.file_name}</span>
                           <span className="text-[10px] text-muted-foreground capitalize tracking-tight">{d.file_size.toLocaleString()} bytes</span>
@@ -454,7 +454,7 @@ export default function ChatInterface() {
                 </Select>
               </div>
               <Button 
-                className="w-full h-11 rounded-xl gap-2 font-semibold tracking-wide shadow-xl shadow-primary/10 transition-transform active:scale-[0.98]"
+                className="w-full h-11 rounded-none gap-2 font-semibold tracking-wide shadow-xl shadow-primary/10 transition-transform active:scale-[0.98]"
                 disabled={!newChatDataset || isCreating}
                 onClick={handleCreateSession}
               >
@@ -464,15 +464,15 @@ export default function ChatInterface() {
             </div>
 
             <div className="grid grid-cols-2 gap-4 mt-12 w-full max-w-2xl text-[13px]">
-              <div className="p-4 rounded-xl border border-border/40 bg-muted/10 text-left space-y-2">
+              <div className="p-4 rounded-none border border-border/40 bg-muted/10 text-left space-y-2">
                 <p className="font-bold text-foreground/80 flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Statistical Analysis
+                  <span className="h-1.5 w-1.5 rounded-full bg-foreground/40" /> Statistical Analysis
                 </p>
                 <p className="text-muted-foreground">&quot;What was the highest revenue month in 2023?&quot;</p>
               </div>
-              <div className="p-4 rounded-xl border border-border/40 bg-muted/10 text-left space-y-2">
+              <div className="p-4 rounded-none border border-border/40 bg-muted/10 text-left space-y-2">
                 <p className="font-bold text-foreground/80 flex items-center gap-2">
-                  <span className="h-1.5 w-1.5 rounded-full bg-blue-500" /> Data Filtering
+                  <span className="h-1.5 w-1.5 rounded-full bg-foreground/20" /> Data Filtering
                 </p>
                 <p className="text-muted-foreground">&quot;Show me all customers from the North region.&quot;</p>
               </div>

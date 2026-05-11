@@ -29,8 +29,8 @@ function skewLabel(s: number): { label: string; color: string } {
 }
 
 function kurtLabel(k: number): { label: string; color: string } {
-    if (k > 3) return { label: "heavy tails", color: "bg-amber-500/10 text-amber-600 border-amber-500/20" };
-    if (k < 3) return { label: "thin tails", color: "bg-blue-500/10 text-blue-600 border-blue-500/20" };
+    if (k > 3) return { label: "heavy tails", color: "bg-foreground/10 text-foreground border-foreground/20" };
+    if (k < 3) return { label: "thin tails", color: "bg-foreground/5 text-foreground/70 border-foreground/10" };
     return { label: "normal tails", color: "bg-muted/50 text-muted-foreground border-border" };
 }
 
@@ -73,14 +73,14 @@ function HistogramCard({ col, stats, isDark }: Readonly<{ col: string; stats: Di
                 type: "bar" as const,
                 data: (stats.bins ?? []).map((b) => b.count),
                 barMaxWidth: 40,
-                itemStyle: { color: "#3b82f6", borderRadius: [2, 2, 0, 0] },
-                emphasis: { itemStyle: { color: "#60a5fa" } },
+                itemStyle: { color: isDark ? "#ffffff" : "#000000", borderRadius: [2, 2, 0, 0] },
+                emphasis: { itemStyle: { color: isDark ? "#e4e4e7" : "#18181b" } },
             }],
         };
     }, [stats, isDark]);
 
     return (
-        <div className="border border-slate-200 bg-card p-4 flex flex-col gap-3">
+        <div className="border border-border bg-card p-4 flex flex-col gap-3">
             <div className="flex items-start justify-between gap-2">
                 <span className="font-semibold text-sm font-mono">{col}</span>
                 <div className="flex gap-1.5 flex-wrap justify-end">
@@ -99,7 +99,7 @@ function HistogramCard({ col, stats, isDark }: Readonly<{ col: string; stats: Di
                     ["min", (stats.min ?? 0).toFixed(2)],
                     ["max", (stats.max ?? 0).toFixed(2)],
                 ].map(([label, value]) => (
-                    <div key={label} className="border border-slate-200 bg-slate-50 p-1.5">
+                    <div key={label} className="border border-border bg-muted/30 p-1.5">
                         <div className="text-muted-foreground">{label}</div>
                         <div className="font-mono font-semibold">{value}</div>
                     </div>

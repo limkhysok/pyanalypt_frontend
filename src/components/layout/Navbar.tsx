@@ -77,7 +77,7 @@ export function Navbar() {
                                 className={cn(
                                     "px-4 py-1.5 rounded-full text-xs sm:text-sm font-bold tracking-tight transition-all duration-200",
                                     isActive
-                                        ? "text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-950/40"
+                                        ? "text-foreground bg-foreground/5 dark:bg-foreground/10"
                                         : "text-foreground/70 hover:text-foreground hover:bg-muted"
                                 )}
                             >
@@ -117,9 +117,9 @@ export function Navbar() {
                         <DropdownMenu modal={false}>
                             <DropdownMenuTrigger asChild>
                                 <button className="flex items-center outline-none rounded-full focus-visible:ring-2 focus-visible:ring-ring">
-                                    <Avatar className="h-8 w-8 border border-border/60 hover:border-blue-500/40 dark:hover:border-blue-400/40 transition-colors">
+                                    <Avatar className="h-8 w-8 border border-border/60 hover:border-foreground/40 transition-colors">
                                         <AvatarImage src={user?.profile_picture ?? undefined} />
-                                        <AvatarFallback className="bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 text-[10px] font-bold">
+                                        <AvatarFallback className="bg-secondary text-foreground text-[10px] font-bold">
                                             {initials}
                                         </AvatarFallback>
                                     </Avatar>
@@ -164,7 +164,7 @@ export function Navbar() {
                         <div className="hidden md:flex items-center gap-1">
                             <Link
                                 href="/login"
-                                className="px-3 py-1.5 text-xs sm:text-sm font-bold tracking-tight text-foreground/70 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                                className="px-3 py-1.5 text-xs sm:text-sm font-bold tracking-tight text-foreground/70 hover:text-foreground transition-colors"
                             >
                                 Login
                             </Link>
@@ -222,14 +222,14 @@ export function Navbar() {
                                     className={cn(
                                         "flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sm font-bold transition-all",
                                         isActive
-                                            ? "bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400"
+                                            ? "bg-secondary text-foreground"
                                             : "text-foreground/70 hover:bg-muted hover:text-foreground"
                                     )}
                                 >
                                     <Icon size={13} className={cn("shrink-0", isActive ? "" : "opacity-40")} />
                                     <span className="flex-1">{item.label}</span>
                                     {isActive
-                                        ? <div className="w-1 h-1 rounded-full bg-blue-500 dark:bg-blue-400" />
+                                        ? <div className="w-1 h-1 rounded-full bg-foreground/60" />
                                         : <ChevronRight size={12} className="opacity-20" />
                                     }
                                 </Link>
@@ -247,7 +247,7 @@ export function Navbar() {
                                     <div className="flex items-center gap-2.5 px-3 py-2 rounded-lg bg-muted/40 mb-0.5">
                                         <Avatar className="h-6 w-6 shrink-0 border border-border/60">
                                             <AvatarImage src={user?.profile_picture ?? undefined} />
-                                            <AvatarFallback className="bg-blue-50 dark:bg-blue-950/50 text-blue-700 dark:text-blue-300 text-[9px] font-bold">
+                                            <AvatarFallback className="bg-secondary text-foreground text-[9px] font-bold">
                                                 {initials}
                                             </AvatarFallback>
                                         </Avatar>
